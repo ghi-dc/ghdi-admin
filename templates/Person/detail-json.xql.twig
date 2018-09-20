@@ -1,0 +1,39 @@
+xquery version "3.1";
+
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare namespace json="http://www.json.org";
+
+declare variable $collection external;
+declare variable $id external;
+
+(: Switch to JSON serialization :)
+declare option output:method "json";
+declare option output:media-type "text/javascript";
+
+<json:value>
+{
+let $persons := collection($collection)/Person[@id=$id]
+for $person in $persons (: 0 or 1 :)
+    return <data id="{$person/@id}">
+        {
+            (: see https://en.wikibooks.org/wiki/XQuery/Convert_XML_to_JSON "iii"
+                { "a1": "123", "a2": "456", "a3": "789" } :)
+            element name {
+                for $name in $person/name['' != @lang]
+                    return attribute {$name/@lang} {$name/text()}
+            }
+        }
+        {$person/familyName}
+        {$person/givenName}
+        {$person/birthDate}
+        {$person/deathDate}
+        {$person/url}
+        {
+            element identifiers {
+                for $identifier in $person/identifier
+                    return attribute {$identifier/@propertyID}{$identifier/text()}
+            }
+        }
+    </data>
+}
+</json:value>

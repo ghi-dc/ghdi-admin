@@ -1,0 +1,142 @@
+<!doctype html>
+<html class="no-js" lang="{{ app.request.getLocale() }}"
+      prefix="og: http://ogp.me/ns# profile: http://ogp.me/ns/profile# place: http://ogp.me/ns/place# books: http://ogp.me/ns/books#">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>
+        {% if pageTitle is defined %}
+            {{ pageTitle }} |
+        {% endif %}
+        {{ siteName|trans({}, 'additional') }}
+        </title>
+
+        {% if pageMeta is defined %}
+            {% if pageMeta.og is defined %}
+                {% for prop, val in pageMeta.og %}
+                    {% if val is iterable %}
+                        {% for single_val in val %}
+        <meta property="{{ prop }}" content="{{ single_val }}">
+                        {% endfor %}
+                    {% else %}
+        <meta property="{{ prop }}" content="{{ val }}">
+                    {% endif %}
+                {% endfor %}
+                {% if pageMeta.og['og:url'] is defined %}
+        <link rel="canonical" href="{{ pageMeta.og['og:url'] }}">
+                {% endif %}
+            {% endif %}
+            {% if pageMeta.twitter is defined %}
+                {% for prop, val in pageMeta.twitter %}
+                    {% if val is iterable %}
+                        {% for single_val in val %}
+        <meta name="{{ prop }}" content="{{ single_val }}">
+                        {% endfor %}
+                    {% else %}
+        <meta name="{{ prop }}" content="{{ val }}">
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if pageMeta.jsonLd is defined %}
+        <script type="application/ld+json">
+            {{ pageMeta.jsonLd|json_encode|raw }}
+        </script>
+            {% endif %}
+        {% elseif pageTitle is defined %}
+        <meta property="og:title" content="{{ pageTitle }}">
+        {% endif %}
+
+        <script src="{{ app.request.basepath }}/js/jquery-2.2.4.min.js"></script>
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="{{ app.request.basepath }}/vendor/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+        {% include 'LegacyAsseticBundle:Shared:stylesheets.html.twig' %}
+        <style>
+        </style>
+        {% block head %}{% endblock %}
+    </head>
+
+    <body role="document" class="route-{{ app.request.get('_route') | replace({'_' : '-'}) }}">
+        <nav class="navbar navbar-inverse navbar-static-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12" id="site-user">
+                        {#{ knp_menu_render('top') }#}
+                        {% if app.request.attributes.get('_route') is not null %}
+                            <ul id="menu-lang" class="list-inline">
+                            {% for locale in [ 'de', 'en' ] %}
+                                <li{% if locale == app.request.locale %} class="current"{% endif %}>
+                                    {% if route_params_locale_switch is not empty and route_params_locale_switch[locale] is defined %}
+                                        {% set route_params = route_params_locale_switch[locale] %}
+                                    {% else %}
+                                        {% set route_params = app.request.attributes.get('_route_params')|merge(app.request.query.all) %}
+                                    {% endif %}
+                                    <a href="{{ path(app.request.attributes.get('_route'), route_params|merge({"_locale": locale})) }}">{{ locale }}</a>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                            {{ app.user.username }}
+                            <a href="{{ path('logout') }}" title="{{ 'Log-out'|trans }}" class="glyphicon glyphicon-log-out"></a>
+                        {% endif %}
+                   </div>
+                    <div class="col-sm-12" id="site-name">
+                        <h1><a href="{{ path('home') }}">{{ siteName|trans({}, 'additional') }}</a></h1>
+                    </div>
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <div class="col-sm-9">
+                        {{ knp_menu_render('main', { 'currentClass': 'active', 'template': 'Base/knp_menu.html.twig' }) }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        {% block contenttop %}
+        <div class="container-fluid" id="breadcrumb">
+        {% block breadcrumb %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 small">
+                        {% set item = knp_menu_get('breadcrumb') %}
+                        {% set breadcrumbs_array = knp_menu_get_breadcrumbs_array(item) %}
+                        <ul class="list-inline">
+                        {% for item in breadcrumbs_array %}
+                            {%- if loop.last == false -%}
+                                <li>{%- if item.uri -%}<a
+                                    href="{{ item.uri }}">{{ item.label|trans({}, 'messages') }}</a>{%- else -%}{{ item.label|trans({}, 'menu') }}{%- endif -%}
+                                    &nbsp; &nbsp;<span class="divider">/</span></li>
+                            {% else %}
+                                <li class="active">{{ item.label|trans({}, 'messages') }}</li>
+                            {%- endif -%}
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+        </div><!-- .container-fluid -->
+        {% endblock %}
+
+        <div class="container wrapper">
+        {% block body %}{% endblock %}
+        </div>
+
+        <footer>
+            <div id="footer-navigation" class="container">
+                <div class="row">
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <div class="col-xs-12 col-sm-8" style="z-index: 1">
+                        {{ knp_menu_render('footer-main', { 'currentClass': 'active', 'template': 'Base/knp_menu.html.twig' }) }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>

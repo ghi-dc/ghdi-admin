@@ -1,0 +1,25 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block body %}
+    <h2>{{ 'Persons'|trans }}</h2>
+    {{ helper.display_flashes() }}
+
+    <form method="POST"><input name="q" value="{{ q }}" /><input type="submit" value="{{ 'Search'|trans }}" /></form>
+    <a href="{{ path('person-add-from-identifier') }}" class="btn btn-default btn-sm">
+        <span class="glyphicon glyphicon-plus"></span> Add from Identifier
+    </a>
+    <a href="{{ path('person-import-missing') }}" class="btn btn-default btn-sm">
+        <span class="glyphicon glyphicon-plus"></span> Add missing
+    </a>
+    <ul>
+        {% for person in persons.data %}
+            <li>
+                <a href="{{ path('person-detail', { id: person.id }) }}">
+                    {{ person.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

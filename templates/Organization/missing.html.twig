@@ -1,0 +1,17 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block body %}
+    <h2>{{ 'Missing Organizations'|trans }}</h2>
+    {{ helper.display_flashes() }}
+
+    <ul>
+        {% for organization in info.data %}
+            <li>
+                <a href="http://d-nb.info/gnd/{{ organization.gnd }}" target="_blank">{{ organization.gnd }}</a>
+                [<a href="{{ path('organization-add-from-identifier', { 'type' : 'gnd', 'identifier' : organization.gnd }) }}">Add</a>]
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

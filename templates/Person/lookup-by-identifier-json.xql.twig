@@ -1,0 +1,20 @@
+xquery version "3.1";
+
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare namespace json="http://www.json.org";
+
+declare variable $collection external;
+declare variable $type external;
+declare variable $value external;
+
+(: Switch to JSON serialization :)
+declare option output:method "json";
+declare option output:media-type "text/javascript";
+
+<json:value>
+{
+for $identifier in collection($collection)/Person/identifier[@propertyID=$type and node() = $value] (: 0 or 1 :)
+    let $person := $identifier/..
+    return <data id="{ $person/@id }" gnd="{ $person/identifier[@propertyID='gnd'] }" />
+}
+</json:value>

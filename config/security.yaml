@@ -1,0 +1,31 @@
+# config/security.yaml
+
+# see https://symfony.com/doc/3.4/security.html
+security:
+    providers:
+        # see https://symfony.com/doc/current/security/custom_provider.html
+        existdb_provider:
+            id: App\Security\User\ExistDbUserProvider
+
+    firewalls:
+        dev:
+            pattern:  ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+                        
+        main:
+            anonymous: ~
+            pattern: ^/
+            provider: existdb_provider
+            simple_form:
+                # this currently needs a patch: https://github.com/symfony/symfony/pull/26762/files
+                authenticator: App\Security\ExistDbAuthenticator
+                check_path: login
+                login_path: login
+            logout:
+                path:   /logout
+                target: /
+        
+    access_control:
+        - { path: ^/(login|logout)$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/(de)/(login|logout)$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, role: ROLE_USER }

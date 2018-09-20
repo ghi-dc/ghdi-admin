@@ -1,0 +1,43 @@
+xquery version "3.1";
+
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare namespace json="http://www.json.org";
+
+declare variable $collection external;
+declare variable $id external;
+
+(: Switch to JSON serialization :)
+declare option output:method "json";
+declare option output:media-type "text/javascript";
+
+<json:value>
+{
+let $places := collection($collection)/Place[@id=$id]
+for $place in $places (: 0 or 1 :)
+    return <data id="{$place/@id}">
+        {
+            (: see https://en.wikibooks.org/wiki/XQuery/Convert_XML_to_JSON "iii"
+                { "a1": "123", "a2": "456", "a3": "789" } :)
+            element name {
+                for $name in $place/name['' != @lang]
+                    return attribute {$name/@lang} {$name/text()}
+            }
+        }
+        {$place/additionalType}
+        {$place/addressCountry}
+        {
+            element identifiers {
+                for $identifier in $place/identifier
+                    return attribute {$identifier/@propertyID} {$identifier/text()}
+            }
+        }
+        {
+            element geo {
+                attribute latitude {$place/geo/latitude/text()},
+                attribute longitude {$place/geo/longitude/text()},
+                attribute addressCountry {$place/geo/addressCountry/text()}
+            }
+        }
+    </data>
+}
+</json:value>

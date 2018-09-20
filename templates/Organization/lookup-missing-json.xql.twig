@@ -1,0 +1,32 @@
+xquery version "3.1";
+
+declare namespace tei="http://www.tei-c.org/ns/1.0";
+
+(: Switch to JSON serialization :)
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare namespace json = "http://www.json.org";
+
+declare option output:method "json";
+declare option output:media-type "text/javascript";
+
+declare variable $organizationsCollection external;
+declare variable $volumesCollection external;
+
+
+<json:value>
+{
+
+(: all orgName-gnd :)
+let $gnds := for $x in distinct-values(collection($volumesCollection)//tei:orgName/@ref)
+    where starts-with($x, 'http://d-nb.info/gnd/')
+    let $gnd := replace($x, 'http://d-nb.info/gnd/', '')
+    return $gnd
+
+for $gnd in $gnds
+    (: now filtered down to missing :)
+    where not(exists(collection($organizationsCollection)/Organization/identifier[@propertyID='gnd' and node() = $gnd]))
+    order by $gnd
+    return <data json:array="true" gnd="{ $gnd }" />
+
+}
+</json:value>

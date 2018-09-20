@@ -1,0 +1,13 @@
+xquery version "3.1";
+
+declare variable $collection external;
+declare variable $locale external;
+declare variable $q external;
+
+<listBibl xmlns="http://www.tei-c.org/ns/1.0">
+{
+for $biblStruct in collection($collection)/biblStruct{% if id is not empty %}[@id='{{ id }}']{% elseif q is not empty %}[ft:query(*, $q)]{% endif %}
+    order by $biblStruct/@corresp, $biblStruct/monogr/imprint/date
+    return $biblStruct
+}
+</listBibl>

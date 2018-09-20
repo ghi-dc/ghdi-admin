@@ -1,0 +1,17 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block body %}
+    <h2>{{ 'Missing Persons'|trans }}</h2>
+    {{ helper.display_flashes() }}
+
+    <ul>
+        {% for person in info.data %}
+            <li>
+                <a href="http://d-nb.info/gnd/{{ person.gnd }}" target="_blank">{{ person.gnd }}</a>
+                [<a href="{{ path('person-add-from-identifier', { 'type' : 'gnd', 'identifier' : person.gnd }) }}">Add</a>]
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,27 @@
+parameters:
+    kernel.secret: GENERATE_KERNEL_SECRET # create your own e.g. through http://nux.net/secret
+
+    app.existdb.options:
+        # this user is used before login
+        user:       guest
+        password:   guest
+
+    app.existdb.console.options:
+        # this user will be used for console-commands
+        # it mus have enough privileges to create collections below app.existdb.base
+        user:       admin
+        password:   admin
+
+    app.existdb.base: '/db/apps/ghdi'
+    # you can specify the following to access a server other than localhost
+    # app.existdb.webdav: 'http://localhost:8080/exist/webdav'
+
+    app.site.short: GHDI
+    app.site.name: German History in Documents and Images
+
+    app.zotero.options:
+        api-key:    ~
+        group-id:   ~
+
+    #app.textrazor:
+    #    api_key: 'YOUR-KEY'

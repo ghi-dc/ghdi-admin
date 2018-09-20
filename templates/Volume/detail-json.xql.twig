@@ -1,0 +1,36 @@
+xquery version "3.1";
+
+declare default element namespace "http://www.tei-c.org/ns/1.0";
+
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare namespace json="http://www.json.org";
+
+declare namespace functx = "http://www.functx.com";
+declare function functx:replace-first
+  ( $arg as xs:string? ,
+    $pattern as xs:string ,
+    $replacement as xs:string ) as xs:string {
+        replace($arg, concat('(^.*?)', $pattern),
+                 concat('$1',$replacement))
+    } ;
+
+declare variable $collection external;
+declare variable $id external;
+
+(: Switch to JSON serialization :)
+declare option output:method "json";
+declare option output:media-type "text/javascript";
+
+<json:value>
+{
+for $tei in collection($collection)/TEI
+    where $tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'] = $id
+        and $tei/teiHeader/profileDesc/langUsage/language[@ident=$lang]
+        and $tei/teiHeader/profileDesc/textClass/classCode = 'volume'
+    let $name := $tei/teiHeader/fileDesc/titleStmt/title[@type="main"]
+    return <data id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], 'ghdi:', '')}">
+        <name>{$name/text()}</name>
+        <fname>{util:document-name($tei)}</fname>
+    </data>
+}
+</json:value>

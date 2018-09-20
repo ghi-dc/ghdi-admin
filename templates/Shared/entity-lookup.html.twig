@@ -1,0 +1,41 @@
+{% macro head(entity_lookup) %}
+    <script>
+    var tooltipDelayHide = 150;
+
+    var entityLookup = {{ entity_lookup|json_encode|raw }};
+
+    function initEntityRef(selector) {
+        // link entities
+        var selector_full = '.entity-ref';
+        if ('' !== selector) {
+            selector_full = selector + ' ' + selector_full;
+        }
+
+        $( selector_full ).each(function( index ) {
+            var $el = $( this );
+            var type = $el.data('type');
+            var uri = $el.data('uri');
+            var info = entityLookup[type][uri];
+            if (info != null && info.url != null) {
+                $el.addClass('hoverable');
+                $el.click(function() {
+                    window.open(info.url, '_blank');
+
+                    return false;
+                });
+
+                // console.log( index + ": " + $el.text() + JSON.stringify(info));
+                if (info.blurb != null) {
+                    $el.tooltip({
+                        title: info.blurb + ' <a href="' + info.url + '">{{ '...read on'|trans }}</a>',
+                        html: true,
+                        delay: {
+                            hide: tooltipDelayHide
+                        }
+                    });
+                }
+            }
+        });
+    }
+    </script>
+{% endmacro %}

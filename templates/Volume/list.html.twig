@@ -1,0 +1,26 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block body %}
+    <h2>{{ 'Volumes'|trans }}</h2>
+
+    {{ helper.display_flashes() }}
+    <form method="POST"><input name="q" value="{{ q }}" /><input type="submit" value="{{ 'Search'|trans }}" /></form>
+    <ul>
+        {% for resource in volumes.data %}
+            <li>
+                {% if resource.id matches '/^volume\-/' %}
+                <a href="{{ path('volume-detail', { id: resource.id }) }}">
+                    {{ resource.name }}
+                </a>
+                {% else %}
+                    {% set parts = resource.shelfmark|split('/') %}
+                <a href="{{ path('resource-detail', { volume: parts[1]|preg_replace('/^[0-9]+\:/', ''), id: resource.id }) }}">
+                    {{ resource.name }}
+                </a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

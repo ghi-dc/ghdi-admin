@@ -1,0 +1,43 @@
+# config/services.yaml
+services:
+    # the following two configurations are needed for command-classes to be automaticall
+    # registered as services, see
+    #   https://symfony.com/doc/3.4/console/commands_as_services.html
+    # default configuration for services in *this* file
+    
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false    
+
+    twig.extension.pcre:
+        class: Jasny\Twig\PcreExtension
+        tags:
+          - { name: twig.extension }
+      
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{Entity,Migrations,Tests}'        
+
+    # additional services
+    App\Service\ExistDbClientService:
+        public: true    # we get this one in *Command
+        arguments:
+            $options: "%app.existdb.options%"
+
+    App\Service\ZoteroApiService:
+        public: true    # we get this one in *Command
+        arguments:
+            $options: "%app.zotero.options%"
+            
+    App\Menu\Builder:
+        arguments: ["@knp_menu.factory", "@security.authorization_checker", "@translator", "@request_stack", ]
+        tags:
+            # The alias is what is used to retrieve the menu
+            - { name: knp_menu.menu_builder, method: createTopMenu, alias: top } 
+            - { name: knp_menu.menu_builder, method: createMainMenu, alias: main }
+            - { name: knp_menu.menu_builder, method: createBreadcrumbMenu, alias: breadcrumb }
+            - { name: knp_menu.menu_builder, method: createFooterMainMenu, alias: footer-main }
+                        

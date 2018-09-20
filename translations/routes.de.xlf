@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
+  <file date="2018-08-16T14:34:26Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+    <header>
+      <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
+      <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
+    </header>
+    <body>
+      <trans-unit id="9c2891996a68b7c03961830f1f1e81bd144662b6" resname="bibliography-detail">
+        <source>/bibliography/{id}</source>
+        <target>/bibliography/{id}</target>
+      </trans-unit>
+      <trans-unit id="ef13555010ad4a6e5ddf54a18a87ae339e373051" resname="bibliography-list">
+        <source>/bibliography</source>
+        <target>/bibliography</target>
+      </trans-unit>
+      <trans-unit id="3632b1216ad8fe82011c0aa2a54b64f540a3f89d" resname="bibliography-sync">
+        <source>/bibliography/sync</source>
+        <target>/bibliography/sync</target>
+      </trans-unit>
+      <trans-unit id="e83249bd3ba79932e16fb1fb5100dafade9954c2" resname="home">
+        <source>/</source>
+        <target>/</target>
+      </trans-unit>
+      <trans-unit id="2736fab291f04e69b62d490c3c09361f5b82461a" resname="login">
+        <source>/login</source>
+        <target>/login</target>
+      </trans-unit>
+      <trans-unit id="55525e1b3dfd8787fd202aed45fb04494e3242d0" resname="logout">
+        <source>/logout</source>
+        <target>/logout</target>
+      </trans-unit>
+      <trans-unit id="cee551f20766d33d076551f7fb08585df0e95c82" resname="organization-add">
+        <source>/organization/add</source>
+        <target>/organization/add</target>
+      </trans-unit>
+      <trans-unit id="dc282c10e54fba539c36539ab6984ea666619ae5" resname="organization-add-from-identifier">
+        <source>/organization/add-from-identifier</source>
+        <target>/organization/add-from-identifier</target>
+      </trans-unit>
+      <trans-unit id="70f7670bb6a4d2ec41407f2f71c95d94f44b72a6" resname="organization-detail">
+        <source>/organization/{id}</source>
+        <target>/organization/{id}</target>
+      </trans-unit>
+      <trans-unit id="7bea72e4d2dad6ddbb853cb98294ff1df14ac279" resname="organization-edit">
+        <source>/organization/{id}/edit</source>
+        <target>/organization/{id}/edit</target>
+      </trans-unit>
+      <trans-unit id="d4343746322f231d4a66fa6f4e212432ff4a54b5" resname="organization-list">
+        <source>/organization</source>
+        <target>/organization</target>
+      </trans-unit>
+      <trans-unit id="0c46416a7204247f39eb865007c4b2e2835720bd" resname="organization-test">
+        <source>/organization/test</source>
+        <target>/organization/test</target>
+      </trans-unit>
+      <trans-unit id="fa564c6283a3f8f5bec761fa48fb8d255508abbe" resname="person-add">
+        <source>/person/add</source>
+        <target>/person/add</target>
+      </trans-unit>
+      <trans-unit id="19d680f0d5ced0b22680361e50cd40c8e76a04e7" resname="person-add-from-identifier">
+        <source>/person/add-from-identifier</source>
+        <target>/person/add-from-identifier</target>
+      </trans-unit>
+      <trans-unit id="75720b6ecf0eda995ffb626c41e4d0049bd94074" resname="person-detail">
+        <source>/person/{id}</source>
+        <target>/person/{id}</target>
+      </trans-unit>
+      <trans-unit id="f9feba56265dd150c019c4facd49ea1703a298e9" resname="person-edit">
+        <source>/person/{id}/edit</source>
+        <target>/person/{id}/edit</target>
+      </trans-unit>
+      <trans-unit id="5e6532e1d3cbb683c2fe146cdf277354a8a084f1" resname="person-list">
+        <source>/person</source>
+        <target>/person</target>
+      </trans-unit>
+      <trans-unit id="c9661c945d49db0aaba51e8f94716a08018bddd4" resname="person-test">
+        <source>/person/test</source>
+        <target>/person/test</target>
+      </trans-unit>
+      <trans-unit id="92f2ca66b1459c594a8b11ddc818ee0c6e9052f2" resname="place-add">
+        <source>/place/add</source>
+        <target>/place/add</target>
+      </trans-unit>
+      <trans-unit id="5d078e5c829bb2f4c07f67e1fe9309bc2f8fa8a8" resname="place-add-from-identifier">
+        <source>/place/add-from-identifier</source>
+        <target>/place/add-from-identifier</target>
+      </trans-unit>
+      <trans-unit id="fdb659e2b58669aebaddb30df354c91043967229" resname="place-detail">
+        <source>/place/{id}</source>
+        <target>/place/{id}</target>
+      </trans-unit>
+      <trans-unit id="0bdc52a29ba95bd49dac294aeeca9b67a0bc47e5" resname="place-edit">
+        <source>/place/{id}/edit</source>
+        <target>/place/{id}/edit</target>
+      </trans-unit>
+      <trans-unit id="aa4fd837a19c91e3ed4d48d48de7ef5dc658213d" resname="place-list">
+        <source>/place</source>
+        <target>/place</target>
+      </trans-unit>
+      <trans-unit id="7f8ea9a9dfd4b61a80f7d216e59067be935fbf39" resname="place-test">
+        <source>/place/test</source>
+        <target>/place/test</target>
+      </trans-unit>
+      <trans-unit id="393510b14cbcc3166974f56d8642f9c4fc53c5ea" resname="resource-detail">
+        <source>/resource/{volume}/{id}</source>
+        <target>/resource/{volume}/{id}</target>
+      </trans-unit>
+      <trans-unit id="f2080833fbc5145223bdac2ab9cf4ee7483763ec" resname="resource-detail-dc">
+        <source>/resource/{volume}/{id}.dc.xml</source>
+        <target>/resource/{volume}/{id}.dc.xml</target>
+      </trans-unit>
+      <trans-unit id="f92de3e332d69c365db7baa45907cda974309a98" resname="resource-detail-pdf">
+        <source>/resource/{volume}/{id}.pdf</source>
+        <target>/resource/{volume}/{id}.pdf</target>
+      </trans-unit>
+      <trans-unit id="ca481144f761bee83c6e0afe90ab60b3b48def05" resname="volume-detail">
+        <source>/volume/{id}</source>
+        <target>/volume/{id}</target>
+      </trans-unit>
+      <trans-unit id="3f108c3aba5c17b5ec026207e8d94cdb8c29f2fe" resname="volume-detail-dc">
+        <source>/volume/{id}.dc.xml</source>
+        <target>/volume/{id}.dc.xml</target>
+      </trans-unit>
+      <trans-unit id="e10c815b564a6ec354ce42bec9dd1847e9358faf" resname="volume-edit">
+        <source>/volume/{id}/edit</source>
+        <target>/volume/{id}/edit</target>
+      </trans-unit>
+      <trans-unit id="a292a70b5bab7449ac821cde85a9779647175aa1" resname="volume-list">
+        <source>/volume</source>
+        <target>/volume</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

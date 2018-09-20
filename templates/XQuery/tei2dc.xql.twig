@@ -1,0 +1,72 @@
+xquery version "3.1";
+
+declare default element namespace "http://www.tei-c.org/ns/1.0";
+
+import module namespace xmldb="http://exist-db.org/xquery/xmldb";
+
+declare variable $volume as xs:string := fn:tokenize($path, '/')[fn:last()];
+
+let $teiHeader := doc($resource)/TEI/teiHeader
+let $genre := $teiHeader/profileDesc/textClass/classCode[@scheme='http://germanhistorydocs.org/docs/#genre']/text()
+let $volume := $path || '/' || $volume || '.' || string($teiHeader/profileDesc/langUsage/language/@ident) || '.xml'
+let $parentHeader := doc($volume)/TEI/teiHeader
+
+(: see https://www.cdlib.org/groups/stwg/META_BPG.html for cross-walk :)
+
+return
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+    <dc:identifier>{string($teiHeader/fileDesc/idno/idno[@type='DTAID']/text())}</dc:identifier>
+    <dc:type>{
+        if ('map' = $genre) then ('Map')
+        else if ('image' = $genre) then ('Image')
+        else ('Text')
+
+    }</dc:type>
+    <dc:language>{string($teiHeader/profileDesc/langUsage/language/@ident)}</dc:language>
+    <dc:title>{string($teiHeader/fileDesc/titleStmt/title)}</dc:title>
+    {
+        if ('volume' = $teiHeader/profileDesc/textClass/classCode[@scheme='http://germanhistorydocs.org/docs/#genre']/text()) then (
+            <dc:isPartOf>{ $site }</dc:isPartOf>
+        )
+        else (
+            <dc:isPartOf>{ string($parentHeader/fileDesc/titleStmt/title) }</dc:isPartOf>
+        )
+    }
+    {
+        for $author in $teiHeader/fileDesc/titleStmt/author
+            return <dc:creator>{string($author)}</dc:creator>
+    }
+    {
+        for $editor in $teiHeader/fileDesc/titleStmt/editor
+            return <dc:contributor>{string($editor)}</dc:contributor>
+    }
+    {
+        if ($teiHeader/fileDesc/publicationStmt/publisher) then (
+        <dc:publisher>{string($teiHeader/fileDesc/publicationStmt/publisher)}</dc:publisher>
+        )
+        else ()
+    }
+    {
+        if ($teiHeader/fileDesc/publicationStmt/availability/licence) then (
+            if ($teiHeader/fileDesc/publicationStmt/availability/licence/p) then (
+                <dc:rights>{string($teiHeader/fileDesc/publicationStmt/availability/licence/p)}</dc:rights>
+            )
+            else (
+                <dc:rights>{
+                    switch ($teiHeader/fileDesc/publicationStmt/availability/licence/@target)
+                        case "http://creativecommons.org/licenses/by-nc-nd/4.0/"
+                            return "Distributed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License (CC BY-NC-ND 4.0)."
+                        default return string($teiHeader/fileDesc/publicationStmt/availability/licence/@target)
+                }</dc:rights>
+            )
+        )
+        else ()
+    }
+    {
+        if ($teiHeader/fileDesc/publicationStmt/date[@type='publication']) then (
+        <dc:date>{string($teiHeader/fileDesc/publicationStmt/date[@type='publication'])}</dc:date>
+        )
+        else ()
+    }
+    <dc:modified>{ xmldb:last-modified($path, $basename) }</dc:modified>
+</oai_dc:dc>

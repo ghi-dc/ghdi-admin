@@ -1,0 +1,88 @@
+{% extends 'Base/base.html.twig' %}
+
+{% block head %}
+    <script>
+    /* see https://stackoverflow.com/a/30905277 */
+    function copyToClipboard(elementId) {
+        // Create a "hidden" input
+        var aux = document.createElement("input");
+
+        // Assign it the value of the specified element
+        aux.setAttribute("value", document.getElementById(elementId).innerHTML);
+
+        // Append it to the body
+        document.body.appendChild(aux);
+
+        // Highlight its content
+        aux.select();
+
+        // Copy the highlighted text
+        document.execCommand("copy");
+
+        // Remove it from the body
+        document.body.removeChild(aux);
+    }
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h2>
+        {{ volume['data'].name }}
+    </h2>
+    {{ helper.display_flashes() }}
+    <div style="text-align: right">
+        <a href="{{ path(app.request.attributes.get('_route') ~ '-dc', app.request.attributes.get('_route_params')) }}">{{ 'Dublin Core'|trans }}</a><br />
+            WebDAV:
+            <span id="url">{{ webdav_base }}/{{ id }}/{{ volume['data'].fname }}</span>
+            <button title="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open" onclick="copyToClipboard('url')"><i class="glyphicon glyphicon-copy"></i> </button>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            {#{ dump(volume['data']) }#}
+
+            {% if resources_grouped is not empty %}
+            {% set groups = [ "introduction", "documents", "images", "maps" ] %}
+            <h3>Resources</h3>
+            <ul class="list-group">
+                {% for key in groups if resources_grouped[key] is defined %}
+                    {% set group = resources_grouped[key] %}
+                <li class="list-group-item">
+                    <h4><a href="#{{ key }}" data-toggle="collapse">{{ group.name }}</a></h4>
+                    <div id="{{ key }}" class="collapse">
+                        <ul class="list-group">
+                            {% for subkey,resource in group.resources %}
+                            <li class="list-group-item">
+                                {% if resource.id is not empty %}
+                                <a href="{{ path('resource-detail', { volume: id, id: resource.id }) }}">
+                                {{ resource.name }}
+                                </a>
+                                {% elseif resource.resources is not empty %}
+                                <h5><a href="#{{ subkey }}" data-toggle="collapse">{{ resource.name }}</a></h5>
+                                <div id="{{ subkey }}" class="collapse">
+                                    <ul class="list-group">
+                                    {% for subresource in resource.resources if subresource.id is not empty %}
+                                    <li class="list-group-item">
+                                        <a href="{{ path('resource-detail', { volume: id, id: subresource.id }) }}">
+                                        {{ subresource.name }}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {{ html|raw }}
+        </div>
+
+        <div class="col-sm-4 sidebar">
+        </div>
+    </div><!-- .row -->
+{% endblock %}

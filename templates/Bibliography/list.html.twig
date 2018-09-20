@@ -1,0 +1,29 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block head %}
+    <style>
+        .csl-bib-body, .csl-bib-body > div {
+            display: inline;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h2>{{ 'Bibliography'|trans }}</h2>
+    {{ helper.display_flashes() }}
+
+    <a href="{{ path('bibliography-sync') }}" class="btn btn-default btn-sm">
+        <span class="glyphicon glyphicon-refresh"></span> Sync from Zotero Group
+    </a>
+    <form method="POST"><input name="q" value="{{ q }}" /><input type="submit" value="{{ 'Search'|trans }}" /></form>
+    <ul>
+        {% for creativeWork in creativeWorks %}
+            <li><a href="{{ path('bibliography-detail', { id: creativeWork.id }) }}">
+                    {{ creativeWork.renderCitationAsHtml(citeProc, app.request.locale, false)|raw }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

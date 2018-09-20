@@ -1,0 +1,55 @@
+imports:
+    - { resource: parameters.yaml }
+    - { resource: security.yaml }
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en
+
+framework:
+    secret: %kernel.secret%
+    session: ~
+    # JMS\TranslationBundle\JMSTranslationBundle needs validation
+    validation: ~
+    templating:
+        engines: ['twig']
+    # knp_paginator needs translate bundle
+    translator: { fallbacks: ['%locale%'], logging: false }
+    # needs form bundle
+    # form: ~
+
+twig:
+    globals:
+        siteName: "%app.site.name% - Administration"
+
+assetic:
+    debug:          '%kernel.debug%'
+    use_controller: '%kernel.debug%'
+    read_from: '%kernel.project_dir%/public' # (instead default /web !!!)
+    write_to: '%kernel.project_dir%/public' #  (instead default /web !!!)
+    
+    # assetic scans bundles to find assetic tags
+    # that's why we set it in
+    # AppBundle\Resources\views\Shared\stylesheets.html.twig
+    # and not directly in temples/Base/base.html.twig
+    # bundles: [ AppBundle ]
+    filters:
+        cssrewrite: ~
+        # see http://symfony.com/doc/current/cookbook/assetic/php.html
+        scssphp:
+            formatter: 'Leafo\ScssPhp\Formatter\Compressed'
+            
+jms_i18n_routing:
+    default_locale: en
+    locales: [de, en]
+    strategy: prefix_except_default
+
+knp_menu:
+    # use "twig: false" to disable the Twig extension and the TwigRenderer
+    twig:
+        template: KnpMenuBundle::menu.html.twig
+    #  if true, enables the helper for PHP templates
+    templating: false
+    # the renderer to use, list is also available by default
+    default_renderer: twig

@@ -1,0 +1,17 @@
+xquery version "3.1";
+
+declare variable $stylespath external;
+declare variable $tei external;
+declare variable $lang external;
+
+<div>
+{
+    (: see https://exist-db.org/exist/apps/doc/xsl-transform :)
+    transform:transform(
+        parse-xml(replace($tei, '&amp;', '&amp;amp;')), (: for &amp;-fix, see https://sourceforge.net/p/exist/mailman/message/32346507/ :)
+        doc($stylespath || '/dta2html.xsl'),
+    <parameters>
+        <param name="lang" value="{ $lang }"/>
+    </parameters>)
+}
+</div>

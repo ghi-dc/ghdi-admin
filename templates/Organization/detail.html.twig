@@ -1,0 +1,93 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block head %}
+    <script src="{{ app.request.basepath }}/js/seealso.js"></script>
+    <script>
+        var service = new SeeAlsoCollection();
+        service.services = {
+            'gkdaks' : new SeeAlsoService('https://beacon.findbuch.de/seemore/gnd-aks/-dewp@wd')
+        };
+        service.views = {
+            'seealso-ul' : new SeeAlsoUL({
+                linkTarget: '_blank',
+                maxItems: 100
+            })
+        };
+        service.replaceTagsOnLoad();
+    </script>
+{% endblock %}
+
+{% block body %}
+    <h2>
+        {{ entity.name }}
+        <a href="{{ path('organization-edit', { 'id' : entity.id }) }}" class="btn btn-default btn-sm">
+            <span class="glyphicon glyphicon-edit"></span> {{ 'Edit'|trans }}
+        </a>
+    </h2>
+    {{ helper.display_flashes() }}
+    {#{ dump(organization) }#}
+    {#{ dump(entity) }#}
+    <div class="row">
+        <div class="col-sm-8">
+            <dl>
+            {% if entity.foundingPlace is not empty or entity.foundingDate is not empty %}
+                <dt>{{ 'Founded'|trans }}:</dt>
+                <dd>
+                    {{ entity.foundingPlace }}
+                    {{ entity.foundingDate|dateincomplete }}
+                </dd>
+            {% endif %}
+            {% if entity.precedingOrganization is not null %}
+                <dt>{{ 'Predecessor'|trans }}:</dt>
+                <dd>
+                    <a href="{% if entity.precedingOrganization.gnd is not empty %}{{ path('organization-by-gnd', { 'gnd' : entity.precedingOrganization.gnd }) }}{% else %}{{ path('organization', { 'id' : entity.precedingOrganization.id }) }}{% endif %}">{{ entity.precedingOrganization.nameLocalized(app.request.locale) }}</a>
+                </dd>
+            {% endif %}
+            {% if entity.dissolutionPlace is not empty or entity.dissolutionDate is not empty %}
+                <dt>{{ 'Dissolved'|trans }}:</dt>
+                <dd>
+                    {{ entity.dissolutionPlace }}
+                    {{ entity.dissolutionDate|dateincomplete }}
+                </dd>
+            {% endif %}
+            {% if entity.succeedingOrganization is not null %}
+                <dt>{{ 'Successor'|trans }}:</dt>
+                <dd>
+                    <a href="{% if entity.succeedingOrganization.gnd is not empty %}{{ path('organization-by-gnd', { 'gnd' : entity.succeedingOrganization.gnd }) }}{% else %}{{ path('organization', { 'id' : entity.succeedingOrganization.id }) }}{% endif %}">{{ entity.succeedingOrganization.nameLocalized(app.request.locale) }}</a>
+                </dd>
+            {% endif %}
+            {% if entity.url is not empty %}
+                <dt>{{ 'Homepage'|trans }}:</dt>
+                <dd>
+                    <a href="{{ entity.url }}" target="_blank">{{ entity.url|prettifyurl }}</a>
+                </dd>
+            {% endif %}
+            </dl>
+
+            <p>{{ entity.description[app.request.locale]|nl2br  }}</p>
+
+        </div>
+
+        <div class="col-sm-4 sidebar">
+            {% if entity.gnd is not empty %}
+            <div class="container-fluid box">
+                <div class="row box-color-title">
+                    <div class="col-sm-12">
+                        <h4>{{ 'Integrated Authority File'|trans }}
+                        <br /><a href="http://d-nb.info/gnd/{{ entity.gnd }}" target="_blank">{{ entity.gnd }}</a>
+                        </h4>
+                    </div>
+                </div>
+
+                <div class="row box-color-content-inverse">
+                    <div class="col-sm-12">
+                        <div title="{{ entity.gnd }}" class="gkdaks seealso-ul"></div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div><!-- .row -->
+{% endblock %}

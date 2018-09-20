@@ -1,0 +1,44 @@
+xquery version "3.1";
+
+declare default element namespace "http://www.tei-c.org/ns/1.0";
+
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare namespace json="http://www.json.org";
+
+declare namespace functx = "http://www.functx.com";
+declare function functx:replace-first
+  ( $arg as xs:string? ,
+    $pattern as xs:string ,
+    $replacement as xs:string ) as xs:string {
+        replace($arg, concat('(^.*?)', $pattern),
+                 concat('$1',$replacement))
+    } ;
+
+declare variable $collection external;
+
+(: Switch to JSON serialization :)
+declare option output:method "json";
+declare option output:media-type "text/javascript";
+
+<json:value>
+{
+for $tei in collection($collection)/TEI{% if q is not empty %}[ft:query(*, $q)]{% endif %}
+    where $tei/teiHeader/profileDesc/langUsage/language[@ident=$lang]
+        and ($tei/teiHeader/profileDesc/textClass/classCode = 'introduction'
+            or $tei/teiHeader/profileDesc/textClass/classCode = 'document-collection'
+            or $tei/teiHeader/profileDesc/textClass/classCode = 'document'
+            or $tei/teiHeader/profileDesc/textClass/classCode = 'image-collection'
+            or $tei/teiHeader/profileDesc/textClass/classCode = 'image'
+            or $tei/teiHeader/profileDesc/textClass/classCode = 'map')
+    let $name := $tei/teiHeader/fileDesc/titleStmt/title[@type="main"]
+    let $shelfmark := $tei/teiHeader/fileDesc/publicationStmt/idno/idno[@type="shelfmark"]/text()
+    let $genre := $tei/teiHeader/profileDesc/textClass/classCode[@scheme="http://germanhistorydocs.org/docs/#genre"]/text()
+
+    order by $genre descending, $shelfmark
+    return <data json:array="true" id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], 'ghdi:', '')}">
+        <name>{string($name)}</name>
+        <genre>{$genre}</genre>
+        <shelfmark>{$shelfmark}</shelfmark>
+    </data>
+}
+</json:value>

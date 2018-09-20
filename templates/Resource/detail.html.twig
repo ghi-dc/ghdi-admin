@@ -1,0 +1,81 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+{% import 'Shared/entity-lookup.html.twig' as entityLookup %}
+
+{% block head %}
+    <script>
+    /* see https://stackoverflow.com/a/30905277 */
+    function copyToClipboard(elementId) {
+        // Create a "hidden" input
+        var aux = document.createElement("input");
+
+        // Assign it the value of the specified element
+        aux.setAttribute("value", document.getElementById(elementId).innerHTML);
+
+        // Append it to the body
+        document.body.appendChild(aux);
+
+        // Highlight its content
+        aux.select();
+
+        // Copy the highlighted text
+        document.execCommand("copy");
+
+        // Remove it from the body
+        document.body.removeChild(aux);
+    }
+
+    $(function () {
+        initEntityRef('.article');
+
+        // turn regular link into post, see https://stackoverflow.com/a/27208677
+        $("a.post").click(function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            var href = this.href;
+            var parts = href.split('?');
+            var url = parts[0];
+            var params = parts[1].split('&');
+            var pp, inputs = '';
+            for(var i = 0, n = params.length; i < n; i++) {
+                pp = params[i].split('=');
+                inputs += '<input type="hidden" name="' + pp[0] + '" value="' + pp[1] + '" />';
+            }
+            $("body").append('<form action="'+url+'" method="post" id="poster">'+inputs+'</form>');
+            $("#poster").submit();
+        });
+    });
+    </script>
+
+    {{ entityLookup.head(entity_lookup) }}
+{% endblock %}
+
+{% block body %}
+    <h2><a href="{{ path('volume-detail', { id: volume.data.id }) }}">{{ volume['data'].name }}</a></h2>
+    <h3>
+        {{ resource.data.genre|capitalize|trans({}, 'additional') }}: {{ resource['data'].name }}
+    </h3>
+    {{ helper.display_flashes() }}
+    {% if showAddEntities == 2 %}
+        <div><a class="post" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({'action': 'link-entities-save'})) }}">Save Named Entities</a></div>
+    {% endif %}
+
+    <div style="text-align: right">
+        <a href="{{ path(app.request.attributes.get('_route') ~ '-pdf', app.request.attributes.get('_route_params')) }}">{{ 'Print Version'|trans }}</a><br />
+        <a href="{{ path(app.request.attributes.get('_route') ~ '-dc', app.request.attributes.get('_route_params')) }}">{{ 'Dublin Core'|trans }}</a><br />
+        WebDAV: <span id="url">{{ webdav_base }}/{{ volume.data.id }}/{{ resource['data'].fname }}</span>
+            <button title="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open" onclick="copyToClipboard('url')"><i class="glyphicon glyphicon-copy"></i> </button>
+        {% if showAddEntities == 1 %}
+            <br /><a class="post" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({'action': 'link-entities'})) }}">Link Named Entities</a>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            {{ html|raw }}
+        </div>
+
+        <div class="col-sm-4 sidebar">
+        </div>
+    </div><!-- .row -->
+{% endblock %}

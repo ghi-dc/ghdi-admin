@@ -1,0 +1,5 @@
+{% extends 'Base/base.html.twig' %}
+
+{% block body %}
+    {{ 'Welcome %name%'|trans({ '%name%': app.user.username }) }}
+{% endblock %}

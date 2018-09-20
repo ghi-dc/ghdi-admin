@@ -1,0 +1,102 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+{% import 'Shared/map-leaflet.html.twig' as map %}
+
+{% block head %}
+    {{ map.head() }}
+{% endblock %}
+
+{% block body %}
+    <h2>
+        {{ entity.name }}
+        <a href="{{ path('place-edit', { 'id' : entity.id }) }}" class="btn btn-default btn-sm">
+            <span class="glyphicon glyphicon-edit"></span> {{ 'Edit'|trans }}
+        </a>
+    </h2>
+    {{ helper.display_flashes() }}
+
+    <div class="row">
+        <div class="col-sm-8">
+            <dl>
+                <dt>{{ 'Type' }}:</dt>
+                <dd>
+                    {{ entity.additionalType }}
+                </dd>
+            {% if containedInPlace is not empty %}
+                <dt>{{ 'Contained in'|trans }}:</dt>
+                <dd>
+                    <a href="{{ path('place-detail', { 'id' : containedInPlace.id }) }}">
+                        {{ containedInPlace.name }}
+                    </a>
+                </dd>
+            {% endif %}
+        {#% if place.children|length > 0 %}
+            {% set childrenByType = place.getChildrenByType() %}
+            {% for type, children in childrenByType %}
+            <h3>{{ type|placeTypeLabel(children|length)|trans }}</h3>
+            <ul>
+                {% for child in childrenByType[type] %}
+                <li><a href="{% if child.tgn is not empty %}{{ path('place-by-tgn', { 'tgn' : child.tgn }) }}{% else %}{{ path('place', { 'id' : child.id }) }}{% endif %}">
+                    {{ child.nameLocalized(app.request.locale) }}
+                </a></li>
+                {% endfor %}
+            </ul>
+            {% endfor %}
+        {% endif %#}
+            </dl>
+        </div>
+
+        <div class="col-sm-4 sidebar">
+            {% if entity.tgn is not empty %}
+            <h4>
+                {{ 'Getty TGN'|trans }}
+                <br /><a href="http://vocab.getty.edu/page/tgn/{{ entity.tgn }}" target="_blank">{{ entity.tgn }}</a>
+            </h4>
+            {% endif %}
+
+            {% if (entity.geo is not empty and entity.geo.latLong is not empty) or entity.additional.boundary is not empty %}
+            <div id="map" class="col-sm-12" style="width: 100%; min-height: 360px"></div>
+            <script>
+            function adjustMapSize() {
+                /*
+                $('#map').height(function(index, height) {
+                    return window.innerHeight - $(this).offset().top;
+                });
+                */
+            }
+
+            $( window ).resize(adjustMapSize);
+            adjustMapSize();
+
+            var map = L.map('map');
+
+            var bounds = null;
+            {% if entity.additional.bounds is not empty %}
+                bounds = {{ entity.additional.bounds|json_encode|raw }};
+            {% elseif entity.geo is not null %}
+                {% if entity.showCenterMarker %}
+                    L.marker([ {{ entity.geo.latLong }} ]).addTo(map);
+                    map.setView([{{ entity.geo.latLong }}], {{ entity.defaultZoomlevel }});
+                {% else %}
+                    map.setView([{{ entity.geo.latLong }}], 3);
+                {% endif %}
+            {% endif %}
+
+            {{ map.addTileLayer() }}
+
+            {% if place.additional.boundary is not empty %}
+                var boundary = {{ place.additional.boundary|json_encode|raw }};
+                var geojsonLayer = L.geoJSON(boundary).addTo(map);
+                if (bounds == null) {
+                    bounds = geojsonLayer.getBounds();
+                }
+            {% endif %}
+            if (bounds != null) {
+                map.fitBounds(bounds);
+            }
+            </script>
+            {% endif %}
+        </div>
+    </div><!-- .row -->
+{% endblock %}
