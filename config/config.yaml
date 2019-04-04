@@ -8,7 +8,7 @@ parameters:
     locale: en
 
 framework:
-    secret: %kernel.secret%
+    secret: "%kernel.secret%"
     session: ~
     # JMS\TranslationBundle\JMSTranslationBundle needs validation
     validation: ~

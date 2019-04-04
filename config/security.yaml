@@ -28,4 +28,5 @@ security:
     access_control:
         - { path: ^/(login|logout)$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/(de)/(login|logout)$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/(word2tei)$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, role: ROLE_USER }
