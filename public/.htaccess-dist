@@ -6,8 +6,7 @@
     Options -MultiViews
 
     RewriteEngine On
-    # adjust the following to your url structure
-    RewriteBase /ghdi/admin
+    # RewriteBase /ghdi/admin # if you use a non-root path
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [QSA,L]
