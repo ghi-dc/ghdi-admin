@@ -1,0 +1,10 @@
+XSL-Files for DTA-Basisformat
+=============================
+
+* dta-base.xsl and dta-base-helper.xsl are taken from https://github.com/haoess/dta-tools/tree/master/stylesheets
+* dta-customize.xsl overrides and extends some of the rules
+* translation.xml localizes the German labels
+
+## Test
+
+    java -jar test/saxon9he.jar -s:test/test.xml -xsl:dta2html.xsl lang=eng
