@@ -89,10 +89,12 @@
         "gmo/iso-639": "^1.0",
         "league/iso3166": "^2.1",
 
-        "mpdf/mpdf": "^7.1",
+        "mpdf/mpdf": "^8.0",
 
         "sabre/xml": "^1.5",
         "servo/fluidxml": "@stable",
+
+        "masterminds/html5": "2.*",
 
         "hedii/zotero-api": "@stable",
 
