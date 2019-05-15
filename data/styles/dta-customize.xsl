@@ -34,7 +34,7 @@
     <xsl:if test="@reason='lost'"><xsl:call-template name="translate">
       <xsl:with-param name="label" select="'verlorenes Material'" />
     </xsl:call-template></xsl:if>
-    <xsl:if test="@reason='insignificant'"><span><xsl:attribute name="title">
+    <xsl:if test="@reason='insignificant' or not(@reason)"><span><xsl:attribute name="title">
         <xsl:call-template name="translate">
             <xsl:with-param name="label" select="'irrelevantes Material'" />
         </xsl:call-template>
@@ -124,6 +124,72 @@
     </xsl:choose>
   </div>
 </xsl:template>
+
+  <!-- from dta-base.xsl - but no lb after head required -->
+  <xsl:template match="tei:head">
+    <xsl:choose>
+      <!-- if embedded in a <figure>: create span (figdesc) -->
+      <xsl:when test="ancestor::tei:figure">
+        <span>
+          <xsl:call-template name="applyRendition">
+            <xsl:with-param name="class" select="'dta-figdesc'"/>
+          </xsl:call-template>
+          <xsl:apply-templates/>
+        </span>
+      </xsl:when>
+      <!-- if embedded in a <list> or child of <lg>: create div-block (dta-head) -->
+      <xsl:when test="ancestor::tei:list or parent::tei:lg">
+        <div>
+          <xsl:call-template name="applyRendition">
+            <xsl:with-param name="class" select="'dta-head'"/>
+          </xsl:call-template>
+          <xsl:apply-templates/>
+        </div>
+      </xsl:when>
+      <!-- if no <lb/> at the end or after the head: embed directly
+      <xsl:when
+        test="(local-name(./*[position()=last()]) != 'lb' or normalize-space(./tei:lb[position()=last()]/following-sibling::text()[1]) != '') and local-name(following::*[1]) != 'lb'">
+        <xsl:apply-templates/>
+      </xsl:when> -->
+      <xsl:otherwise>
+        <xsl:choose> <!-- TODO: why the second choose? -->
+          <xsl:when test="parent::tei:div/@n or parent::tei:div">
+            <xsl:choose>
+              <!-- if the embedding div-block's n-attribute is greater 6 or does not exist: create div-block (dta-head)  -->
+              <xsl:when test="parent::tei:div/@n > 6 or not(parent::tei:div/@n)">
+                <div>
+                  <xsl:call-template name="applyRendition">
+                    <xsl:with-param name="class" select="'dta-head'"/>
+                  </xsl:call-template>
+                  <xsl:apply-templates/>
+                </div>
+              </xsl:when>
+              <!-- if the embedding div-block's n-attribute is lesser than 7: create h(@n)-block -->
+              <xsl:otherwise>
+                <xsl:element name="h{parent::tei:div/@n}">
+                  <xsl:call-template name="applyRendition">
+                    <xsl:with-param name="class" select="'dta-head'"/>
+                  </xsl:call-template>
+                  <xsl:apply-templates/>
+                </xsl:element>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+          <!-- WARNING: never used (because of xsl:when test="ancestor::tei:list above -->
+          <xsl:when test="parent::tei:list">
+            <xsl:apply-templates/>
+          </xsl:when>
+          <!-- default -->
+          <xsl:otherwise>
+            <h2>
+              <xsl:call-template name="applyRendition"/>
+              <xsl:apply-templates/>
+            </h2>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
   <!-- we do separate note-handling -->
   <xsl:template match="tei:text[not(descendant::tei:text)]">
