@@ -16,8 +16,14 @@ parameters:
     # you can specify the following to access a server other than localhost
     # app.existdb.webdav: 'http://localhost:8080/exist/webdav'
 
+    app.site.key: ghdi
     app.site.short: GHDI
     app.site.name: German History in Documents and Images
+    app.site.structure:
+        introduction: { 'name': 'Introduction' }
+        documents: { 'name': 'Documents' }
+        images: { 'name': 'Images' }
+        maps: { 'name': 'Maps' }
 
     app.zotero.options:
         api-key:    ~
@@ -27,6 +33,23 @@ parameters:
         url: https://ghdi-ca.ghi-dc.org/
         api-user: "api"
         api-key: ~
+        root-collection: ghdi
+    app.pandoc.processor.arguments:
+        # usually /usr/bin/
+        path: "/usr/bin/"
+
+    app.tei-prettyprinter-adapter.class:
+        #App\Utils\XmlPrettyPrinter\NullAdapter
+        App\Utils\XmlPrettyPrinter\CommandlineAdapter
+
+    app.tei-prettyprinter-adapter.arguments:
+        "perl %kernel.project_dir%\\data\\bin\\dtabfpp.pl %%source%% %%additional%%"
+
+    app.xsl-converter-adapter.class:
+        App\Utils\Xsl\XsltCommandlineAdapter
+
+    app.xsl-converter-adapter.arguments:
+        "java -jar %kernel.project_dir%\\data\\styles\\test\\saxon9he.jar -s:%%source%% -xsl:%%xsl%% %%additional%%"
 
     #app.textrazor:
     #    api_key: 'YOUR-KEY'
