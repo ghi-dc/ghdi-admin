@@ -331,7 +331,7 @@ EOXQL;
      * @Route("/resource/{volume}/{id}/edit", name="resource-edit",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      * @Route("/resource/{volume}/add/{genre}", name="collection-add",
-     *          requirements={"volume" = "volume\-\d+", "genre" = "(document-collection)"})
+     *          requirements={"volume" = "volume\-\d+", "genre" = "(document-collection|image-collection)"})
      */
     public function editAction(Request $request, $volume, $id = null, $genre = null)
     {

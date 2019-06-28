@@ -66,12 +66,13 @@
                         <ul id="sortable-{{ key }}" class="list-group">
                         {% for subkey,resource in group.resources %}
                             <li class="list-group-item" data-id="{{ resource.id }}">
-                            {% if resource.id is not empty %}
-                                <a href="{{ path('resource-detail', { volume: id, id: resource.id }) }}">
-                                {{ resource.name }}
-                                </a>
-                            {% elseif resource.resources is not empty %}
-                                <h5><a href="#{{ subkey }}" data-toggle="collapse">{{ resource.name }}</a></h5>
+                            {% if resource.resources is not empty %}
+                                <h5>
+                                    <a href="#{{ subkey }}" data-toggle="collapse">{{ resource.name }}</a>
+                                    {% if resource.id is not empty %}
+                                    <small><a href="{{ path('resource-detail', { volume: id, id: resource.id }) }}" class="fa fa-eye" title=""{{ 'view'|trans }}> </a></small>
+                                    {% endif %}
+                                </h5>
                                 <div id="{{ subkey }}" class="collapse">
                                     <ul class="list-group">
                                     {% for subresource in resource.resources if subresource.id is not empty %}
@@ -83,8 +84,12 @@
                                     {% endfor %}
                                     </ul>
                                 </div>
+                            {% elseif resource.id is not empty %}
+                                <h5><a href="{{ path('resource-detail', { volume: id, id: resource.id }) }}">
+                                {{ resource.name }}
+                                </a></h5>
                             {% else %}
-                                <h5>{{ resource.name }}  <small>[view]</small></h5>
+                                <h5>{{ resource.name }}</h5>
                             {% endif %}
                             </li>
                         {% endfor %}
