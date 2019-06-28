@@ -69,6 +69,15 @@ extends Kernel
             $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
         }
 
+        // as long as we don't use jms serializer bundle
+        // Bootstrap the JMS custom annotations for Object to Json mapping
+        // see https://stackoverflow.com/q/14629137
+        // alternative is AnnotationRegistry::registerLoader('class_exists'); see https://github.com/doctrine/annotations/issues/103
+        \Doctrine\Common\Annotations\AnnotationRegistry::registerAutoloadNamespace(
+            'JMS\Serializer\Annotation',
+            $this->getProjectDir().'/vendor/jms/serializer/src'
+        );
+
         return $bundles;
     }
 

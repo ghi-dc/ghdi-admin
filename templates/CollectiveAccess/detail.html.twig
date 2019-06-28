@@ -1,0 +1,66 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block body %}
+    <style>
+        hi[rendition='#i'] {
+            font-style: italic;
+        }
+        hi[rendition='#b'] {
+            font-weight: bold;
+        }
+    </style>
+    <h2>{{ 'Collective Access'|trans }}</h2>
+    {{ helper.display_flashes() }}
+
+    <h3>{{ item.title|raw }}</h3>
+    <dl class="row">
+    {% if item.authors is not empty %}
+      <dt class="col-sm-3 col-md-2">Creators</dt>
+      <dd class="col-sm-9 col-md-10">{{ item.authors|join('; ')|raw }}</dd>
+    {% endif %}
+    {% if item.dateCreation is not empty %}
+      <dt class="col-sm-3 col-md-2">Date of Creation</dt>
+      <dd class="col-sm-9 col-md-10">{{ item.dateCreation|raw }}</dd>
+    {% endif %}
+    {% if item.note is not empty %}
+      <dt class="col-sm-3 col-md-2">Description</dt>
+      <dd class="col-sm-9 col-md-10">{{ item.note|raw }}</dd>
+    {% endif %}
+    {% if item.licence is not empty %}
+      <dt class="col-sm-3 col-md-2">Rights Notice</dt>
+      <dd class="col-sm-9 col-md-10">{{ item.licence|raw }}</dd>
+    {% endif %}
+    {% if item.licenceTarget is not empty %}
+      <dt class="col-sm-3 col-md-2">License URL</dt>
+      <dd class="col-sm-9 col-md-10"><a href="{{ item.licenceTarget }}" target="_blank">{{ item.licenceTarget|prettifyurl }}</a></dd>
+    {% endif %}
+
+    {% for figure in figures %}
+      <dt class="col-sm-3 col-md-2">Figure</dt>
+      <dd class="col-sm-9 col-md-10">
+        {{ figure['tags']['preview170']|raw }}
+        <a href="{{ figure['urls']['original'] }}" target="_blank">{{ figure['original_filename'] }}</a>
+      </dd>
+    {% endfor %}
+
+    {% if item.genre is not empty %}
+      <dt class="col-sm-3 col-md-2">Genre</dt>
+      <dd class="col-sm-9 col-md-10">{{ item.genre }}</dd>
+    {% endif %}
+
+    {% if item.getClassCodes('#lcsh') is not empty %}
+      <dt class="col-sm-3 col-md-2">LCSH</dt>
+      <dd class="col-sm-9 col-md-10">{{ item.getClassCodes('#lcsh')|join('<br />')|raw }}</dd>
+    {% endif %}
+
+    {% if item.settingDate is not empty %}
+      <dt class="col-sm-3 col-md-2">Date Covered</dt>
+      <dd class="col-sm-9 col-md-10">{{ item.settingDate|raw }}</dd>
+    {% endif %}
+    </dl>
+
+    {#{ dump(item) }}
+    {{ dump(raw) }#}
+{% endblock %}

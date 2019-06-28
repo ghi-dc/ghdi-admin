@@ -21,6 +21,9 @@ html, body {
     width: 100%;
 }
 
+html { font-size: 14px } /* use bootstrap 3 sizes: 14px instead of 16px */
+
+
 body {
     display: table;
 }
@@ -73,10 +76,6 @@ body {
 /* Styling for the page header                          */
 /********************************************************/
 nav {
-    &.navbar-inverse {
-        border-bottom: none;
-    }
-
     a {
         color: white;
         &:hover {
@@ -118,7 +117,7 @@ nav {
             &:hover, &.active {
                 z-index: 999 !important;
                 a {
-                    background-color: inherit !important; /* override bootstrap */
+                    /* background-color: inherit !important; */ /* override bootstrap, no longer needed in bootstrap 4 */
                 }
             }
         }

@@ -14,6 +14,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 abstract class BaseController
 extends Controller
 {
+    protected $siteKey = null;
+
+    public function __construct(string $siteKey)
+    {
+        $this->siteKey = $siteKey;
+    }
+
     protected function getExistDbClient($subCollection = null)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
@@ -83,18 +90,28 @@ extends Controller
     protected function fetchVolume($client, $id, $lang)
     {
         $xql = $this->renderView('Volume/detail-json.xql.twig', [
+            'prefix' => $this->siteKey,
         ]);
 
         $query = $client->prepareQuery($xql);
         $query->setJSONReturnType();
         $query->bindVariable('collection', $client->getCollection());
-        $query->bindVariable('id', 'ghdi:' . $id);
+        $query->bindVariable('id', implode(':', [ $this->siteKey,  $id ]));
         $query->bindVariable('lang', $lang);
         $res = $query->execute();
         $volume = $res->getNextResult();
         $res->release();
 
         return $volume;
+    }
+
+    protected function getTeiSkeleton()
+    {
+        // TODO: maybe get from exist instead of filesystem, so it can differ among projects
+        $fnameSkeleton =   $this->container->get('kernel')->getProjectDir()
+            . '/data/tei/skeleton.tei.xml';
+
+        return file_get_contents($fnameSkeleton);
     }
 
     protected function teiToDublinCore($client, $resourcePath)
@@ -116,7 +133,7 @@ extends Controller
         $res->release();
 
         $response = new Response($xml);
-        $response->headers->set('Content-Type', 'xml');
+        $response->headers->set('Content-Type', 'text/xml');
 
         return $response;
     }

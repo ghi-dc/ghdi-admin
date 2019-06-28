@@ -1,6 +1,10 @@
 <?php
 /**
  * Methods to work with TEI / DTA-Basisformat DTABf
+ *
+ * Currently based on SimpleXml
+ * TODO: Finalize switch to FluentDOM
+
  */
 
 namespace App\Utils;
@@ -9,6 +13,7 @@ namespace App\Utils;
 class TeiHelper
 {
     protected $errors = [];
+    protected $schemePrefix = 'http://germanhistorydocs.org/docs/#';
 
     public function getErrors()
     {
@@ -26,25 +31,36 @@ class TeiHelper
         return $person;
     }
 
+    /*
+
+    */
+
+    protected function registerNamespaces($xml)
+    {
+        // $xml->registerNamespace('xml', 'http://www.w3.org/XML/1998/namespace');
+        $xml->registerNamespace('#default', 'http://www.tei-c.org/ns/1.0');
+        $xml->registerNamespace('tei', 'http://www.tei-c.org/ns/1.0'); // needed for xpath
+    }
+
     protected function loadXml($fname)
     {
-        libxml_use_internal_errors(true);
-        $xml = @simplexml_load_file($fname);
+        $xml = \FluentDOM::load($fname, 'xml');
 
-        if (false === $xml) {
-            $this->errors = libxml_get_errors();
-            libxml_use_internal_errors(false);
-
-            return false;
-        }
-
-        libxml_use_internal_errors(false);
-
-        $this->registerXpathNamespaces($xml);
+        $this->registerNamespaces($xml);
 
         return $xml;
     }
 
+    protected function loadXmlString($content)
+    {
+        $xml = \FluentDOM::load($content, 'xml');
+
+        $this->registerNamespaces($xml);
+
+        return $xml;
+    }
+
+    /*
     public function getFirstPbFacs($fname)
     {
         $xml = $this->loadXml($fname);
@@ -108,15 +124,31 @@ class TeiHelper
 
         return $fnameFacs;
     }
+    */
 
-    public function analyzeHeader($fname)
+    public function analyzeHeader($fname, $asXml = false)
     {
         $xml = $this->loadXml($fname);
         if (false === $xml) {
             return false;
         }
 
-        $result = $xml->xpath('/tei:TEI/tei:teiHeader');
+        return $this->analyzeHeaderStructure($xml, $asXml);
+    }
+
+    public function analyzeHeaderString($content, $asXml = false)
+    {
+        $xml = $this->loadXmlString($content);
+        if (false === $xml) {
+            return false;
+        }
+
+        return $this->analyzeHeaderStructure($xml, $asXml);
+    }
+
+    protected function analyzeHeaderStructure($xml, $asXml = false)
+    {
+        $result = $xml('/tei:TEI/tei:teiHeader');
         if (empty($result)) {
             $this->errors = [
                 (object) [ 'message' => 'No teiHeader found' ],
@@ -126,18 +158,19 @@ class TeiHelper
         }
 
         $header = $result[0];
-        $this->registerXpathNamespaces($header);
 
         $article = new \stdClass();
 
         // name
-        $result = $header->xpath('./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]');
+        $result = $header('./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]');
         if (!empty($result)) {
-            $article->name = $this->extractTextContent($result[0]);
+            $article->name = $asXml
+                ? $this->extractInnerContent($result[0])
+                : $this->extractTextContent($result[0]);
         }
 
         // author
-        $result = $header->xpath('./tei:fileDesc/tei:titleStmt/tei:author/tei:persName');
+        $result = $header('./tei:fileDesc/tei:titleStmt/tei:author/tei:persName');
         foreach ($result as $element) {
             $person = $this->buildPerson($element);
             if (!is_null($person)) {
@@ -149,7 +182,7 @@ class TeiHelper
         }
 
         // translator
-        $result = $header->xpath('./tei:fileDesc/tei:titleStmt/tei:editor[@role="translator"]/tei:persName');
+        $result = $header('./tei:fileDesc/tei:titleStmt/tei:editor[@role="translator"]/tei:persName');
         if (!empty($result)) {
             $element = $result[0];
             $person = $this->buildPerson($element);
@@ -159,7 +192,7 @@ class TeiHelper
         }
 
         // datePublication
-        $result = $header->xpath('./tei:fileDesc/tei:publicationStmt/tei:date');
+        $result = $header('./tei:fileDesc/tei:publicationStmt/tei:date');
         foreach ($result as $element) {
             switch ($element['type']) {
                 case 'firstPublication':
@@ -171,9 +204,11 @@ class TeiHelper
                     break;
             }
         }
+
         if (empty($article->datePublished) && !empty($article->dateModified)) {
             $article->datePublished = $article->dateModified;
         }
+
         if (!empty($article->datePublished) && !empty($article->dateModified)
             && $article->datePublished->format('Y-m-d') == $article->dateModified->format('Y-m-d'))
         {
@@ -181,43 +216,43 @@ class TeiHelper
         }
 
         // license
-        $result = $header->xpath('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence');
+        $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence');
         if (!empty($result)) {
             $article->license = (string)$result[0]['target'];
-            $result = $header->xpath('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/tei:p');
+            $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/tei:p');
             if (!empty($result)) {
                 $article->rights = (string)$result[0];
             }
         }
         else {
             $article->license = null;
-            $result = $header->xpath('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:p');
+            $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:p');
             if (!empty($result)) {
                 $article->rights = (string)$result[0];
             }
         }
 
         // uid, slug and shelfmark
-        $result = $header->xpath('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTAID"])[1]');
+        $result = $header('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTAID"])[1]');
         if (!empty($result)) {
             $article->uid = (string)$result[0];
         }
 
-        $result = $header->xpath('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTADirName"])[1]');
+        $result = $header('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTADirName"])[1]');
         if (!empty($result)) {
             $article->slug = (string)$result[0];
         }
 
-        $result = $header->xpath('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="shelfmark"])[1]');
+        $result = $header('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="shelfmark"])[1]');
         if (!empty($result)) {
             $article->shelfmark = (string)$result[0];
         }
 
         // primary date and publication
-        $result = $header->xpath('./tei:fileDesc/tei:sourceDesc/tei:bibl');
-        if (!empty($result)) {
-            $article->creator = (string)$result[0]->author;
-            $placeName = $result[0]->placeName;
+        $result = $header('./tei:fileDesc/tei:sourceDesc/tei:bibl');
+        if (!empty($result) && !empty($result[0])) {
+            $article->creator = (string)$node->author;
+            $placeName = $node->placeName;
             if (!empty($placeName)) {
                 $place = new \App\Entity\Place();
                 $place->setName((string)$placeName);
@@ -240,7 +275,7 @@ class TeiHelper
                 }
             }
 
-            $orgName = $result[0]->orgName;
+            $orgName = $node->orgName;
             if (!empty($orgName)) {
                 $organization = new \App\Entity\Organization();
                 $organization->setName((string)$orgName);
@@ -257,7 +292,7 @@ class TeiHelper
             }
 
             $article->providerIdno = (string)($result[0]->idno);
-            $date = $result[0]->date;
+            $date = $node->date;
             if (!empty($date)) {
                 $article->dateCreatedDisplay = (string)$date;
                 $when = $date['when'];
@@ -268,14 +303,14 @@ class TeiHelper
         }
 
         // url
-        $result = $header->xpath('(./tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier/tei:idno/tei:idno[@type="URLImages"])[1]');
+        $result = $header('(./tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier/tei:idno/tei:idno[@type="URLImages"])[1]');
         if (!empty($result)) {
             $article->url = (string)$result[0];
         }
 
         // classification
         $keywords = [];
-        $result = $header->xpath('./tei:profileDesc/tei:textClass/tei:classCode');
+        $result = $header('./tei:profileDesc/tei:textClass/tei:classCode');
         foreach ($result as $element) {
             $label_parts = explode(':', (string)$element, 2);
             $label = $label_parts[0];
@@ -284,7 +319,7 @@ class TeiHelper
             }
 
             switch ($element['scheme']) {
-                case 'http://germanhistorydocs.org/docs/#genre':
+                case $this->schemePrefix . 'genre':
                     switch ($label) {
                         case 'volume':
                         case 'introduction':
@@ -301,7 +336,7 @@ class TeiHelper
                     }
                     break;
 
-                case 'http://germanhistorydocs.org/docs/#translated-from':
+                case $this->schemePrefix . 'translated-from':
                     if (!empty($label)) {
                         $article->translatedFrom = $label;
                     }
@@ -325,7 +360,7 @@ class TeiHelper
             }
 
             // legacy
-            $result = $header->xpath('./tei:fileDesc/tei:seriesStmt/tei:title[@type="main"]');
+            $result = $header('./tei:fileDesc/tei:seriesStmt/tei:title[@type="main"]');
             foreach ($result as $element) {
                 if (!empty($element['corresp'])) {
                     $corresp = (string)$element['corresp'];
@@ -340,7 +375,7 @@ class TeiHelper
 
         // language
         $langIdents = [];
-        $result = $header->xpath('./tei:profileDesc/tei:langUsage/tei:language');
+        $result = $header('./tei:profileDesc/tei:langUsage/tei:language');
         foreach ($result as $element) {
             if (!empty($element['ident'])) {
                 $langIdents[] = (string)$element['ident'];
@@ -351,29 +386,67 @@ class TeiHelper
         return $article;
     }
 
-    private function addDescendants($parent, $path, $callbacks)
+    private function createElement($doc, $name, $content = null, array $attributes = null)
+    {
+        list($prefix, $localName) = \FluentDOM\Utility\QualifiedName::split($name);
+        if (!empty($prefix)) {
+            // check if prefix is equal to the default prefix, then we drop it
+            $namespaceURI = (string)$doc->namespaces()->resolveNamespace($prefix);
+            if (!empty($namespaceURI) && $namespaceURI === (string)$doc->namespaces()->resolveNamespace('#default')) {
+                $name = $localName;
+            }
+        }
+
+        return $doc->createElement($name, $content, $attributes);
+    }
+
+    private function addDescendants($parent, $path, $callbacks, $updateLeafNode = false)
     {
         $pathParts = explode('/', $path);
+        $updateExisting = false;
+
         // if missing, we need to iteratively add
         for ($depth = 0; $depth < count($pathParts); $depth++) {
             $name = $pathParts[$depth];
             $subPath = './' . $name;
-            $this->registerXpathNamespaces($parent);
-            $result = $parent->xpath($subPath);
-            if (!empty($result)) {
+            $result = $parent($subPath);
+            if ($result->length > 0) {
                 $parent = $result[0];
-                continue;
+                if ($depth == count($pathParts) - 1) {
+                    if ($updateLeafNode) {
+                        $updateExisting = true;
+                    }
+                    else {
+                        $parent = $parent->parentNode; // we append to parent, not to match
+                    }
+                }
+                else {
+                    continue;
+                }
             }
 
             if (array_key_exists($name, $callbacks)) {
                 // custom call
-                $parent = $callbacks[$name]($parent, $name);
+                $parent = $callbacks[$name]($parent, $name, $updateExisting);
             }
-            else {
+            else if (!$updateExisting) {
                 // default is an element without attributes
-                $parent = $parent->addChild($name);
+                $attributes = null;
+                if (preg_match('/\[(.*?)\]$/', $name, $matches)) {
+                    $name = preg_replace('/\[(.*?)\]$/', '', $name);
+
+                    // also deal with conditions in the form of @type="value" by setting this attribute
+                    $condition = $matches[1];
+                    if (preg_match('/^\@([a-z]+)\=([\'"])(.*?)\2$/', $condition, $matches)) {
+                        $attributes[$matches[1]] = $matches[3];
+                    }
+                }
+
+                $parent = $parent->appendChild($this->createElement($parent->ownerDocument, $name, $attributes));
             }
         }
+
+        return $parent;
     }
 
     public function addChildStructure($parent, $structure, $prefix = '')
@@ -409,68 +482,34 @@ class TeiHelper
 
     public function adjustHeader($fname, $data)
     {
-        libxml_use_internal_errors(true);
-        $xml = @simplexml_load_file($fname);
-
+        $xml = $this->loadXml($fname);
         if (false === $xml) {
-            $this->errors = libxml_get_errors();
-            libxml_use_internal_errors(false);
-
             return false;
         }
 
-        libxml_use_internal_errors(false);
+        return $this->adjustHeaderStructure($xml, $data);
+    }
 
-        $this->registerXpathNamespaces($xml);
+    public function adjustHeaderString($content, $data)
+    {
+        $xml = $this->loadXmlString($content);
+        if (false === $xml) {
+            return false;
+        }
 
-        $result = $xml->xpath('/tei:TEI/tei:teiHeader');
-        if (empty($result)) {
+        return $this->adjustHeaderStructure($xml, $data);
+    }
+
+    public function adjustHeaderStructure($xml, $data)
+    {
+        $hasHeader = $xml('count(/tei:TEI/tei:teiHeader) > 0');
+
+        if (!$hasHeader) {
             // we only adjust data in header - so we are done
             return $xml;
         }
 
-        $header = $result[0];
-        $this->registerXpathNamespaces($header);
-
-        // removal is not available in simple-xml, so make $dom available
-        $dom = dom_import_simplexml($xml);
-
-        $lang = $dom->getAttribute('xml:lang');
-        if (!empty($lang)) {
-            $langCode3 = \App\Utils\Iso639::code1to3($lang);
-            if (!empty($langCode3)) {
-                $langName = \App\Utils\Iso639::nameByCode3($langCode3);
-
-                $this->addDescendants($header, 'tei:profileDesc/tei:langUsage/tei:language', [
-                    'tei:language' => function ($parent, $name) use ($langName, $langCode3) {
-                        $self = $parent->addChild($name, $langName);
-                        $self->addAttribute('tei:ident', $langCode3);
-
-                        return $self;
-                    },
-                ]);
-
-                // remove the original attribute
-                $dom->removeAttribute('xml:lang');
-            }
-        }
-
-        // adjust <?xml-model if still set to basisformat_ohne_header.rng
-        // see http://stackoverflow.com/a/24914655
-        $xpath = new \DOMXpath($dom->ownerDocument);
-        $result = $xpath->evaluate(
-            '/processing-instruction()[name() = "xml-model"]'
-        );
-        foreach ($result as $node) {
-            if (preg_match('/basisformat_ohne_header\.rng/', $node->textContent)) {
-                // we need to replace the node
-                $pi = $dom->ownerDocument->createProcessingInstruction('xml-model', preg_replace('/basisformat_ohne_header\.rng/', 'basisformat.rng', $node->textContent));
-                $dom->ownerDocument->appendChild($pi);
-                $node->parentNode->insertBefore($pi, $node);
-                $node->parentNode->removeChild($node);
-            }
-        }
-
+        /*
         // remove all oxygen comments
         $result = $xpath->evaluate(
             '//processing-instruction()[name() = "oxy_comment_start" or name() = "oxy_comment_end"]'
@@ -478,210 +517,265 @@ class TeiHelper
         foreach ($result as $node) {
             $node->parentNode->removeChild($node);
         }
+        */
 
+        $header = $xml('/tei:TEI/tei:teiHeader')[0];
         // if we have only <title> and not <title type="main">, add this attribute
-        $result = $header->xpath('./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]');
-        if (empty($result)) {
-            $result = $header->xpath('./tei:fileDesc/tei:titleStmt/tei:title');
-            if (!empty($result)) {
-                $result[0]->addAttribute('tei:type', 'main');
+        $hasTitleAttrMain = $header('count(./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]) > 0');
+        if (!$hasTitleAttrMain) {
+            $result = $header('./tei:fileDesc/tei:titleStmt/tei:title[not(@type)]');
+            if ($result->length > 0) {
+                $result[0]->setAttribute('type', 'main');
             }
         }
 
-        if (!empty($data['translator'])) {
-            $this->addDescendants($header, 'tei:fileDesc/tei:titleStmt/tei:editor[@role="translator"]', [
-                'tei:editor[@role="translator"]' => function ($parent, $name) use ($data) {
-                    $self = null;
-                    foreach ($data['translator'] as $corresp => $persName) {
-                        $self = $parent->addChild('tei:editor');
-                        $self->addAttribute('tei:role', 'translator');
-                        $persName = $self->addChild('tei:persName', $persName);
-                        $persName->addAttribute('tei:corresp', $corresp);
-                    }
+        foreach ([
+                'title' => 'tei:fileDesc/tei:titleStmt/tei:title[@type="main"]',
+                'note' => 'tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"]',
+            ] as $key => $path)
+        {
+            if (array_key_exists($key, $data)) {
+                $node = $this->addDescendants($header, $path, [], true);
 
-                    return $self;
-                },
-            ]);
+                // assume for the moment that $data[$key] is valid XML
+                $fragment = $xml->createDocumentFragment();
+                $fragment->appendXML($data[$key]);
+
+                (new \FluentDOM\Nodes\Modifier($node))
+                    ->replaceChildren($fragment);
+            }
         }
 
-        if (!empty($data['publisher'])) {
-            $result = $header->xpath('./tei:fileDesc/tei:publicationStmt/tei:p[not(*) and not(normalize-space())]');
-            foreach ($result as $element) {
-                $dom = dom_import_simplexml($element);
-                $dom->parentNode->removeChild($dom);
-            }
+        if (array_key_exists('authors', $data)) {
+            $xpath = 'tei:fileDesc/tei:titleStmt/author';
+            // since there can be multiple, first clear and then add
+            \FluentDom($header)->find($xpath)->remove();
 
-            $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:publisher', [
-                'tei:publisher' => function ($parent, $name) use ($data) {
-                    $self = $parent->addChild($name);
-                    $this->addChildStructure($self, $data['publisher'], 'tei:');
+            if (!is_null($data['authors'])) {
+                foreach ($data['authors'] as $author) {
+                    $this->addDescendants($header, $xpath, [
+                        'author' => function ($parentOrSelf, $name, $updateExisting) use ($author) {
+                            if (!$updateExisting) {
+                                $self = $parentOrSelf->appendChild($parentOrSelf->ownerDocument->createElement('author'));
+                            }
+                            else {
+                                $self = $parentOrSelf;
+                            }
 
-                    return $self;
-                },
-            ]);
+                            $fragment = $self->ownerDocument->createDocumentFragment();
+                            $fragment->appendXML($author);
 
-            if (!empty($data['dates'])) {
-                foreach ($data['dates'] as $type => $val) {
-                    $match = 'tei:date[@type="' . $type . '"]';
-                    $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/' . $match, [
-                        $match => function ($parent, $name) use ($type, $val) {
-                            $self = $parent->addChild('tei:date', $val);
-                            $self->addAttribute('tei:type', $type);
+                            (new \FluentDOM\Nodes\Modifier($self))
+                                ->replaceChildren($fragment);
 
                             return $self;
                         },
-                    ]);
+                    ], false);
                 }
-            }
-
-            if (!empty($data['license'])) {
-                $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:availability', [
-                    'tei:availability' => function ($parent, $name) use ($data) {
-                        $self = $parent->addChild($name);
-                        $targets = array_keys($data['license']);
-                        if (!empty($targets)) {
-                            $target = $targets[0];
-                            if (!empty($target)) {
-                                $self = $self->addChild('tei:licence');
-                                $self->addAttribute('tei:target', $target);
-                                $this->addChildStructure($self, [ 'p' => $data['license'][$target] ], 'tei:');
-                            }
-                            else {
-                                $availability = $data['license'][$target];
-                                if (!empty($availability)) {
-                                    /* $self = $self->addChild('tei:licence');
-                                    $self->addAttribute('tei:target', '#'); */
-                                    $this->addChildStructure($self, [ 'p' => $availability ], 'tei:');
-                                }
-                            }
-                        }
-
-                        return $self;
-                    },
-                ]);
-            }
-
-            if (!empty($data['uid'])) {
-                $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTAID"]', [
-                    'tei:idno[@type="DTAID"]' => function ($parent, $name) use ($data) {
-                        $self = $parent->addChild('tei:idno', $data['uid']);
-                        $self->addAttribute('tei:type', 'DTAID');
-
-                        return $self;
-                    },
-                ]);
-            }
-
-            if (!empty($data['slug'])) {
-                $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTADirName"]', [
-                    'tei:idno[@type="DTADirName"]' => function ($parent, $name) use ($data) {
-                        $self = $parent->addChild('tei:idno', $data['slug']);
-                        $self->addAttribute('tei:type', 'DTADirName');
-
-                        return $self;
-                    },
-                ]);
             }
         }
 
-        if (!empty($data['seriesStmt'])) {
-            $this->addDescendants($header, 'tei:fileDesc/tei:seriesStmt', [
-                'tei:seriesStmt' => function ($parent, $name) use ($header, $data) {
-                    // seriesStmt must go before sourceDesc
-                    $result = $header->xpath('./tei:fileDesc/tei:sourceDesc');
-                    // dirty - we just remove it for now since it will be added through bibl afterwards
-                    // should change to insertBefore
-                    foreach ($result as $element) {
-                        $dom = dom_import_simplexml($element);
-                        $dom->parentNode->removeChild($dom);
+        // publicationStmt
+        if (array_key_exists('licence', $data) || array_key_exists('licenceTarget', $data)) {
+            $node = $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence', [
+                'tei:licence' => function ($parent, $name, $updateExisting) use ($data) {
+                    $content = !empty($data['licence']) ? $data['licence'] : null;
+
+                    if (!$updateExisting) {
+                        $self = $parent->appendChild($this->createElement($parent->ownerDocument, $name, $content));
+                    }
+                    else {
+                        $self = $parent;
+                        $self->nodeValue = $content;
                     }
 
-                    $self = $parent->addChild('tei:seriesStmt');
-                    foreach ($data['seriesStmt'] as $corresp => $title) {
-                        $child = $self->addChild('tei:title', $title);
-                        $child->addAttribute('tei:type', 'main');
-
-                        $child = $self->addChild('tei:idno', $corresp);
-                        $child->addAttribute('tei:type', 'DTAID');
+                    if (empty($data['licenceTarget'])) {
+                        if ($self->hasAttribute('target')) {
+                            $self->removeAttribute('target');
+                        }
+                    }
+                    else {
+                        $self->setAttribute('target', $data['licenceTarget']);
                     }
 
                     return $self;
                 },
-            ]);
+            ], true);
         }
 
-        if (!empty($data['bibl'])) {
-            /*
-            // remove if it is legacy <p>
-            $result = $header->xpath('./tei:fileDesc/tei:publicationStmt/tei:p[not(*) and not(normalize-space())]');
-            foreach ($result as $element) {
-                $dom = dom_import_simplexml($element);
-                $dom->parentNode->removeChild($dom);
+        if (!empty($data['id'])) {
+            die('TODO');
+            $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTAID"]', [
+                'tei:idno[@type="DTAID"]' => function ($parent, $name, $updateExisting) use ($data) {
+                    if (!$updateExisting) {
+                        $self = $parent->addChild('tei:idno', $data['id']);
+                        $self->addAttribute('tei:type', 'DTAID');
+                    }
+                    else {
+                        $self = $parent;
+                        dom_import_simplexml($self)->nodeValue = $data['id']; // https://stackoverflow.com/a/4614186
+                    }
+
+                    return $self;
+                },
+            ], true);
+        }
+
+        if (!empty($data['shelfmark'])) {
+            die('TODO');
+            $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="shelfmark"]', [
+                'tei:idno[@type="shelfmark"]' => function ($parent, $name, $updateExisting) use ($data) {
+                    if (!$updateExisting) {
+                        $self = $parent->addChild('tei:idno', $data['shelfmark']);
+                        $self->addAttribute('tei:type', 'shelfmark');
+                    }
+                    else {
+                        $self = $parent;
+                        dom_import_simplexml($self)->nodeValue = $data['shelfmark']; // https://stackoverflow.com/a/4614186
+                    }
+
+                    return $self;
+                },
+            ], true);
+        }
+
+        // sourceDesc
+        if (array_key_exists('dateCreation', $data)) {
+            if (!empty($data['dateCreation'])) {
+                $this->addDescendants($header, 'tei:fileDesc/sourceDesc/tei:biblFull/tei:publicationStmt/tei:date', [
+                    'tei:biblFull' => function ($parent, $name, $updateExisting) use ($xml, $data) {
+                        if (!$updateExisting) {
+                            $self = $parent->appendChild($this->createElement($parent->ownerDocument, $name));
+                            $documentFragment = '<titleStmt><title type="main"></title></titleStmt>'
+                                . '<publicationStmt><publisher></publisher></publicationStmt>'
+                                ;
+                            $fragment = $xml->createDocumentFragment();
+                            $fragment->appendXML($documentFragment);
+
+                            (new \FluentDOM\Nodes\Modifier($self))
+                                ->replaceChildren($fragment);
+                        }
+                        else {
+                            $self = $parent;
+                        }
+                        return $self;
+                    },
+                    'tei:date' => function ($parent, $name, $updateExisting) use ($data) {
+                        if (!$updateExisting) {
+                            $self = $parent->appendChild($this->createElement($parent->ownerDocument, $name, $data['dateCreation']));
+                        }
+                        else {
+                            $self = $parent;
+                            $self->nodeValue = $data['dateCreation'];
+                        }
+
+                        $self->setAttribute('type', 'creation');
+
+                        return $self;
+                    },
+                ], true);
+
             }
-            */
-            $this->addDescendants($header, 'tei:fileDesc/tei:sourceDesc/tei:bibl', [
-                'tei:bibl' => function ($parent, $name) use ($data) {
-                    $self = $parent->addChild($name);
-                    $this->addChildStructure($self, $data['bibl'], 'tei:');
-                },
-            ]);
         }
 
-        if (!empty($data['URLImages'])) {
-            $this->addDescendants($header, 'tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier', [
-                'tei:msIdentifier' => function ($parent, $name) use ($data) {
-                    $self = $parent->addChild($name);
-                    $this->addChildStructure($self, [
-                            'repository' => $data['bibl']['orgName']['@value'],
-                            'idno' => [ 'idno' => [ '@type' => 'URLImages', '@value' => $data['URLImages']] ]
-                        ], 'tei:');
+        $hasSourceDesc = $header('count(tei:fileDesc/tei:sourceDesc) > 0');
+        if (!$hasSourceDesc) {
+            $this->addDescendants($header, 'tei:fileDesc/tei:sourceDesc/tei:p', []);
+        }
+
+        // profileDesc
+        if (!empty($data['language'])) {
+            $languageName = \App\Utils\Iso639::nameByCode3($data['language']);
+            $this->addDescendants($header, 'tei:profileDesc/tei:langUsage/tei:language', [
+                'tei:language' => function ($parent, $name, $updateExisting) use ($data, $languageName) {
+                    if (!$updateExisting) {
+                        $self = $parent->appendChild($this->createElement($parent->ownerDocument, $name, $languageName));
+                    }
+                    else {
+                        $self = $parent;
+                        $self->nodeValue = $languageName;
+                    }
+
+                    $self->setAttribute('ident', $data['language']);
+
+                    return $self;
                 },
-            ]);
+            ], true);
         }
 
         if (!empty($data['genre'])) {
             $this->addDescendants($header, 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "genre")]', [
-                'tei:classCode[contains(@scheme, "genre")]' => function ($parent, $name) use ($data) {
-                    $self = $parent->addChild('tei:classCode', $data['genre']);
-                    $self->addAttribute('tei:scheme', 'http://germanhistorydocs.org/docs/#genre');
-
-                    return $self;
-                },
-            ]);
-        }
-
-        if (!empty($data['topic'])) {
-            $this->addDescendants($header, 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "topic")]', [
-                'tei:classCode[contains(@scheme, "topic")]' => function ($parent, $name) use ($data) {
-                    $self = null;
-                    foreach ($data['topic'] as $topic) {
-                        $self = $parent->addChild('tei:classCode', $topic);
-                        $self->addAttribute('tei:scheme', 'http://germanhistorydocs.org/docs/#topic');
+                'tei:classCode[contains(@scheme, "genre")]' => function ($parent, $name, $updateExisting) use ($data) {
+                    if (!$updateExisting) {
+                        $self = $parent->appendChild($parent->ownerDocument->createElement('classCode', $data['genre']));
+                    }
+                    else {
+                        $self = $parent;
+                        $self->nodeValue = $data['genre'];
                     }
 
+                    $self->setAttribute('scheme', $this->schemePrefix . 'genre');
+
                     return $self;
                 },
-            ]);
+            ], true);
         }
 
-        if (!empty($data['translatedFrom'])) {
-            $this->addDescendants($header, 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "translated-from")]', [
-                'tei:classCode[contains(@scheme, "translated-from")]' => function ($parent, $name) use ($data) {
-                    $self = $parent->addChild('tei:classCode', $data['translatedFrom']);
-                    $self->addAttribute('tei:scheme', 'http://germanhistorydocs.org/docs/#translated-from');
+        if (array_key_exists('lcsh', $data)) {
+            $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "lcsh")]';
+            // since there can be multiple, first clear and then add
+            \FluentDom($header)->find($xpath)->remove();
+
+            if (!is_null($data['lcsh'])) {
+                foreach ($data['lcsh'] as $code) {
+                    $this->addDescendants($header, $xpath, [
+                        'tei:classCode[contains(@scheme, "lcsh")]' => function ($parentOrSelf, $name, $updateExisting) use ($code) {
+                            if (!$updateExisting) {
+                                $self = $parentOrSelf->appendChild($parentOrSelf->ownerDocument->createElement('classCode', $code));
+                            }
+                            else {
+                                $self = $parentOrSelf;
+                                $self->nodeValue = $code;
+                            }
+
+                            $self->setAttribute('scheme', $this->schemePrefix . 'lcsh');
+
+                            return $self;
+                        },
+                    ], false);
+                }
+            }
+        }
+
+        if (!empty($data['settingDate'])) {
+            $this->addDescendants($header, 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "coverage")]', [
+                'tei:classCode[contains(@scheme, "coverage")]' => function ($parent, $name, $updateExisting) use ($data) {
+                    if (!$updateExisting) {
+                        $self = $parent->appendChild($parent->ownerDocument->createElement('classCode', $data['settingDate']));
+                    }
+                    else {
+                        $self = $parent;
+                        $self->nodeValue = $data['settingDate'];
+                    }
+
+                    $self->setAttribute('scheme', 'http://purl.org/dc/elements/1.1/coverage');
 
                     return $self;
                 },
-            ]);
+            ], true);
         }
 
         return $xml;
     }
 
-    protected function registerXpathNamespaces($xml)
+    protected function extractInnerContent($node)
     {
-        // $xml->registerXPathNamespace('xml', 'http://www.w3.org/XML/1998/namespace');
-        $xml->registerXPathNamespace('tei', 'http://www.tei-c.org/ns/1.0');
+        $ret = '';
+        foreach ($node->childNodes as $child) {
+            $ret .= $node->ownerDocument->saveXML($child);
+        }
+
+        return $ret;
     }
 
     protected function extractTextContent(\SimpleXMLElement $node, $normalizeWhitespace = true)

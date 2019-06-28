@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2018-08-16T14:34:26Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-06-07T17:42:09Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -9,32 +9,37 @@
       <trans-unit id="a564f1753a71eca4b186e6da8681ea1701ff4ece" resname="Authority Control">
         <source>Authority Control</source>
         <target>Normdaten</target>
-        <jms:reference-file line="86">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
+        <jms:reference-file line="89">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="619d65e1ae1a2704aa306451ac2a75a0cde345a8" resname="Bibliography">
         <source>Bibliography</source>
         <target>Bibliografie</target>
-        <jms:reference-file line="103">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
+        <jms:reference-file line="107">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="6f2ba88bbf2b7d8a6761133c7ea588df196c9e49" resname="Collective Access">
+        <source>Collective Access</source>
+        <target>Collective Access</target>
+        <jms:reference-file line="113">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="07605242f7a070b43bdc103189dccf6a5cc43506" resname="Organizations">
         <source>Organizations</source>
         <target>Organisationen</target>
-        <jms:reference-file line="94">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
+        <jms:reference-file line="97">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="f3cf96e919766ef2354bbbddd56e9cbb5f2792e8" resname="Persons">
         <source>Persons</source>
         <target>Personen</target>
-        <jms:reference-file line="90">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
+        <jms:reference-file line="93">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="0cd3597453ab504a3dbeec3289e21abe922d223a" resname="Places">
         <source>Places</source>
         <target>Orte</target>
-        <jms:reference-file line="98">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
+        <jms:reference-file line="101">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="39c0ee03f2b53ddb768f449a18c7a3e41ad94f8f" resname="Volumes">
         <source>Volumes</source>
         <target>Bände</target>
-        <jms:reference-file line="81">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
+        <jms:reference-file line="84">\..\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
       </trans-unit>
     </body>
   </file>

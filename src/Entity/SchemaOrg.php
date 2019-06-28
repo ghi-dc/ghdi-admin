@@ -91,7 +91,7 @@ abstract class SchemaOrg
     /**
      * Sets id.
      *
-     * @param int $id
+     * @param string $id
      *
      * @return $this
      */
@@ -105,7 +105,7 @@ abstract class SchemaOrg
     /**
      * Gets id.
      *
-     * @return int
+     * @return string
      */
     public function getId()
     {

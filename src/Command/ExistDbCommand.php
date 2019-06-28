@@ -14,6 +14,17 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 abstract class ExistDbCommand
 extends ContainerAwareCommand
 {
+    protected $siteKey = null;
+
+    public function __construct(string $siteKey)
+    {
+        $this->siteKey = $siteKey;
+
+        // you *must* call the parent constructor
+        parent::__construct();
+    }
+
+    /* TODO: move to service definition */
     protected function getExistDbClient()
     {
         $existDbClientService = $this->getContainer()->get(\App\Service\ExistDbClientService::class);

@@ -65,7 +65,7 @@
         <a href="{{ path(app.request.attributes.get('_route') ~ '-pdf', app.request.attributes.get('_route_params')) }}">{{ 'Print Version'|trans }}</a><br />
         <a href="{{ path(app.request.attributes.get('_route') ~ '-dc', app.request.attributes.get('_route_params')) }}">{{ 'Dublin Core'|trans }}</a><br />
         WebDAV: <span id="url">{{ webdav_base }}/{{ volume.data.id }}/{{ resource['data'].fname }}</span>
-            <button title="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open" onclick="copyToClipboard('url')"><i class="glyphicon glyphicon-copy"></i> </button>
+            <button title="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open" onclick="copyToClipboard('url')"><i class="fa fa-copy"></i> </button>
         {% if showAddEntities == 1 %}
             <br /><a class="post" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({'action': 'link-entities'})) }}">Link Named Entities</a>
         {% endif %}

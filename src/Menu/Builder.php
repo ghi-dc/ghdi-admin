@@ -20,6 +20,7 @@ class Builder
     private $authorizationChecker;
     private $translator;
     private $requestStack;
+    private $showBibliography = false;
 
     /**
      * @param FactoryInterface $factory
@@ -30,12 +31,14 @@ class Builder
     public function __construct(FactoryInterface $factory,
                                 AuthorizationCheckerInterface $authorizationChecker,
                                 Translator $translator,
-                                RequestStack $requestStack)
+                                RequestStack $requestStack,
+                                array $zoteroOptions)
     {
         $this->factory = $factory;
         $this->authorizationChecker = $authorizationChecker;
         $this->translator = $translator;
         $this->requestStack = $requestStack;
+        $this->showBibliography = !empty($zoteroOptions) && !empty($zoteroOptions['group_id']);
     }
 
     public function createTopMenu(array $options)
@@ -75,7 +78,7 @@ class Builder
             'label' => 'Home',
             'route' => 'home',
         ]);
-        $menu->setChildrenAttributes([ 'id' => 'menu-main', 'class' => 'nav navbar-nav' ]);
+        $menu->setChildrenAttributes([ 'id' => 'menu-main', 'class' => 'nav navbar-nav navbar-expand-sm' ]);
 
         $menu->addChild('volume-list', [
             'label' => $this->translator->trans('Volumes', [], 'menu'),
@@ -84,7 +87,7 @@ class Builder
 
         $menu->addChild('Authority Control', [
             'label' => $this->translator->trans('Authority Control', [], 'menu'),
-            'route' => 'person-list'
+            'route' => 'person-list',
         ]);
         $menu['Authority Control']->addChild('person-list', [
             'label' => $this->translator->trans('Persons', [], 'menu'),
@@ -99,9 +102,16 @@ class Builder
             'route' => 'place-list',
         ]);
 
-        $menu->addChild('bibliography-list', [
-            'label' => $this->translator->trans('Bibliography', [], 'menu'),
-            'route' => 'bibliography-list',
+        if ($this->showBibliography) {
+            $menu->addChild('bibliography-list', [
+                'label' => $this->translator->trans('Bibliography', [], 'menu'),
+                'route' => 'bibliography-list',
+            ]);
+        }
+
+        $menu->addChild('ca-list', [
+            'label' => $this->translator->trans('Collective Access', [], 'menu'),
+            'route' => 'ca-list',
         ]);
 
         // find the matching parent

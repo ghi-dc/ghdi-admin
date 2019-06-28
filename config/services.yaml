@@ -1,6 +1,6 @@
 # config/services.yaml
 services:
-    # the following two configurations are needed for command-classes to be automaticall
+    # the following two configurations are needed for command-classes to be automatically
     # registered as services, see
     #   https://symfony.com/doc/3.4/console/commands_as_services.html
     # default configuration for services in *this* file
@@ -8,8 +8,10 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
-        public: false    
-
+        public: false
+        bind:
+            $siteKey: '%app.site.key%' # so we can inject this one, https://symfony.com/blog/new-in-symfony-3-4-local-service-binding
+            
     twig.extension.pcre:
         class: Jasny\Twig\PcreExtension
         tags:
@@ -32,12 +34,42 @@ services:
         arguments:
             $options: "%app.zotero.options%"
             
+    App\Service\CollectiveAccessService:
+        arguments:
+            $options: "%app.collective-access.options%"
+            
     App\Menu\Builder:
-        arguments: ["@knp_menu.factory", "@security.authorization_checker", "@translator", "@request_stack", ]
+        arguments: [ "@knp_menu.factory", "@security.authorization_checker", "@translator", "@request_stack", "%app.zotero.options%" ]
         tags:
             # The alias is what is used to retrieve the menu
             - { name: knp_menu.menu_builder, method: createTopMenu, alias: top } 
             - { name: knp_menu.menu_builder, method: createMainMenu, alias: main }
             - { name: knp_menu.menu_builder, method: createBreadcrumbMenu, alias: breadcrumb }
             - { name: knp_menu.menu_builder, method: createFooterMainMenu, alias: footer-main }
-                        
+
+    App\Utils\PandocProcessor:
+        public: true    # we get this one in *Controller, TODO: switch to typed argument
+        arguments:  [ "%app.pandoc.processor.arguments%" ]
+
+    App\Utils\PandocConverter:
+        public: true    # we get this one in *Controller, TODO: switch to typed argument
+        arguments:  [ "%app.pandoc.processor.arguments%" ]
+
+    App\Utils\XslConverter:
+        public: true    # we get this one in *Controller, TODO: switch to typed argument
+        calls:
+            - [ setOption, [ 'adapter', '@app.xsl-converter-adapter' ]]
+
+    app.xsl-converter-adapter:
+        class: "%app.xsl-converter-adapter.class%"
+        arguments:  [ "%app.xsl-converter-adapter.arguments%" ]
+
+    app.tei-prettyprinter-adapter:
+        class: "%app.tei-prettyprinter-adapter.class%"
+        arguments:  [ "%app.tei-prettyprinter-adapter.arguments%" ]
+
+    app.tei-prettyprinter:
+        public: true
+        class: App\Utils\XmlPrettyPrinter\XmlPrettyPrinter
+        calls:
+            - [ setAdapter, [ '@app.tei-prettyprinter-adapter' ]]

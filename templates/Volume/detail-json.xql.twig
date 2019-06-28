@@ -28,9 +28,10 @@ for $tei in collection($collection)/TEI
         and $tei/teiHeader/profileDesc/langUsage/language[@ident=$lang]
         and $tei/teiHeader/profileDesc/textClass/classCode = 'volume'
     let $name := $tei/teiHeader/fileDesc/titleStmt/title[@type="main"]
-    return <data id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], 'ghdi:', '')}">
+    return <data id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], '{{ prefix }}:', '')}">
         <name>{$name/text()}</name>
         <fname>{util:document-name($tei)}</fname>
+        <shelfmark>{$tei/teiHeader/fileDesc/publicationStmt//idno[@type='shelfmark']/text()}</shelfmark>
     </data>
 }
 </json:value>

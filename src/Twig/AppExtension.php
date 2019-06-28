@@ -19,14 +19,17 @@
 namespace App\Twig;
 
 class AppExtension
-extends \Twig_Extension
+extends \Twig\Extension\AbstractExtension
 {
+    private $kernel;
     private $translator;
     private $slugifyer;
 
-    public function __construct(\Symfony\Component\Translation\TranslatorInterface $translator = null,
+    public function __construct(\Symfony\Component\HttpKernel\KernelInterface $kernel = null,
+                                \Symfony\Component\Translation\TranslatorInterface $translator = null,
                                 $slugifyer = null)
     {
+        $this->kernel = $kernel;
         $this->translator = $translator;
         $this->slugifyer = $slugifyer;
         if (!is_null($slugifyer)) {
@@ -38,7 +41,7 @@ extends \Twig_Extension
     public function getFunctions()
     {
         return [
-            new \Twig_SimpleFunction('file_exists', 'file_exists'),
+            new \Twig\TwigFunction('file_exists', 'file_exists'),
         ];
     }
 
@@ -46,9 +49,12 @@ extends \Twig_Extension
     {
         return [
             // general
-            new \Twig_SimpleFilter('dateincomplete', [ $this, 'dateincompleteFilter' ]),
-            new \Twig_SimpleFilter('prettifyurl', [ $this, 'prettifyurlFilter' ]),
-            new \Twig_SimpleFilter('remove_by_key', [ $this, 'removeElementByKey' ]),
+            new \Twig\TwigFilter('dateincomplete', [ $this, 'dateincompleteFilter' ]),
+            new \Twig\TwigFilter('prettifyurl', [ $this, 'prettifyurlFilter' ]),
+            new \Twig\TwigFilter('remove_by_key', [ $this, 'removeElementByKey' ]),
+
+            // app specific
+            // new \Twig\TwigFilter('tei2html', [ $this, 'teiToHtml' ], [ 'is_safe' => [ 'html' ] ]),
         ];
     }
 
@@ -94,6 +100,27 @@ extends \Twig_Extension
         return $parsed['host']
             . (!empty($parsed['path']) && '/' !== $parsed['path'] ? $parsed['path'] : '');
     }
+
+    /*
+    public function teiToHtml($teiFragment)
+    {
+        return $this->kernel->getProjectDir();
+        // Load the XML source
+        $xml = new \DOMDocument;
+        $xml->loadXML('<body>' . $teiFragment . '</body>');
+
+        // Configure the transformer
+        $xsl = new \DOMDocument;
+        $xsl->load('collection.xsl');
+
+        $proc = new \XSLTProcessor;
+        $proc->importStyleSheet($xsl); // attach the xsl rules
+
+        $html = $proc->transformToDoc($xml);
+
+        return $html->saveHtml($html->firstChild);
+    }
+    */
 
     public function getName()
     {

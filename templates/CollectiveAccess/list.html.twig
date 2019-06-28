@@ -1,0 +1,37 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block body %}
+    <h2>{{ 'Collective Access'|trans }}</h2>
+    {{ helper.display_flashes() }}
+
+    <form method="POST">
+        <select name="collection">
+            <option value="">-- select a collection --</option>
+            {% for aCollection in collections %}
+                <option value="{{ aCollection.idno }}"{% if aCollection.idno == collection %} selected="selected"{% endif %}>
+                    {{ aCollection.display_label }}
+                </option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="{{ 'List'|trans }}" />
+    </form>
+    {% if result is empty %}
+        Please select a collection
+    {% elseif not result.isOk %}
+        There was an error querying the items
+    {% else %}
+        {% set data = result.rawData %}
+        {% if 0 == data.total %}
+            No items found.
+        {% else %}
+            {{ data.total }} items
+            <ul>
+            {% for item in data.results %}
+                <li><a href="{{ path('ca-detail', { 'id' : item.id }) }}">{{ item.display_label }}</a></li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+{% endblock %}

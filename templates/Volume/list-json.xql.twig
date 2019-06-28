@@ -29,7 +29,7 @@ for $tei in collection($collection)/TEI{% if q is not empty %}[ft:query(.//title
         {% if q is empty %}and $tei/teiHeader/profileDesc/textClass/classCode = 'volume'{% else %}and $tei/teiHeader/profileDesc/textClass/classCode != 'document-collection' and $tei/teiHeader/profileDesc/textClass/classCode != 'image-collection'{% endif %}
     let $name := fn:string($tei/teiHeader/fileDesc/titleStmt/title[@type="main"])
     order by $name
-    return <data json:array="true" id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], 'ghdi:', '')}">
+    return <data json:array="true" id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], '{{ prefix }}:', '')}">
         <name>{$name}</name>
         <shelfmark>{ $tei/teiHeader/fileDesc/publicationStmt//idno[@type='shelfmark']/text() }</shelfmark>
     </data>

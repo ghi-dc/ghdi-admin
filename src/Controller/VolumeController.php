@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  */
 class VolumeController
-extends BaseController
+extends ResourceController
 {
     protected $subCollection = '/data/volumes';
 
@@ -24,6 +24,7 @@ extends BaseController
         $q = trim($request->request->get('q'));
         $xql = $this->renderView('Volume/list-json.xql.twig', [
             'q' => $q,
+            'prefix' => $this->siteKey,
         ]);
 
         $query = $client->prepareQuery($xql);
@@ -45,6 +46,7 @@ extends BaseController
     protected function buildResources($client, $id, $lang)
     {
         $xql = $this->renderView('Volume/list-resources-json.xql.twig', [
+            'prefix' => $this->siteKey,
         ]);
 
         $query = $client->prepareQuery($xql);
@@ -62,18 +64,19 @@ extends BaseController
     {
         $resources = $this->buildResources($client, $id, $lang);
 
-        $ret = [
-           'documents' => [
-                'name' => 'Documents',
-                'resources' => [
-                ],
-            ],
-           'images' => [
-                'name' => 'Images',
-                'resources' => [
-                ],
-            ],
-        ];
+        // get outline from site settings
+        $ret = array_map(function ($section) {
+                if (is_array($section) && !array_key_exists('resources', $section)) {
+                    $section['resources'] = [];
+                }
+
+                return $section;
+            },
+            $this->getParameter('app.site.structure'));
+
+        if (is_null($resources)) {
+            return $ret;
+        }
 
         foreach ($resources['data'] as $info) {
             switch ($info['genre']) {
@@ -89,11 +92,11 @@ extends BaseController
 
                 case 'document-collection':
                 case 'image-collection':
-                    $key = 'image-collection' == $info['genre']
-                        ? 'images' : 'documents';
+                    $key = str_replace('-collection', 's', $info['genre']);
 
                     if (!array_key_exists($info['id'], $ret[$key]['resources'])) {
                         $ret[$key]['resources'][$info['id']] = [
+                            'id' => $info['id'],
                             'name' => $info['name'],
                             'resources' => [],
                         ];
@@ -135,7 +138,7 @@ extends BaseController
      * @Route("/volume/{id}.dc.xml", name="volume-detail-dc", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}", name="volume-detail", requirements={"id" = "volume\-\d+"})
      */
-    public function detailAction(Request $request, $id)
+    public function volumeDetailAction(Request $request, $id)
     {
         $client = $this->getExistDbClient($this->subCollection);
 
@@ -148,6 +151,14 @@ extends BaseController
                 ;
 
             return $this->redirect($this->generateUrl('volume-list'));
+        }
+
+        if (!empty($request->get('order'))) {
+            $request->getSession()
+                    ->getFlashBag()
+                    ->add('info', 'TODO: reorder ' . $request->get('order'))
+                ;
+
         }
 
         if ('volume-detail-dc' == $request->get('_route')) {
@@ -165,20 +176,23 @@ extends BaseController
     /**
      * @Route("/volume/{id}/edit", name="volume-edit", requirements={"id" = "volume\-\d+"})
      */
-    public function editAction(Request $request, $id = null)
+    public function volumeEditAction(Request $request, $id = null)
     {
         $update = 'volume-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
 
-        $person = null;
-        $serializer = $this->getSerializer();
-        if ($client->hasDocument($name = $id . '.xml')) {
-            $content = $client->getDocument($name);
-            $person = $serializer->deserialize($content, 'App\Entity\Volume', 'xml');
+        $lang = \App\Utils\Iso639::code1To3($request->getLocale());
+
+        if (is_null($id)) {
+            $entity = null;
+        }
+        else {
+            $resourcePath = $client->getCollection() . '/' . $id . '/' . $id . '.' . $lang . '.xml';
+            $entity = $this->fetchTeiHeader($client, $resourcePath);
         }
 
-        if (is_null($volume)) {
+        if (is_null($entity)) {
             if (is_null($id)) {
                 // add new not implemented yet
                 $request->getSession()
@@ -197,19 +211,21 @@ extends BaseController
             return $this->redirect($this->generateUrl('volume-list'));
         }
 
-        $form = $this->get('form.factory')->create(\App\Form\Type\VolumeType::class,
-                                                   $volume);
+        $form = $this->get('form.factory')->create(\App\Form\Type\TeiHeaderType::class,
+                                                   $entity);
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 if (!$update) {
+                    die('TODO: handle');
                     $id = $this->nextInSequence($client, $client->getCollection());
-                    $volume->setId($id);
+                    $entity->setId($id);
+                    // TODO: createTeiHeader
+                }
+                else {
+                    $res = $this->updateTeiHeader($entity, $client, $resourcePath);
                 }
 
-                $content = $serializer->serialize($volume, 'xml');
-                $name = $id . '.xml';
-                $res = $client->parse($content, $name, $update);
                 if (!$res) {
                     $request->getSession()
                             ->getFlashBag()
@@ -219,7 +235,7 @@ extends BaseController
                 else {
                     $request->getSession()
                             ->getFlashBag()
-                            ->add('in', 'Entry ' . ($update ? ' updated' : ' created'));
+                            ->add('info', 'Volume ' . ($update ? ' updated' : ' created'));
                         ;
                 }
 
@@ -229,7 +245,8 @@ extends BaseController
 
         return $this->render('Volume/edit.html.twig', [
             'form' => $form->createView(),
-            'entity' => $volume,
+            'entity' => $entity,
+            'id' => $id,
         ]);
     }
 }

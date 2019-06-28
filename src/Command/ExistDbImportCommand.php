@@ -11,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
+use function Stringy\create as s;
+
 class ExistDbImportCommand
 extends ExistDbCommand
 {
@@ -42,7 +44,11 @@ extends ExistDbCommand
         if ('base' == $collection) {
             if (!$existDbClient->existsAndCanOpenCollection()) {
                 $res = $existDbClient->createCollection();
-                var_dump($res);
+
+                $output->writeln(sprintf('<info>Base-Collection was created (%s)</info>',
+                                         $existDbBase));
+
+                return 0;
             }
 
             $output->writeln(sprintf('<info>Base-Collection already exists (%s)</info>',
@@ -70,15 +76,15 @@ extends ExistDbCommand
                 break;
 
             case 'persons':
-                $filename = !empty($resource) ? $resource : 'person-1.xml';
+                $filename = !empty($resource) ? $resource : '';
                 break;
 
             case 'organizations':
-                $filename = !empty($resource) ? $resource : 'organization-1.xml';
+                $filename = !empty($resource) ? $resource : '';
                 break;
 
             case 'places':
-                $filename = !empty($resource) ? $resource :  'place-1.xml';
+                $filename = !empty($resource) ? $resource :  '';
                 break;
 
             default:
@@ -90,7 +96,7 @@ extends ExistDbCommand
 
         $filenameFull = $this->getContainer()->get('kernel')->getProjectDir()
             . '/data/authority/' . $collection . '/' . $filename;
-        if (!file_exists($filenameFull)) {
+        if ('' !== $filename && !file_exists($filenameFull)) {
             $output->writeln(sprintf('<error>File does not exist (%s)</error>',
                                      $filenameFull));
 
@@ -102,7 +108,7 @@ extends ExistDbCommand
         return $this->checkCollectionAndStore($output, $existDbClient, $existDbBase . '/data/authority/' . $collection, $filename, $filenameFull, $overwrite);
     }
 
-    function checkCollectionAndStore(OutputInterface $output, $existDbClient, $subCollection, $resource, $filenameFull, $overwrite, $createCollection = true)
+    protected function checkCollectionAndStore(OutputInterface $output, $existDbClient, $subCollection, $resource, $filenameFull, $overwrite, $createCollection = true)
     {
         $existDbClient->setCollection($subCollection);
         if (!$existDbClient->existsAndCanOpenCollection()) {
@@ -120,6 +126,10 @@ extends ExistDbCommand
 
                 return -3;
             }
+        }
+
+        if (s($filenameFull)->endsWith('/')) {
+            return 0;
         }
 
         if ($existDbClient->hasDocument($resource) && !$overwrite) {
@@ -144,7 +154,7 @@ extends ExistDbCommand
     }
 
 
-    function importStyles(OutputInterface $output, $resource)
+    protected function importStyles(OutputInterface $output, $resource)
     {
         $collection = 'styles';
 
@@ -192,7 +202,7 @@ extends ExistDbCommand
         return $this->checkCollectionAndStore($output, $existDbClient, $subCollection = $existDbBase . '/' . $collection, $resource, $filenameFull, $overwrite);
     }
 
-    function importVolume(OutputInterface $output, $resource)
+    protected function importVolume(OutputInterface $output, $resource)
     {
         if (empty($resource)) {
             $output->writeln(sprintf('<error>Resource not specified</error>'));
@@ -238,7 +248,9 @@ extends ExistDbCommand
 
         $dtaidStem = in_array($article->genre, [ 'document-collection', 'image-collection' ])
             ? 'chapter' : $article->genre;
-        $reDtaid = sprintf('/^ghdi:%s\-\d+$/', $dtaidStem);
+
+        $reDtaid = sprintf('/^%s:%s\-\d+$/',
+                           $this->siteKey, $dtaidStem);
         if (!preg_match($reDtaid, $article->uid)) {
             $output->writeln(sprintf('<error>DTAID %s does not match the pattern %s</error>',
                                      $article->uid, $reDtaid));
@@ -246,8 +258,10 @@ extends ExistDbCommand
             return -1;
         }
 
+        $articleUidLocal = preg_replace(sprintf('/^%s:/', $this->siteKey), '', $article->uid);
+
         $resourceNameExpected = sprintf('%s.%s.xml',
-                                        preg_replace('/^ghdi:/', '', $article->uid),
+                                        $articleUidLocal,
                                         $article->language);
         if ($resourceNameExpected != $resource) {
             $output->writeln(sprintf('<error>resource %s does not match the expected value %s</error>',
@@ -263,7 +277,7 @@ extends ExistDbCommand
 
         switch ($article->genre) {
             case 'volume':
-                $collection = preg_replace('/^ghdi:/', '', $article->uid);
+                $collection = $articleUidLocal;
 
                 return $this->checkCollectionAndStore($output, $existDbClient, $subCollection = $existDbBase . '/data/volumes/' . $collection, $resource, $filenameFull, $overwrite);
                 break;
@@ -275,7 +289,7 @@ extends ExistDbCommand
             case 'image':
             case 'map':
                 $parts = explode('/', $article->shelfmark);
-                if ('ghdi' != $parts[0] || !preg_match('/^\d+\:(volume\-\d+)$/', $parts[1], $matches)) {
+                if ($this->siteKey != $parts[0] || !preg_match('/^\d+\:(volume\-\d+)$/', $parts[1], $matches)) {
                     $output->writeln(sprintf('<error>Could not determine volume from shelfmark %s/error>',
                                              $article->shelfmark));
                     return -1;

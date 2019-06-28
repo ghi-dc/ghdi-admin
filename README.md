@@ -70,6 +70,3 @@ Translate routes
 
     ./bin/console translation:extract de --dir=./src/ --dir=./templates/ --output-dir=./translations --enable-extractor=jms_i18n_routing
 
-Update schema
-
-    ./bin/console doctrine:schema:update --force

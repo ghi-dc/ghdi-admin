@@ -33,58 +33,58 @@
     ],
 
     "require": {
-        "symfony/config": "^4.2",
-        "symfony/finder": "^4.2",
-        "symfony/filesystem": "^4.2",
-        "symfony/yaml": "^4.2",
-        "symfony/expression-language": "^4.2",
-        "symfony/console": "^4.2",
-        "symfony/process": "^4.2",
-        "symfony/framework-bundle": "^4.2",
+        "symfony/config": "^4.3",
+        "symfony/finder": "^4.3",
+        "symfony/filesystem": "^4.3",
+        "symfony/yaml": "^4.3",
+        "symfony/expression-language": "^4.3",
+        "symfony/console": "^4.3",
+        "symfony/process": "^4.3",
+        "symfony/framework-bundle": "^4.3",
 
-        "symfony/http-foundation": "^4.2",
-        "symfony/event-dispatcher": "^4.2",
-        "symfony/cache": "^4.2",
-        "symfony/routing": "^4.2",
+        "symfony/http-foundation": "^4.3",
+        "symfony/event-dispatcher": "^4.3",
+        "symfony/cache": "^4.3",
+        "symfony/routing": "^4.3",
         "jms/i18n-routing-bundle": "^3.0",
         "jms/translation-bundle": "^1.4",
 
-        "symfony/inflector": "^4.2",
-        "symfony/property-access": "^4.2",
-        "symfony/options-resolver": "^4.2",
+        "symfony/inflector": "^4.3",
+        "symfony/property-access": "^4.3",
+        "symfony/options-resolver": "^4.3",
 
-        "symfony/translation": "^4.2",
-        "symfony/templating": "^4.2",
-        "twig/twig": "1.*",
+        "symfony/translation": "^4.3",
+        "symfony/templating": "^4.3",
+        "twig/twig": "2.*",
         "jasny/twig-extensions": "@stable",
-        "symfony/twig-bridge": "^4.2",
-        "symfony/twig-bundle": "^4.2",
+        "symfony/twig-bridge": "^4.3",
+        "symfony/twig-bundle": "^4.3",
 
-        "symfony/security": "^4.2",
-        "symfony/security-bundle": "^4.2",
-        "symfony/intl": "^4.2",
-        "symfony/form": "^4.2",
-        "symfony/validator": "^4.2",
+        "symfony/security": "^4.3",
+        "symfony/security-bundle": "^4.3",
+        "symfony/intl": "^4.3",
+        "symfony/form": "^4.3",
+        "symfony/validator": "^4.3",
         "ninsuo/symfony-collection": "^2.1",
 
         "symfony/monolog-bundle": "@stable",
-        "symfony/monolog-bridge": "^4.2",
+        "symfony/monolog-bridge": "^4.3",
 
-        "symfony/asset": "^4.2",
+        "symfony/asset": "^4.3",
         "sanpi/assetic-bundle": "@dev",
         "leafo/scssphp": "@stable",
 
-        "symfony/dom-crawler": "^4.2",
-        "symfony/css-selector": "^4.2",
+        "symfony/dom-crawler": "^4.3",
+        "symfony/css-selector": "^4.3",
 
         "knplabs/knp-menu-bundle": "^2.2",
 
-        "symfony/web-profiler-bundle": "^4.2",
-        "symfony/debug": "^4.2",
-        "symfony/debug-bundle": "^4.2",
-        "symfony/var-dumper": "^4.2",
+        "symfony/web-profiler-bundle": "^4.3",
+        "symfony/debug": "^4.3",
+        "symfony/debug-bundle": "^4.3",
+        "symfony/var-dumper": "^4.3",
 
-        "jms/serializer": "^1.11",
+        "jms/serializer": "^1.14",
 
         "gmo/iso-639": "^1.0",
         "league/iso3166": "^2.1",
@@ -93,8 +93,10 @@
 
         "sabre/xml": "^1.5",
         "servo/fluidxml": "@stable",
+        "fluentdom/fluentdom": "^7.0",
 
         "masterminds/html5": "2.*",
+        "danielstjules/stringy": "^3.1",
 
         "hedii/zotero-api": "@stable",
 
@@ -111,6 +113,10 @@
         "php-http/message": "^1.6",
         "guzzlehttp/psr7": "^1.4",
         "cocur/slugify": "^3.1",
+
+        "trisoftro/collective-access-client": "@dev",
+        "ezyang/htmlpurifier": "^4.10",
+        "voku/html-min": "*",
 
         "textrazor/textrazor-php": "*@dev"
     },

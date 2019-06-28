@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2018-08-16T14:34:26Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-06-07T17:42:09Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -10,6 +10,10 @@
         <source>/bibliography/{id}</source>
         <target>/bibliography/{id}</target>
       </trans-unit>
+      <trans-unit id="f98edaeacdc83a038d72889b65f37cad71b66977" resname="bibliography-detail-tei">
+        <source>/bibliography/{id}.tei.xml</source>
+        <target>/bibliography/{id}.tei.xml</target>
+      </trans-unit>
       <trans-unit id="ef13555010ad4a6e5ddf54a18a87ae339e373051" resname="bibliography-list">
         <source>/bibliography</source>
         <target>/bibliography</target>
@@ -17,6 +21,22 @@
       <trans-unit id="3632b1216ad8fe82011c0aa2a54b64f540a3f89d" resname="bibliography-sync">
         <source>/bibliography/sync</source>
         <target>/bibliography/sync</target>
+      </trans-unit>
+      <trans-unit id="7330c8f1b6f3a8dd98cc58e5114877e0634ed2c6" resname="ca-detail">
+        <source>/collective-access/{id}</source>
+        <target>/collective-access/{id}</target>
+      </trans-unit>
+      <trans-unit id="fbadb2f85f36ee3fa3673a0b26a161134d43b0c7" resname="ca-detail-tei">
+        <source>/collective-access/{id}.tei.xml</source>
+        <target>/collective-access/{id}.tei.xml</target>
+      </trans-unit>
+      <trans-unit id="9bbaffab107f31c63dcdf725ec9936d22becb5f0" resname="ca-list">
+        <source>/collective-access</source>
+        <target>/collective-access</target>
+      </trans-unit>
+      <trans-unit id="055442991929491e96c5b73243ba2750dabb9c83" resname="collection-add">
+        <source>/resource/{volume}/add/{genre}</source>
+        <target>/resource/{volume}/add/{genre}</target>
       </trans-unit>
       <trans-unit id="e83249bd3ba79932e16fb1fb5100dafade9954c2" resname="home">
         <source>/</source>
@@ -46,6 +66,10 @@
         <source>/organization/{id}/edit</source>
         <target>/organization/{id}/edit</target>
       </trans-unit>
+      <trans-unit id="9014920420c963e072b041ddc1064dbc6f0013ba" resname="organization-import-missing">
+        <source>/organization/import-missing</source>
+        <target>/organization/import-missing</target>
+      </trans-unit>
       <trans-unit id="d4343746322f231d4a66fa6f4e212432ff4a54b5" resname="organization-list">
         <source>/organization</source>
         <target>/organization</target>
@@ -70,9 +94,17 @@
         <source>/person/{id}/edit</source>
         <target>/person/{id}/edit</target>
       </trans-unit>
+      <trans-unit id="47e7c486f65bdadff09c9b5b9a72bfda0701ca73" resname="person-import-missing">
+        <source>/person/import-missing</source>
+        <target>/person/import-missing</target>
+      </trans-unit>
       <trans-unit id="5e6532e1d3cbb683c2fe146cdf277354a8a084f1" resname="person-list">
         <source>/person</source>
         <target>/person</target>
+      </trans-unit>
+      <trans-unit id="c5bd13b4a7c34d261dca6403202c1c5a0e66fb96" resname="person-lookup-identifier">
+        <source>/person/{id}/lookup-identifier</source>
+        <target>/person/{id}/lookup-identifier</target>
       </trans-unit>
       <trans-unit id="c9661c945d49db0aaba51e8f94716a08018bddd4" resname="person-test">
         <source>/person/test</source>
@@ -113,6 +145,26 @@
       <trans-unit id="f92de3e332d69c365db7baa45907cda974309a98" resname="resource-detail-pdf">
         <source>/resource/{volume}/{id}.pdf</source>
         <target>/resource/{volume}/{id}.pdf</target>
+      </trans-unit>
+      <trans-unit id="226067ca8bfced0260ef5dde404c0e161a9dd365" resname="resource-detail-tei">
+        <source>/resource/{volume}/{id}.tei.xml</source>
+        <target>/resource/{volume}/{id}.tei.xml</target>
+      </trans-unit>
+      <trans-unit id="0c6b172abcff95b43de023f83d338d8f3ac92c87" resname="resource-edit">
+        <source>/resource/{volume}/{id}/edit</source>
+        <target>/resource/{volume}/{id}/edit</target>
+      </trans-unit>
+      <trans-unit id="139ee48049073abea20aea9d1a24bcf46bdb5e87" resname="test-collection">
+        <source>/test/collection</source>
+        <target>/test/collection</target>
+      </trans-unit>
+      <trans-unit id="bb73aaafa1596e5425dc514a361ad4ef658f2758" resname="upload">
+        <source>/upload</source>
+        <target>/upload</target>
+      </trans-unit>
+      <trans-unit id="19e21981fba9c073ed576697aefd1b57a91cd395" resname="upload-handler">
+        <source>/upload/handler</source>
+        <target>/upload/handler</target>
       </trans-unit>
       <trans-unit id="ca481144f761bee83c6e0afe90ab60b3b48def05" resname="volume-detail">
         <source>/volume/{id}</source>

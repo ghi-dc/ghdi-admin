@@ -16,6 +16,44 @@ extends BaseController
 
     protected $subCollection = '/data/volumes';
 
+    /*
+     * Make unique across language so we can line-up different languages under same id
+     */
+    protected function nextInSequence($client, $collection, $prefix)
+    {
+        // see https://stackoverflow.com/a/48901690
+        $xql = <<<EOXQL
+    declare default element namespace "http://www.tei-c.org/ns/1.0";
+
+    declare variable \$collection external;
+    declare variable \$prefix external;
+
+    let \$resources :=
+        for \$resource in collection(\$collection)/TEI
+        where fn:starts-with(util:document-name(\$resource), \$prefix)
+        return fn:head(fn:tokenize(util:document-name(\$resource), '\.'))
+
+    return (for \$key in (1 to 9999)!format-number(., '0')
+        where not(\$prefix||\$key = \$resources)
+        return \$prefix || \$key)[1]
+
+EOXQL;
+
+        $query = $client->prepareQuery($xql);
+        $query->bindVariable('collection', $collection);
+        $query->bindVariable('prefix', $prefix);
+        $res = $query->execute();
+        $nextId = $res->getNextResult();
+
+        $res->release();
+
+        if (empty($nextId)) {
+            throw new \Exception('Could not generated next id in sequence');
+        }
+
+        return $nextId;
+    }
+
     protected function buildResources($client, $id, $lang)
     {
         $xql = $this->renderView('Volume/list-resources-json.xql.twig', [
@@ -34,17 +72,19 @@ extends BaseController
 
     /**
      * @Route("/resource/{volume}/{id}.dc.xml", name="resource-detail-dc",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      * @Route("/resource/{volume}/{id}.tei.xml", name="resource-detail-tei",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|map)\-\d+"})
      * @Route("/resource/{volume}/{id}.pdf", name="resource-detail-pdf",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      * @Route("/resource/{volume}/{id}", name="resource-detail",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      */
     public function detailAction(Request $request, $volume, $id)
     {
-        $textRazorApiKey = $this->getParameter('app.textrazor')['api_key'];
+        $textRazorApiKey = $this->container->hasParameter('app.textrazor')
+            ? $this->getParameter('app.textrazor')['api_key']
+            : null;
         $showAddEntities = !empty($textRazorApiKey) ? 1 : 0;
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -55,7 +95,7 @@ extends BaseController
         $query = $client->prepareQuery($xql);
         $query->setJSONReturnType();
         $query->bindVariable('collection', $client->getCollection());
-        $query->bindVariable('id', 'ghdi:' . $id);
+        $query->bindVariable('id', implode(':', [ $this->siteKey,  $id ]));
         $query->bindVariable('lang', $lang = \App\Utils\Iso639::code1To3($request->getLocale()));
         $res = $query->execute();
         $resource = $res->getNextResult();
@@ -177,6 +217,206 @@ extends BaseController
             'html' => $html,
             'entity_lookup' => $entityLookup,
             'showAddEntities' => $showAddEntities,
+        ]);
+    }
+
+    protected function fetchTeiHeader($client, $resourcePath)
+    {
+        if ($client->hasDocument($resourcePath)) {
+            $content = $client->getDocument($resourcePath);
+
+            $teiHelper = new \App\Utils\TeiHelper();
+            $article = $teiHelper->analyzeHeaderString($content, true);
+
+            if (false === $article) {
+                return null;
+            }
+
+            $entity = new \App\Entity\TeiHeader();
+            $entity->setTitle($article->name);
+
+            return $entity;
+        }
+
+        return null;
+    }
+
+    private function updateTeiHeaderContent($client, $resourcePath, $content, $data, $update = true)
+    {
+        $teiHelper = new \App\Utils\TeiHelper();
+        $content = $teiHelper->adjustHeaderString($content, $data);
+
+        return $client->parse($content->saveXML(), $resourcePath, $update);
+    }
+
+    /*
+     * Naive implementation - fetches XML and updates it
+     * Goal would be to use https://exist-db.org/exist/apps/doc/update_ext.xml instead
+     */
+    protected function updateTeiHeader($entity, $client, $resourcePath)
+    {
+        if ($client->hasDocument($resourcePath)) {
+            $content = $client->getDocument($resourcePath);
+
+            $data = [
+                'title' => $entity->getTitle(),
+            ];
+
+            return $this->updateTeiHeaderContent($client, $resourcePath, $content, $data);
+        }
+
+        return false;
+    }
+
+    /*
+     * Naive implementation - takes XML skeleton and updates it
+     */
+    protected function createTeiHeader($entity, $client, $resourcePath)
+    {
+        $content = $this->getTeiSkeleton();
+
+        if (false === $content) {
+            return false;
+        }
+
+        $data = $entity->jsonSerialize();
+
+        return $this->updateTeiHeaderContent($client, $resourcePath, $content, $data, false);
+    }
+
+
+    protected function generateShelfmark($client, $volumeId, $lang, $id)
+    {
+        $prefix = preg_replace('/(\-)\d+$/', '\1', $id);
+        $collection = $client->getCollection();
+
+        $xql = <<<EOXQL
+    declare default element namespace "http://www.tei-c.org/ns/1.0";
+
+    declare variable \$collection external;
+    declare variable \$volume external;
+    declare variable \$prefix external;
+
+    fn:head(
+        for \$resource in collection(\$collection)/TEI
+        where fn:starts-with(util:document-name(\$resource), \$prefix)
+        and fn:contains(\$resource//idno['shelfmark' = @type]/text(), \$volume)
+        order by \$resource//idno['shelfmark' = @type]/text() descending
+        return \$resource//idno['shelfmark' = @type]/text())
+
+EOXQL;
+
+        $query = $client->prepareQuery($xql);
+        $query->bindVariable('collection', $collection);
+        $query->bindVariable('volume', $volumeId);
+        $query->bindVariable('prefix', $prefix);
+        $res = $query->execute();
+        $shelfmarkHighest = $res->getNextResult();
+        $res->release();
+
+        $counter = 1;
+        if (preg_match('/(.*)\/(\d+)(\:[^\/]+)$/', $shelfmarkHighest, $matches)) {
+            $counter = (int)$matches[2] + 1;
+        }
+
+        $volume = $this->fetchVolume($client, $volumeId, $lang);
+
+        $shelfmark = sprintf('%s/%03d:%s',
+                             $volume['data']['shelfmark'], $counter, $id);
+
+        return $shelfmark;
+    }
+
+    /**
+     * @Route("/resource/{volume}/{id}/edit", name="resource-edit",
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     * @Route("/resource/{volume}/add/{genre}", name="collection-add",
+     *          requirements={"volume" = "volume\-\d+", "genre" = "(document-collection)"})
+     */
+    public function editAction(Request $request, $volume, $id = null, $genre = null)
+    {
+        $update = 'resource-edit' == $request->get('_route');
+
+        $client = $this->getExistDbClient($this->subCollection);
+
+        if (!is_null($id)) {
+            $lang = \App\Utils\Iso639::code1To3($request->getLocale());
+            $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
+
+            $entity = $this->fetchTeiHeader($client, $resourcePath);
+        }
+        else {
+            $entity = null;
+        }
+
+        if (is_null($entity)) {
+            if (is_null($id)) {
+                $entity = new \App\Entity\TeiHeader();
+            }
+            else {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('warning', 'No entry found for id: ' . $id)
+                    ;
+
+                return $this->redirect($this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]));
+            }
+        }
+
+        $form = $this->get('form.factory')
+                ->create(\App\Form\Type\TeiHeaderType::class, $entity)
+                ;
+        if ($request->getMethod() == 'POST') {
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                if (!$update) {
+                    $lang = \App\Utils\Iso639::code1To3($request->getLocale());
+
+                    $id = $this->nextInSequence($client, $client->getCollection(), $prefix = 'chapter-');
+
+                    $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
+
+                    $entity->setId($this->siteKey . ':' . $id);
+                    $entity->setLanguage($lang);
+                    $entity->setGenre($genre);
+
+                    $shelfmark = $this->generateShelfmark($client, $volume, $lang, $id);
+                    $entity->setShelfmark($shelfmark);
+
+                    $res = $this->createTeiHeader($entity, $client, $resourcePath);
+                }
+                else {
+                    $res = $this->updateTeiHeader($entity, $client, $resourcePath);
+                }
+
+                $redirectUrl = $this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]);
+
+                if (!$res) {
+                    $request->getSession()
+                            ->getFlashBag()
+                            ->add('warning', 'An issue occured while storing id: ' . $id)
+                        ;
+                }
+                else {
+                    if ($request->getSession()->has('return-after-save')) {
+                        $redirectUrl = $this->generateUrl($request->getSession()->remove('return-after-save'));
+                    }
+
+                    $request->getSession()
+                            ->getFlashBag()
+                            ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
+                        ;
+                }
+
+                return $this->redirect($redirectUrl);
+            }
+        }
+
+        return $this->render('Resource/edit.html.twig', [
+            'form' => $form->createView(),
+            'entity' => $entity,
+            'volume' => $volume,
+            'id' => $id,
         ]);
     }
 

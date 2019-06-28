@@ -1,5 +1,7 @@
 {% extends 'Base/base.html.twig' %}
 
+{% import 'Base/helper.html.twig' as helper %}
+
 {% block head %}
     <script>
     /* see https://stackoverflow.com/a/30905277 */
@@ -23,6 +25,8 @@
         document.body.removeChild(aux);
     }
     </script>
+    <script src="{{ app.request.basepath }}/js/Sortable.min.js"></script>
+
 {% endblock %}
 
 {% block body %}
@@ -34,7 +38,7 @@
         <a href="{{ path(app.request.attributes.get('_route') ~ '-dc', app.request.attributes.get('_route_params')) }}">{{ 'Dublin Core'|trans }}</a><br />
             WebDAV:
             <span id="url">{{ webdav_base }}/{{ id }}/{{ volume['data'].fname }}</span>
-            <button title="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open" onclick="copyToClipboard('url')"><i class="glyphicon glyphicon-copy"></i> </button>
+            <button title="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open" onclick="copyToClipboard('url')"><i class="fa fa-copy"></i> </button>
     </div>
     <div class="row">
         <div class="col-sm-8">
@@ -42,21 +46,31 @@
 
             {% if resources_grouped is not empty %}
             {% set groups = [ "introduction", "documents", "images", "maps" ] %}
-            <h3>Resources</h3>
+            <h3>{{ 'Resources'|trans }}</h3>
             <ul class="list-group">
                 {% for key in groups if resources_grouped[key] is defined %}
                     {% set group = resources_grouped[key] %}
                 <li class="list-group-item">
-                    <h4><a href="#{{ key }}" data-toggle="collapse">{{ group.name }}</a></h4>
+                    <h4>
+                        <a href="#{{ key }}" data-toggle="collapse">{{ group.name|trans({}, 'additional') }}</a>
+                        {% if key == 'documents' or key == 'images' %}
+                        <small><a href="{{ path('collection-add', { 'volume' : id, 'genre' : key|trim('s', 'right') ~ '-collection' }) }}" class="fa fa-plus" title="{{ 'add ' ~ key ~ ' collection' }}"> </a></small>
+                        <small><a href="#" id="save-{{ key }}" onclick="$('#update-{{ key }}').submit()" class="fa fa-save collapse" title="{{ 'save changed order' }}"> </a></small>
+                        {% endif %}
+                    </h4>
+                    <form id="update-{{ key }}" method="POST">
+                        <input type="hidden" name="resource_group" value="{{ key }}" />
+                        <input id="order-{{ key }}" type="hidden" name="order" value="" />
+                    </form>
                     <div id="{{ key }}" class="collapse">
-                        <ul class="list-group">
-                            {% for subkey,resource in group.resources %}
-                            <li class="list-group-item">
-                                {% if resource.id is not empty %}
+                        <ul id="sortable-{{ key }}" class="list-group">
+                        {% for subkey,resource in group.resources %}
+                            <li class="list-group-item" data-id="{{ resource.id }}">
+                            {% if resource.id is not empty %}
                                 <a href="{{ path('resource-detail', { volume: id, id: resource.id }) }}">
                                 {{ resource.name }}
                                 </a>
-                                {% elseif resource.resources is not empty %}
+                            {% elseif resource.resources is not empty %}
                                 <h5><a href="#{{ subkey }}" data-toggle="collapse">{{ resource.name }}</a></h5>
                                 <div id="{{ subkey }}" class="collapse">
                                     <ul class="list-group">
@@ -69,10 +83,24 @@
                                     {% endfor %}
                                     </ul>
                                 </div>
-                                {% endif %}
+                            {% else %}
+                                <h5>{{ resource.name }}  <small>[view]</small></h5>
+                            {% endif %}
                             </li>
-                            {% endfor %}
+                        {% endfor %}
                         </ul>
+                        <script>
+                            Sortable.create(document.getElementById('sortable-{{ key }}'), {
+                                onUpdate: function (/**Event*/ evt) {
+                                    // enable save-button
+                                    $('#save-{{  key }}').collapse();
+                                    var array = $("#sortable-{{ key }} > li").map(function() {
+                                        return $(this).data('id');
+                                    }).get();
+                                    $('#order-{{  key }}').val(JSON.stringify(array));
+                                }
+                            });
+                        </script>
                     </div>
                 </li>
                 {% endfor %}

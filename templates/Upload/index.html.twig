@@ -1,0 +1,110 @@
+{% extends 'Base/base.html.twig' %}
+
+{% block body %}
+    <h2>File Upload</h2>
+    <div class="form-group">
+        <label class="col-sm-2 control-label required" for="">Add Word</label>
+        <div class="col-sm-10">
+            <div class="dropzone"></div>  {# This is the element which is used as a dropzone #}
+        </div>
+        <div id="result" style='clear: left; font-family: "Courier New", monospace; white-space: pre;'>
+
+        </div>
+    </div>
+
+    {# Hidden fields used to store the id, filename of the inserted record.
+       These can also be inserted via your form as "unmapped" properties. #}
+    <input type="hidden" id="linked_ID">
+    <input type="hidden" id="fileName">
+
+    <script src="{{ asset('assets/vendor/izitoast/dist/js/iziToast.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor/dropzone/dist/min/dropzone.min.js') }}"></script>
+    <script>
+            Dropzone.autoDiscover = false; // we set this up in $( document ).ready
+    </script>
+{% endblock %}
+
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/vendor/izitoast/dist/css/iziToast.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor/dropzone/dist/min/dropzone.min.css') }}">
+
+    <script>
+    $( document ).ready(function() {
+        // init,configure dropzone
+        var dropzone_default = new Dropzone(".dropzone", {
+            url: '{{ path('upload-handler') }}' ,
+            maxFiles: 1,
+            dictMaxFilesExceeded: 'Only 1 File can be uploaded',
+            acceptedFiles: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/docx',
+            maxFilesize: 3,  // in Mb
+            addRemoveLinks: true,
+            init: function () {
+                this.on("maxfilesexceeded", function(file) {
+                    this.removeFile(file);
+                });
+                this.on("sending", function(file, xhr, formData) {
+                    // send additional data with the file as POST data.
+                    formData.append("key", "value");
+                });
+                this.on("success", function(file, response) {
+                    iziToast.show({
+                        title: 'Success!',
+                        message: 'File Converted',
+                        color: 'green',
+                        position: 'topCenter'
+                    });
+                    // set the id,filename from the response
+                    $('#result').text(response.content);
+                });
+                {#
+                this.on("removedfile", function(file) {
+                    var fileName = $('#fileName').val();
+                    var linkedId = $('#linked_ID').val();
+
+                    // Delete file from server
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ path('deleteFileResource') }}',
+                        data: {
+                            id: linkedId,
+                            fileName: fileName
+                        },
+                        dataType: 'json'
+                    }).done(function (resp) {
+                        if (resp.deleted) {
+                            iziToast.show({
+                                title: 'Deleted!',
+                                message: 'Deleted File: <b>'+ fileName + '</b>.',
+                                color: 'yellow',
+                                position: 'topCenter'
+                            });
+                        } else if (resp.error) {
+                            iziToast.show({
+                                title: 'Error!',
+                                message: resp.error,
+                                color: 'red',
+                                position: 'topCenter'
+                            });
+                        }
+                    }).fail(function(resp) {
+                        console.error('xhr failed', resp);
+                        return false;
+                    });
+                });
+                #}
+                // this event is required only to debug errors
+                this.on("error", function(file, errorMessage) {
+                    console.error('Error', errorMessage);
+                    iziToast.show({
+                        title: 'Upload Failed',
+                        message: errorMessage,
+                        color: 'red',
+                        position: 'topCenter'
+                    });
+                });
+            }
+        });
+    });
+    </script>
+{% endblock %}
