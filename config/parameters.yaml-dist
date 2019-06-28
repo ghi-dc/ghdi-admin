@@ -34,9 +34,11 @@ parameters:
         api-user: "api"
         api-key: ~
         root-collection: ghdi
+
     app.pandoc.processor.arguments:
         # usually /usr/bin/
-        path: "/usr/bin/"
+        # on Windows if not installed system-wide something like "c:/Users/YOUR_USER/AppData/Local/Pandoc/"
+        path: /usr/bin/
 
     app.tei-prettyprinter-adapter.class:
         #App\Utils\XmlPrettyPrinter\NullAdapter
