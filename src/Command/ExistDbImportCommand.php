@@ -161,7 +161,6 @@ extends ExistDbCommand
         $inputDir = $this->getContainer()->get('kernel')->getProjectDir()
             . '/data/' . $collection;
 
-
         if (empty($resource)) {
             $res = null;
             foreach (glob($inputDir . '/*.xsl') as $filenameFull) {

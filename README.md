@@ -49,8 +49,15 @@ Located in /db/apps/ghdi/data/volumes/
     ./bin/console existdb:index places
 
 ## Import
-    ./bin/console existdb:import volumes volume-13.deu.xml
-    ./bin/console existdb:import volumes volume-13.eng.xml
+
+    ./bin/console existdb:import volumes volume-15.deu.xml
+    ./bin/console existdb:import volumes volume-15.eng.xml
+
+    #!/bin/bash
+    for filenameAbs in data/tei/introduction*.xml; do
+        filename=$(basename -- "$filenameAbs")
+        ./bin/console existdb:import volumes "$filename"
+    done
 
 ### Add Test Authority Data
 
@@ -69,4 +76,3 @@ Development Notes
 Translate routes
 
     ./bin/console translation:extract de --dir=./src/ --dir=./templates/ --output-dir=./translations --enable-extractor=jms_i18n_routing
-

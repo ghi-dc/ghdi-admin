@@ -21,8 +21,9 @@ html, body {
     width: 100%;
 }
 
-html { font-size: 14px } /* use bootstrap 3 sizes: 14px instead of 16px */
-
+html {
+    font-size: 14px;  /* use bootstrap 3 sizes: 14px instead of 16px */
+}
 
 body {
     display: table;
@@ -210,8 +211,8 @@ nav {
         .footnote       { color:#333; font-size:.8em; margin-top:.5em; margin-left:1em }
         .endnote        { color:#333; font-size:.8em; margin-top:.5em; margin-bottom:.5em }
         .endnote-indent { text-indent:1em }
-        .fn-intext { vertical-align:super; font-size:.8em }
-        .fn-sign { vertical-align:super; font-size:.8em }
+        .dta-fn-intext, .fn-intext { vertical-align:super; font-size:.8em }
+        .dta-fn-sign, .fn-sign { vertical-align:super; font-size:.8em }
 
         .dta-marginal {
             display: block;

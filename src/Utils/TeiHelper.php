@@ -31,10 +31,6 @@ class TeiHelper
         return $person;
     }
 
-    /*
-
-    */
-
     protected function registerNamespaces($xml)
     {
         // $xml->registerNamespace('xml', 'http://www.w3.org/XML/1998/namespace');
@@ -44,7 +40,7 @@ class TeiHelper
 
     protected function loadXml($fname)
     {
-        $xml = \FluentDOM::load($fname, 'xml');
+        $xml = \FluentDOM::load($fname, 'xml', [ \FluentDOM\Loader\Options::ALLOW_FILE => true ]);
 
         $this->registerNamespaces($xml);
 
@@ -778,9 +774,10 @@ class TeiHelper
         return $ret;
     }
 
-    protected function extractTextContent(\SimpleXMLElement $node, $normalizeWhitespace = true)
+    protected function extractTextContent($node, $normalizeWhitespace = true)
     {
-        $textContent = dom_import_simplexml($node)->textContent;
+        $textContent = $node->textContent;
+
         if ($normalizeWhitespace) {
             // http://stackoverflow.com/a/33980774
             return preg_replace(['(\s+)u', '(^\s|\s$)u'], [' ', ''], $textContent);
