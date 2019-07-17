@@ -60,6 +60,9 @@ services:
         calls:
             - [ setOption, [ 'adapter', '@app.xsl-converter-adapter' ]]
 
+    App\Utils\AnvcScalarClient:
+        arguments: [ "%app.scalar_client.options%" ]
+
     app.xsl-converter-adapter:
         class: "%app.xsl-converter-adapter.class%"
         arguments:  [ "%app.xsl-converter-adapter.arguments%" ]

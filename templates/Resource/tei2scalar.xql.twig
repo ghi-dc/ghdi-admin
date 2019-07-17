@@ -1,0 +1,18 @@
+xquery version "3.1";
+
+declare namespace tei="http://www.tei-c.org/ns/1.0";
+
+declare variable $stylespath external;
+declare variable $lang external;
+
+declare variable $tei as document-node() := doc($resource);
+
+<body>
+{
+    (: see https://exist-db.org/exist/apps/doc/xsl-transform :)
+    transform:transform($tei{% if path is not empty %}{{ path }}{% endif %}, doc($stylespath || '/dta2scalar.xsl'),
+    <parameters>
+        <param name="lang" value="{ $lang }"/>
+    </parameters>)
+}
+</body>

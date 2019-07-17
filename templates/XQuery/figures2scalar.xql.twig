@@ -1,0 +1,30 @@
+xquery version "3.1";
+
+declare default element namespace "http://www.tei-c.org/ns/1.0";
+
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare namespace json="http://www.json.org";
+
+declare variable $stylespath external;
+declare variable $lang external;
+
+(: Switch to JSON serialization :)
+declare option output:method "json";
+declare option output:media-type "text/javascript";
+
+<json:value>
+{
+
+let $tei as document-node() := doc($resource)
+
+for $figure in $tei/TEI/text/body//figure
+    return <data json:array="true">
+        <url>{ string($figure/@facs) }</url>
+        <description>{
+        fn:serialize(transform:transform($figure/*, doc($stylespath || '/dta2scalar.xsl'), <parameters>
+            <param name="lang" value="{ $lang }"/>
+        </parameters>))
+        }</description>
+    </data>
+}
+</json:value>

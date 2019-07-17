@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -136,6 +137,147 @@ extends Controller
         $response->headers->set('Content-Type', 'text/xml');
 
         return $response;
+    }
+
+    /**
+     * anvc/scalar is picky about newlines and whitespaces in html content
+     *
+     * The following is an attempt to tweak so the display looks good
+     *
+     */
+    protected function minify($html, $inlineContent = false)
+    {
+        $htmlMin = new \voku\helper\HtmlMin();
+        $htmlMin->doOptimizeViaHtmlDomParser(true);
+        $htmlMin->doRemoveWhitespaceAroundTags(false);
+
+        $htmlContent = $htmlMin->minify($html);
+
+        // TODO: we might just use $htmlContent instead of going through \Symfony\Component\DomCrawler\Crawler
+        if ($inlineContent) {
+            $htmlContent = '<div>' . $htmlContent . '</div>';
+        }
+
+        $crawler = new \Symfony\Component\DomCrawler\Crawler();
+        $crawler->addHtmlContent($htmlContent);
+
+        $ret = $crawler->filter($inlineContent ? 'body > div' : 'body')->html();
+
+        // remove empty p
+        $ret = preg_replace('/<p>\s*<\/p>/', '', $ret);
+
+        // remove newlines after tags
+        $ret = preg_replace('/(<[^>]+>\s*)\R+/', '\1', $ret);
+
+        // replace newlines before tags with space
+        $ret = preg_replace('/\s*\R+\s*(<[^>]+>)/', ' \1', $ret);
+
+        $ret = preg_replace('/(<\/p>)(<p>)/', '\1 \2', $ret);
+        $ret = preg_replace('/(<\/p>)(<br>)/', '\1 \2', $ret);
+
+        return $ret;
+    }
+
+    private function addScalarHasPart($resources)
+    {
+        $hasPart = [];
+
+        foreach ($resources as $resource) {
+            $part = [
+                'scalar:metadata:slug' => $resource['id'],
+            ];
+
+            if (!empty($resource['resources'])) {
+                $part['dcterms:hasPart'] = $this->addScalarHasPart($resource['resources']);
+            }
+
+            $hasPart[] = $part;
+        }
+
+        return $hasPart;
+    }
+
+    protected function teiToScalar($client, $resourcePath, $lang,
+                                   $children = null, $embeddedFigure = false)
+    {
+        $ret = [];
+
+        // some metadata
+        $teiHelper = new \App\Utils\TeiHelper();
+        $article = $teiHelper->analyzeHeaderString($client->getDocument($resourcePath), true);
+
+        // TODO: we want to move to $article->slug but this needs slug-rename logic
+        $uid = explode(':', $article->uid, 2);
+        $ret['scalar:metadata:slug'] = $uid[1];
+
+        $fieldDescr = [
+            'dcterms:title' => [ 'xpath' => '//tei:titleStmt/tei:title', 'inlineContent' => true ],
+            'sioc:content' => [ 'xpath' => '']
+        ];
+
+        if ($embeddedFigure) {
+            $ret['scalar:metadata:slug'] = 'media/' . preg_replace('/^(image|map)\-/', 'media-', $ret['scalar:metadata:slug']);
+            unset($fieldDescr['sioc:content']);
+
+            $xql = $this->renderView('XQuery/figures2scalar.xql.twig', [
+            ]);
+
+            $query = $client->prepareQuery($xql);
+            $query->setJSONReturnType();
+            $query->bindVariable('stylespath', $this->getStylesPath());
+            $query->bindVariable('resource', $resourcePath);
+            $query->bindVariable('lang', $lang);
+            $res = $query->execute();
+            $figures = $res->getNextResult();
+            $res->release();
+
+            if (1 == count($figures['data'])) {
+                $media = $figures['data'][0];
+                // we can't currently handle more than one figure due to the 1:1 correspondance of image-1234 <-> media-1234
+                $ret['scalar:metadata:url'] = 'http://germanhistorydocs.ghi-dc.org/images/' . $media['url'];
+                if (!empty($media['description'])) {
+                    $ret['dcterms:description'] = $this->minify($media['description']);
+                }
+            }
+        }
+
+        // title and content
+        foreach ($fieldDescr as $key => $descr) {
+            $xql = $this->renderView('Resource/tei2scalar.xql.twig', [
+                'path' => $descr['xpath'],
+            ]);
+            $query = $client->prepareQuery($xql);
+            $query->bindVariable('stylespath', $this->getStylesPath());
+            $query->bindVariable('resource', $resourcePath);
+            $query->bindVariable('lang', $lang);
+            $res = $query->execute();
+            $html = $res->getNextResult();
+            $res->release();
+
+            $ret[$key] = $this->minify($html,
+                                       array_key_exists('inlineContent', $descr)
+                                       ? $descr['inlineContent'] : false);
+        }
+
+        if (!empty($children)) {
+            $hasPart = [];
+
+            foreach ($children as $key => $child) {
+                $part = [
+                    'scalar:metadata:slug' => $key,
+                ];
+
+                if (!empty($child['resources'])) {
+                    $part['dcterms:hasPart'] = $this->addScalarHasPart($child['resources']);
+                }
+
+                $hasPart[] = $part;
+            }
+
+            $ret['dcterms:hasPart'] = $hasPart;
+        }
+
+        return new JsonResponse($ret);
     }
 
     protected function extractPartsFromHtml($html)

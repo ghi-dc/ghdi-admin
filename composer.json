@@ -77,6 +77,8 @@
         "symfony/dom-crawler": "^4.3",
         "symfony/css-selector": "^4.3",
 
+        "symfony/http-client": "^4.3",
+
         "knplabs/knp-menu-bundle": "^2.2",
 
         "symfony/web-profiler-bundle": "^4.3",
@@ -118,7 +120,9 @@
         "ezyang/htmlpurifier": "^4.10",
         "voku/html-min": "*",
 
-        "textrazor/textrazor-php": "*@dev"
+        "textrazor/textrazor-php": "*@dev",
+
+        "nategood/httpful": "*"
     },
 
     "autoload": {

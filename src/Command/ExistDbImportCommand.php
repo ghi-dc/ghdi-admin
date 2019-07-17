@@ -30,6 +30,12 @@ extends ExistDbCommand
                 InputArgument::OPTIONAL,
                 'What resource do you want to import'
             )
+            ->addOption(
+                'overwrite',
+                null,
+                InputOption::VALUE_NONE,
+                'Specify to overwrite existing resources'
+            )
             ->setDescription('Import collection (base|volumes|persons|organization|places|styles) into app.existdb.base')
             ;
     }
@@ -40,6 +46,8 @@ extends ExistDbCommand
 
         $existDbBase = $existDbClient->getCollection();
         $collection = $input->getArgument('collection');
+
+        $overwrite = $input->getOption('overwrite');
 
         if ('base' == $collection) {
             if (!$existDbClient->existsAndCanOpenCollection()) {
@@ -72,7 +80,7 @@ extends ExistDbCommand
                 break;
 
             case 'styles':
-                return $this->importStyles($output, $resource);
+                return $this->importStyles($output, $resource, $overwrite);
                 break;
 
             case 'persons':
@@ -102,8 +110,6 @@ extends ExistDbCommand
 
             return -3;
         }
-
-        $overwrite = false; // TODO: get from options
 
         return $this->checkCollectionAndStore($output, $existDbClient, $existDbBase . '/data/authority/' . $collection, $filename, $filenameFull, $overwrite);
     }
@@ -154,7 +160,7 @@ extends ExistDbCommand
     }
 
 
-    protected function importStyles(OutputInterface $output, $resource)
+    protected function importStyles(OutputInterface $output, $resource, $overwrite = false)
     {
         $collection = 'styles';
 
@@ -166,7 +172,7 @@ extends ExistDbCommand
             foreach (glob($inputDir . '/*.xsl') as $filenameFull) {
                 $resource = basename($filenameFull);
                 if (!empty($resource)) {
-                    $subRes = $this->importStyles($output, $resource);
+                    $subRes = $this->importStyles($output, $resource, $overwrite);
                     if ($subRes != 0) {
                         return $subRes;
                     }
@@ -196,9 +202,9 @@ extends ExistDbCommand
         $existDbClient = $this->getExistDbClient();
         $existDbBase = $existDbClient->getCollection();
 
-        $overwrite = false; // TODO: get from options
-
-        return $this->checkCollectionAndStore($output, $existDbClient, $subCollection = $existDbBase . '/' . $collection, $resource, $filenameFull, $overwrite);
+        return $this->checkCollectionAndStore($output, $existDbClient,
+                                              $subCollection = $existDbBase . '/' . $collection,
+                                              $resource, $filenameFull, $overwrite);
     }
 
     protected function importVolume(OutputInterface $output, $resource)

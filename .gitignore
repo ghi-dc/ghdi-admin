@@ -1,5 +1,6 @@
 # project specific
 /public/.htaccess
+/data/tei
 /sql
 
 # Cache, session files and logs (Symfony3)

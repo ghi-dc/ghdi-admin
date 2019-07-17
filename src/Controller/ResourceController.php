@@ -72,10 +72,16 @@ EOXQL;
 
     /**
      * @Route("/resource/{volume}/{id}.dc.xml", name="resource-detail-dc",
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map|)\-\d+"})
+     * @Route("/resource/{volume}/{id}.scalar.json", name="resource-detail-scalar",
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     * @Route("/resource/{volume}/{id}/media.scalar.json", name="resource-embedded-media-scalar",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      * @Route("/resource/{volume}/{id}.tei.xml", name="resource-detail-tei",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      * @Route("/resource/{volume}/{id}.pdf", name="resource-detail-pdf",
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     * @Route("/resource/{volume}/{id}.html", name="resource-detail-html",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      * @Route("/resource/{volume}/{id}", name="resource-detail",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
@@ -113,6 +119,12 @@ EOXQL;
 
         if ('resource-detail-dc' == $request->get('_route')) {
             return $this->teiToDublinCore($client, $resourcePath);
+        }
+
+        if (in_array($request->get('_route'), [ 'resource-detail-scalar', 'resource-embedded-media-scalar' ])) {
+            return $this->teiToScalar($client, $resourcePath,
+                                      \App\Utils\Iso639::code1To3($request->getLocale()),
+                                      null, 'resource-embedded-media-scalar' == $request->get('_route'));
         }
 
         if ('resource-detail-tei' == $request->get('_route')) {
@@ -199,6 +211,16 @@ EOXQL;
             $this->renderPdf($html, str_replace('.xml', '.pdf', $resource['data']['fname']), 'I', $request->getLocale());
 
             return;
+        }
+
+        if ('resource-detail-html' == $request->get('_route')) {
+            // simple html for scalar export
+            return $this->render('Resource/detail-no-chrome.html.twig', [
+                'pageTitle' => $resource['data']['name'],
+                'volume' => $this->fetchVolume($client, $volume, $lang),
+                'resource' => $resource,
+                'html' => $html,
+            ]);
         }
 
         $parts = $this->extractPartsFromHtml($html);

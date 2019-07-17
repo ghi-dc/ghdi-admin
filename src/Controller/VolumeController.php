@@ -136,6 +136,7 @@ extends ResourceController
 
     /**
      * @Route("/volume/{id}.dc.xml", name="volume-detail-dc", requirements={"id" = "volume\-\d+"})
+     * @Route("/volume/{id}.scalar.json", name="volume-detail-scalar", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}", name="volume-detail", requirements={"id" = "volume\-\d+"})
      */
     public function volumeDetailAction(Request $request, $id)
@@ -158,11 +159,16 @@ extends ResourceController
                     ->getFlashBag()
                     ->add('info', 'TODO: reorder ' . $request->get('order'))
                 ;
-
         }
 
         if ('volume-detail-dc' == $request->get('_route')) {
             return $this->teiToDublinCore($client, $client->getCollection() . '/' . $id . '/' . $volume['data']['fname']);
+        }
+
+        if ('volume-detail-scalar' == $request->get('_route')) {
+            return $this->teiToScalar($client, $client->getCollection() . '/' . $id . '/' . $volume['data']['fname'],
+                                      \App\Utils\Iso639::code1To3($request->getLocale()),
+                                      $this->buildResourcesGrouped($client, $id, $lang));
         }
 
         return $this->render('Volume/detail.html.twig', [

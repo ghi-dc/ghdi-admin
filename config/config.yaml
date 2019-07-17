@@ -16,8 +16,12 @@ framework:
         engines: ['twig']
     # knp_paginator needs translate bundle
     translator: { fallbacks: ['%locale%'], logging: false }
-    # needs form bundle
-    # form: ~
+    http_client:
+        scoped_clients:
+            # see: https://symfony.com/doc/current/reference/configuration/framework.html#reference-http-client-scoped-clients
+            admin.client:
+                base_uri: '%app.site.base_uri%'
+                auth_basic: '%app.site.auth_basic%'
 
 twig:
     globals:
