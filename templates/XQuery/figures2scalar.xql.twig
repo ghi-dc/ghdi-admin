@@ -21,10 +21,24 @@ for $figure in $tei/TEI/text/body//figure
     return <data json:array="true">
         <url>{ string($figure/@facs) }</url>
         <description>{
-        fn:serialize(transform:transform($figure/*, doc($stylespath || '/dta2scalar.xsl'), <parameters>
-            <param name="lang" value="{ $lang }"/>
-        </parameters>))
+            fn:serialize(transform:transform($figure/*, doc($stylespath || '/dta2scalar.xsl'), <parameters>
+                <param name="lang" value="{ $lang }"/>
+            </parameters>))
         }</description>
+        {
+            if($tei//titleStmt/author) then (
+                <creator>{
+                fn:normalize-space(fn:serialize(transform:transform($tei//titleStmt/author, doc($stylespath || '/dta2scalar.xsl'), <parameters>
+                    <param name="lang" value="{ $lang }"/>
+                </parameters>)))
+                }</creator>
+            ) else ()
+        }
+        {
+            if($tei//sourceDesc//date[@type='creation']) then (
+                <date>{ $tei//sourceDesc//date[@type='creation']/text() }</date>
+            ) else ()
+        }
     </data>
 }
 </json:value>

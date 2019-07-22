@@ -9,6 +9,10 @@ namespace App\Utils;
 class AnvcScalarClient
 {
     protected $config = [];
+    protected $additionalProperties = [
+        'http://purl.org/dc/terms/creator' => 'dcterms:creator',
+        'http://purl.org/dc/terms/date' => 'dcterms:date',
+    ];
 
     public function __construct($config)
     {
@@ -89,7 +93,7 @@ class AnvcScalarClient
             'http://purl.org/dc/terms/title' => 'dcterms:title',
             'http://purl.org/dc/terms/created' => 'dcterms:created',
             'http://scalar.usc.edu/2012/01/scalar-ns#urn' => 'scalar:urn',
-        ]);
+        ] + $this->additionalProperties);
 
         return $info;
     }
@@ -127,7 +131,7 @@ class AnvcScalarClient
                         'http://simile.mit.edu/2003/10/ontologies/artstor#url' => 'art:url',
                         'http://purl.org/dc/terms/created' => 'dcterms:created',
                         'http://scalar.usc.edu/2012/01/scalar-ns#urn' => 'scalar:urn',
-                    ]);
+                    ] + $this->additionalProperties);
 
                 return $page;
             }
@@ -136,7 +140,7 @@ class AnvcScalarClient
         return [];
     }
 
-    public function updatePage($page)
+    public function updatePage($page, $type = 'page')
     {
         $bookInfo = $this->getBookInfo();
         if (empty($bookInfo)) {
@@ -153,14 +157,30 @@ class AnvcScalarClient
             'api_key' => $this->config['api_key'],
 
             // this action
-            'rdf:type' => 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
+            'rdf:type' => 'media' == $type
+                ? 'http://scalar.usc.edu/2012/01/scalar-ns#Media'
+                : 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
             'urn:scalar:book' => $bookInfo['scalar:urn'],
             'scalar:urn' => $page['scalar:urn'],
 
-            // actual content, maybe add description and more
+            // actual content
             'dcterms:title' => $page['dcterms:title'],
-            'sioc:content' => $page['sioc:content'],
+            'dcterms:description' => !empty($page['dcterms:description']) ? $page['dcterms:description'] : '',
+            'sioc:content' => !empty($page['sioc:content']) ? $page['sioc:content'] : '',
         ];
+
+        $additionalProperties = array_values($this->additionalProperties);
+
+        if ('media' == $type) {
+            $additionalProperties = array_merge($additionalProperties,
+                                                [ 'scalar:metadata:url', 'scalar:metadata:thubmnail' ]);
+        }
+
+        foreach ($additionalProperties as $key) {
+            if (array_key_exists($key, $page)) {
+                $params[$key] = $page[$key];
+            }
+        }
 
         try {
             $response = $this->callPost($apiUrl, $params);
@@ -225,11 +245,16 @@ class AnvcScalarClient
             'sioc:content' => !empty($page['sioc:content']) ? $page['sioc:content'] : '',
         ];
 
+        $additionalProperties = array_values($this->additionalProperties);
+
         if ('media' == $type) {
-            foreach ([ 'scalar:metadata:url', 'scalar:metadata:thubmnail' ] as $key) {
-                if (array_key_exists($key, $page)) {
-                    $params[$key] = $page[$key];
-                }
+            $additionalProperties = array_merge($additionalProperties,
+                                                [ 'scalar:metadata:url', 'scalar:metadata:thubmnail' ]);
+        }
+
+        foreach ($additionalProperties as $key) {
+            if (array_key_exists($key, $page)) {
+                $params[$key] = $page[$key];
             }
         }
 

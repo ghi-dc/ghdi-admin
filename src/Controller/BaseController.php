@@ -232,11 +232,13 @@ extends Controller
             $res->release();
 
             if (1 == count($figures['data'])) {
-                $media = $figures['data'][0];
                 // we can't currently handle more than one figure due to the 1:1 correspondance of image-1234 <-> media-1234
+                $media = $figures['data'][0];
+
                 $ret['scalar:metadata:url'] = 'http://germanhistorydocs.ghi-dc.org/images/' . $media['url'];
-                if (!empty($media['description'])) {
-                    $ret['dcterms:description'] = $this->minify($media['description']);
+                foreach ([ 'description', 'creator', 'date' ] as $key)
+                if (!empty($media[$key])) {
+                    $ret['dcterms:' . $key ] = $this->minify($media[$key], 'description' != $key);
                 }
             }
         }

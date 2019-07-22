@@ -115,13 +115,45 @@ extends ContainerAwareCommand
 
     protected function addOrUpdateMedia($volumeId, $slug, $locale = 'en')
     {
+        $mediaProperties = [ 'dcterms:title', 'dcterms:description', 'dcterms:creator', 'dcterms:date' ];
+
         $pageInfo = $this->fetchJson($volumeId, $slug . '/media', $locale);
         $mediaSlug = $pageInfo['scalar:metadata:slug'];
 
+        $update = false;
+        $page = [];
+
         $pageExisting = $this->scalarClient->getPage($mediaSlug);
         if (!empty($pageExisting)) {
-            // TODO: check for changes
-            return $pageExisting;
+            foreach ($mediaProperties as $property) {
+                $valExisting = array_key_exists($property, $pageExisting)
+                    ? $pageExisting[$property] : '';
+                $valNew = array_key_exists($property, $pageInfo)
+                    ? $pageInfo[$property] : '';
+
+                if (rtrim($valExisting) != rtrim($valNew)) {
+                    $update = true;
+                    break;
+                }
+            }
+
+            if (!$update) {
+                if (!empty($pageInfo['scalar:metadata:url'])) {
+                    if (empty($pageExisting['art:url'])) {
+                        // image missing, therefore update
+                        $update = true;
+                    }
+                    else {
+                        // maybe some logic to determine if image has changed
+                    }
+                }
+            }
+
+            if (!$update) {
+                return $pageExisting;
+            }
+
+            $page = $pageExisting;
         }
 
         if (!empty($pageInfo['scalar:metadata:url'])) {
@@ -143,13 +175,15 @@ extends ContainerAwareCommand
             $extension = pathinfo($imageName, PATHINFO_EXTENSION);
             $page['scalar:metadata:thumb'] =  $baseurlMedia . $basename . '_thumb' . '.' . $extension;
 
-            foreach ([ 'dcterms:title', 'dcterms:description' ] as $key) {
+            foreach ($mediaProperties as $key) {
                 if (!empty($pageInfo[$key])) {
                     $page[$key] = $pageInfo[$key];
                 }
             }
 
-            $added = $this->scalarClient->addPage($page, 'media');
+            return $update
+                ? $this->scalarClient->updatePage($page, 'media')
+                : $this->scalarClient->addPage($page, 'media');
 
             return $added;
         }
