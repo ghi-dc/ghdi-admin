@@ -16,6 +16,10 @@ parameters:
     # you can specify the following to access a server other than localhost
     # app.existdb.webdav: 'http://localhost:8080/exist/webdav'
 
+    # for api-calls to the admin
+    app.site.base_uri: 'http://localhost/ghdi/admin/'
+    app.site.auth_basic: 'guest:guest'
+
     app.site.key: ghdi
     app.site.short: GHDI
     app.site.name: German History in Documents and Images
@@ -25,7 +29,15 @@ parameters:
         images: { 'name': 'Images' }
         maps: { 'name': 'Maps' }
 
+    app.scalar_client.options:
+        baseurl: http://localhost/ghdi/
+        id: api@geschichte.hu-berlin.de
+        api_key: 'secret_api_key'
+        # important: api-user may only be set to a single book!
+        # book: 'vom-vormaerz-bis-zur-preussischen-vorherrschaft-1815-1866'
+
     app.zotero.options:
+        # set through https://www.zotero.org/settings/keys
         api-key:    ~
         group-id:   ~
 
