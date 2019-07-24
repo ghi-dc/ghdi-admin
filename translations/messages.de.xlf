@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2019-06-07T17:42:09Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-07-24T15:25:12Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -13,7 +13,7 @@
       </trans-unit>
       <trans-unit id="99f57cd5f7419246f7de028565f26f5989b5ef00" resname="Add Resource">
         <source>Add Resource</source>
-        <target state="new">Inhalt hinzufügen</target>
+        <target>Inhalt hinzufügen</target>
         <jms:reference-file line="8">\..\..\..\..\..\..\./templates\Resource\edit.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="d35efba3ba1edda800b7fe7ab6a07e47bd0fc82d" resname="Add from Identifier">
@@ -91,7 +91,7 @@
         <source>Dublin Core</source>
         <target>Dublin Core</target>
         <jms:reference-file line="66">\..\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
-        <jms:reference-file line="36">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
+        <jms:reference-file line="38">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="5301648dcf6b53cefc9ed52999aaa92d4603cae0" resname="Edit">
         <source>Edit</source>
@@ -269,7 +269,12 @@
       <trans-unit id="87df60de337fb58864343e396696d74611e0d403" resname="Resources">
         <source>Resources</source>
         <target>Inhalte</target>
-        <jms:reference-file line="47">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
+        <jms:reference-file line="49">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="efc007a393f66cdb14d57d385822a3d9e36ef873" resname="Save">
+        <source>Save</source>
+        <target state="new">Speichern</target>
+        <jms:reference-file line="44">\..\..\..\..\..\..\./src\Form\Type\TeiHeaderType.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="bce06414177f72ab70e6387b6af9f8ceef0d6049" resname="Search">
         <source>Search</source>
@@ -331,6 +336,11 @@
         <jms:reference-file line="61">\..\..\..\..\..\..\./src\Form\Type\OrganizationType.php\</jms:reference-file>
         <jms:reference-file line="83">\..\..\..\..\..\..\./src\Form\Type\PersonType.php\</jms:reference-file>
         <jms:reference-file line="55">\..\..\..\..\..\..\./src\Form\Type\PlaceType.php\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="8f3a07543988e4673dcae5e59c35323c5791f370" resname="view">
+        <source>view</source>
+        <target>anzeigen</target>
+        <jms:reference-file line="73">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
       </trans-unit>
     </body>
   </file>

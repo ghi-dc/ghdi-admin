@@ -9,7 +9,6 @@
 
 namespace App\Utils;
 
-
 class TeiHelper
 {
     protected $errors = [];
@@ -33,7 +32,6 @@ class TeiHelper
 
     protected function registerNamespaces($xml)
     {
-        // $xml->registerNamespace('xml', 'http://www.w3.org/XML/1998/namespace');
         $xml->registerNamespace('#default', 'http://www.tei-c.org/ns/1.0');
         $xml->registerNamespace('tei', 'http://www.tei-c.org/ns/1.0'); // needed for xpath
     }
@@ -57,28 +55,6 @@ class TeiHelper
     }
 
     /*
-    public function getFirstPbFacs($fname)
-    {
-        $xml = $this->loadXml($fname);
-        if (false === $xml) {
-            return false;
-        }
-
-        $fnameFacs = '';
-
-        $result = $xml->xpath('/tei:TEI/tei:text//tei:pb');
-        $facsRef = 1;
-        foreach ($result as $element) {
-            $facs = $element['facs'];
-            if (!empty($facs) && preg_match('/(\d+)/', $facs, $matches)) {
-                $facsRef = $matches[1];
-            }
-            $fnameFacs = sprintf('f%04d', $facsRef);
-            break; // we only care about the first one
-        }
-
-        return $fnameFacs;
-    }
 
     public function getFirstFigureFacs($fname)
     {
@@ -385,6 +361,7 @@ class TeiHelper
     private function createElement($doc, $name, $content = null, array $attributes = null)
     {
         list($prefix, $localName) = \FluentDOM\Utility\QualifiedName::split($name);
+
         if (!empty($prefix)) {
             // check if prefix is equal to the default prefix, then we drop it
             $namespaceURI = (string)$doc->namespaces()->resolveNamespace($prefix);
@@ -578,7 +555,13 @@ class TeiHelper
                     $content = !empty($data['licence']) ? $data['licence'] : null;
 
                     if (!$updateExisting) {
-                        $self = $parent->appendChild($this->createElement($parent->ownerDocument, $name, $content));
+                        if (empty($content) && empty($data['licence'])) {
+                            return;
+                        }
+
+                        list($prefix, $localName) = \FluentDOM\Utility\QualifiedName::split($name);
+
+                        $self = $parent->appendElement($localName, $content);
                     }
                     else {
                         $self = $parent;
@@ -600,16 +583,14 @@ class TeiHelper
         }
 
         if (!empty($data['id'])) {
-            die('TODO');
             $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTAID"]', [
                 'tei:idno[@type="DTAID"]' => function ($parent, $name, $updateExisting) use ($data) {
                     if (!$updateExisting) {
-                        $self = $parent->addChild('tei:idno', $data['id']);
-                        $self->addAttribute('tei:type', 'DTAID');
+                        $self = $parent->appendElement('idno', $data['id'], [ 'type' => 'DTAID' ]);
                     }
                     else {
                         $self = $parent;
-                        dom_import_simplexml($self)->nodeValue = $data['id']; // https://stackoverflow.com/a/4614186
+                        $self->nodeValue = $data['id'];
                     }
 
                     return $self;
@@ -618,16 +599,14 @@ class TeiHelper
         }
 
         if (!empty($data['shelfmark'])) {
-            die('TODO');
             $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="shelfmark"]', [
                 'tei:idno[@type="shelfmark"]' => function ($parent, $name, $updateExisting) use ($data) {
                     if (!$updateExisting) {
-                        $self = $parent->addChild('tei:idno', $data['shelfmark']);
-                        $self->addAttribute('tei:type', 'shelfmark');
+                        $self = $parent->appendElement('idno', $data['shelfmark'], [ 'type' => 'shelfmark' ]);
                     }
                     else {
                         $self = $parent;
-                        dom_import_simplexml($self)->nodeValue = $data['shelfmark']; // https://stackoverflow.com/a/4614186
+                        $self->nodeValue = $data['shelfmark'];
                     }
 
                     return $self;
@@ -980,7 +959,7 @@ extends \Sabre\Xml\Reader
 
     function parse()
     {
-        $this->collected = array();
+        $this->collected = [];
         parent::parse();
 
         return $this->collected;

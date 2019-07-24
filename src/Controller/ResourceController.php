@@ -271,7 +271,7 @@ EOXQL;
         return $client->parse($content->saveXML(), $resourcePath, $update);
     }
 
-    /*
+    /**
      * Naive implementation - fetches XML and updates it
      * Goal would be to use https://exist-db.org/exist/apps/doc/update_ext.xml instead
      */
