@@ -16,7 +16,7 @@ extends BaseController
 
     protected $subCollection = '/data/volumes';
 
-    /*
+    /**
      * Make unique across language so we can line-up different languages under same id
      */
     protected function nextInSequence($client, $collection, $prefix)
@@ -54,20 +54,22 @@ EOXQL;
         return $nextId;
     }
 
-    protected function buildResources($client, $id, $lang)
+    protected function buildChildResources($client, $volumeId, $id, $lang)
     {
-        $xql = $this->renderView('Volume/list-resources-json.xql.twig', [
+        $xql = $this->renderView('Resource/list-child-resources-json.xql.twig', [
+            'prefix' => $this->siteKey,
         ]);
 
         $query = $client->prepareQuery($xql);
         $query->setJSONReturnType();
-        $query->bindVariable('collection', $client->getCollection() . '/' . $id);
+        $query->bindVariable('collection', $client->getCollection() . '/' . $volumeId);
+        $query->bindVariable('id', $id);
         $query->bindVariable('lang', $lang);
         $res = $query->execute();
         $resources = $res->getNextResult();
         $res->release();
 
-        return $resources;
+        return $resources['data'];
     }
 
     /**
@@ -218,7 +220,7 @@ EOXQL;
             // simple html for scalar export
             return $this->render('Resource/detail-no-chrome.html.twig', [
                 'pageTitle' => $resource['data']['name'],
-                'volume' => $this->fetchVolume($client, $volume, $lang),
+                'volume' => $this->fetchVolume($client, $volume, $id, $lang),
                 'resource' => $resource,
                 'html' => $html,
             ]);
@@ -232,10 +234,14 @@ EOXQL;
 
         $entityLookup = $this->buildEntityLookup($parts['entities']);
 
+        // child resources
+        $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
+
         return $this->render('Resource/detail.html.twig', [
             'id' => $id,
             'volume' => $this->fetchVolume($client, $volume, $lang),
             'resource' => $resource,
+            'hasPart' => $hasPart,
             'webdav_base' => $this->buildWebDavBaseUrl($client),
             'html' => $html,
             'entity_lookup' => $entityLookup,
