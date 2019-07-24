@@ -4,8 +4,52 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "96ec876895e842c0292b570db6c7b70b",
+    "content-hash": "19320c97e4bb33f78e8b0b7e797e2324",
     "packages": [
+        {
+            "name": "brunty/relax-ng-domdocument",
+            "version": "0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Brunty/php-relax-ng-domdocument.git",
+                "reference": "ed0fb581caa402de663840795dfd57351a7e70e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Brunty/php-relax-ng-domdocument/zipball/ed0fb581caa402de663840795dfd57351a7e70e2",
+                "reference": "ed0fb581caa402de663840795dfd57351a7e70e2",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Brunty\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Brunt",
+                    "email": "matt@mfyu.co.uk"
+                }
+            ],
+            "description": "Adds a convenience feature to DOMDocument::relaxNGValidate and  DOMDocument::relaxNGValidateSource to disable PHP Warnings",
+            "keywords": [
+                "RELAX NG",
+                "RELAXNG",
+                "domdocument",
+                "schema",
+                "validation",
+                "xml"
+            ],
+            "time": "2017-01-20T22:08:00+00:00"
+        },
         {
             "name": "citation-style-language/locales",
             "version": "1.0.0",

@@ -21,26 +21,11 @@ extends AbstractType
                 'label' => 'Title',
                 'required' => true,
             ])
-            /*
-            ->add(
-                $builder
-                ->create('group-names', FormType::class, [
-                    'label' => 'Localized Names',
-                    'inherit_data' => true,
-                ])
-                ->add('name_en', TextType::class, [
-                    'label' => 'English',
-                    'required' => false,
-                ])
-                ->add('name_de', TextType::class, [
-                    'label' => 'German',
-                    'required' => false,
-                ])
-            )
-            */
             ;
 
-        $builder->add('Save', SubmitType::class);
+        $builder->add('save', SubmitType::class, [
+            'label' => 'Save',
+        ]);
     }
 
     public function getName()

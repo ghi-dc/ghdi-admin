@@ -3,7 +3,9 @@
  * Methods for Document Conversions.
  * Interfaces inspired by ezcDocument
  *  https://github.com/zetacomponents/Document/blob/master/src/interfaces/document.php
+ *
  * TODO: Build a separate Component
+ * TODO: Think about using FluentDOM instead of DOMDocument
  */
 
 namespace App\Utils;
@@ -13,7 +15,7 @@ extends Document
 {
     protected $mimeType = 'text/xml';
     protected $dom = null;
-       
+
     /**
      * Construct new document
      */
@@ -23,34 +25,21 @@ extends Document
             $this->dom = $options['dom'];
             unset($options['dom']);
         }
-        
+
         parent::__construct($options);
     }
-       
-    protected function loadXml($fname)
+
+    private function loadXml($source, $fromFile = false)
     {
         libxml_use_internal_errors(true);
-        
+
         $dom = new \DOMDocument();
-        $dom->load($fname);
-
-        if (false === $dom) {
-            $this->errors = libxml_get_errors();
-            libxml_use_internal_errors(false);
-
-            return false;
+        if ($fromFile) {
+            $dom->load($source);
         }
-
-        libxml_use_internal_errors(false);
-        
-        return $dom;
-    }
-    
-    protected function loadXmlString($xml)
-    {
-        libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
-        $dom->loadXML($xml);
+        else {
+            $dom->loadXML($source);
+        }
 
         if (false === $dom) {
             $this->errors = libxml_get_errors();
@@ -63,45 +52,45 @@ extends Document
 
         return $dom;
     }
-    
+
     protected function getXPath()
     {
         $xpath = new \DOMXPath($this->dom);
         $this->registerDefaultXpathNamespaces($xpath);
-        
+
         return $xpath;
     }
-    
+
     public function loadString($xml)
     {
-        $dom = $this->loadXmlString($xml);
+        $dom = $this->loadXml($xml);
         if (false === $dom) {
             return false;
         }
-        
+
         $this->dom = $dom;
-        
+
         return true;
     }
 
     public function load($fname)
     {
-        $dom = $this->loadXml($fname);
+        $dom = $this->loadXml($fname, true);
         if (false === $dom) {
             return false;
         }
-        
+
         $this->dom = $dom;
-        
+
         return true;
     }
-    
+
     public function evaluateXpath($expr, $callback)
     {
         $xpath = $this->getXPath();
         $callback($xpath->evaluate($expr));
     }
-    
+
     protected function unwrapChildren($node)
     {
         $parent = $node->parentNode;
@@ -109,10 +98,10 @@ extends Document
         while ($node->firstChild) {
            $parent->appendChild($node->firstChild);
         }
-        
-        $parent->removeChild($node);                    
+
+        $parent->removeChild($node);
     }
-    
+
     protected function addDescendants($parent, $path, $callbacks)
     {
         $pathParts = explode('/', $path);
@@ -184,13 +173,41 @@ extends Document
         return $textContent;
     }
 
-    public function validate($fname, $fnameSchema, $schemaType = 'relaxng')
+    /**
+     * Allow the loaders to validate the first part of the provided string.
+     *
+     * From https://github.com/ThomasWeinert/FluentDOM/blob/master/src/FluentDOM/Loader/Supports.php
+     *
+     * @param string $haystack
+     * @param string $needle
+     * @param bool $ignoreWhitespace
+     * @return bool
+     */
+    private function startsWith(string $haystack, string $needle, bool $ignoreWhitespace = TRUE): bool {
+      return $ignoreWhitespace
+        ? (bool)\preg_match('(^\s*'.\preg_quote($needle, '(').')', $haystack)
+        : 0 === \strpos($haystack, $needle);
+    }
+
+    /**
+     *  @param mixed $source
+     */
+    public function validate($schemaSource, $schemaType = 'relaxng')
     {
         switch ($schemaType) {
             case 'relaxng':
-                $document = new \Brunty\DOMDocument;
-                $document->load($fname);
-                $result = $document->relaxNGValidate($fnameSchema);
+                $document = new \Brunty\DOMDocument();
+                $document->loadXML($this->saveString());
+
+                // The first character in an XML file must be < or whitespace
+                // https://stackoverflow.com/a/47803127
+                // so assume filename unless $source starts with \s<
+                $schemaSourceIsString = $this->startsWith($schemaSource, '<');
+
+                $result = $schemaSourceIsString
+                    ? $document->relaxNGValidateSource($schemaSource)
+                    : $document->relaxNGValidate($schemaSource);
+
                 if (!$result) {
                     $errors = [];
                     foreach ($document->getValidationWarnings() as $message) {
@@ -206,8 +223,8 @@ extends Document
                 throw new \InvalidArgumentException('Invalid schemaType: ' . $schemaType);
         }
     }
-      
-    /*
+
+    /**
      * Reformatting XML is not trivial:
      *  XML documents are text files that describe complex documents.
      *  Some of the white space (spaces, tabs, line feeds, etc.) in the
@@ -217,10 +234,10 @@ extends Document
      *  Whitespace belonging to the XML file is called insignificant
      *  whitespace. The meaning of the XML would be the same if the
      *  insignificant whitespace were removed. Whitespace belonging to
-     *  the document being described is called significant whitespace. 
+     *  the document being described is called significant whitespace.
      *  https://www.oxygenxml.com/doc/versions/21.0/ug-editor/topics/format-and-indent-xml.html
      */
-    protected function prettify()
+    public function prettify()
     {
         /*
         if (class_exists('\tidy')) {
@@ -240,29 +257,29 @@ extends Document
                 'indent-attributes' => false,
                 'wrap' => 120,
             ];
-    
+
             $tidy = new \tidy;
             $tidy->parseString($this->saveString(), $configuration, 'utf8');
             $tidy->cleanRepair();
-            
+
             $this->loadString((string)$tidy);
         }
         */
-        
+
         $prettyPrinter = $this->getOption('prettyPrinter');
         if (!is_null($prettyPrinter)) {
             return $prettyPrinter->prettyPrint($this);
         }
-        
+
         return false;
     }
-    
+
     public function saveString()
     {
         if (is_null($this->dom)) {
             return null;
         }
-        
+
         return $this->dom->saveXML();
-    }    
+    }
 }

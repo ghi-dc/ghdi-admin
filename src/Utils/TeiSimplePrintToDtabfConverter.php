@@ -11,15 +11,12 @@ namespace App\Utils;
 class TeiSimplePrintToDtabfConverter
 extends DocumentConverter
 {
-    protected $options;
-    protected $errors;
-
     /**
      * Convert documents between two formats
      *
      * Convert documents of the given type to the requested type.
      *
-     * @return Document
+     * @return TeiDtabfDocument
      */
     public function convert(Document $doc)
     {
@@ -34,13 +31,76 @@ extends DocumentConverter
         // don't allow role="c1" on ref
         $teiDtabf = preg_replace('/(<ref\s+[^>]*)role="[^"]*"([^>]*>)/', '\1\2', $teiDtabf);
 
-        // remove empty headers or paragraphs - TODO: switch to  https://stackoverflow.com/a/8603358
+        // remove empty headers or paragraphs
+        // TODO: switch to https://stackoverflow.com/a/8603358
         while (preg_match($reEmpty = '/<(div|head|p|hi)[^>]*>(\s*)<\/\1>/', $teiDtabf, $matches)) {
             $teiDtabf = preg_replace($reEmpty, $matches[2], $teiDtabf);
         }
 
-        $resDoc = new TeiDocument();
-        $resDoc->loadString($teiDtabf);
+        $xml = \FluentDOM::load($teiDtabf, 'xml');
+
+        $xml->registerNamespace('#default', 'http://www.tei-c.org/ns/1.0');
+        $xml->registerNamespace('tei', 'http://www.tei-c.org/ns/1.0'); // needed for xpath
+
+        // setting xml-model at the beginning
+        $pi = $xml->createProcessingInstruction('xml-model',
+                                                'href="http://www.deutschestextarchiv.de/basisformat.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"');
+        $xml->insertBefore($pi, $xml->documentElement);
+
+        // for oxygen framework, set xml:id="dtabf" on root TEI-element
+        if (!$xml->documentElement->hasAttribute('xml:id')) {
+            $xml->documentElement->setAttribute('xml:id', 'dtabf');
+        }
+
+        $header = $xml('/tei:TEI/tei:teiHeader')[0];
+        // if we have only <title> and not <title type="main">, add this attribute
+        $hasTitleAttrMain = $header('count(./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]) > 0');
+        if (!$hasTitleAttrMain) {
+            $result = $header('./tei:fileDesc/tei:titleStmt/tei:title[not(@type)]');
+            if ($result->length > 0) {
+                $result[0]->setAttribute('type', 'main');
+            }
+        }
+
+        // a non-empty publicationStmt is required
+        $hasPublicationStmtChild = $header('count(./tei:fileDesc/tei:publicationStmt/*) > 0');
+        if (!$hasPublicationStmtChild) {
+            $result = $header('./tei:fileDesc/tei:publicationStmt');
+            if ($result->length > 0) {
+                $result[0]->appendElement('publisher', '');
+            }
+        }
+
+        $hasProfileDesc = $header('count(./tei:fileDesc/tei:profileDesc) > 0');
+        $profileDesc = $hasProfileDesc
+            ? $header('./tei:fileDesc/tei:profileDesc')[0]
+            : null;
+
+        if (!empty($this->options['language'])) {
+            if (is_null($profileDesc)) {
+                $profileDesc = $header->appendElement('profileDesc');
+            }
+
+            // set langUsage
+            $langUsage = $profileDesc->appendElement('langUsage');
+
+            $languageName = \App\Utils\Iso639::nameByCode3($this->options['language']);
+            $langUsage->appendElement('language', $languageName)
+                ->setAttribute('ident', $this->options['language']);
+        }
+
+        if (!empty($this->options['genre'])) {
+            if (is_null($profileDesc)) {
+                $profileDesc = $header->appendElement('profileDesc');
+            }
+
+            $textClass = $profileDesc->appendElement('textClass')
+                ->appendElement('classCode', $this->options['genre'])
+                ->setAttribute('scheme', 'http://germanhistorydocs.org/docs/#genre');
+        }
+
+        $resDoc = new TeiDtabfDocument([ 'dom' => $xml ] + $this->options);
+        $resDoc->prettify();
 
         return $resDoc;
     }

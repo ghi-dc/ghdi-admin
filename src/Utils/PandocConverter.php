@@ -19,30 +19,30 @@ extends DocumentConverter
     public function __construct(array $options = [])
     {
         parent::__construct($options);
-        
+
         if (array_key_exists('path', $this->options)) {
             $this->path = $this->options['path'];
         }
     }
-    
+
     protected function exec($arguments)
     {
         $cmd = $this->path
              . 'pandoc '
              . join(' ', $arguments);
-             
+
         $ret = exec($cmd, $lines, $retval);
 
         return join("\n", $lines);
     }
-    
+
     protected function cleanUp($ret)
     {
         if (method_exists($ret, 'cleanUp')) {
             $ret->cleanUp();
         }
     }
-    
+
     /**
      * Convert documents between two formats
      *
@@ -53,15 +53,15 @@ extends DocumentConverter
     public function convert(Document $doc)
     {
         $arguments = [];
-        
+
         $mimeType = $doc->getMimeType();
         if (!empty($mimeType) && array_key_exists($mimeType, $this->mimeToFormat))  {
             $arguments[] = '-f ' . $this->mimeToFormat[$mimeType];
         }
-        
+
         if (array_key_exists('target', $this->options)) {
             $ret = $this->options['target'];
-            
+
             if ($ret instanceof \App\Utils\TeiSimplePrintDocument) {
                 $arguments[] = '-t tei';
                 if (false !== $ret->getOption('standalone')) {
@@ -72,24 +72,27 @@ extends DocumentConverter
                 die('Not sure how to handle ' . $className);
             }
         }
+        else {
+            die('no target given');
+        }
 
         // reading from stdin messes up encoding, so write into tmp
         $tempFileOut = tempnam(sys_get_temp_dir(), 'TMP_');
         $arguments[] = '-o ' . $tempFileOut;
-        
+
         $tempFileIn = tempnam(sys_get_temp_dir(), 'TMP_');
         $doc->save($tempFileIn);
-        
+
         $arguments[] = $tempFileIn;
-        
+
         $this->exec($arguments);
 
         @unlink($tempFileIn);
-        
+
         $ret->load($tempFileOut);
         @unlink($tempFileOut);
 
-        $this->cleanUp($ret);       
+        $this->cleanUp($ret);
 
         return $ret;
     }

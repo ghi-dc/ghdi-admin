@@ -72,6 +72,7 @@ trait TeiFromWordCleaner
                     if ('p' == $node->nodeName) {
                         if (is_null($note)) {
                             $res = $xpath->evaluate($path = '//tei:teiHeader/tei:fileDesc/tei:notesStmt/tei:note');
+
                             $append = [];
                             while (0 == $res->length) {
                                 $last = basename($path);
@@ -79,13 +80,34 @@ trait TeiFromWordCleaner
                                 $append[] = $last;
                                 $res = $xpath->evaluate($path);
                             }
+
                             $parent = $res->item(0);
+
                             foreach (array_reverse($append) as $newNodeName) {
                                 list($ns, $localName) = explode(':', $newNodeName, 2);
                                 $newNode = $this->dom->createElement($localName);
-                                $parent->appendChild($newNode);
+
+                                if ('note' == $localName) {
+                                    $newNode->setAttribute('type', 'remarkDocument');
+                                }
+
+                                if ('notesStmt' == $localName) {
+                                    // must be added before sourceDesc
+                                    $sourceDesc = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:sourceDesc');
+                                    if (0 == $sourceDesc->length) {
+                                        die('TODO: add a sourceDesc');
+                                    }
+
+                                    $sourceDesc = $sourceDesc->item(0);
+                                    $sourceDesc->parentNode->insertBefore($newNode, $sourceDesc);
+                                }
+                                else {
+                                    $parent->appendChild($newNode);
+                                }
+
                                 $parent = $newNode;
                             }
+
                             $note = $parent;
                         }
 
