@@ -96,6 +96,7 @@ EOXQL;
         $client = $this->getExistDbClient($this->subCollection);
 
         $xql = $this->renderView('Resource/detail-json.xql.twig', [
+            'prefix' => $this->siteKey,
         ]);
 
         $query = $client->prepareQuery($xql);
