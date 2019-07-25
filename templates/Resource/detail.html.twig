@@ -53,9 +53,7 @@
 
 {% block body %}
     <h2><a href="{{ path('volume-detail', { id: volume.data.id }) }}">{{ volume['data'].name }}</a></h2>
-    <h3>
-        {{ resource.data.genre|capitalize|trans({}, 'additional') }}: {{ resource['data'].name }}
-    </h3>
+    <h1>{{ titleHtml|raw }}</h1>
     {{ helper.display_flashes() }}
     {% if showAddEntities == 2 %}
         <div><a class="post" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({'action': 'link-entities-save'})) }}">Save Named Entities</a></div>
@@ -76,8 +74,8 @@
         </div>
 
         <div class="col-sm-4 sidebar">
-            {% if hasPart is not empty %}
-            <h4>Contains</h4>
+            {% if hasPart is not empty or '-collection' in resource.data.genre  %}
+            <h4>Contains <small><a href="{{ path('resource-upload-child', { 'volume' : volume.data.id, 'id' : resource.data.id }) }}" class="fa fa-plus" title="{{ 'upload child resource' }}"> </a></small></h4>
             <ul>
                 {% for child in hasPart %}
                 <li>
@@ -85,7 +83,7 @@
                 </li>
                 {% endfor %}
             </ul>
-            {% endif %}
+        {% endif %}
         </div>
     </div><!-- .row -->
 {% endblock %}

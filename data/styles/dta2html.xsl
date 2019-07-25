@@ -10,13 +10,12 @@
   <!-- notes are placed 'perpage' for source and 'end' for topic/interpretation -->
   <xsl:param name="noteplacement" select="'perpage'" />
 
-
   <xsl:output method="html" doctype-system=""/>
 
   <!-- main match including source description -->
-  <xsl:template match="tei:TEI">
+  <xsl:template match="/">
     <ul id="authors">
-      <xsl:for-each select="./tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:author/tei:persName">
+      <xsl:for-each select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:author/tei:persName">
         <li>
           <xsl:if test="@corresp">
             <xsl:attribute name="data-author-slug"><xsl:value-of select="@corresp" /></xsl:attribute>
@@ -27,7 +26,7 @@
     </ul>
 
     <div class="article">
-      <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:notesStmt/tei:note">
+      <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:notesStmt/tei:note/*">
         <h2 class="source-description-head">
           <xsl:call-template name="translate">
             <xsl:with-param name="label" select="'Quellenbeschreibung'" />
@@ -39,6 +38,7 @@
       </xsl:if>
 
       <xsl:apply-templates/>
+
       <xsl:if test='$noteplacement="end" and //tei:note[@place="foot"]'>
         <div class="dta-footnotesep"/>
           <div class="appendix">
@@ -51,6 +51,12 @@
         </div>
       </xsl:if>
       <xsl:apply-templates select='//tei:fw[@place="bottom" and (text() or *)]' mode="signatures"/>
+
+      <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl/*">
+        <div class="source-description">
+          <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl/node()"/>
+        </div>
+      </xsl:if>
     </div>
 
     <xsl:choose>

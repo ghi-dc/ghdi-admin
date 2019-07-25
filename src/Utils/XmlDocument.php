@@ -5,7 +5,7 @@
  *  https://github.com/zetacomponents/Document/blob/master/src/interfaces/document.php
  *
  * TODO: Build a separate Component
- * TODO: Think about using FluentDOM instead of DOMDocument
+ * TODO: Finalize switch from DOMDocument to FluentDOM
  */
 
 namespace App\Utils;
@@ -31,26 +31,7 @@ extends Document
 
     private function loadXml($source, $fromFile = false)
     {
-        libxml_use_internal_errors(true);
-
-        $dom = new \DOMDocument();
-        if ($fromFile) {
-            $dom->load($source);
-        }
-        else {
-            $dom->loadXML($source);
-        }
-
-        if (false === $dom) {
-            $this->errors = libxml_get_errors();
-            libxml_use_internal_errors(false);
-
-            return false;
-        }
-
-        libxml_use_internal_errors(false);
-
-        return $dom;
+        return \FluentDOM::load($source, 'xml', [ \FluentDOM\Loader\Options::ALLOW_FILE => $fromFile ]);
     }
 
     protected function getXPath()
@@ -61,6 +42,10 @@ extends Document
         return $xpath;
     }
 
+    protected function registerNamespaces()
+    {
+    }
+
     public function loadString($xml)
     {
         $dom = $this->loadXml($xml);
@@ -69,6 +54,8 @@ extends Document
         }
 
         $this->dom = $dom;
+
+        $this->registerNamespaces();
 
         return true;
     }
@@ -81,6 +68,8 @@ extends Document
         }
 
         $this->dom = $dom;
+
+        $this->registerNamespaces();
 
         return true;
     }
@@ -272,6 +261,11 @@ extends Document
         }
 
         return false;
+    }
+
+    public function getDom()
+    {
+        return $this->dom;
     }
 
     public function saveString()

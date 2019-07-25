@@ -3,8 +3,9 @@
  * Methods to work with TEI / DTA-Basisformat DTABf
  *
  * Currently based on SimpleXml
+ *
  * TODO: Finalize switch to FluentDOM
-
+ * TODO: Integrate all methods into TeiDtabfDocument
  */
 
 namespace App\Utils;
@@ -649,7 +650,6 @@ class TeiHelper
                         return $self;
                     },
                 ], true);
-
             }
         }
 

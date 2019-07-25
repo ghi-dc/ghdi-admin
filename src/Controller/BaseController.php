@@ -139,6 +139,23 @@ extends Controller
         return $response;
     }
 
+    protected function teiToHtml($client, $resourcePath, $lang, $path = null)
+    {
+        $xql = $this->renderView('Resource/tei2html.xql.twig', [
+            'path' => $path,
+        ]);
+        $query = $client->prepareQuery($xql);
+        $query->bindVariable('stylespath', $this->getStylesPath());
+        $resourcePath =
+        $query->bindVariable('resource', $resourcePath);
+        $query->bindVariable('lang', $lang);
+        $res = $query->execute();
+        $html = $res->getNextResult();
+        $res->release();
+
+        return $html;
+    }
+
     /**
      * anvc/scalar is picky about newlines and whitespaces in html content
      *

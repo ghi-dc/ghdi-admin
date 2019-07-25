@@ -126,7 +126,7 @@ EOXQL;
 
         if (in_array($request->get('_route'), [ 'resource-detail-scalar', 'resource-embedded-media-scalar' ])) {
             return $this->teiToScalar($client, $resourcePath,
-                                      \App\Utils\Iso639::code1To3($request->getLocale()),
+                                      $lang,
                                       null, 'resource-embedded-media-scalar' == $request->get('_route'));
         }
 
@@ -183,16 +183,7 @@ EOXQL;
         }
 
         if (is_null($html)) {
-            $xql = $this->renderView('Resource/tei2html.xql.twig', [
-            ]);
-            $query = $client->prepareQuery($xql);
-            $query->bindVariable('stylespath', $this->getStylesPath());
-            $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resource['data']['fname'];
-            $query->bindVariable('resource', $resourcePath);
-            $query->bindVariable('lang', $lang = \App\Utils\Iso639::code1To3($request->getLocale()));
-            $res = $query->execute();
-            $html = $res->getNextResult();
-            $res->release();
+            $html = $this->teiToHtml($client, $resourcePath, $lang);
         }
 
         $html = $this->adjustHtml($html);
@@ -201,7 +192,7 @@ EOXQL;
             $templating = $this->container->get('templating');
 
             $html = $templating->render('Resource/printview.html.twig', [
-                'name' => $resource['data']['name'],
+                'name' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
                 'volume' => $this->fetchVolume($client, $volume, $lang),
                 'resource' => $resource,
                 'html' => $html,
@@ -243,6 +234,7 @@ EOXQL;
             'resource' => $resource,
             'hasPart' => $hasPart,
             'webdav_base' => $this->buildWebDavBaseUrl($client),
+            'titleHtml' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
             'html' => $html,
             'entity_lookup' => $entityLookup,
             'showAddEntities' => $showAddEntities,
@@ -261,8 +253,12 @@ EOXQL;
                 return null;
             }
 
+            // TODO: add additional properties
             $entity = new \App\Entity\TeiHeader();
+            $entity->setId($article->uid);
             $entity->setTitle($article->name);
+            $entity->setShelfmark($article->shelfmark);
+            $entity->setGenre($article->genre);
 
             return $entity;
         }
@@ -443,6 +439,146 @@ EOXQL;
 
         return $this->render('Resource/edit.html.twig', [
             'form' => $form->createView(),
+            'entity' => $entity,
+            'volume' => $volume,
+            'id' => $id,
+        ]);
+    }
+
+    private function word2doc($fname, $locale)
+    {
+        $officeDoc = new \App\Utils\BinaryDocument();
+        $officeDoc->load($fname);
+
+        $pandocConverter = $this->get(\App\Utils\PandocConverter::class);
+
+        // inject TeiFromWordCleaner
+        $myTarget = new class()
+        extends \App\Utils\TeiSimplePrintDocument
+        {
+            use \App\Utils\TeiFromWordCleaner;
+        };
+
+        $pandocConverter->setOption('target', $myTarget);
+
+        $teiSimpleDoc = $pandocConverter->convert($officeDoc);
+
+        $conversionOptions = [
+            // 'prettyPrinter' => $this->get('app.tei-prettyprinter'),
+            'language' => \App\Utils\Iso639::code1to3($locale),
+            'genre' => 'document', // todo: make configurable
+        ];
+
+        $converter = new \App\Utils\TeiSimplePrintToDtabfConverter($conversionOptions);
+        $teiDtabfDoc = $converter->convert($teiSimpleDoc);
+
+        return $teiDtabfDoc;
+    }
+
+    /**
+     * @Route("/resource/{volume}/{id}/upload", name="resource-upload-child",
+     *          requirements={"volume" = "volume\-\d+", "id" = "(chapter)\-\d+"})
+     */
+    public function uploadChildAction(Request $request, $volume, $id)
+    {
+        $client = $this->getExistDbClient($this->subCollection);
+
+        $lang = \App\Utils\Iso639::code1To3($request->getLocale());
+        $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
+
+        $entity = $this->fetchTeiHeader($client, $resourcePath);
+        if (is_null($entity)) {
+            $request->getSession()
+                    ->getFlashBag()
+                    ->add('warning', 'No item found for id: ' . $id)
+                ;
+
+            return $this->redirect($this->generateUrl('volume-detail', [ 'id' => $volume ]));
+        }
+
+        if ($request->isMethod('post')) {
+            $file = $request->files->get('file');
+            if (is_null($file)) {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('warning', 'No upload found, please try again')
+                    ;
+            }
+            else {
+                $mime = $file->getMimeType();
+                if (!in_array($mime, [
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/docx',
+                    ]))
+                {
+                    $request->getSession()
+                            ->getFlashBag()
+                            ->add('error', "Uploaded file wasn't recognized as a Word-File (.docx)")
+                        ;
+                }
+                else {
+                    $teiDtabfDoc = $this->word2doc($file->getRealPath(), $request->getLocale());
+                    if (false === $teiDtabfDoc) {
+                        $request->getSession()
+                                ->getFlashBag()
+                                ->add('error', "There was an error converting the upload")
+                            ;
+                    }
+                    else {
+                        $valid = $teiDtabfDoc->validate($this->get('kernel')->getProjectDir() . '/data/schema/basisformat.rng');
+
+                        if (!$valid) {
+                            $request->getSession()
+                                    ->getFlashBag()
+                                    ->add('warning', 'The conversion was successful, but there might be an issue with the structure of the result')
+                                ;
+                        }
+
+                        $id = $this->nextInSequence($client, $client->getCollection(), $prefix = 'document-');
+
+                        // shelf-mark - append at the end
+                        $counter = 1;
+
+                        $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
+                        if (!empty($hasPart)) {
+                            die('find counter');
+                        }
+
+                        $shelfmark = implode('/', [
+                            $entity->getShelfmark(),
+                            sprintf('%03d:%s',
+                                    $counter, $id),
+                        ]);
+
+                        $teiHelper = new \App\Utils\TeiHelper();
+                        $teiHelper->adjustHeaderStructure($teiDtabfDoc->getDom(), [
+                            'id' => $this->siteKey . ':' . $id,
+                            'shelfmark' => $shelfmark,
+                        ]);
+
+                        $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
+
+                        $res = $client->parse((string)$teiDtabfDoc, $resourcePath, false);
+
+                        if ($res) {
+                            $request->getSession()
+                                    ->getFlashBag()
+                                    ->add('info', 'The Entry has been created')
+                                ;
+
+                            return $this->redirect($this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]));
+                        }
+
+                        $request->getSession()
+                                ->getFlashBag()
+                                ->add('error', 'The new Entry could not be created')
+                            ;
+                    }
+                }
+            }
+        }
+
+        return $this->render('Resource/upload-child.html.twig', [
             'entity' => $entity,
             'volume' => $volume,
             'id' => $id,

@@ -24,7 +24,7 @@ extends Controller
         return $this->render('Upload/index.html.twig', [
         ]);
     }
-    
+
     /**
      * @Route("/upload/handler", name="upload-handler")
      */
@@ -33,30 +33,36 @@ extends Controller
         $output = [ 'uploaded' => false ];
 
         $file = $request->files->get('file');
-        
+
         $officeDoc = new \App\Utils\BinaryDocument();
         $officeDoc->load($file->getRealPath());
 
-        $teiPrettyPrinter = $this->get('app.tei-prettyprinter');
+        $pandocConverter = $this->get(\App\Utils\PandocConverter::class);
 
         // inject TeiFromWordCleaner
-        $myTarget = new class([ 'prettyPrinter' => $teiPrettyPrinter ])
+        $myTarget = new class()
         extends \App\Utils\TeiSimplePrintDocument
         {
             use \App\Utils\TeiFromWordCleaner;
         };
-        
-        $pandocConverter = $this->get(\App\Utils\PandocConverter::class);
+
         $pandocConverter->setOption('target', $myTarget);
-              
+
         $teiSimpleDoc = $pandocConverter->convert($officeDoc);
-        
-        $converter = new \App\Utils\TeiSimplePrintToDtabfConverter();
+
+        $conversionOptions = [
+            'prettyPrinter' => $this->get('app.tei-prettyprinter'),
+            'language' => \App\Utils\Iso639::code1to3($request->getLocale()),
+            'genre' => 'document', // todo: make configurable
+        ];
+
+        $converter = new \App\Utils\TeiSimplePrintToDtabfConverter($conversionOptions);
         $teiDtabfDoc = $converter->convert($teiSimpleDoc);
-        
+
         $output['uploaded'] = true;
+        $output['valid'] = $teiDtabfDoc->validate($this->get('kernel')->getProjectDir() . '/data/schema/basisformat.rng');
         $output['content'] = (string)$teiDtabfDoc;
 
-        return new JsonResponse($output);        
-    }    
+        return new JsonResponse($output);
+    }
 }

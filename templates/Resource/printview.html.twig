@@ -1,6 +1,6 @@
 {% extends 'Base/base-printview.html.twig' %}
 
-{#% import 'AppBundle:Shared:helper.html.twig' as helper %#}
+{#% import 'Base/helper.html.twig' as helper %#}
 
 {% block head %}
     {# TODO: move to some shared style-sheet #}
@@ -160,7 +160,7 @@
             <!--</a>-->
         </div>
     {% endif %}
-    <h1 id="title">{{ name }}</h1>
+    <h1 id="title">{{ name|raw }}</h1>
 
     {{ html|raw }}
 

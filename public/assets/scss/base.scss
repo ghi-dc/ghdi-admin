@@ -383,6 +383,10 @@ nav {
 
     @include dta-styles;
 
+    .source-description-head, .source-description {
+        color: gray;
+    }
+
     .dta-p, span.dta-opener, div.dta-closer,
     div.dta-bibl {
         @include article-text;
