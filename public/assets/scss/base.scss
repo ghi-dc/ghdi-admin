@@ -393,8 +393,14 @@ nav {
     }
 
     h3.dta-head {
-        /* we want Selected Bibliography */
-        text-transform: capitalize;
+    }
+
+    div.dta-endnote {
+        a.dta-fn-sign {
+            display: inline-block;
+            float: left;
+            margin-left: -1em;
+        }
     }
 
     .editorial.foot {

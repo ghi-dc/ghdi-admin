@@ -42,14 +42,14 @@ trait RenderTeiTrait
                     . '/data/font',
             ],
             'fontdata' => [
-                'gentium' => [
-                    'R' => 'GenBasR.ttf',
-                    'B' => 'GenBasB.ttf',
-                    'I' => 'GenBasI.ttf',
-                    'BI' => 'GenBasBI.ttf',
+                'brill' => [
+                    'R' => 'Brill-Roman.ttf',
+                    'B' => 'Brill-Bold.ttf',
+                    'I' => 'Brill-Italic.ttf',
+                    'BI' => 'Brill-Bold-Italic.ttf',
                 ],
             ],
-            'default_font' => 'gentium',
+            'default_font' => 'brill',
         ]);
 
         /*
