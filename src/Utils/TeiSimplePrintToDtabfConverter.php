@@ -37,10 +37,9 @@ extends DocumentConverter
             $teiDtabf = preg_replace($reEmpty, $matches[2], $teiDtabf);
         }
 
-        $xml = \FluentDOM::load($teiDtabf, 'xml');
-
-        $xml->registerNamespace('#default', 'http://www.tei-c.org/ns/1.0');
-        $xml->registerNamespace('tei', 'http://www.tei-c.org/ns/1.0'); // needed for xpath
+        $teiDocument = new TeiDtabfDocument($this->options);
+        $teiDocument->loadString($teiDtabf);
+        $xml = $teiDocument->getDom();
 
         // setting xml-model at the beginning
         $pi = $xml->createProcessingInstruction('xml-model',
@@ -99,9 +98,15 @@ extends DocumentConverter
                 ->setAttribute('scheme', 'http://germanhistorydocs.org/docs/#genre');
         }
 
-        $resDoc = new TeiDtabfDocument([ 'dom' => $xml ] + $this->options);
-        $resDoc->prettify();
+        // set place="foot" as default in body notes
+        foreach ($xml('/tei:TEI/tei:text//tei:note') as $note) {
+            if (empty($note->getAttributeNode('place'))) {
+                $note->setAttribute('place', 'foot');
+            }
+        }
 
-        return $resDoc;
+        $teiDocument->prettify();
+
+        return $teiDocument;
     }
 }

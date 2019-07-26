@@ -534,29 +534,33 @@ EOXQL;
                                 ;
                         }
 
-                        $id = $this->nextInSequence($client, $client->getCollection(), $prefix = 'document-');
+                        $resourceId = $this->nextInSequence($client, $client->getCollection(), $prefix = 'document-');
 
                         // shelf-mark - append at the end
                         $counter = 1;
 
                         $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
                         if (!empty($hasPart)) {
-                            die('find counter');
+                            $lastChild = end($hasPart);
+                            $parts = explode('/', $lastChild['shelfmark']);
+                            if (preg_match('/^(\d+)\:/', end($parts), $matches)) {
+                                $counter = $matches[1] + 1;
+                            }
                         }
 
                         $shelfmark = implode('/', [
                             $entity->getShelfmark(),
                             sprintf('%03d:%s',
-                                    $counter, $id),
+                                    $counter, $resourceId),
                         ]);
 
                         $teiHelper = new \App\Utils\TeiHelper();
                         $teiHelper->adjustHeaderStructure($teiDtabfDoc->getDom(), [
-                            'id' => $this->siteKey . ':' . $id,
+                            'id' => $this->siteKey . ':' . $resourceId,
                             'shelfmark' => $shelfmark,
                         ]);
 
-                        $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
+                        $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resourceId . '.' . $lang . '.xml';
 
                         $res = $client->parse((string)$teiDtabfDoc, $resourcePath, false);
 
@@ -566,7 +570,7 @@ EOXQL;
                                     ->add('info', 'The Entry has been created')
                                 ;
 
-                            return $this->redirect($this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]));
+                            return $this->redirect($this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $resourceId ]));
                         }
 
                         $request->getSession()

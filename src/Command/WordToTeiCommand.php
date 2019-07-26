@@ -46,6 +46,18 @@ extends ContainerAwareCommand
             )
             ->setDescription('Convert Word-File (docx or odt) to TEI')
             ;
+
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                // the following is currently windows only and needs perl and word installed
+                $this
+                    ->addOption(
+                        'underline2strikethrough',
+                        null,
+                        InputOption::VALUE_NONE,
+                        'Replaces underline with strikethrough'
+                    );
+            }
+
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -59,7 +71,24 @@ extends ContainerAwareCommand
         }
 
         $officeDoc = new \App\Utils\BinaryDocument();
-        $officeDoc->load($file);
+
+        if ($input->getOption('underline2strikethrough')) {
+            // TODO: make perl-path configurable
+            $scriptName = $this->getContainer()->get('kernel')->getProjectDir() . '/data/bin/word-search-replace.pl';
+
+            $process = new \Symfony\Component\Process\Process(["C:\\Run\\Perl\\perl\\bin\\perl.exe", $scriptName, $file]);
+            $process->run();
+
+            // executes after the command finishes
+            if (!$process->isSuccessful()) {
+                throw new \Symfony\Component\Process\Exception\ProcessFailedException($process);
+            }
+
+            $officeDoc->loadString($process->getOutput());
+        }
+        else {
+            $officeDoc->load($file);
+        }
 
         $pandocConverter = $this->getContainer()->get(\App\Utils\PandocConverter::class);
 
@@ -104,6 +133,6 @@ extends ContainerAwareCommand
             }
         }
 
-        echo (string)$teiDtabfDoc;
+        echo $teiDtabfDoc->saveString();
     }
 }
