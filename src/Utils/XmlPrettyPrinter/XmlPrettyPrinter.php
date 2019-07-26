@@ -25,13 +25,13 @@ class XmlPrettyPrinter
             $res = $this->adapter->prettyPrint($doc->saveString(), $options);
             if (false !== $res) {
                 $doc->loadString($res);
-                
+
                 return true;
             }
-            
+
             return false;
         }
-        
+
         return false;
     }
 }

@@ -104,6 +104,6 @@ extends ContainerAwareCommand
             }
         }
 
-        echo (string)$teiDtabfDoc;
+        echo $teiDtabfDoc->saveString();
     }
 }
