@@ -33,21 +33,10 @@ extends Document
 
     private function loadXml($source, $fromFile = false)
     {
-        if (!self::$loaderRegistered) {
-            // we register a custom loader since the standard loader sets
-            // $document->preserveWhiteSpace = false;
-            \FluentDOM::registerLoader(
-                new \FluentDOM\Loader\Lazy([
-                    'text/xml-whitespace-preserving' => function () {
-                        return new XmlLoader();
-                    },
-                ])
-            );
-
-            self::$loaderRegistered = true;
-        }
-
-        return \FluentDOM::load($source, 'text/xml-whitespace-preserving', [ \FluentDOM\Loader\Options::ALLOW_FILE => $fromFile ]);
+        return \FluentDOM::load($source, 'xml', [
+            \FluentDOM\Loader\Options::ALLOW_FILE => $fromFile,
+            \FluentDOM\Loader\Options::PRESERVE_WHITESPACE => true,
+        ]);
     }
 
     protected function getXPath()
