@@ -1,0 +1,11 @@
+xquery version "3.1";
+
+declare default element namespace "http://www.tei-c.org/ns/1.0";
+
+declare variable $resource external;
+declare variable $shelfmark external;
+
+declare variable $tei as document-node() := doc($resource);
+
+(: https://exist-db.org/exist/apps/doc/update_ext :)
+update value $tei/TEI/teiHeader/fileDesc/publicationStmt/idno/idno[@type="shelfmark"] with $shelfmark

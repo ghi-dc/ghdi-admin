@@ -72,6 +72,20 @@ EOXQL;
         return $resources['data'];
     }
 
+    protected function updateDocumentShelfmark($client, $resource, $shelfmark)
+    {
+        $xql = $this->renderView('Resource/update-shelfmark.xql.twig', [
+        ]);
+
+        $query = $client->prepareQuery($xql);
+        $query->bindVariable('resource', $resource);
+        $query->bindVariable('shelfmark', $shelfmark);
+        $res = $query->execute();
+        $res->release();
+
+        return true;
+    }
+
     /**
      * @Route("/resource/{volume}/{id}.dc.xml", name="resource-detail-dc",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map|)\-\d+"})
@@ -227,6 +241,51 @@ EOXQL;
 
         // child resources
         $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
+        if (!empty($hasPart) && $request->isMethod('post')) {
+            // check for updated order
+            $postData = $request->request->get('order');
+            if (!empty($postData)) {
+                $order = json_decode($postData, true);
+                if (false !== $order) {
+                    $newOrder = [];
+                    $count = 0;
+                    foreach ($order as $childId) {
+                        $newOrder[$childId] = ++$count;
+                    }
+
+                    $updated = false;
+                    foreach ($hasPart as $child) {
+                        $childId = $child['id'];
+                        if (array_key_exists($childId, $newOrder)) {
+                            $parts = explode('/', $child['shelfmark']);
+                            list($order, $ignore) = explode(':', end($parts), 2);
+                            if ($order != $newOrder) {
+                                $newOrderAndId = sprintf('%03d:%s',
+                                                         $newOrder[$childId], $childId);
+                                $parts[count($parts) - 1] = $newOrderAndId;
+                                $newShelfmark = implode('/', $parts);
+
+                                if ($child['shelfmark'] != $newShelfmark) {
+
+                                    $this->updateDocumentShelfmark($client,
+                                                                   $client->getCollection() . '/' . $volume . '/' . $childId . '.' . $lang . '.xml',
+                                                                   $newShelfmark);
+
+                                    $updated = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if ($updated) {
+                        $this->addFlash('info', 'The order has been updated');
+
+                        // fetch again with new order
+                        $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
+                    }
+                }
+            }
+        }
 
         return $this->render('Resource/detail.html.twig', [
             'id' => $id,

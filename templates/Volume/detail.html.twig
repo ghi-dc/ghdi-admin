@@ -33,7 +33,7 @@
                         <a href="#{{ key }}" data-toggle="collapse">{{ group.name|trans({}, 'additional') }}</a>
                         {% if key == 'documents' or key == 'images' %}
                         <small><a href="{{ path('collection-add', { 'volume' : id, 'genre' : key|trim('s', 'right') ~ '-collection' }) }}" class="fa fa-plus" title="{{ 'add ' ~ key ~ ' collection' }}"> </a></small>
-                        <small><a href="#" id="save-{{ key }}" onclick="$('#update-{{ key }}').submit()" class="fa fa-save collapse" title="{{ 'save changed order' }}"> </a></small>
+                        <small><a href="#" id="save-{{ key }}" onclick="$('#update-{{ key }}').submit()" class="fa fa-save collapse" title="{{ 'save changed order'|trans }}"> </a></small>
                         {% endif %}
                     </h4>
                     <form id="update-{{ key }}" method="POST">

@@ -6,6 +6,8 @@
 {% block head %}
     {{ helper.copy_to_clipboard_head() }}
 
+    <script src="{{ app.request.basepath }}/js/Sortable.min.js"></script>
+
     <script>
     $(function () {
         initEntityRef('.article');
@@ -56,14 +58,36 @@
 
         <div class="col-sm-4 sidebar">
             {% if hasPart is not empty or '-collection' in resource.data.genre  %}
-            <h4>{{ 'Contents'|trans }} <small><a href="{{ path('resource-upload-child', { 'volume' : volume.data.id, 'id' : resource.data.id }) }}" class="fa fa-plus" title="{{ 'upload child resource' }}"> </a></small></h4>
-            <ul>
+            <h4>{{ 'Contents'|trans }}
+                <small><a href="{{ path('resource-upload-child', { 'volume' : volume.data.id, 'id' : resource.data.id }) }}" class="fa fa-plus" title="{{ 'upload child resource' }}"> </a></small>
+                <small><a href="#" id="save-haspart" onclick="$('#update-haspart').submit()" class="fa fa-save collapse" title="{{ 'save changed order'|trans }}"> </a></small>
+            </h4>
+            {% if hasPart is not empty %}
+            <ul class="list-group" id="sortable-haspart">
                 {% for child in hasPart %}
-                <li>
+                <li class="list-group-item" data-id="{{ child['id'] }}">
                     <a href="{{ path('resource-detail', { 'volume' : volume.data.id, 'id' : child['id'] }) }}">{{ child['name'] }}</a>
                 </li>
                 {% endfor %}
             </ul>
+
+            <form id="update-haspart" method="POST">
+                <input type="hidden" name="resource_group" value="haspart" />
+                <input id="order-haspart" type="hidden" name="order" value="" />
+            </form>
+            <script>
+                Sortable.create(document.getElementById('sortable-haspart'), {
+                    onUpdate: function (/**Event*/ evt) {
+                        // enable save-button
+                        $('#save-haspart').collapse();
+                        var array = $("#sortable-haspart > li").map(function() {
+                            return $(this).data('id');
+                        }).get();
+                        $('#order-haspart').val(JSON.stringify(array));
+                    }
+                });
+            </script>
+            {% endif %}
         {% endif %}
         </div>
     </div><!-- .row -->
