@@ -34,6 +34,7 @@ extends XmlDocument
     protected function charOffset($string, $byte_offset, $encoding = 'utf-8')
     {
         $substr = substr($string, 0, $byte_offset);
+
         return mb_strlen($substr, $encoding ?: mb_internal_encoding());
     }
 
@@ -63,13 +64,15 @@ extends XmlDocument
             $xpath = $this->getXPath();
             $nodes = $xpath->query('//tei:body//text()');
             foreach ($nodes as $node) {
-                if (preg_match('/(.*?)(\[\s*\.\s*\.\s*\.\s*\])(.*)/', $node->textContent, $matches)) {
+                if (preg_match('/(.*?)(\[\s*\.\s*\.\s*\.\s*\])(.*)/s', // single line mode /s is import since we might have multiple lines before gap
+                               $node->textContent, $matches))
+                {
                     $found = true;
                     $gapNode = $node;
 
                     if (($len = strlen($matches[1])) > 0) {
                         // split before
-                        $gapNode = $node->splitText($this->charOffset($node->textContent, $len));
+                        $gapNode = $node->splitText($this->charOffset($gapNode->textContent, $len));
                     }
 
                     if (strlen($matches[3]) > 0) {
@@ -81,7 +84,6 @@ extends XmlDocument
                     $node->parentNode->replaceChild($this->dom->createElement('gap'), $gapNode);
                 }
             }
-
         } while ($found);
     }
 }
