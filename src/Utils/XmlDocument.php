@@ -13,8 +13,6 @@ namespace App\Utils;
 class XmlDocument
 extends Document
 {
-    static $loaderRegistered = false;
-
     protected $mimeType = 'text/xml';
     protected $dom = null;
 
