@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7fb39d3bb3fc93f85c59dfa7747667db",
+    "content-hash": "d2f56fcac1e55e35b8b050dd5ba78f80",
     "packages": [
         {
             "name": "brunty/relax-ng-domdocument",
@@ -575,16 +575,16 @@
         },
         {
             "name": "fluentdom/fluentdom",
-            "version": "dev-master",
+            "version": "7.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ThomasWeinert/FluentDOM.git",
-                "reference": "5379904"
+                "reference": "5379904ec093af33d86794d89a01fb37a8a554e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ThomasWeinert/FluentDOM/zipball/5379904",
-                "reference": "5379904",
+                "url": "https://api.github.com/repos/ThomasWeinert/FluentDOM/zipball/5379904ec093af33d86794d89a01fb37a8a554e0",
+                "reference": "5379904ec093af33d86794d89a01fb37a8a554e0",
                 "shasum": ""
             },
             "require": {
@@ -6857,7 +6857,6 @@
         "sanpi/assetic-bundle": 20,
         "leafo/scssphp": 0,
         "servo/fluidxml": 0,
-        "fluentdom/fluentdom": 20,
         "hedii/zotero-api": 0,
         "citation-style-language/locales": 20,
         "lstrojny/fxmlrpc": 0,
