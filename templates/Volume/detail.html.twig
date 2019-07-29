@@ -3,30 +3,9 @@
 {% import 'Base/helper.html.twig' as helper %}
 
 {% block head %}
-    <script>
-    /* see https://stackoverflow.com/a/30905277 */
-    function copyToClipboard(elementId) {
-        // Create a "hidden" input
-        var aux = document.createElement("input");
+    {{ helper.copy_to_clipboard_head() }}
 
-        // Assign it the value of the specified element
-        aux.setAttribute("value", document.getElementById(elementId).innerHTML);
-
-        // Append it to the body
-        document.body.appendChild(aux);
-
-        // Highlight its content
-        aux.select();
-
-        // Copy the highlighted text
-        document.execCommand("copy");
-
-        // Remove it from the body
-        document.body.removeChild(aux);
-    }
-    </script>
     <script src="{{ app.request.basepath }}/js/Sortable.min.js"></script>
-
 {% endblock %}
 
 {% block body %}
@@ -38,11 +17,10 @@
         <a href="{{ path(app.request.attributes.get('_route') ~ '-dc', app.request.attributes.get('_route_params')) }}">{{ 'Dublin Core'|trans }}</a><br />
             WebDAV:
             <span id="url">{{ webdav_base }}/{{ id }}/{{ volume['data'].fname }}</span>
-            <button title="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open" onclick="copyToClipboard('url')"><i class="fa fa-copy"></i> </button>
+            {{ helper.copy_to_clipboard_button('url', 'Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open'|trans) }}
     </div>
     <div class="row">
         <div class="col-sm-8">
-            {#{ dump(volume['data']) }#}
 
             {% if resources_grouped is not empty %}
             {% set groups = [ "introduction", "documents", "images", "maps" ] %}

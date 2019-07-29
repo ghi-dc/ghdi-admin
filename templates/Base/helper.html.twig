@@ -8,6 +8,35 @@
     {% endfor %}
 {% endmacro %}
 
+{% macro copy_to_clipboard_button(id, title) %}
+    <button title="{{ title }}" onclick="copyToClipboard('{{ id }}')"><i class="fa fa-copy"></i> </button>
+{% endmacro %}
+
+{% macro copy_to_clipboard_head() %}
+    <script>
+    /* see https://stackoverflow.com/a/30905277 */
+    function copyToClipboard(elementId) {
+        // Create a "hidden" input
+        var aux = document.createElement("input");
+
+        // Assign it the value of the specified element
+        aux.setAttribute("value", document.getElementById(elementId).innerHTML);
+
+        // Append it to the body
+        document.body.appendChild(aux);
+
+        // Highlight its content
+        aux.select();
+
+        // Copy the highlighted text
+        document.execCommand("copy");
+
+        // Remove it from the body
+        document.body.removeChild(aux);
+    }
+    </script>
+{% endmacro %}
+
 {% macro dropzone_fileinput() %}
     {# see https://stackoverflow.com/a/12713396, TODO: make name/id configurable and support multiple elements in form #}
     <div id="drop-zone">

@@ -4,28 +4,9 @@
 {% import 'Shared/entity-lookup.html.twig' as entityLookup %}
 
 {% block head %}
+    {{ helper.copy_to_clipboard_head() }}
+
     <script>
-    /* see https://stackoverflow.com/a/30905277 */
-    function copyToClipboard(elementId) {
-        // Create a "hidden" input
-        var aux = document.createElement("input");
-
-        // Assign it the value of the specified element
-        aux.setAttribute("value", document.getElementById(elementId).innerHTML);
-
-        // Append it to the body
-        document.body.appendChild(aux);
-
-        // Highlight its content
-        aux.select();
-
-        // Copy the highlighted text
-        document.execCommand("copy");
-
-        // Remove it from the body
-        document.body.removeChild(aux);
-    }
-
     $(function () {
         initEntityRef('.article');
 
@@ -63,7 +44,7 @@
         <a href="{{ path(app.request.attributes.get('_route') ~ '-pdf', app.request.attributes.get('_route_params')) }}">{{ 'Print Version'|trans }}</a><br />
         <a href="{{ path(app.request.attributes.get('_route') ~ '-dc', app.request.attributes.get('_route_params')) }}">{{ 'Dublin Core'|trans }}</a><br />
         WebDAV: <span id="url">{{ webdav_base }}/{{ volume.data.id }}/{{ resource['data'].fname }}</span>
-            <button title="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open" onclick="copyToClipboard('url')"><i class="fa fa-copy"></i> </button>
+            {{ helper.copy_to_clipboard_button('url', 'Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open'|trans) }}
         {% if showAddEntities == 1 %}
             <br /><a class="post" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({'action': 'link-entities'})) }}">Link Named Entities</a>
         {% endif %}
@@ -75,7 +56,7 @@
 
         <div class="col-sm-4 sidebar">
             {% if hasPart is not empty or '-collection' in resource.data.genre  %}
-            <h4>Contains <small><a href="{{ path('resource-upload-child', { 'volume' : volume.data.id, 'id' : resource.data.id }) }}" class="fa fa-plus" title="{{ 'upload child resource' }}"> </a></small></h4>
+            <h4>{{ 'Contents'|trans }} <small><a href="{{ path('resource-upload-child', { 'volume' : volume.data.id, 'id' : resource.data.id }) }}" class="fa fa-plus" title="{{ 'upload child resource' }}"> </a></small></h4>
             <ul>
                 {% for child in hasPart %}
                 <li>
