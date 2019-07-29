@@ -221,6 +221,8 @@ class TeiHelper
             $article->shelfmark = (string)$result[0];
         }
 
+        /*
+        // TODO
         // primary date and publication
         $result = $header('./tei:fileDesc/tei:sourceDesc/tei:bibl');
         if (!empty($result) && !empty($result[0])) {
@@ -274,6 +276,7 @@ class TeiHelper
                 }
             }
         }
+        */
 
         // url
         $result = $header('(./tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier/tei:idno/tei:idno[@type="URLImages"])[1]');

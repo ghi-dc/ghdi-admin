@@ -536,10 +536,14 @@ EOXQL;
 
     /**
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload-child",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(chapter)\-\d+"})
+     *        requirements={"volume" = "volume\-\d+", "id" = "(chapter)\-\d+"})
+     * @Route("/resource/{volume}/{id}/upload", name="resource-upload",
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document)\-\d+"})
      */
-    public function uploadChildAction(Request $request, $volume, $id)
+    public function uploadAction(Request $request, $volume, $id)
     {
+        $update = 'resource-upload' == $request->get('_route');
+
         $client = $this->getExistDbClient($this->subCollection);
 
         $lang = \App\Utils\Iso639::code1To3($request->getLocale());
@@ -593,25 +597,31 @@ EOXQL;
                                 ;
                         }
 
-                        $resourceId = $this->nextInSequence($client, $client->getCollection(), $prefix = 'document-');
-
-                        // shelf-mark - append at the end
-                        $counter = 1;
-
-                        $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
-                        if (!empty($hasPart)) {
-                            $lastChild = end($hasPart);
-                            $parts = explode('/', $lastChild['shelfmark']);
-                            if (preg_match('/^(\d+)\:/', end($parts), $matches)) {
-                                $counter = $matches[1] + 1;
-                            }
+                        if ($update) {
+                            $resourceId = $id;
+                            $shelfmark = $entity->getShelfmark();
                         }
+                        else {
+                            $resourceId = $this->nextInSequence($client, $client->getCollection(), $prefix = 'document-');
 
-                        $shelfmark = implode('/', [
-                            $entity->getShelfmark(),
-                            sprintf('%03d:%s',
-                                    $counter, $resourceId),
-                        ]);
+                            // shelf-mark - append at the end
+                            $counter = 1;
+
+                            $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
+                            if (!empty($hasPart)) {
+                                $lastChild = end($hasPart);
+                                $parts = explode('/', $lastChild['shelfmark']);
+                                if (preg_match('/^(\d+)\:/', end($parts), $matches)) {
+                                    $counter = $matches[1] + 1;
+                                }
+                            }
+
+                            $shelfmark = implode('/', [
+                                $entity->getShelfmark(),
+                                sprintf('%03d:%s',
+                                        $counter, $resourceId),
+                            ]);
+                        }
 
                         $teiHelper = new \App\Utils\TeiHelper();
                         $teiHelper->adjustHeaderStructure($teiDtabfDoc->getDom(), [
@@ -621,7 +631,7 @@ EOXQL;
 
                         $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resourceId . '.' . $lang . '.xml';
 
-                        $res = $client->parse((string)$teiDtabfDoc, $resourcePath, false);
+                        $res = $client->parse((string)$teiDtabfDoc, $resourcePath, $update);
 
                         if ($res) {
                             $request->getSession()
@@ -641,8 +651,9 @@ EOXQL;
             }
         }
 
-        return $this->render('Resource/upload-child.html.twig', [
+        return $this->render('Resource/upload.html.twig', [
             'entity' => $entity,
+            'name' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
             'volume' => $volume,
             'id' => $id,
         ]);
