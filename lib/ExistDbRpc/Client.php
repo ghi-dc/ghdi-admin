@@ -5,14 +5,15 @@ namespace ExistDbRpc;
 class Client
 {
     /**
-     *
      * The URI to the database instance inclusive of the port
+     *
      * @var $uri
      */
     protected $uri;
 
     /**
      * The xml rpc client for the instance
+     *
      * @var $connection
      */
     protected $connection;
@@ -198,7 +199,7 @@ class Client
 		return $this->client->hasDocument($this->buildDocumentPath($name));
 	}
 
-	/*
+	/**
 	 * Get a list of all documents contained in $collection or (if null) the database.
 	 */
 	public function getDocumentListing($collection = null)
@@ -222,7 +223,7 @@ class Client
 		return $this->client->hasCollection($this->buildCollectionPath($name));
 	}
 
-	/*
+	/**
 	 * Get a list of (sub)collections in $collection
 	 */
 	public function getCollectionListing($collection = null)
@@ -284,7 +285,7 @@ class Client
 		return $this->client->getResourceCount($this->buildCollectionPath($collectionName));
 	}
 
-	/*
+	/**
 	 * TODO: maybe add Date created, Date modified as optional
 	 */
     public function parse($xml, $docName, $overwrite = false)
@@ -292,7 +293,7 @@ class Client
         return $this->client->parse($xml, $this->buildDocumentPath($docName), $overwrite ? 1 : 0);
     }
 
-	/*
+	/**
 	 * An Alias for parse()
 	 */
     public function storeDocument($xml, $docName, $overwrite = false)
@@ -300,12 +301,12 @@ class Client
 		return $this->parse($xml, $docName, $overwrite);
 	}
 
-	/*
+	/**
 	 * TODO: maybe add Date created, Date modified as optional
 	 */
     function storeBinary($data, $docName, $mimeType, $replace = false)
     {
-        return $this->client->storeBinary($data,
+        return $this->client->storeBinary(\fXmlRpc\Value\Base64::serialize($data),
                                           $this->buildDocumentPath($docName),
                                           $mimeType,
                                           $replace ? 1 : 0);
@@ -409,7 +410,7 @@ class Client
 		return $this->client->reindexCollection($this->buildCollectionPath($name));
 	}
 
-	/*
+	/**
 	 * TODO: as per https://github.com/eXist-db/exist/blob/develop/src/org/exist/xmlrpc/RpcAPI.java
 	 *
 	 *  shutdown()
