@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2019-07-29T16:17:37Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-07-30T18:35:14Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -165,6 +165,10 @@
       <trans-unit id="2c6f9762b5532c2ad4ba89515d6c9d6daf9e955e" resname="resource-embedded-media-scalar">
         <source>/resource/{volume}/{id}/media.scalar.json</source>
         <target>/resource/{volume}/{id}/media.scalar.json</target>
+      </trans-unit>
+      <trans-unit id="99b88a259a0fa0a016401b06f561fb85f43bdc09" resname="resource-upload">
+        <source>/resource/{volume}/{id}/upload</source>
+        <target>/resource/{volume}/{id}/upload</target>
       </trans-unit>
       <trans-unit id="b65d488df521c7b8c8366540d5034045166eb6c8" resname="resource-upload-child">
         <source>/resource/{volume}/{id}/upload</source>

@@ -25,7 +25,8 @@ framework:
 
 twig:
     globals:
-        siteName: "%app.site.name% - Administration"
+        siteName: "%app.site.name%"
+        siteHeader: "%app.site.name% - Administration"
 
 assetic:
     debug:          '%kernel.debug%'

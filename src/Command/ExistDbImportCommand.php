@@ -36,7 +36,7 @@ extends ExistDbCommand
                 InputOption::VALUE_NONE,
                 'Specify to overwrite existing resources'
             )
-            ->setDescription('Import collection (base|volumes|persons|organization|places|styles) into app.existdb.base')
+            ->setDescription('Import collection (base|volumes|persons|organization|places|styles|assets) into app.existdb.base')
             ;
     }
 
@@ -83,14 +83,12 @@ extends ExistDbCommand
                 return $this->importStyles($output, $resource, $overwrite);
                 break;
 
+            case 'assets':
+                return $this->importAssets($output, $resource, $overwrite);
+                break;
+
             case 'persons':
-                $filename = !empty($resource) ? $resource : '';
-                break;
-
             case 'organizations':
-                $filename = !empty($resource) ? $resource : '';
-                break;
-
             case 'places':
                 $filename = !empty($resource) ? $resource :  '';
                 break;
@@ -114,7 +112,8 @@ extends ExistDbCommand
         return $this->checkCollectionAndStore($output, $existDbClient, $existDbBase . '/data/authority/' . $collection, $filename, $filenameFull, $overwrite);
     }
 
-    protected function checkCollectionAndStore(OutputInterface $output, $existDbClient, $subCollection, $resource, $filenameFull, $overwrite, $createCollection = true)
+    protected function checkCollectionAndStore(OutputInterface $output, $existDbClient, $subCollection,
+                                               $resource, $filenameFull, $overwrite, $createCollection = true, $isBinary = false)
     {
         $existDbClient->setCollection($subCollection);
         if (!$existDbClient->existsAndCanOpenCollection()) {
@@ -145,7 +144,15 @@ extends ExistDbCommand
             return 0;
         }
 
-        $res = $existDbClient->storeDocument(file_get_contents($filenameFull), $resource, $overwrite);
+        if ($isBinary) {
+            $mimeType = mime_content_type($filenameFull);
+
+            $res = $existDbClient->storeBinary(file_get_contents($filenameFull), $resource, $mimeType, $overwrite);
+        }
+        else {
+            $res = $existDbClient->storeDocument(file_get_contents($filenameFull), $resource, $overwrite);
+        }
+
         if (!$res) {
             $output->writeln(sprintf('<info>Error adding %s</info>',
                                      $subCollection . '/' . $resource));
@@ -158,7 +165,6 @@ extends ExistDbCommand
 
         return 0;
     }
-
 
     protected function importStyles(OutputInterface $output, $resource, $overwrite = false)
     {
@@ -205,6 +211,37 @@ extends ExistDbCommand
         return $this->checkCollectionAndStore($output, $existDbClient,
                                               $subCollection = $existDbBase . '/' . $collection,
                                               $resource, $filenameFull, $overwrite);
+    }
+
+    protected function importAssets(OutputInterface $output, $resource, $overwrite = false)
+    {
+        $collection = 'assets';
+
+        $inputDir = $this->getContainer()->get('kernel')->getProjectDir()
+            . '/data/' . $collection;
+
+        if (empty($resource)) {
+            $output->writeln(sprintf('<error>Please pass the name of the resource</error>',
+                                     $inputDir));
+
+            return -6;
+        }
+
+        $filenameFull = $inputDir . '/' . $resource;
+        if (!file_exists($filenameFull)) {
+            $output->writeln(sprintf('<error>File does not exist (%s)</error>',
+                                     $filenameFull));
+
+            return -3;
+        }
+
+        $existDbClient = $this->getExistDbClient();
+        $existDbBase = $existDbClient->getCollection();
+
+        // TODO: pass $isBinary depending of the type of the actual file
+        return $this->checkCollectionAndStore($output, $existDbClient,
+                                              $subCollection = $existDbBase . '/' . $collection,
+                                              $resource, $filenameFull, $overwrite, true, $isBinary = true);
     }
 
     protected function importVolume(OutputInterface $output, $resource)

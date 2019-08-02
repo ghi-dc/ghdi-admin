@@ -20,7 +20,7 @@
           <xsl:if test="@corresp">
             <xsl:attribute name="data-author-slug"><xsl:value-of select="@corresp" /></xsl:attribute>
           </xsl:if>
-          <xsl:value-of select="text()" />
+          <xsl:apply-templates/>
         </li>
       </xsl:for-each>
     </ul>
@@ -60,18 +60,18 @@
     </div>
 
     <xsl:choose>
-      <xsl:when test="./tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence">
+      <xsl:when test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence">
         <div id="license">
-          <xsl:if test="./tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target">
-            <xsl:attribute name="data-target"><xsl:value-of select="./tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target" /></xsl:attribute>
+          <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target">
+            <xsl:attribute name="data-target"><xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target" /></xsl:attribute>
           </xsl:if>
-          <xsl:apply-templates select="./tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence" />
+          <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence" />
         </div>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:if test="./tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability">
+        <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability">
           <div id="license">
-            <xsl:apply-templates select="./tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability" />
+            <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability" />
           </div>
         </xsl:if>
       </xsl:otherwise>

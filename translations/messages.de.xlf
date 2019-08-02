@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2019-07-29T16:17:37Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-07-30T18:35:14Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -25,6 +25,11 @@
         <source>Add missing</source>
         <target>Fehlende hinzufügen</target>
         <jms:reference-file line="14">\..\..\..\..\..\..\./templates\Organization\list.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="254dee1db19187596118bb19de007bb526abaef4" resname="Add to">
+        <source>Add to</source>
+        <target>Add to</target>
+        <jms:reference-file line="9">\..\..\..\..\..\..\./templates\Resource\upload.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="ecfe29ef8fcfc7c6552fb9793fd0884a7b9c0a8b" resname="Additional Information">
         <source>Additional Information</source>
@@ -60,7 +65,7 @@
       <trans-unit id="f5cbdf6bfb51439be085b5c6b7460a7c91eabc3c" resname="Contents">
         <source>Contents</source>
         <target>Inhalte</target>
-        <jms:reference-file line="61">\..\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
+        <jms:reference-file line="64">\..\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="78ab847f38767a7c83af0279b8aeecc1cf4b5afa" resname="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open">
         <source>Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open</source>
@@ -68,10 +73,25 @@
         <jms:reference-file line="49">\..\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
         <jms:reference-file line="20">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="304f6c7b36b71c5c14698cc572b4669a5be4832a" resname="Coverage Date">
+        <source>Coverage Date</source>
+        <target state="new">Zeitliche Abdeckung</target>
+        <jms:reference-file line="59">\..\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="3f40e5d6ec8e0329634b6e2a48afc2e7255a7e62" resname="Creator(s)">
+        <source>Creator(s)</source>
+        <target>Urheber</target>
+        <jms:reference-file line="20">\..\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="133160594d08fcd32f94c34d17e39f61e6f3d12e" resname="Date of Birth">
         <source>Date of Birth</source>
         <target>Geburtsdatum</target>
         <jms:reference-file line="65">\..\..\..\..\..\..\./src\Form\Type\PersonType.php\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="942d0ae3060a1148cbe5257f148b079211ba63c6" resname="Date of Creation">
+        <source>Date of Creation</source>
+        <target>Erstellungsdatum</target>
+        <jms:reference-file line="24">\..\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="9175f106bd1baaee94bdb4ec96b9499c7d59470f" resname="Date of Death">
         <source>Date of Death</source>
@@ -123,6 +143,11 @@
         <source>Family Name</source>
         <target>Nachname</target>
         <jms:reference-file line="25">\..\..\..\..\..\..\./src\Form\Type\PersonType.php\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="1f20e66b17a6eb7c2baf1ab68337d91eaf6f4f80" resname="Figure">
+        <source>Figure</source>
+        <target>Abbildung</target>
+        <jms:reference-file line="41">\..\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="7cfbb4fa15b0617ef7e0c2be592067b54c7f6f65" resname="Founded">
         <source>Founded</source>
@@ -198,6 +223,11 @@
         <source>Latitude</source>
         <target>Breite</target>
         <jms:reference-file line="21">\..\..\..\..\..\..\./src\Form\Type\GeoCoordinatesType.php\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="3229609e15436ec51bcf00818a69a84dbc58a0c2" resname="License">
+        <source>License</source>
+        <target>Lizenz</target>
+        <jms:reference-file line="36">\..\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="a1fffaaafb7cc996685bceb829c053cc4f7de43d" resname="List">
         <source>List</source>
@@ -277,6 +307,16 @@
         <target>Druckansicht</target>
         <jms:reference-file line="46">\..\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="a7cf7b25a703b308887c7f1d100c4326ef20ac46" resname="Replace">
+        <source>Replace</source>
+        <target>Replace</target>
+        <jms:reference-file line="7">\..\..\..\..\..\..\./templates\Resource\upload.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="d37537de853a0930e55b638204c0edd09585a7b1" resname="Replace Content">
+        <source>Replace Content</source>
+        <target>Replace Content</target>
+        <jms:reference-file line="54">\..\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="87df60de337fb58864343e396696d74611e0d403" resname="Resources">
         <source>Resources</source>
         <target>Inhalte</target>
@@ -300,6 +340,16 @@
         <source>Search in KVK</source>
         <target>Suche im KVK</target>
         <jms:reference-file line="43">\..\..\..\..\..\..\./templates\Bibliography\detail.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="6da13addb000b67d42a6d66391713819e634149f" resname="Source">
+        <source>Source</source>
+        <target>Quelle</target>
+        <jms:reference-file line="32">\..\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="366ea33cb40167102931845e9d1d9d1fcf384c6a" resname="Source Description">
+        <source>Source Description</source>
+        <target>Quellenbeschreibung</target>
+        <jms:reference-file line="28">\..\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="cd432aa53754daa48ec4f436a27db8dd4e9870ae" resname="Successor">
         <source>Successor</source>
@@ -350,8 +400,8 @@
       </trans-unit>
       <trans-unit id="1f98b76a68c113a2c3cd5364d67b326dd8a4ec15" resname="save changed order">
         <source>save changed order</source>
-        <target state="new">geänderte Reihenfolge speichern</target>
-        <jms:reference-file line="63">\..\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
+        <target>geänderte Reihenfolge speichern</target>
+        <jms:reference-file line="66">\..\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
         <jms:reference-file line="36">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="8f3a07543988e4673dcae5e59c35323c5791f370" resname="view">

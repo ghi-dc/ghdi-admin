@@ -43,6 +43,11 @@ extends Controller
         return $this->getParameter('app.existdb.base') . '/styles';
     }
 
+    protected function getAssetsPath()
+    {
+        return $this->getParameter('app.existdb.base') . '/assets';
+    }
+
     protected function getSerializer()
     {
         return \JMS\Serializer\SerializerBuilder::create()

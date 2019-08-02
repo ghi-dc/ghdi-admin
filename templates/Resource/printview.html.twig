@@ -35,7 +35,7 @@
         margin-bottom: 8px;
     }
 
-    #authors, #license {
+    #authors {
         display: none;
     }
 
@@ -146,9 +146,9 @@
     <sethtmlpagefooter name="_blank" value="on" show-this-page="1" />
 
     <header>
-        <h1 id="site-name">
-            <!--{{ siteName|trans }}<br />-->
-        </h1>
+        <!--<h1 id="site-name">
+            {{ siteName|trans }}
+        </h1>-->
     </header>
 
     {% if authors is not empty %}
@@ -167,8 +167,8 @@
     <div class="appendix">
     {#{ helper.article_authors(authors) }}
 
-    {{ helper.article_citation(article, meta, authors, name) }}
+    {{ helper.article_citation(article, meta, authors, name) }}#}
 
-    {{ helper.article_license(license) }#}
+    {{ helper.article_license(license) }}
     </div>
 {% endblock %}

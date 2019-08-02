@@ -62,6 +62,9 @@ return
                 }</dc:rights>
             )
         )
+        else if ($teiHeader/fileDesc/publicationStmt/availability/p) then (
+            <dc:rights>{string($teiHeader/fileDesc/publicationStmt/availability/p)}</dc:rights>
+        )
         else ()
     }
     {

@@ -19,6 +19,7 @@ implements \JsonSerializable
     protected $id;
     protected $title;
     protected $authors = [];
+    protected $responsible = [];
     protected $note;
     protected $licence;
     protected $licenceTarget;
@@ -75,6 +76,9 @@ implements \JsonSerializable
         return $this->title;
     }
 
+    /**
+     * Adds author
+     */
     public function addAuthor($author)
     {
         $this->authors[] = $author;
@@ -82,9 +86,30 @@ implements \JsonSerializable
         return $this;
     }
 
+    /**
+     * Gets authors
+     */
     public function getAuthors()
     {
         return $this->authors;
+    }
+
+    /**
+     * Adds responsible
+     */
+    public function addResponsible($name, $role, $nameType = 'persName')
+    {
+        $this->responsible[] = [ 'role' => $role, $nameType => $name ];
+
+        return $this;
+    }
+
+    /**
+     * Gets responsible
+     */
+    public function getResponsible()
+    {
+        return $this->responsible;
     }
 
     /**
@@ -231,6 +256,9 @@ implements \JsonSerializable
         return $this->shelfmark;
     }
 
+    /**
+     * Adds classification code
+     */
     public function addClassCode($scheme, $code)
     {
         if (!array_key_exists($scheme, $this->classCodes)) {
@@ -240,6 +268,9 @@ implements \JsonSerializable
         $this->classCodes[$scheme][] = $code;
     }
 
+    /**
+     * Gets classification codes
+     */
     public function getClassCodes($scheme)
     {
         if (array_key_exists($scheme, $this->classCodes)) {
@@ -300,6 +331,7 @@ implements \JsonSerializable
     public function getSettingDate()
     {
         $codes = $this->getClassCodes('http://purl.org/dc/elements/1.1/coverage');
+
         if (!empty($codes)) {
             return $codes[0];
         }
@@ -311,6 +343,7 @@ implements \JsonSerializable
             'id' => $this->getId(),
             'title' => $this->getTitle(),
             'authors' => $this->getAuthors(),
+            'responsible' => $this->getResponsible(),
             'dateCreation' => $this->getDateCreation(),
             'language' => $this->getLanguage(),
             'genre' => $this->getGenre(),

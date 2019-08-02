@@ -210,11 +210,7 @@ EOXQL;
                 'volume' => $this->fetchVolume($client, $volume, $lang),
                 'resource' => $resource,
                 'html' => $html,
-                // TODO:
-                // 'authors' => $authors,
-                // 'license' => $license,
             ]);
-
 
             $this->renderPdf($html, str_replace('.xml', '.pdf', $resource['data']['fname']), 'I', $request->getLocale());
 
@@ -523,7 +519,7 @@ EOXQL;
         $teiSimpleDoc = $pandocConverter->convert($officeDoc);
 
         $conversionOptions = [
-            // 'prettyPrinter' => $this->get('app.tei-prettyprinter'),
+            'prettyPrinter' => $this->get('app.tei-prettyprinter'),
             'language' => \App\Utils\Iso639::code1to3($locale),
             'genre' => 'document', // todo: make configurable
         ];
@@ -538,7 +534,7 @@ EOXQL;
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload-child",
      *        requirements={"volume" = "volume\-\d+", "id" = "(chapter)\-\d+"})
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image)\-\d+"})
      */
     public function uploadAction(Request $request, $volume, $id)
     {
@@ -572,22 +568,50 @@ EOXQL;
                 if (!in_array($mime, [
                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                         'application/docx',
+                        'text/xml',
                     ]))
                 {
                     $request->getSession()
                             ->getFlashBag()
-                            ->add('error', "Uploaded file wasn't recognized as a Word-File (.docx)")
+                            ->add('error', "Uploaded file wasn't recognized as a Word-File (.docx) or as a TEI-File (.xml)")
                         ;
                 }
                 else {
-                    $teiDtabfDoc = $this->word2doc($file->getRealPath(), $request->getLocale());
-                    if (false === $teiDtabfDoc) {
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add('error', "There was an error converting the upload")
-                            ;
+                    $genre = 'document';
+
+                    if ('text/xml' == $mime) {
+                        $teiDtabfDoc = new \App\Utils\TeiDocument([
+                            'prettyPrinter' => $this->get('app.tei-prettyprinter'),
+                        ]);
+                        $success = $teiDtabfDoc->load($file->getRealPath());
+                        if (!$success) {
+                            $request->getSession()
+                                    ->getFlashBag()
+                                    ->add('error', "There was an error loading the upload")
+                                ;
+                            $teiDtabfDoc = false;
+                        }
+                        else {
+                            $teiDtabfDoc->prettify();
+
+                            // genre can be both document and image
+                            $teiHelper = new \App\Utils\TeiHelper();
+                            $article = $teiHelper->analyzeHeaderString((string)$teiDtabfDoc);
+                            $genre = $article->genre;
+                        }
                     }
                     else {
+                        $teiDtabfDoc = $this->word2doc($file->getRealPath(), $request->getLocale());
+                        if (false === $teiDtabfDoc) {
+                            $request->getSession()
+                                    ->getFlashBag()
+                                    ->add('error', "There was an error converting the upload")
+                                ;
+                        }
+                    }
+
+
+                    if (false !== $teiDtabfDoc) {
                         $valid = $teiDtabfDoc->validate($this->get('kernel')->getProjectDir() . '/data/schema/basisformat.rng');
 
                         if (!$valid) {
@@ -602,7 +626,7 @@ EOXQL;
                             $shelfmark = $entity->getShelfmark();
                         }
                         else {
-                            $resourceId = $this->nextInSequence($client, $client->getCollection(), $prefix = 'document-');
+                            $resourceId = $this->nextInSequence($client, $client->getCollection(), $prefix = $genre . '-');
 
                             // shelf-mark - append at the end
                             $counter = 1;
@@ -660,27 +684,16 @@ EOXQL;
     }
 
     /**
-     * @Route("/test/collection", name="test-collection")
+     * @Route("/test/binary")
      */
     public function testAction(Request $request)
     {
-        $data = [
-            // 'myCollection' => ['a', 'b', 'c'],
-        ];
+        $client = $this->getExistDbClient($this->subCollection);
+        $path = $this->getAssetsPath();
 
-        $form = $this->get('form.factory')
-                ->create(\App\Form\Type\CollectionTestType::class, $data, [])
-                ;
+        header('Content-type: image/jpeg');
+        echo $client->getBinaryResource($path . '/logo-print.de.jpg');
 
-        $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $data = $form->getData();
-            }
-        }
-
-        return $this->render('Resource/collection-test.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        exit;
     }
 }

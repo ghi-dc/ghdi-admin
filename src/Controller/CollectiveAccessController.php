@@ -165,13 +165,13 @@ extends BaseController
             $target = 'https://creativecommons.org/publicdomain/mark/1.0/';
         }
         else {
-            var_dump($raw);
+            // var_dump($raw);
         }
 
         return $target;
     }
 
-    protected function buildItem($data, $locale, \App\Service\CollectiveAccessService $caService)
+    protected function buildTeiHeader($data, $locale, \App\Service\CollectiveAccessService $caService)
     {
         $languages = [];
         foreach (self::$LOCALE_MAP as $aLocale => $lang) {
@@ -244,6 +244,24 @@ extends BaseController
                                 $teiHeader->addAuthor($name);
                                 break;
 
+                            case 'contributor':
+                                if (array_key_exists('forename', $entity)) {
+                                    // assume a structured name
+                                    $nameParts = [];
+                                    foreach ([ 'forename', 'surname' ] as $key) {
+                                        if (!empty($entity[$key])) {
+                                            $val = $this->buildTeiValue($entity[$key], true);
+                                            $nameParts[] = sprintf('<%s>%s</%s>', $key, $val, $key);
+                                        }
+                                    }
+                                    $teiHeader->addResponsible(join(' ', $nameParts), 'Contributor', 'persName');
+                                }
+                                else {
+                                    $name = $this->buildTeiValue($entity['displayname'], true);
+                                    $teiHeader->addResponsible($name, 'Contributor', 'name');
+                                }
+                                break;
+
                             default:
                                 die('TODO: handle relationship_typename ' . $entity['relationship_typename']);
                         }
@@ -262,6 +280,14 @@ extends BaseController
                     foreach ($data[$src] as $struct) {
                         if (array_key_exists($lang, $struct) && !empty($struct[$lang])) {
                             $val = $this->buildTeiValue($struct[$lang][$dst], false);
+                            if (!empty($val)) {
+                                // let's see if it is a date string like February 23 1893
+                                $dateInfo = date_parse($val);
+                                if (0 == $dateInfo['error_count'] && 0 != $dateInfo['month']) {
+                                    $val = sprintf('%04d-%02d-%02d',
+                                                   $dateInfo['year'], $dateInfo['month'], $dateInfo['day']);
+                                }
+                            }
 
                             $method = null;
 
@@ -366,14 +392,19 @@ extends BaseController
 
     protected function buildFigureFacs($figure)
     {
+        $facs = $figure['urls']['original'];
+
         $path = parse_url($figure['urls']['original'], PHP_URL_PATH);
-        $facs = basename($path);
+        $corresp = basename($path);
 
         if (!empty($figure['original_filename'])) {
-            $facs = $figure['original_filename'];
+            $corresp = $figure['original_filename'];
         }
 
-        return $facs;
+        return [
+            'facs' => $facs,
+            'corresp' => $corresp,
+        ];
     }
 
     /**
@@ -399,7 +430,7 @@ extends BaseController
             return $this->redirect($this->generateUrl('ca-home'));
         }
 
-        $item = $this->buildItem($result->getRawData(), $request->getLocale(), $caService);
+        $teiHeader = $this->buildTeiHeader($result->getRawData(), $request->getLocale(), $caService);
 
         $figures = $this->buildFigures($result->getRawData(), $request->getLocale());
 
@@ -407,7 +438,7 @@ extends BaseController
             $content = $this->getTeiSkeleton();
 
             if (false !== $content) {
-                $data = $item->jsonSerialize();
+                $data = $teiHeader->jsonSerialize();
 
                 $teiHelper = new \App\Utils\TeiHelper();
                 $tei = $teiHelper->adjustHeaderString($content, $data);
@@ -416,8 +447,10 @@ extends BaseController
                     $body = $tei('//tei:body')[0];
                     $fragment = $tei->createDocumentFragment();
                     foreach ($figures as $figure) {
-                        $fragment->appendXML(sprintf('<p><figure facs="%s"></figure></p>',
-                                                     htmlspecialchars($this->buildFigureFacs($figure), ENT_XML1, 'utf-8')));
+                        $facsInfo = $this->buildFigureFacs($figure);
+                        $fragment->appendXML(sprintf('<p><figure facs="%s" corresp="%s"></figure></p>',
+                                                     htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
+                                                     htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8')));
                    }
 
                     (new \FluentDOM\Nodes\Modifier($body))
@@ -432,7 +465,7 @@ extends BaseController
         }
 
         return $this->render('CollectiveAccess/detail.html.twig', [
-            'item' => $item,
+            'item' => $teiHeader,
             'figures' => $figures,
             'raw' => $result->getRawData(),
         ]);

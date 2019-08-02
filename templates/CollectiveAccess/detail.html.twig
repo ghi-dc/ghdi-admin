@@ -17,28 +17,28 @@
     <h3>{{ item.title|raw }}</h3>
     <dl class="row">
     {% if item.authors is not empty %}
-      <dt class="col-sm-3 col-md-2">Creators</dt>
+      <dt class="col-sm-3 col-md-2">{{ 'Creator(s)'|trans }}</dt>
       <dd class="col-sm-9 col-md-10">{{ item.authors|join('; ')|raw }}</dd>
     {% endif %}
     {% if item.dateCreation is not empty %}
-      <dt class="col-sm-3 col-md-2">Date of Creation</dt>
+      <dt class="col-sm-3 col-md-2">{{ 'Date of Creation'|trans }}</dt>
       <dd class="col-sm-9 col-md-10">{{ item.dateCreation|raw }}</dd>
     {% endif %}
     {% if item.note is not empty %}
-      <dt class="col-sm-3 col-md-2">Description</dt>
+      <dt class="col-sm-3 col-md-2">{{ 'Source Description'|trans }}</dt>
       <dd class="col-sm-9 col-md-10">{{ item.note|raw }}</dd>
     {% endif %}
     {% if item.licence is not empty %}
-      <dt class="col-sm-3 col-md-2">Rights Notice</dt>
+      <dt class="col-sm-3 col-md-2">{{ 'Source'|trans }}</dt>
       <dd class="col-sm-9 col-md-10">{{ item.licence|raw }}</dd>
     {% endif %}
     {% if item.licenceTarget is not empty %}
-      <dt class="col-sm-3 col-md-2">License URL</dt>
+      <dt class="col-sm-3 col-md-2">{{ 'License'|trans }}</dt>
       <dd class="col-sm-9 col-md-10"><a href="{{ item.licenceTarget }}" target="_blank">{{ item.licenceTarget|prettifyurl }}</a></dd>
     {% endif %}
 
     {% for figure in figures %}
-      <dt class="col-sm-3 col-md-2">Figure</dt>
+      <dt class="col-sm-3 col-md-2">{{ 'Figure'|trans }}</dt>
       <dd class="col-sm-9 col-md-10">
         {{ figure['tags']['preview170']|raw }}
         <a href="{{ figure['urls']['original'] }}" target="_blank">{{ figure['original_filename'] }}</a>
@@ -56,7 +56,7 @@
     {% endif %}
 
     {% if item.settingDate is not empty %}
-      <dt class="col-sm-3 col-md-2">Date Covered</dt>
+      <dt class="col-sm-3 col-md-2">{{ 'Coverage Date'|trans }}</dt>
       <dd class="col-sm-9 col-md-10">{{ item.settingDate|raw }}</dd>
     {% endif %}
     </dl>

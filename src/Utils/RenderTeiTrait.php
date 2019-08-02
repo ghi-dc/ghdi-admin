@@ -16,7 +16,6 @@ trait RenderTeiTrait
         foreach ($selectorsToRemove as $selector) {
             $crawler->filter($selector)->each(function ($crawler) {
                 foreach ($crawler as $node) {
-                    // var_dump($node);
                     $node->parentNode->removeChild($node);
                 }
             });
@@ -59,14 +58,37 @@ trait RenderTeiTrait
         $pdfGenerator->SHYleftmin = 3;
         */
 
-        // imgs
-        $fnameLogo = $this->get('kernel')->getProjectDir() . '/public/img/logo-small.' . $locale . '.gif';
-        $pdfGenerator->imageVars['logo_top'] = file_get_contents($fnameLogo);
+
+        try {
+            // try to get logo from repository in order to support multiple sites with same code-base
+            $client = $this->getExistDbClient($this->subCollection);
+            $pdfGenerator->imageVars['logo_top'] = $client->getBinaryResource($this->getAssetsPath() . '/logo-print.' . $locale . '.jpg');
+        }
+        catch (\Exception $e) {
+            // fall-back to file system
+            $pdfGenerator->imageVars['logo_top'] = $this->get('kernel')->getProjectDir() . '/public/img/logo-print.' . $locale . '.jpg';
+        }
 
         // silence due to https://github.com/mpdf/mpdf/issues/302 when using tables
         @$pdfGenerator->writeHTML($html);
 
         $pdfGenerator->Output($filename, 'I');
+    }
+
+    protected function buildAbsoluteUrl($url, $baseUrl)
+    {
+        if (empty($baseUrl)) {
+            return $url;
+        }
+
+        // check if url contains hose
+        $host = parse_url($url, PHP_URL_HOST);
+        if (!empty($host)) {
+            // nothing to prepend
+            return $url;
+        }
+
+        return $baseUrl . '/' . $src;
     }
 
     protected function adjustMedia($html, $baseUrl, $imgClass = 'image-responsive')
@@ -76,17 +98,17 @@ trait RenderTeiTrait
 
         $crawler->filter('audio > source')->each(function ($node, $i) use ($baseUrl) {
             $src = $node->attr('src');
-            $node->getNode(0)->setAttribute('src', $baseUrl . '/' . $src);
+            $node->getNode(0)->setAttribute('src', $this->buildAbsoluteUrl($src, $baseUrl));
         });
 
         $crawler->filter('video > source')->each(function ($node, $i) use ($baseUrl) {
             $src = $node->attr('src');
-            $node->getNode(0)->setAttribute('src', $baseUrl . '/' . $src);
+            $node->getNode(0)->setAttribute('src', $this->buildAbsoluteUrl($src, $baseUrl));
         });
 
         $crawler->filter('img')->each(function ($node, $i) use ($baseUrl, $imgClass) {
             $src = $node->attr('src');
-            $node->getNode(0)->setAttribute('src', $baseUrl . '/' . $src);
+            $node->getNode(0)->setAttribute('src', $this->buildAbsoluteUrl($src, $baseUrl));
             if (!empty($imgClass)) {
                 $node->getNode(0)->setAttribute('class', $imgClass);
             }

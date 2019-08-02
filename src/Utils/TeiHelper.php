@@ -497,6 +497,7 @@ class TeiHelper
         */
 
         $header = $xml('/tei:TEI/tei:teiHeader')[0];
+
         // if we have only <title> and not <title type="main">, add this attribute
         $hasTitleAttrMain = $header('count(./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]) > 0');
         if (!$hasTitleAttrMain) {
@@ -552,10 +553,42 @@ class TeiHelper
             }
         }
 
+        if (array_key_exists('responsible', $data)) {
+            $xpath = 'tei:fileDesc/tei:titleStmt/tei:respStmt';
+            // since there can be multiple, first clear and then add
+            \FluentDom($header)->find($xpath)->remove();
+
+            if (!is_null($data['responsible'])) {
+                $respStmt = null;
+
+                foreach ($data['responsible'] as $responsible) {
+                    if (is_null($respStmt)) {
+                        $this->addDescendants($header, $xpath, []);
+                        $respStmt = \FluentDom($header)->find($xpath)[0];
+                    }
+
+                    $respStmt->appendElement('resp', $responsible['role']);
+                    $nameElement = array_key_exists('persName', $responsible)
+                        ? 'persName' : 'name';
+                    $self = $respStmt->appendElement($nameElement);
+
+                    // since we can have xml-tags <forename> / <surname> we need to add fragment instead of content
+                    $fragment = $self->ownerDocument->createDocumentFragment();
+                    $fragment->appendXML($responsible[$nameElement]);
+
+                    (new \FluentDOM\Nodes\Modifier($self))
+                        ->replaceChildren($fragment);
+                }
+            }
+        }
+
         // publicationStmt
         if (array_key_exists('licence', $data) || array_key_exists('licenceTarget', $data)) {
-            $node = $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence', [
-                'tei:licence' => function ($parent, $name, $updateExisting) use ($data) {
+            $node = $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:availability', [
+                'tei:availability' => function ($parent, $name, $updateExisting) use ($data) {
+                    // we have two cases
+                    // a) licenceTarget is not empty, we wrap into license
+                    // b) licenceTarget empty, we put it directly into availability
                     $content = !empty($data['licence']) ? $data['licence'] : null;
 
                     if (!$updateExisting) {
@@ -565,20 +598,43 @@ class TeiHelper
 
                         list($prefix, $localName) = \FluentDOM\Utility\QualifiedName::split($name);
 
-                        $self = $parent->appendElement($localName, $content);
+                        $self = $parent->appendElement($localName);
                     }
                     else {
+                        // TODO: this branch needs testing
+
                         $self = $parent;
-                        $self->nodeValue = $content;
+
+                        if (empty($content) && empty($data['licence'])) {
+                            // we remove the existing tag
+                            $self->parentNode->removeChild($self);
+
+                            return;
+                        }
+
+                        if (empty($data['licenceTarget'])) {
+                            // we remove a possible licence child
+                            \FluentDom($self)->find('tei:licence')->remove();
+                        }
+
                     }
 
-                    if (empty($data['licenceTarget'])) {
-                        if ($self->hasAttribute('target')) {
-                            $self->removeAttribute('target');
-                        }
+                    // at this point, $self is the availability node and we add a licence-tag depending on $data['licenceTarget']
+                    $appendContentTo = $self;
+                    if (!empty($data['licenceTarget'])) {
+                        $appendContentTo = $licence = $self->appendElement('licence');
+                        $licence->setAttribute('target', $data['licenceTarget']);
                     }
-                    else {
-                        $self->setAttribute('target', $data['licenceTarget']);
+
+                    if (!empty($content)) {
+                        $p = $appendContentTo->appendElement('p');
+
+                        // since we can have xml-tags e.g. <ref>, we need to append a fragment
+                        $fragment = $p->ownerDocument->createDocumentFragment();
+                        $fragment->appendXML($content);
+
+                        (new \FluentDOM\Nodes\Modifier($p))
+                            ->replaceChildren($fragment);
                     }
 
                     return $self;

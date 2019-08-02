@@ -106,6 +106,10 @@ extends ResourceController
                 case 'document':
                 case 'image':
                     $key = $info['genre'] . 's';
+                    if ('images' == $key && !array_key_exists($key, $ret)) {
+                        // GHIS doesn't separate between documents and images
+                        $key = 'documents';
+                    }
 
                     $parts = explode('/', $info['shelfmark']);
                     if (preg_match('/(chapter\-\d+)/', $parts[2], $matches)) {
