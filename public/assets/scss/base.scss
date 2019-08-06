@@ -8,9 +8,14 @@ $color-gray-ultralight: #E9E9E9;
 
 $color-text: #333;
 
-@import url('https://fonts.googleapis.com/css?family=Arimo:400,400i,700,700i&amp;subset=cyrillic,cyrillic-ext,greek,latin-ext');
+/*
+ * If you want to tweak the @font-face settings, you might use instead
+ * @import 'font/Lato';
+ */
+@import url('https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i&display=swap&subset=latin-ext');
 
-$font-stack-sans: 'Arimo', Arial, "Arial Unicode MS", sans-serif;
+$font-stack-sans: 'Lato', Arial, "Arial Unicode MS", sans-serif;
+$font-stack-sans-combining: Arial, "Arial Unicode MS", sans-serif;
 
 /* see https://github.com/twbs/bootstrap-sass/blob/master/assets/stylesheets/bootstrap/_variables.scss */
 $screen-sm-size: 768px;
@@ -43,6 +48,11 @@ footer {
 
 body {
     font-family: $font-stack-sans;
+
+    .combining-e {
+        font-family: $font-stack-sans-combining;
+        font-size: 95%;
+    }
 }
 
 .hoverable {

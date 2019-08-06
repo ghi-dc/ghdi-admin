@@ -34,7 +34,7 @@ trait RenderTeiTrait
         exit;
         */
 
-        // mpdf
+        // mpdf - TODO: move this to a service
         $pdfGenerator = new \App\Utils\PdfGenerator([
             'fontDir' => [
                 $this->get('kernel')->getProjectDir()
@@ -48,7 +48,6 @@ trait RenderTeiTrait
                     'BI' => 'Brill-Bold-Italic.ttf',
                 ],
             ],
-            'default_font' => 'brill',
         ]);
 
         /*
@@ -57,7 +56,6 @@ trait RenderTeiTrait
         $pdfGenerator->SHYlang = $lang;
         $pdfGenerator->SHYleftmin = 3;
         */
-
 
         try {
             // try to get logo from repository in order to support multiple sites with same code-base
@@ -128,6 +126,10 @@ trait RenderTeiTrait
         ], true);
 
         $html = $this->adjustMedia($html, $baseUrl);
+
+        // since it doesn't seem to possible to style this with unicode-range
+        // set a span around Combining Latin Small Letter E so we can set an alternate font-family
+        $html = preg_replace('/([aou]\x{0364})/u', '<span class="combining-e">\1</span>', $html);
 
         return $html;
     }
