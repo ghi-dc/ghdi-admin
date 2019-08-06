@@ -35,7 +35,7 @@ for $tei in collection($collection)/TEI{% if q is not empty %}[ft:query(*, $q)]{
     let $genre := $tei/teiHeader/profileDesc/textClass/classCode[@scheme="http://germanhistorydocs.org/docs/#genre"]/text()
 
     (: document-collection and image-collection must come before document and image :)
-    order by fn:contains($genre, '-collection') descending, $genre, $shelfmark
+    order by if (fn:contains($genre, '-collection')) then 'collection' else 'resource', $shelfmark
     return <data json:array="true" id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], '{{ prefix }}:', '')}">
         <name>{string($name)}</name>
         <genre>{$genre}</genre>

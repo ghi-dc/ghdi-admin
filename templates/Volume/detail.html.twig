@@ -47,6 +47,7 @@
                             {% if resource.resources is not empty %}
                                 <h5>
                                     <a href="#{{ subkey }}" data-toggle="collapse">{{ resource.name }}</a>
+                                    ({{ resource.resources|length }})
                                     {% if resource.id is not empty %}
                                     <small><a href="{{ path('resource-detail', { volume: id, id: resource.id }) }}" class="fa fa-eye" title=""{{ 'view'|trans }}> </a></small>
                                     {% endif %}
