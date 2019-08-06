@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2019-07-30T18:35:14Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-08-06T17:07:15Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
     </header>
     <body>
+      <trans-unit id="4e0b99adbe01b25fdbbed5b3f1b6d708d3b294d6" resname="app_resource_test">
+        <source>/test/binary</source>
+        <target>/test/binary</target>
+      </trans-unit>
+      <trans-unit id="6ea56d001328e20a62f0b30648b07a980d701b5d" resname="app_volume_test">
+        <source>/test/binary</source>
+        <target>/test/binary</target>
+      </trans-unit>
       <trans-unit id="9c2891996a68b7c03961830f1f1e81bd144662b6" resname="bibliography-detail">
         <source>/bibliography/{id}</source>
         <target>/bibliography/{id}</target>
@@ -173,10 +181,6 @@
       <trans-unit id="b65d488df521c7b8c8366540d5034045166eb6c8" resname="resource-upload-child">
         <source>/resource/{volume}/{id}/upload</source>
         <target>/resource/{volume}/{id}/upload</target>
-      </trans-unit>
-      <trans-unit id="139ee48049073abea20aea9d1a24bcf46bdb5e87" resname="test-collection">
-        <source>/test/collection</source>
-        <target>/test/collection</target>
       </trans-unit>
       <trans-unit id="bb73aaafa1596e5425dc514a361ad4ef658f2758" resname="upload">
         <source>/upload</source>

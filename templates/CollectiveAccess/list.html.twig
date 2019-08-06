@@ -8,7 +8,7 @@
 
     <form method="POST">
         <select name="collection">
-            <option value="">-- select a collection --</option>
+            <option value="">{{ '-- select a collection --'|trans }}</option>
             {% for aCollection in collections %}
                 <option value="{{ aCollection.idno }}"{% if aCollection.idno == collection %} selected="selected"{% endif %}>
                     {{ aCollection.display_label }}
@@ -18,15 +18,22 @@
         <input type="submit" value="{{ 'List'|trans }}" />
     </form>
     {% if result is empty %}
-        Please select a collection
+    <div class="alert alert-info" role="alert">
+        {{ 'Please select a collection'|trans }}
+    </div>
     {% elseif not result.isOk %}
-        There was an error querying the items
+    <div class="alert alert-danger" role="alert">
+        {{ 'There was an error querying the items'|trans }}
+    </div>
     {% else %}
         {% set data = result.rawData %}
         {% if 0 == data.total %}
-            No items found.
+    <div class="alert alert-info" role="alert">
+        {{ 'No items found'|trans }}
+    </div>
         {% else %}
-            {{ data.total }} items
+            {% set count = data.total %}
+            {% transchoice count %}{1} %count% entry|]1,Inf] %count% entries{% endtranschoice %}
             <ul>
             {% for item in data.results %}
                 <li><a href="{{ path('ca-detail', { 'id' : item.id }) }}">{{ item.display_label }}</a></li>

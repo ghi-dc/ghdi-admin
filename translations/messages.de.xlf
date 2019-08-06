@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2019-07-30T18:35:14Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-08-06T17:07:15Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
     </header>
     <body>
+      <trans-unit id="baa195d6454ca75b47e953ee7b868f5360c2df38" resname="-- select a collection --">
+        <source>-- select a collection --</source>
+        <target>-- Sammlung auswählen --</target>
+        <jms:reference-file line="11">\..\..\..\..\..\..\./templates\CollectiveAccess\list.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="4a849ff4f7cd00b48d44defc4ceb665a30d99534" resname="...read on">
         <source>...read on</source>
         <target>...weiterlesen</target>
@@ -75,7 +80,7 @@
       </trans-unit>
       <trans-unit id="304f6c7b36b71c5c14698cc572b4669a5be4832a" resname="Coverage Date">
         <source>Coverage Date</source>
-        <target state="new">Zeitliche Abdeckung</target>
+        <target>Zeitliche Abdeckung</target>
         <jms:reference-file line="59">\..\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="3f40e5d6ec8e0329634b6e2a48afc2e7255a7e62" resname="Creator(s)">
@@ -282,6 +287,11 @@
         <jms:reference-file line="20">\..\..\..\..\..\..\./src\Form\Type\OrganizationType.php\</jms:reference-file>
         <jms:reference-file line="21">\..\..\..\..\..\..\./src\Form\Type\PlaceType.php\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="2ab447eb84f59d3b163ca7bae16ff0d20b3ca125" resname="No items found">
+        <source>No items found</source>
+        <target>Keine Einträge gefunden</target>
+        <jms:reference-file line="32">\..\..\..\..\..\..\./templates\CollectiveAccess\list.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="07605242f7a070b43bdc103189dccf6a5cc43506" resname="Organizations">
         <source>Organizations</source>
         <target>Organisationen</target>
@@ -296,6 +306,11 @@
         <source>Places</source>
         <target>Orte</target>
         <jms:reference-file line="6">\..\..\..\..\..\..\./templates\Place\list.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="29f3d58f8ff7d5d6f5a7d2257c90c61f66dd5480" resname="Please select a collection">
+        <source>Please select a collection</source>
+        <target>Wählen Sie eine Sammlung</target>
+        <jms:reference-file line="22">\..\..\..\..\..\..\./templates\CollectiveAccess\list.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="bf8f0056a196dbb52cef0836a6890de66f611243" resname="Predecessor">
         <source>Predecessor</source>
@@ -366,6 +381,11 @@
         <target>TGN</target>
         <jms:reference-file line="47">\..\..\..\..\..\..\./src\Form\Type\PlaceType.php\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="f652fe616e4b3b31da52e8c890154de7584f087a" resname="There was an error querying the items">
+        <source>There was an error querying the items</source>
+        <target>There was an error querying the items</target>
+        <jms:reference-file line="26">\..\..\..\..\..\..\./templates\CollectiveAccess\list.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="768e0c1c69573fb588f61f1308a015c11468e05f" resname="Title">
         <source>Title</source>
         <target>Titel</target>
@@ -407,7 +427,12 @@
       <trans-unit id="8f3a07543988e4673dcae5e59c35323c5791f370" resname="view">
         <source>view</source>
         <target>anzeigen</target>
-        <jms:reference-file line="51">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
+        <jms:reference-file line="52">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="f18e37e022d04188f2fc50479236d3c77fc873bc" resname="{1} %count% entry|]1,Inf] %count% entries">
+        <source>{1} %count% entry|]1,Inf] %count% entries</source>
+        <target state="new">{1} %count% Eintrag|]1,Inf] %count% Einträge</target>
+        <jms:reference-file line="36">\..\..\..\..\..\..\./templates\CollectiveAccess\list.html.twig\</jms:reference-file>
       </trans-unit>
     </body>
   </file>
