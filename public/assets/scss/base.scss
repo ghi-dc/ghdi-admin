@@ -420,7 +420,7 @@ nav {
 
 /* footer */
 footer {
-    font-size: 1.2rem;
+    font-size: 1rem;
     background-color: $color-gray-dark;
     a, a:visited {
         color: white;
@@ -448,7 +448,7 @@ footer {
     }
 
     #footer-navigation {
-        padding-top: 2rem;
+        padding-top: 1rem;
         padding-bottom: 1rem;
     }
 
@@ -457,7 +457,9 @@ footer {
         padding-left: 0;
 
         &#menu-main-footer {
-            text-transform: uppercase;
+            li {
+                margin-right: 1rem;
+            }
         }
     }
 

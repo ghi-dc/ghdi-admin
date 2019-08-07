@@ -41,7 +41,7 @@ services:
     App\Menu\Builder:
         arguments: [ "@knp_menu.factory", "@security.authorization_checker", "@translator", "@request_stack", "%app.zotero.options%" ]
         tags:
-            # The alias is what is used to retrieve the menu
+            # The alias is what is used to retrieve the menu in twig
             - { name: knp_menu.menu_builder, method: createTopMenu, alias: top } 
             - { name: knp_menu.menu_builder, method: createMainMenu, alias: main }
             - { name: knp_menu.menu_builder, method: createBreadcrumbMenu, alias: breadcrumb }

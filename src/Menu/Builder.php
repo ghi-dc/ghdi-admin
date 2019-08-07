@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-
 class Builder
 {
     private $factory;
@@ -71,14 +70,19 @@ class Builder
             $loggedIn = false;
         }
 
-        $showWorks = $loggedIn || !empty($_SESSION['user']);
-
         // for translation, see http://symfony.com/doc/master/bundles/KnpMenuBundle/i18n.html
         $menu = $this->factory->createItem('home', [
             'label' => 'Home',
             'route' => 'home',
         ]);
-        $menu->setChildrenAttributes([ 'id' => 'menu-main', 'class' => 'nav navbar-nav navbar-expand-sm' ]);
+
+        if (array_key_exists('position', $options) && 'footer' == $options['position']) {
+            $menu->setChildrenAttributes([ 'id' => 'menu-main-footer', 'class' => 'nav navbar-nav navbar-expand-sm' ]);
+        }
+        else {
+            $menu->setChildrenAttributes([ 'id' => 'menu-main', 'class' => 'nav navbar-nav navbar-expand-sm' ]);
+        }
+
 
         $menu->addChild('volume-list', [
             'label' => $this->translator->trans('Volumes', [], 'menu'),
