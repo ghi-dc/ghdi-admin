@@ -21,5 +21,11 @@
     </xsl:if>
 
     <xsl:apply-templates />
+
+    <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl/*">
+      <div class="source-citation">
+        <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl/node()"/>
+      </div>
+    </xsl:if>
   </xsl:template>
 </xsl:stylesheet>

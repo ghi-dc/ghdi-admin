@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  *
- * Import GHDI-content from admin into scalar
+ * Import content from eXist-db admin into Scalar
  *
  */
 class ScalarCommand
@@ -45,7 +45,7 @@ extends ContainerAwareCommand
                 'volume',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'volume-id (e.g. 15)'
+                'volume id (e.g. 15)'
             )
             ->addOption(
                 'locale',
@@ -107,7 +107,7 @@ extends ContainerAwareCommand
         $imageName = $basename . $extension;
 
         if (!file_exists($imagePath . $imageName)) {
-            file_put_contents($imagePath . $imageName, @fopen($url, 'r'));
+            file_put_contents($imagePath . $imageName, fopen($url, 'r'));
         }
 
         return $imageName;
@@ -163,6 +163,7 @@ extends ContainerAwareCommand
 
             // now we can upload
             $res = $this->scalarClient->upload($imagePath . $imageName);
+
             // TODO: check for error
 
             // and now create the media-page
@@ -349,20 +350,20 @@ extends ContainerAwareCommand
         $locale = $input->getOption('locale');
         $volumeId = $input->getOption('volume');
 
+        $volumeInfo = $this->fetchJson($volumeId, null, $locale);
+
+        if (false === $volumeInfo) {
+            $output->writeln(sprintf('<error>an error occured in action: %s</error>',
+                                     $input->getArgument('action')));
+
+            return 1;
+        }
+
         switch ($action = $input->getArgument('action')) {
             case 'introduction':
             case 'documents':
             case 'images':
             case 'maps':
-                $volumeInfo = $this->fetchJson($volumeId, null, $locale);
-
-                if (false === $volumeInfo) {
-                    $output->writeln(sprintf('<error>an error occured in action: %s</error>',
-                                             $input->getArgument('action')));
-
-                    return 1;
-                }
-
                 $parts = array_key_exists('dcterms:hasPart', $volumeInfo)
                     ? array_filter($volumeInfo['dcterms:hasPart'], function ($part) use ($action) { return $part['scalar:metadata:slug'] === $action; })
                     : [];
@@ -419,15 +420,6 @@ extends ContainerAwareCommand
             case 'document-path':
             case 'image-path':
             case 'map-path':
-                $volumeInfo = $this->fetchJson($volumeId, null, $locale);
-
-                if (false === $volumeInfo) {
-                    $output->writeln(sprintf('<error>an error occured in action: %s</error>',
-                                             $input->getArgument('action')));
-
-                    return 1;
-                }
-
                 $slugFrom = str_replace('-path',
                                         in_array($action, ['index-path', 'introduction-path'])
                                         ? '' : 's',
@@ -471,15 +463,15 @@ extends ContainerAwareCommand
                     }
                 }
 
-
                 return 0;
                 break;
 
-
             // test
             case 'introduction-29':
+            case 'document-12':
+            case 'image-2':
             case 'image-1204':
-                $pageInfo = $this->fetchJson($volumeId = '15', $action, $locale);
+                $pageInfo = $this->fetchJson($volumeId, $action, $locale);
 
                 if (false === $pageInfo) {
                     $output->writeln(sprintf('<error>an error occured in action: %s</error>',

@@ -257,7 +257,13 @@ extends Controller
                 // we can't currently handle more than one figure due to the 1:1 correspondance of image-1234 <-> media-1234
                 $media = $figures['data'][0];
 
-                $ret['scalar:metadata:url'] = 'http://germanhistorydocs.ghi-dc.org/images/' . $media['url'];
+                $url = $media['url'];
+                $scheme = parse_url($url, PHP_URL_SCHEME);
+                if (empty($scheme)) {
+                    $url = 'http://germanhistorydocs.ghi-dc.org/images/' . $url;
+                }
+
+                $ret['scalar:metadata:url'] = $url;
                 foreach ([ 'description', 'creator', 'date' ] as $key)
                 if (!empty($media[$key])) {
                     $ret['dcterms:' . $key ] = $this->minify($media[$key], 'description' != $key);
