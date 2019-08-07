@@ -11,6 +11,18 @@ namespace App\Utils;
 class TeiSimplePrintToDtabfConverter
 extends DocumentConverter
 {
+    // TODO: share with XmlDocument - maybe through static method
+    protected function unwrapChildren($node)
+    {
+        $parent = $node->parentNode;
+
+        while ($node->firstChild) {
+           $parent->appendChild($node->firstChild);
+        }
+
+        $parent->removeChild($node);
+    }
+
     /**
      * Convert documents between two formats
      *
@@ -102,6 +114,17 @@ extends DocumentConverter
         foreach ($xml('/tei:TEI/tei:text//tei:note') as $note) {
             if (empty($note->getAttributeNode('place'))) {
                 $note->setAttribute('place', 'foot');
+            }
+
+            // unwrap <p> since we can't set display-inline in mpdf
+            $paras = $note('./tei:p');
+            for ($i = 0; $i < count($paras); $i++) {
+                if ($i > 0) {
+                    // add a line break before any following p
+                    $paras[$i]->parentNode->appendElement('lb');
+                }
+
+                $this->unwrapChildren($paras[$i]);
             }
         }
 

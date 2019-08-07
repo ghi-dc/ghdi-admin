@@ -375,12 +375,19 @@ nav {
         }
 }
 
-.source-description, .source-link {
+.source-description, .source-link, .source-citation {
     @include dta-styles;
-    margin-bottom: 1em;
     .editorial.foot {
         display: none;
     }
+}
+
+.source-description {
+    margin-bottom: 1em;
+}
+
+.source-citation {
+    margin-top: 1em;
 }
 
 .article {
@@ -393,7 +400,7 @@ nav {
 
     @include dta-styles;
 
-    .source-description-head, .source-description {
+    .source-description-head, .source-description, .source-citation {
         color: gray;
     }
 
