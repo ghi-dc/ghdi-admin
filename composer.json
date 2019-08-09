@@ -120,6 +120,7 @@
         "trisoftro/collective-access-client": "@dev",
         "ezyang/htmlpurifier": "^4.10",
         "voku/html-min": "*",
+        "imagine/imagine": "^1.2",
 
         "textrazor/textrazor-php": "*@dev",
 

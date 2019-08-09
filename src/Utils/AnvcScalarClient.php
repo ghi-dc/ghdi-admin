@@ -412,7 +412,13 @@ class AnvcScalarClient
             return false;
         }
 
-        // TODO: pick info from $response->body
-        return $response->body;
+        // pick info from $response->body
+        $ret = json_decode($response->body, true);
+        if (false === $ret) {
+            // could not be decoded, so return the string
+            $ret = $response->body;
+        }
+
+        return $ret;
     }
 }

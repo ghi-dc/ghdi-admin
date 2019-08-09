@@ -60,12 +60,21 @@ services:
         calls:
             - [ setOption, [ 'adapter', '@app.xsl-converter-adapter' ]]
 
+    App\Service\ImageConversion\ConversionService:
+        public: true    # we get this one in *Controller, TODO: switch to typed argument
+        calls:
+            - [ addProvider, [ '@app.image-conversion-provider' ]]
+
     App\Utils\AnvcScalarClient:
         arguments: [ "%app.scalar_client.options%" ]
 
     app.xsl-converter-adapter:
         class: "%app.xsl-converter-adapter.class%"
         arguments:  [ "%app.xsl-converter-adapter.arguments%" ]
+
+    app.image-conversion-provider:
+        class: "%app.image-conversion-provider.class%"
+        arguments:  [ "%app.image-conversion-provider.arguments%" ]
 
     app.tei-prettyprinter-adapter:
         class: "%app.tei-prettyprinter-adapter.class%"

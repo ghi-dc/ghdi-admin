@@ -65,5 +65,15 @@ parameters:
     app.xsl-converter-adapter.arguments:
         "java -jar %kernel.project_dir%\\data\\styles\\test\\saxon9he.jar -s:%%source%% -xsl:%%xsl%% %%additional%%"
 
+    app.image-conversion-provider.class:
+        # the following works only if you can execute command line programs and have convert installed
+        # App\Service\ImageConversion\ImageMagickProvider
+        # the following uses the built-in PHP modules
+        # App\Service\ImageConversion\ImagineProvider
+    app.image-conversion-provider.arguments:
+        # binary_path: ~ # set this if you are using App\Service\ImageConversion\ImageMagickProvider and convert is not in /usr/bin
+        #   imagick, gmagick or gd (auto-detected if left empty)
+        # driver: ~      # set this if you are using App\Service\ImageConversion\ImagineProvider and want to set imagick, gmagick or gd explicitely
+
     #app.textrazor:
     #    api_key: 'YOUR-KEY'

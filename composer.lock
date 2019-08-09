@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d2f56fcac1e55e35b8b050dd5ba78f80",
+    "content-hash": "b2ed842781eedd6f6afb7891b358de07",
     "packages": [
         {
             "name": "brunty/relax-ng-domdocument",
@@ -235,16 +235,16 @@
         },
         {
             "name": "doctrine/annotations",
-            "version": "v1.6.1",
+            "version": "v1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/annotations.git",
-                "reference": "53120e0eb10355388d6ccbe462f1fea34ddadb24"
+                "reference": "fa4c4e861e809d6a1103bd620cce63ed91aedfeb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/53120e0eb10355388d6ccbe462f1fea34ddadb24",
-                "reference": "53120e0eb10355388d6ccbe462f1fea34ddadb24",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/fa4c4e861e809d6a1103bd620cce63ed91aedfeb",
+                "reference": "fa4c4e861e809d6a1103bd620cce63ed91aedfeb",
                 "shasum": ""
             },
             "require": {
@@ -253,12 +253,12 @@
             },
             "require-dev": {
                 "doctrine/cache": "1.*",
-                "phpunit/phpunit": "^6.4"
+                "phpunit/phpunit": "^7.5@dev"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-master": "1.7.x-dev"
                 }
             },
             "autoload": {
@@ -272,16 +272,16 @@
             ],
             "authors": [
                 {
+                    "name": "Guilherme Blanco",
+                    "email": "guilhermeblanco@gmail.com"
+                },
+                {
                     "name": "Roman Borschel",
                     "email": "roman@code-factory.org"
                 },
                 {
                     "name": "Benjamin Eberlei",
                     "email": "kontakt@beberlei.de"
-                },
-                {
-                    "name": "Guilherme Blanco",
-                    "email": "guilhermeblanco@gmail.com"
                 },
                 {
                     "name": "Jonathan Wage",
@@ -299,7 +299,7 @@
                 "docblock",
                 "parser"
             ],
-            "time": "2019-03-25T19:12:02+00:00"
+            "time": "2019-08-08T18:11:40+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -904,6 +904,64 @@
                 "zotero-api"
             ],
             "time": "2016-09-28T08:11:17+00:00"
+        },
+        {
+            "name": "imagine/imagine",
+            "version": "1.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/avalanche123/Imagine.git",
+                "reference": "eec39b2092bc8008a92b8d63824476413dbe7511"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/avalanche123/Imagine/zipball/eec39b2092bc8008a92b8d63824476413dbe7511",
+                "reference": "eec39b2092bc8008a92b8d63824476413dbe7511",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "2.2.*",
+                "phpunit/phpunit": "^4.8 || ^5.7 || ^6.5 || ^7.4"
+            },
+            "suggest": {
+                "ext-gd": "to use the GD implementation",
+                "ext-gmagick": "to use the Gmagick implementation",
+                "ext-imagick": "to use the Imagick implementation"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-develop": "0.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Imagine\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bulat Shakirzyanov",
+                    "email": "mallluhuct@gmail.com",
+                    "homepage": "http://avalanche123.com"
+                }
+            ],
+            "description": "Image processing for PHP 5.3",
+            "homepage": "http://imagine.readthedocs.org/",
+            "keywords": [
+                "drawing",
+                "graphics",
+                "image manipulation",
+                "image processing"
+            ],
+            "time": "2019-07-09T06:55:48+00:00"
         },
         {
             "name": "jasny/twig-extensions",
@@ -2950,16 +3008,16 @@
         },
         {
             "name": "sanpi/assetic",
-            "version": "v1.5.0",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sanpii/assetic.git",
-                "reference": "83d3cde04827046df5b743997fdf8d5486494b0c"
+                "reference": "6c42ccc8c844d19bea4cb4853b0e7b6c87199a14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sanpii/assetic/zipball/83d3cde04827046df5b743997fdf8d5486494b0c",
-                "reference": "83d3cde04827046df5b743997fdf8d5486494b0c",
+                "url": "https://api.github.com/repos/sanpii/assetic/zipball/6c42ccc8c844d19bea4cb4853b0e7b6c87199a14",
+                "reference": "6c42ccc8c844d19bea4cb4853b0e7b6c87199a14",
                 "shasum": ""
             },
             "require": {
@@ -2967,7 +3025,7 @@
                 "symfony/process": "^2.7|^3.0|^4.0"
             },
             "conflict": {
-                "twig/twig": "<1.27"
+                "twig/twig": "<1.34|>=2,<2.4"
             },
             "replace": {
                 "kriswallsmith/assetic": "self.version"
@@ -3024,7 +3082,7 @@
                 "compression",
                 "minification"
             ],
-            "time": "2018-06-02T12:55:21+00:00"
+            "time": "2019-07-22T11:35:53+00:00"
         },
         {
             "name": "sanpi/assetic-bundle",
@@ -3032,12 +3090,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sanpii/assetic-bundle.git",
-                "reference": "95b2f79b5d38af46b5dc26a7ec679176c7f80b79"
+                "reference": "fa329599ee9d6b1f95f15149a1e626e20ccc85ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sanpii/assetic-bundle/zipball/95b2f79b5d38af46b5dc26a7ec679176c7f80b79",
-                "reference": "95b2f79b5d38af46b5dc26a7ec679176c7f80b79",
+                "url": "https://api.github.com/repos/sanpii/assetic-bundle/zipball/fa329599ee9d6b1f95f15149a1e626e20ccc85ca",
+                "reference": "fa329599ee9d6b1f95f15149a1e626e20ccc85ca",
                 "shasum": ""
             },
             "require": {
@@ -3100,7 +3158,7 @@
                 "compression",
                 "minification"
             ],
-            "time": "2019-03-01T16:04:57+00:00"
+            "time": "2018-08-07T15:17:53+00:00"
         },
         {
             "name": "seboettg/citeproc-php",

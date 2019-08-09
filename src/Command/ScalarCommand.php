@@ -110,6 +110,25 @@ extends ContainerAwareCommand
             file_put_contents($imagePath . $imageName, fopen($url, 'r'));
         }
 
+        if (file_exists($imagePath . $imageName)) {
+            $maxDimension = 1280;
+
+            // check if we need to convert (either resize or change format)
+            $imageConversion = $this->getContainer()->get(\App\Service\ImageConversion\ConversionService::class);
+
+            $file = new \Symfony\Component\HttpFoundation\File\File($imagePath . $imageName);
+
+            $info = $imageConversion->identify($file);
+            if ((!empty($info['width']) && $info['width'] > $maxDimension)
+                || (!empty($info['height']) && $info['height'] > $maxDimension))
+            {
+                $converted = $imageConversion->convert($file, [
+                    'geometry' => $maxDimension . 'x' . $maxDimension, 'target_type' => 'image/jpeg',
+                ]);
+                $imageName = $converted->getFileName();
+            }
+        }
+
         return $imageName;
     }
 
@@ -164,7 +183,11 @@ extends ContainerAwareCommand
             // now we can upload
             $res = $this->scalarClient->upload($imagePath . $imageName);
 
-            // TODO: check for error
+            // check for error
+            if (is_array($res) && !empty($res['error'])) {
+                throw new \Exception(sprintf("Error uploading %s: %s",
+                                             $basename, $res['error']));
+            }
 
             // and now create the media-page
             $page['scalar:metadata:slug'] = $mediaSlug;
@@ -185,8 +208,6 @@ extends ContainerAwareCommand
             return $update
                 ? $this->scalarClient->updatePage($page, 'media')
                 : $this->scalarClient->addPage($page, 'media');
-
-            return $added;
         }
     }
 
