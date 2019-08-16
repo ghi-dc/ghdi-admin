@@ -15,23 +15,12 @@ trait TeiFromWordCleaner
             return;
         }
 
-        // check if last paragraph starts with Quelle:
-        $this->evaluateXpath('(//tei:body//tei:p)[last()]', function ($nodes) {
-            if (1 == $nodes->length) {
-                $pLast = $nodes->item(0);
-                if (preg_match('/^Quelle:/', $pLast->textContent)) {
-                    $this->moveCitationToSourceDesc($pLast);
-                }
-            }
-        });
-
         // pandoc doesn't convert underline to tei, so we use strikethrough instead to mark letterspace
         $this->evaluateXpath('(//tei:body//tei:hi[@rendition="simple:strikethrough"])', function ($nodes) {
             foreach ($nodes as $node) {
                 $node->setAttribute('rendition', 'simple:letterspace');
             }
         });
-
 
         // change <div type="levelN"> to <div n="N" >
         $this->evaluateXpath('//tei:body//tei:div[@type]', function ($nodes) {
@@ -118,31 +107,64 @@ trait TeiFromWordCleaner
 
                     if ('div' == $node->nodeName) {
                         // check if we get the quellentext
-                        if ($node->hasAttribute('xml:id')
-                            && in_array($node->attributes['xml:id']->textContent, [ 'quellentext' ]))
-                        {
-                            // check if it starts with a <head>
-                            $firstChild = $xpath->evaluate("./*[1]", $node);
-                            if (1 == $firstChild->length) {
-                                $firstChild = $firstChild->item(0);
-                                if ('head' == $firstChild->nodeName) {
-                                    if ('QUELLENTEXT' == $firstChild->textContent) {
-                                        $node->removeChild($firstChild);
+                        if ($node->hasAttribute('xml:id')) {
+                            if (in_array($node->attributes['xml:id']->textContent, [ 'quellentext' ])) {
+                                // this is the main content we are after
+
+                                // check if it starts with <head>QUELLENTEXT</head>, if so remove
+                                $firstChild = $xpath->evaluate("./*[1]", $node);
+                                if (1 == $firstChild->length) {
+                                    $firstChild = $firstChild->item(0);
+                                    if ('head' == $firstChild->nodeName) {
+                                        if ('QUELLENTEXT' == mb_strtoupper($firstChild->textContent, 'UTF-8')) {
+                                            $node->removeChild($firstChild);
+                                        }
                                     }
                                 }
-                            }
 
-                            $this->unwrapChildren($node);
+                                // check if last paragraph starts with Quelle:
+                                $pLast = $xpath->evaluate('(.//tei:p)[last()]', $node);
+
+                                if (1 == $pLast->length) {
+                                    $pLast = $pLast->item(0);
+                                    if (preg_match('/^Quelle:/', $pLast->textContent)) {
+                                        $this->moveCitationToSourceDesc($pLast);
+                                    }
+                                }
+
+                                // check if we get weiterführende-inhalte or similar heading-2 afterwards that we want to keep
+                                $append = [];
+                                $sibling = $node->nextSibling;
+                                while (!is_null($sibling)) {
+                                    $next = $sibling->nextSibling; // we need the $next before possibly removing $sibling
+
+                                    if ($sibling instanceof \DOMElement && $sibling->hasAttribute('xml:id')) {
+                                        $append[] = $sibling;
+                                    }
+                                    else {
+                                        $sibling->parentNode->removeChild($sibling);
+                                    }
+
+                                    $sibling = $next;
+                                }
+
+                                $this->unwrapChildren($node);
+
+                                // we remove and re-append everything in append so it appears after the unwrapped children
+                                foreach ($append as $node) {
+                                    $parent = $node->parentNode;
+                                    $parent->removeChild($node);
+                                    $parent->appendChild($node);
+                                }
+
+                                break; // we are done
+                            }
                         }
                     }
-
-                    // we are done
-                    break;
                 }
-
             }
 
-            // remove it
+            // get all children out of $mainDiv
             $this->unwrapChildren($mainDiv);
         }
 
