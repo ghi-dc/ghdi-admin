@@ -141,6 +141,7 @@ extends ResourceController
     /**
      * @Route("/volume/{id}.dc.xml", name="volume-detail-dc", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}.scalar.json", name="volume-detail-scalar", requirements={"id" = "volume\-\d+"})
+     * @Route("/volume/{id}.tei.xml", name="volume-detail-tei", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}", name="volume-detail", requirements={"id" = "volume\-\d+"})
      */
     public function volumeDetailAction(Request $request, $id)
@@ -165,14 +166,24 @@ extends ResourceController
                 ;
         }
 
+        $volumepath = $client->getCollection() . '/' . $id . '/' . $volume['data']['fname'];
         if ('volume-detail-dc' == $request->get('_route')) {
-            return $this->teiToDublinCore($client, $client->getCollection() . '/' . $id . '/' . $volume['data']['fname']);
+            return $this->teiToDublinCore($client, $volumepath);
         }
 
         if ('volume-detail-scalar' == $request->get('_route')) {
-            return $this->teiToScalar($client, $client->getCollection() . '/' . $id . '/' . $volume['data']['fname'],
+            return $this->teiToScalar($client, $volumepath,
                                       \App\Utils\Iso639::code1To3($request->getLocale()),
                                       $this->buildResourcesGrouped($client, $id, $lang));
+        }
+
+        if ('volume-detail-tei' == $request->get('_route')) {
+            $tei = $client->getDocument($volumepath);
+
+            $response = new Response($tei);
+            $response->headers->set('Content-Type', 'xml');
+
+            return $response;
         }
 
         return $this->render('Volume/detail.html.twig', [

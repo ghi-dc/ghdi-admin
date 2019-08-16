@@ -25,7 +25,6 @@ declare option output:media-type "text/javascript";
 <json:value>
 {
 for $tei in collection($collection)/TEI{% if q is not empty %}[ft:query(*, $q)]{% endif %}
-
     let $shelfmark := $tei/teiHeader/fileDesc/publicationStmt/idno/idno[@type="shelfmark"]/text()
 
     where $tei/teiHeader/profileDesc/langUsage/language[@ident=$lang]
