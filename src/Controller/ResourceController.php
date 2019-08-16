@@ -391,11 +391,16 @@ EOXQL;
         $query->bindVariable('volume', $volumeId);
         $query->bindVariable('prefix', $prefix);
         $res = $query->execute();
-        $shelfmarkHighest = $res->getNextResult();
+
+
+        $shelfmarkHighest = null;
+        if ($res->valid()) {
+            $shelfmarkHighest = $res->getNextResult();
+        }
         $res->release();
 
         $counter = 1;
-        if (preg_match('/(.*)\/(\d+)(\:[^\/]+)$/', $shelfmarkHighest, $matches)) {
+        if (!is_null($shelfmarkHighest) && preg_match('/(.*)\/(\d+)(\:[^\/]+)$/', $shelfmarkHighest, $matches)) {
             $counter = (int)$matches[2] + 1;
         }
 
