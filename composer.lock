@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b2ed842781eedd6f6afb7891b358de07",
+    "content-hash": "73384ed689708703f7a4bc111f083f51",
     "packages": [
         {
             "name": "brunty/relax-ng-domdocument",
@@ -1322,16 +1322,16 @@
         },
         {
             "name": "knplabs/knp-menu",
-            "version": "2.4.0",
+            "version": "2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/KnpMenu.git",
-                "reference": "bda9826d188409f275d24404b5072421f99ae55f"
+                "reference": "1c6e0a5e37fb82227ee9a5e458ddc554731a7bf7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/KnpMenu/zipball/bda9826d188409f275d24404b5072421f99ae55f",
-                "reference": "bda9826d188409f275d24404b5072421f99ae55f",
+                "url": "https://api.github.com/repos/KnpLabs/KnpMenu/zipball/1c6e0a5e37fb82227ee9a5e458ddc554731a7bf7",
+                "reference": "1c6e0a5e37fb82227ee9a5e458ddc554731a7bf7",
                 "shasum": ""
             },
             "require": {
@@ -1385,7 +1385,7 @@
                 "menu",
                 "tree"
             ],
-            "time": "2019-07-29T10:12:04+00:00"
+            "time": "2019-08-16T11:08:29+00:00"
         },
         {
             "name": "knplabs/knp-menu-bundle",
@@ -1940,16 +1940,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.9.1",
+            "version": "1.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "e6828efaba2c9b79f4499dae1d66ef8bfa7b2b72"
+                "reference": "007c053ae6f31bba39dfa19a7726f56e9763bbea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/e6828efaba2c9b79f4499dae1d66ef8bfa7b2b72",
-                "reference": "e6828efaba2c9b79f4499dae1d66ef8bfa7b2b72",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/007c053ae6f31bba39dfa19a7726f56e9763bbea",
+                "reference": "007c053ae6f31bba39dfa19a7726f56e9763bbea",
                 "shasum": ""
             },
             "require": {
@@ -1984,7 +1984,7 @@
                 "object",
                 "object graph"
             ],
-            "time": "2019-04-07T13:18:21+00:00"
+            "time": "2019-08-09T12:45:53+00:00"
         },
         {
             "name": "myclabs/php-enum",
@@ -2083,16 +2083,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v4.2.2",
+            "version": "v4.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "1bd73cc04c3843ad8d6b0bfc0956026a151fc420"
+                "reference": "e612609022e935f3d0337c1295176505b41188c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/1bd73cc04c3843ad8d6b0bfc0956026a151fc420",
-                "reference": "1bd73cc04c3843ad8d6b0bfc0956026a151fc420",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/e612609022e935f3d0337c1295176505b41188c8",
+                "reference": "e612609022e935f3d0337c1295176505b41188c8",
                 "shasum": ""
             },
             "require": {
@@ -2100,7 +2100,7 @@
                 "php": ">=7.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^6.5 || ^7.0"
+                "phpunit/phpunit": "^6.5 || ^7.0 || ^8.0"
             },
             "bin": [
                 "bin/php-parse"
@@ -2130,7 +2130,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2019-05-25T20:07:01+00:00"
+            "time": "2019-08-12T20:17:41+00:00"
         },
         {
             "name": "ninsuo/symfony-collection",
@@ -3008,16 +3008,16 @@
         },
         {
             "name": "sanpi/assetic",
-            "version": "v1.6.0",
+            "version": "v1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sanpii/assetic.git",
-                "reference": "6c42ccc8c844d19bea4cb4853b0e7b6c87199a14"
+                "reference": "83d3cde04827046df5b743997fdf8d5486494b0c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sanpii/assetic/zipball/6c42ccc8c844d19bea4cb4853b0e7b6c87199a14",
-                "reference": "6c42ccc8c844d19bea4cb4853b0e7b6c87199a14",
+                "url": "https://api.github.com/repos/sanpii/assetic/zipball/83d3cde04827046df5b743997fdf8d5486494b0c",
+                "reference": "83d3cde04827046df5b743997fdf8d5486494b0c",
                 "shasum": ""
             },
             "require": {
@@ -3025,7 +3025,7 @@
                 "symfony/process": "^2.7|^3.0|^4.0"
             },
             "conflict": {
-                "twig/twig": "<1.34|>=2,<2.4"
+                "twig/twig": "<1.27"
             },
             "replace": {
                 "kriswallsmith/assetic": "self.version"
@@ -3082,7 +3082,7 @@
                 "compression",
                 "minification"
             ],
-            "time": "2019-07-22T11:35:53+00:00"
+            "time": "2018-06-02T12:55:21+00:00"
         },
         {
             "name": "sanpi/assetic-bundle",

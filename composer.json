@@ -72,6 +72,7 @@
 
         "symfony/asset": "^4.3",
         "sanpi/assetic-bundle": "@dev",
+        "sanpi/assetic": "1.5",
         "leafo/scssphp": "@stable",
 
         "symfony/dom-crawler": "^4.3",
