@@ -95,11 +95,8 @@ extends ResourceController
                     $key = str_replace('-collection', 's', $info['genre']);
 
                     if (!array_key_exists($info['id'], $ret[$key]['resources'])) {
-                        $ret[$key]['resources'][$info['id']] = [
-                            'id' => $info['id'],
-                            'name' => $info['name'],
-                            'resources' => [],
-                        ];
+                        $info['resources'] = [];
+                        $ret[$key]['resources'][$info['id']] = $info;
                     }
                     break;
 
@@ -159,11 +156,52 @@ extends ResourceController
             return $this->redirect($this->generateUrl('volume-list'));
         }
 
-        if (!empty($request->get('order'))) {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('info', 'TODO: reorder ' . $request->get('order'))
-                ;
+        if ($request->isMethod('post')) {
+            // check for updated order
+            $postData = $request->request->get('order');
+            if (!empty($postData)) {
+                $order = json_decode($postData, true);
+                if (false !== $order) {
+                    $resourcesGrouped = $this->buildResourcesGrouped($client, $id, $lang);
+                    if (array_key_exists($request->get('resource_group'), $resourcesGrouped)) {
+                        $hasPart = $resourcesGrouped[$request->get('resource_group')]['resources'];
+                    }
+
+                    // TODO: maybe merge this with ResourceController
+                    $newOrder = [];
+                    $count = 0;
+                    foreach ($order as $childId) {
+                        $newOrder[$childId] = ++$count;
+                    }
+
+                    $updated = false;
+                    foreach ($hasPart as $child) {
+                        $childId = $child['id'];
+                        if (array_key_exists($childId, $newOrder)) {
+                            $parts = explode('/', $child['shelfmark']);
+                            list($order, $ignore) = explode(':', end($parts), 2);
+                            if ($order != $newOrder) {
+                                $newOrderAndId = sprintf('%03d:%s',
+                                                         $newOrder[$childId], $childId);
+                                $parts[count($parts) - 1] = $newOrderAndId;
+                                $newShelfmark = implode('/', $parts);
+
+                                if ($child['shelfmark'] != $newShelfmark) {
+                                    $this->updateDocumentShelfmark($client,
+                                                                   $client->getCollection() . '/' . $id . '/' . $childId . '.' . $lang . '.xml',
+                                                                   $newShelfmark);
+
+                                    $updated = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if ($updated) {
+                        $this->addFlash('info', 'The order has been updated');
+                    }
+                }
+            }
         }
 
         $volumepath = $client->getCollection() . '/' . $id . '/' . $volume['data']['fname'];
