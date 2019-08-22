@@ -67,7 +67,76 @@ Located in /db/apps/ghdi/data/volumes/
     ./bin/console existdb:import places
 
 
-### Questions
+## Scalar
+
+### Setup of the Scalar instance
+
+    # create database
+    mysqladmin -u root create scalar_ghdi_de
+
+    # import table structure
+
+    # scalar_store.sql is in system/application/config/scalar_store.sql (standard MySQL 3-byte UTF-8)
+    # or use system/application/config/scalar_store_utf8mb4.sql (extended 4-byte UTF-8 support)
+    mysql -u root scalar_ghdi_de < scalar_store_utf8mb4.sql
+
+    # register admin-user through web-site
+    # then - in mysql
+    UPDATE scalar_db_users SET is_super = 1 WHERE email='admin@email';
+
+    # Sign out and sign back in as admin@email for the new privs to be active
+
+    # Add an API User (api@email)
+
+    # Through the dashboard: [All users] create a new User for the book in question
+    # Through the dashboard: [All books] create a new book with said user as Initial Author and API User
+    # Important: Make book public
+
+    # Now set api_key (ATTENTION, only works for non super users)
+    # SELECT user_id INTO @user_id FROM scalar_db_users WHERE email='api@email';
+    # UPDATE scalar_db_user_books SET api_key = SHA1('api_key')
+    # WHERE user_id=@user_id AND api_key IS NULL;
+
+### Prepare the import from adim
+
+in config/parameters.yml, set URLs of the Scalar and the admin site, the book info and the
+API user
+
+    app.site.base_uri: http://localhost/ghdi/admin/
+    app.site.auth_basic: 'guest:guest'
+
+    app.scalar_client.options:
+        baseurl: http://localhost/ghdi/scalar/
+        id: api@email
+        # for api_key to work, we need to set SET api_key = SHA1(..)
+        # for every book individually in scalar_db_user_books
+        # ATTENTION, only works for non super!
+        #
+        # SELECT user_id  INTO @user_id FROM scalar_db_users WHERE email='VALUE OF app.scalar.client.id';
+        # UPDATE scalar_db_user_books SET api_key = SHA1('VALUE OF app.scalar.api_key') WHERE user_id=@user_id AND api_key IS NULL;
+        #
+        # ATTENTION, book must be set to public for api to work
+        api_key: 'api_key'
+        book: 'from-vormaerz-to-prussian-dominance-1815-1866'
+
+        volume-id: 9
+
+### Content import
+
+    ./bin/console scalar:import --volume=15 --locale=de introduction
+    ./bin/console scalar:import --volume=15 --locale=de documents
+    ./bin/console scalar:import --volume=15 --locale=de images
+    ./bin/console scalar:import --volume=15 --locale=de maps
+
+### Paths
+
+    ./bin/console scalar:import --volume=15 --locale=de index-path
+    ./bin/console scalar:import --volume=15 --locale=de introduction-path
+    ./bin/console scalar:import --volume=15 --locale=de document-path
+    ./bin/console scalar:import --volume=15 --locale=de image-path
+    ./bin/console scalar:import --volume=15 --locale=de map-path
+
+## Questions
 
 * How do we call the main parts of GHDI? Answer: Volume
 
