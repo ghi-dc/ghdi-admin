@@ -97,7 +97,7 @@ Located in /db/apps/ghdi/data/volumes/
     # UPDATE scalar_db_user_books SET api_key = SHA1('api_key')
     # WHERE user_id=@user_id AND api_key IS NULL;
 
-### Prepare the import from adim
+### Prepare the import from admin
 
 in config/parameters.yml, set URLs of the Scalar and the admin site, the book info and the
 API user
@@ -118,8 +118,6 @@ API user
         # ATTENTION, book must be set to public for api to work
         api_key: 'api_key'
         book: 'from-vormaerz-to-prussian-dominance-1815-1866'
-
-        volume-id: 9
 
 ### Content import
 
