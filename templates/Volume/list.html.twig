@@ -8,7 +8,7 @@
     {{ helper.display_flashes() }}
     <form method="POST"><input name="q" value="{{ q }}" /><input type="submit" value="{{ 'Search'|trans }}" /></form>
     <ul>
-        {% for resource in volumes.data %}
+        {% for resource in result.data %}
             <li>
                 {% if resource.id matches '/^volume\-/' %}
                 <a href="{{ path('volume-detail', { id: resource.id }) }}">

@@ -14,32 +14,42 @@ extends ResourceController
 {
     protected $subCollection = '/data/volumes';
 
-    /**
-     * @Route("/volume", name="volume-list")
-     */
-    public function listAction(Request $request)
+    protected function listMatchingResources($q, $locale, $volumeId = null)
     {
         $client = $this->getExistDbClient($this->subCollection);
 
-        $q = trim($request->request->get('q'));
         $xql = $this->renderView('Volume/list-json.xql.twig', [
             'q' => $q,
             'prefix' => $this->siteKey,
         ]);
 
+        $collection = $client->getCollection();
+        if (!empty($volumeId)) {
+            $collection .= '/' . $volumeId;
+        }
+
         $query = $client->prepareQuery($xql);
         $query->setJSONReturnType();
-        $query->bindVariable('collection', $client->getCollection());
-        $query->bindVariable('locale', $request->getLocale());
-        $query->bindVariable('lang', \App\Utils\Iso639::code1To3($request->getLocale()));
+        $query->bindVariable('collection', $collection);
+        $query->bindVariable('lang', \App\Utils\Iso639::code1To3($locale));
         $query->bindVariable('q', $q);
         $res = $query->execute();
-        $volumes = $res->getNextResult();
+        $result = $res->getNextResult();
         $res->release();
+
+        return $result;
+    }
+
+    /**
+     * @Route("/volume", name="volume-list")
+     */
+    public function listAction(Request $request)
+    {
+        $q = trim($request->request->get('q'));
 
         return $this->render('Volume/list.html.twig', [
             'q' => $q,
-            'volumes' => $volumes,
+            'result' => $this->listMatchingResources($q, $request->getLocale()),
         ]);
     }
 
@@ -156,7 +166,28 @@ extends ResourceController
             return $this->redirect($this->generateUrl('volume-list'));
         }
 
+        $q = trim($request->request->get('q'));
+
         if ($request->isMethod('post')) {
+            // check for query
+            if (!empty($q)) {
+                $result = $this->listMatchingResources($q, $request->getLocale(), $id);
+                if (!empty($result['data'])) {
+                    return $this->render('Volume/detail.html.twig', [
+                        'id' => $id,
+                        'volume' => $volume,
+                        'webdav_base' => $this->buildWebDavBaseUrl($client),
+                        'result' => $result,
+                        'q' => $q,
+                    ]);
+                }
+
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'No matching resources found')
+                    ;
+            }
+
             // check for updated order
             $postData = $request->request->get('order');
             if (!empty($postData)) {
@@ -229,6 +260,7 @@ extends ResourceController
             'volume' => $volume,
             'webdav_base' => $this->buildWebDavBaseUrl($client),
             'resources_grouped' => $this->buildResourcesGrouped($client, $id, $lang),
+            'q' => $q,
         ]);
     }
 

@@ -13,6 +13,12 @@
         {{ volume['data'].name }}
     </h2>
     {{ helper.display_flashes() }}
+
+    <form method="POST" action="{{ path('volume-detail', { 'id': id }) }}">
+        <input name="q" value="{{ q }}" />
+        <input type="submit" value="{{ 'Search'|trans }}" />
+    </form>
+
     <div style="text-align: right">
         <a href="{{ path(app.request.attributes.get('_route') ~ '-dc', app.request.attributes.get('_route_params')) }}">{{ 'Dublin Core'|trans }}</a><br />
             WebDAV:
@@ -21,8 +27,26 @@
     </div>
     <div class="row">
         <div class="col-sm-8">
-
-            {% if resources_grouped is not empty %}
+        {% if result is not empty %}
+            {# coming from a search #}
+            <h3>{{ 'Search Results'|trans }}</h3>
+            <ul>
+            {% for resource in result.data %}
+                <li>
+                    {% if resource.id matches '/^volume\-/' %}
+                    <a href="{{ path('volume-detail', { id: resource.id }) }}">
+                        {{ resource.name }}
+                    </a>
+                    {% else %}
+                        {% set parts = resource.shelfmark|split('/') %}
+                    <a href="{{ path('resource-detail', { volume: parts[1]|preg_replace('/^[0-9]+\:/', ''), id: resource.id }) }}">
+                        {{ resource.name }}
+                    </a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+            </ul>
+        {% elseif resources_grouped is not empty %}
             {% set groups = [ "introduction", "documents", "images", "maps" ] %}
             <h3>{{ 'Resources'|trans }}</h3>
             <ul class="list-group">

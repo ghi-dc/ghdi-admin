@@ -44,6 +44,7 @@ Located in /db/apps/ghdi/data/volumes/
 
 ## Add indexes
 
+    ./bin/console existdb:index volumes
     ./bin/console existdb:index persons
     ./bin/console existdb:index organizations
     ./bin/console existdb:index places
