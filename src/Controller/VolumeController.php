@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use function Stringy\create as s;
+
 /**
  *
  */
@@ -198,7 +200,6 @@ extends ResourceController
                         $hasPart = $resourcesGrouped[$request->get('resource_group')]['resources'];
                     }
 
-                    // TODO: maybe merge this with ResourceController
                     $newOrder = [];
                     $count = 0;
                     foreach ($order as $childId) {
@@ -223,6 +224,22 @@ extends ResourceController
                                                                    $newShelfmark);
 
                                     $updated = true;
+
+                                    // TODO: adjust shelfmark of inherited
+                                    foreach ($child['resources'] as $grandChild) {
+                                        if (!s($grandChild['shelfmark'])->startsWith($newShelfmark)) {
+                                            // replace everything until $childId with $newShelfmark
+                                            $subShelfmark = preg_replace('/^(.*?)' . preg_quote($childId, '/') . '/',
+                                                                         $newShelfmark,
+                                                                         $grandChild['shelfmark']);
+                                            if ($subShelfmark != $grandChild['shelfmark']) {
+                                                $this->updateDocumentShelfmark($client,
+                                                                               $client->getCollection() . '/' . $id . '/' . $grandChild['id'] . '.' . $lang . '.xml',
+                                                                               $subShelfmark);
+
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
