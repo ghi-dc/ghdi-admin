@@ -99,14 +99,19 @@
         <xsl:variable name="element"><xsl:call-template name="renditionToElement"><xsl:with-param name="rendition" select="$renditions[1]" /></xsl:call-template></xsl:variable>
         <xsl:choose>
           <xsl:when test="$element != ''">
-          <xsl:element name="{$element}">
-            <xsl:call-template name="wrapRenditions">
-              <xsl:with-param name="renditions" select="$renditions[position() > 1]"/>
-              <xsl:with-param name="node" select="$node" />
-            </xsl:call-template>
-          </xsl:element>
+            <xsl:element name="{$element}">
+              <xsl:call-template name="wrapRenditions">
+                <xsl:with-param name="renditions" select="$renditions[position() > 1]"/>
+                <xsl:with-param name="node" select="$node" />
+              </xsl:call-template>
+            </xsl:element>
           </xsl:when>
-          <xsl:otherwise><xsl:apply-templates select="$node" /></xsl:otherwise>
+          <xsl:otherwise>
+                <xsl:element name="span">
+                  <xsl:call-template name="applyRendition"/>
+                  <xsl:apply-templates select="$node" />
+                </xsl:element>
+          </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
@@ -154,10 +159,10 @@
             <xsl:otherwise>
               <xsl:choose>
                 <xsl:when test="$noteplacement = 'perpage'">
-                  <xsl:number level="any" count='//tei:note[@place="foot" and (text() or *) and not(@n)]' format="a"/>
+                  <xsl:number level="any" count='//tei:note[@place="foot" and (text() or *) and not(@n)]' format="1"/>
                 </xsl:when>
                 <xsl:otherwise>
-                  <xsl:number level="any" count='//tei:note[@place="foot" and (text() or *) and not(@n)]' format="[1]"/>
+                  <xsl:number level="any" count='//tei:note[@place="foot" and (text() or *) and not(@n)]' format="1"/>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:otherwise>
@@ -187,10 +192,10 @@
                         <xsl:otherwise>
                           <xsl:choose>
                             <xsl:when test="$noteplacement = 'perpage'">
-                              <xsl:number level="any" count='//tei:note[@place="foot" and (text() or *) and not(@n)]' format="a"/>
+                              <xsl:number level="any" count='//tei:note[@place="foot" and (text() or *) and not(@n)]' format="1"/>
                             </xsl:when>
                             <xsl:otherwise>
-                              <xsl:number level="any" count='//tei:note[@place="foot" and (text() or *) and not(@n)]' format="[1]"/>
+                              <xsl:number level="any" count='//tei:note[@place="foot" and (text() or *) and not(@n)]' format="1"/>
                             </xsl:otherwise>
                           </xsl:choose>
                         </xsl:otherwise>

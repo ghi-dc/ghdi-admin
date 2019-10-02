@@ -7,8 +7,8 @@
   <xsl:import href="dta-base.xsl"/>
   <xsl:import href="dta-customize-scalar.xsl"/>
 
-  <!-- notes are placed 'perpage' for source and 'end' for topic/interpretation -->
-  <xsl:param name="noteplacement" select="'perpage'" />
+  <!-- notes are placed 'end' and not 'perpage' since we currently don't set the <pb> -->
+  <xsl:param name="noteplacement" select="'end'" />
 
   <xsl:output method="html" doctype-system=""/>
 
@@ -22,7 +22,7 @@
 
     <xsl:apply-templates />
 
-    <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl/*">
+    <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
       <div class="source-citation">
         <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl/node()"/>
       </div>
