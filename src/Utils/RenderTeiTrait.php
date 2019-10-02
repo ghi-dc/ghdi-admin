@@ -115,6 +115,13 @@ trait RenderTeiTrait
         return $crawler->html();
     }
 
+    protected function markCombiningE($html)
+    {
+        // since it doesn't seem to possible to style this with unicode-range
+        // set a span around Combining Latin Small Letter E so we can set an alternate font-family
+        return preg_replace('/([aou]\x{0364})/u', '<span class="combining-e">\1</span>', $html);
+    }
+
     protected function adjustHtml($html, $baseUrl = 'http://germanhistorydocs.ghi-dc.org/images/')
     {
         // run even if there is nothing to remove since xslt creates
@@ -129,7 +136,7 @@ trait RenderTeiTrait
 
         // since it doesn't seem to possible to style this with unicode-range
         // set a span around Combining Latin Small Letter E so we can set an alternate font-family
-        $html = preg_replace('/([aou]\x{0364})/u', '<span class="combining-e">\1</span>', $html);
+        $html = $this->markCombiningE($html);
 
         return $html;
     }

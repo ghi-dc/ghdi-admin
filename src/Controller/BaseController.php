@@ -264,9 +264,10 @@ extends Controller
                 }
 
                 $ret['scalar:metadata:url'] = $url;
-                foreach ([ 'description', 'creator', 'date' ] as $key)
-                if (!empty($media[$key])) {
-                    $ret['dcterms:' . $key ] = $this->minify($media[$key], 'description' != $key);
+                foreach ([ 'description', 'creator', 'date' ] as $key) {
+                    if (!empty($media[$key])) {
+                        $ret['dcterms:' . $key ] = $this->minify($media[$key], 'description' != $key);
+                    }
                 }
             }
         }
@@ -284,7 +285,7 @@ extends Controller
             $html = $res->getNextResult();
             $res->release();
 
-            $ret[$key] = $this->minify($html,
+            $ret[$key] = $this->minify($this->markCombiningE($html),
                                        array_key_exists('inlineContent', $descr)
                                        ? $descr['inlineContent'] : false);
         }

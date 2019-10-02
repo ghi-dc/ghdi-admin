@@ -126,6 +126,9 @@ API user
     ./bin/console scalar:import --volume=15 --locale=de images
     ./bin/console scalar:import --volume=15 --locale=de maps
 
+or for individual resources
+    ./bin/console scalar:import --volume=15 --locale=de document-1234
+
 ### Paths
 
     ./bin/console scalar:import --volume=15 --locale=de index-path

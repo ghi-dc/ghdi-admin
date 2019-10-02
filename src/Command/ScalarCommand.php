@@ -252,6 +252,40 @@ extends ContainerAwareCommand
         return $resources;
     }
 
+    /**
+     * A small helper function since listRelated returns
+     *   http://www.openannotation.org/ns/hasBody / http://www.openannotation.org/ns/hasTarget
+     * with
+     *  slug.X#index=1
+     *
+     */
+    protected function extractIndex($uri, $default = null)
+    {
+        $index = $default;
+
+        if (preg_match('/^(.+)#index=(\d+)$/', $uri, $matches)) {
+            $uri = $matches[1];
+            $index = $matches[2];
+        }
+
+        return [ $uri, $index ];
+    }
+
+    /**
+     * $this->scalarClient->listRelated returns absolute URIs
+     * Convert these back to relative slugs
+     */
+    protected function uriToSlug($uri)
+    {
+        // chop of version
+        $uri = preg_replace('/\.\d+$/', '', $uri);
+
+        // chop of prefix
+        $uri = str_replace($this->scalarClient->getBaseurl() . $this->scalarClient->getBook() . '/', '', $uri);
+
+        return $uri;
+    }
+
     protected function addOrUpdate($volumeId, $slug, $page, $locale = 'en')
     {
         $media = !empty($page['sioc:content'])
@@ -279,10 +313,35 @@ extends ContainerAwareCommand
                 return [];
             }
 
-            // update
+            // update clears current relations, so get them beforehand in order to be able to restore them
+            $related = $this->scalarClient->listRelated($slug, '');
+
             $pageExisting['dcterms:title'] = $page['dcterms:title'];
             $pageExisting['sioc:content'] = $page['sioc:content'];
             $updated = $this->scalarClient->updatePage($pageExisting);
+
+            // restore relations - currently paths only
+            foreach ($related as $key => $info) {
+                if (preg_match('/^urn\:scalar\:/', $key)) {
+                    $types = $info['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'];
+                    switch ($type = $types[0]['value']) {
+                        case 'http://www.openannotation.org/ns/Annotation':
+                            $options = [];
+
+                            $uriFrom = $info['http://www.openannotation.org/ns/hasBody'][0]['value'];
+                            list($uriTo, $index) = $this->extractIndex($info['http://www.openannotation.org/ns/hasTarget'][0]['value']);
+                            if (!is_null($index)) {
+                                $options['sort_number'] = $index;
+                            }
+                            $res = $this->addOrUpdateRelation($this->uriToSlug($uriFrom), $this->uriToSlug($uriTo), 'contained', $options);
+                            var_dump($res);
+                            break;
+
+                        default:
+                            die('TODO: handle type: ' . $type);
+                    }
+                }
+            }
 
             return $updated;
         }
@@ -292,7 +351,7 @@ extends ContainerAwareCommand
         return $this->scalarClient->addPage($page);
     }
 
-    protected function addOrUpdateRelation($slug, $slugChild, $type, $options)
+    protected function addOrUpdateRelation($slug, $slugChild, $type, $options = [])
     {
         $parent = $this->scalarClient->getPage($slug);
         if (empty($parent)) {
@@ -318,12 +377,7 @@ extends ContainerAwareCommand
                         && array_key_exists('http://www.openannotation.org/ns/hasTarget', $info))
                     {
                         if ($parentUrl == $info['http://www.openannotation.org/ns/hasBody'][0]['value']) {
-                            $index = 0;
-                            if (preg_match('/^(.+)#index=(\d+)$/',
-                                           $target = $info['http://www.openannotation.org/ns/hasTarget'][0]['value'], $matches)) {
-                                $target = $matches[1];
-                                $index = $matches[2];
-                            }
+                            list($target, $index) = $this->extractIndex($info['http://www.openannotation.org/ns/hasTarget'][0]['value'], 0);
 
                             if ($target == $childUrl) {
                                 if ($index == $options['sort_number']) {
@@ -337,12 +391,33 @@ extends ContainerAwareCommand
                 }
                 break;
 
+            case 'tagged':
+                $related = $this->scalarClient->listRelated($slug, 'tag');
+                foreach ($related as $url => $info) {
+                    if (array_key_exists('http://www.openannotation.org/ns/hasBody', $info)
+                        && array_key_exists('http://www.openannotation.org/ns/hasTarget', $info))
+                    {
+                        if ($parentUrl == $info['http://www.openannotation.org/ns/hasBody'][0]['value']
+                            && $childUrl == $info['http://www.openannotation.org/ns/hasTarget'][0]['value'])
+                        {
+                            return true;
+                        }
+                    }
+                }
+                break;
+
             default:
                 die('TODO: check for already related not implemented yet for type: ' . $type);
                 break;
         }
 
         $res = $this->scalarClient->relate($parent['scalar:urn'], $child['scalar:urn'], $type, $options);
+
+        if (!empty($res['error'])) {
+            die($res['error']['message'][0]['value']);
+
+            return false;
+        }
 
         return $res;
     }
@@ -364,6 +439,24 @@ extends ContainerAwareCommand
                                          $slugFrom, $slug, $sort_number));
             }
         }
+    }
+
+    protected function setTags($output, $slugFrom, $pages)
+    {
+        foreach ($pages as $slug) {
+            $res = $this->addOrUpdateRelation($slugFrom, $slug, 'tagged');
+
+            if (true === $res) {
+                $output->writeln(sprintf('<info>%s is already tagged by %s</info>',
+                                         $slug, $slugFrom));
+            }
+            else if ($res) {
+                $output->writeln(sprintf('<info>%s was tagged by %s</info>',
+                                         $slug, $slugFrom));
+            }
+        }
+
+        // TODO: check if we need to remove existing tags which are not in pages
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -462,11 +555,6 @@ extends ContainerAwareCommand
                     foreach ($parts as $part) {
                         $pages = [];
 
-                        /*
-                        $pages =
-                        */
-
-
                         foreach ($part['dcterms:hasPart'] as $section) {
                             $pages[] = $sectionFrom = $section['scalar:metadata:slug'];
 
@@ -487,35 +575,42 @@ extends ContainerAwareCommand
                 return 0;
                 break;
 
-            // test
-            case 'introduction-29':
-            case 'document-12':
-            case 'image-2':
-            case 'image-1204':
-                $pageInfo = $this->fetchJson($volumeId, $action, $locale);
-
-                if (false === $pageInfo) {
-                    $output->writeln(sprintf('<error>an error occured in action: %s</error>',
-                                             $input->getArgument('action')));
-
-                    return 1;
-                }
-
-                $res = $this->addOrUpdate($volumeId, $slug = $pageInfo['scalar:metadata:slug'], $pageInfo, $locale);
-                if (empty($res)) {
-                    $output->writeln(sprintf('<info>page %s already exists</info>',
-                                             $slug));
-                }
-                else {
-                    $output->writeln(sprintf('<info>Add or update %s: %s</info>',
-                                             $action,
-                                             $this->jsonPretty($res)));
-                }
+            // test tagging
+            case 'term-4006439-6':
+                $slugFrom = $action;
+                $pages = [ 'document-9', 'image-2', 'image-27' ];
+                $this->setTags($output, $slugFrom, $pages);
 
                 return 0;
                 break;
 
             default:
+                if (preg_match('/^(introduction|document|image)\-\d+$/', $action)) {
+                    // add or update individual documents
+
+                    $pageInfo = $this->fetchJson($volumeId, $action, $locale);
+
+                    if (false === $pageInfo) {
+                        $output->writeln(sprintf('<error>an error occured in action: %s</error>',
+                                                 $input->getArgument('action')));
+
+                        return 1;
+                    }
+
+                    $res = $this->addOrUpdate($volumeId, $slug = $pageInfo['scalar:metadata:slug'], $pageInfo, $locale);
+                    if (empty($res)) {
+                        $output->writeln(sprintf('<info>page %s already exists</info>',
+                                                 $slug));
+                    }
+                    else {
+                        $output->writeln(sprintf('<info>Add or update %s: %s</info>',
+                                                 $action,
+                                                 $this->jsonPretty($res)));
+                    }
+
+                    return 0;
+
+                }
                 $output->writeln(sprintf('<error>invalid action: %s</error>',
                                          $input->getArgument('action')));
                 return 1;

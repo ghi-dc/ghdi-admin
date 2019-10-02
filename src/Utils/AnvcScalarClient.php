@@ -313,11 +313,12 @@ class AnvcScalarClient
             // this action
             'scalar:urn' => $urn,
             'scalar:child_urn' => $child_urn,
-            'scalar:child_rel' => 'contained',
+            'scalar:child_rel' => $child_rel,
         ];
 
         if ('contained' == $child_rel) {
-            $params['scalar:metadata:sort_number'] = $options['sort_number'];
+            $params['scalar:metadata:sort_number'] = array_key_exists('sort_number', $options)
+                ? $options['sort_number'] : 0;
         }
 
         try {
@@ -352,6 +353,9 @@ class AnvcScalarClient
         return $response->body;
     }
 
+    /**
+     * TODO: maybe rename since it is more a listProperties when calling on an individual resource
+     */
     public function listRelated($instance, $type = 'path')
     {
         $listUrl = sprintf('%s%s/rdf/node/%s',
@@ -361,6 +365,7 @@ class AnvcScalarClient
 
 
         try {
+            // to determine this url, use http://scalar.usc.edu/tools/apiexplorer/
             $response = $this->callGet($listUrl . '?rec=1&res=' . $type . '&ref=0&format=json');
         }
         catch (\Exception $e) {
@@ -372,7 +377,6 @@ class AnvcScalarClient
         // TODO: pick info from $response->body
         return $response->body;
     }
-
 
     /**
      * This call needs patched scalar instance (regular cannot use api_key for upload)
