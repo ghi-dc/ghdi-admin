@@ -32,7 +32,9 @@ extends AbstractType
             ])
             ;
 
-        $builder->add('Lookup', SubmitType::class);
+        $builder->add('lookup', SubmitType::class, [
+            'label' => 'Lookup',
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

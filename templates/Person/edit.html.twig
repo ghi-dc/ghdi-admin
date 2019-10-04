@@ -5,7 +5,7 @@
 {% block body %}
     <h2>
         {% if entity.id is empty %}
-        Add Person
+        {{ 'Add Person'|trans }}
         {% else %}
         <a href="{{ path('person-detail', { 'id' : entity.id }) }}">
             {{ entity.fullName(true) }}

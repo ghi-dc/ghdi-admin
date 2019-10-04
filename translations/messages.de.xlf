@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2019-08-22T16:16:47Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-10-04T15:05:38Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -16,24 +16,69 @@
         <target>...weiterlesen</target>
         <jms:reference-file line="30">\..\..\..\..\..\..\./templates\Shared\entity-lookup.html.twig\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="61cc55aa0453184734c3fa0b621eda6fa874bd83" resname="Add">
+        <source>Add</source>
+        <target>Hinzufügen</target>
+        <jms:reference-file line="13">\..\..\..\..\..\..\./templates\Organization\missing.html.twig\</jms:reference-file>
+        <jms:reference-file line="13">\..\..\..\..\..\..\./templates\Person\missing.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="f19e8962987e780131be0a22235d1501abb6a995" resname="Add Organization">
+        <source>Add Organization</source>
+        <target>Organisation hinzufügen</target>
+        <jms:reference-file line="8">\..\..\..\..\..\..\./templates\Organization\edit.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="d3e76d47505264ee7d599a3d04b9427a953bb534" resname="Add Organization from Identifier">
+        <source>Add Organization from Identifier</source>
+        <target>Organisation über Identifikator hinzufügen</target>
+        <jms:reference-file line="7">\..\..\..\..\..\..\./templates\Organization\add-from-identifier.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="26b953711187a41842ce9535b12ead1119838f0b" resname="Add Person">
+        <source>Add Person</source>
+        <target>Person hinzufügen</target>
+        <jms:reference-file line="8">\..\..\..\..\..\..\./templates\Person\edit.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="1ba073c0301bc79c6417fc4cd24888cf2d1cb875" resname="Add Person from Identifier">
+        <source>Add Person from Identifier</source>
+        <target>Person über Identifikator hinzufügen</target>
+        <jms:reference-file line="7">\..\..\..\..\..\..\./templates\Person\add-from-identifier.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="ac2c8cd429f978dbc38b21b5d19a6d5a0966d59b" resname="Add Place">
+        <source>Add Place</source>
+        <target>Ort hinzufügen</target>
+        <jms:reference-file line="8">\..\..\..\..\..\..\./templates\Place\edit.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="697f54799a5397db1861351efc6977d710f31e9c" resname="Add Place from Identifier">
+        <source>Add Place from Identifier</source>
+        <target>Ort über Identifikator hinzufügen</target>
+        <jms:reference-file line="7">\..\..\..\..\..\..\./templates\Place\add-from-identifier.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="99f57cd5f7419246f7de028565f26f5989b5ef00" resname="Add Resource">
         <source>Add Resource</source>
         <target>Inhalt hinzufügen</target>
         <jms:reference-file line="8">\..\..\..\..\..\..\./templates\Resource\edit.html.twig\</jms:reference-file>
+        <jms:reference-file line="8">\..\..\..\..\..\..\./templates\Volume\edit.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="75ffa22a661d9f3ca688c91387886c6b0182edb7" resname="Add Word">
+        <source>Add Word</source>
+        <target>Word hinzufügen</target>
+        <jms:reference-file line="6">\..\..\..\..\..\..\./templates\Upload\index.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="d35efba3ba1edda800b7fe7ab6a07e47bd0fc82d" resname="Add from Identifier">
         <source>Add from Identifier</source>
-        <target>Eintrag per Identifier hinzufügen</target>
+        <target>Eintrag über Identifikator hinzufügen</target>
         <jms:reference-file line="11">\..\..\..\..\..\..\./templates\Organization\list.html.twig\</jms:reference-file>
+        <jms:reference-file line="11">\..\..\..\..\..\..\./templates\Person\list.html.twig\</jms:reference-file>
+        <jms:reference-file line="11">\..\..\..\..\..\..\./templates\Place\list.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="d8215685d13ea3434005935e9c532ff87a101087" resname="Add missing">
         <source>Add missing</source>
         <target>Fehlende hinzufügen</target>
         <jms:reference-file line="14">\..\..\..\..\..\..\./templates\Organization\list.html.twig\</jms:reference-file>
+        <jms:reference-file line="14">\..\..\..\..\..\..\./templates\Person\list.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="254dee1db19187596118bb19de007bb526abaef4" resname="Add to">
         <source>Add to</source>
-        <target>Add to</target>
+        <target>Hinzufügen zu</target>
         <jms:reference-file line="9">\..\..\..\..\..\..\./templates\Resource\upload.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="ecfe29ef8fcfc7c6552fb9793fd0884a7b9c0a8b" resname="Additional Information">
@@ -266,6 +311,11 @@
         <target>Länge</target>
         <jms:reference-file line="25">\..\..\..\..\..\..\./src\Form\Type\GeoCoordinatesType.php\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="7015ab4fc4ea24735dbe884238cc1b54bf915eca" resname="Lookup">
+        <source>Lookup</source>
+        <target>Nachschlagen</target>
+        <jms:reference-file line="36">\..\..\..\..\..\..\./src\Form\Type\EntityIdentifierType.php\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="082a55847766e7ec2bf815c3ad191460d219b5d0" resname="Lookup additional">
         <source>Lookup additional</source>
         <target>Weitere Informationen nachschlagen</target>
@@ -324,12 +374,12 @@
       </trans-unit>
       <trans-unit id="a7cf7b25a703b308887c7f1d100c4326ef20ac46" resname="Replace">
         <source>Replace</source>
-        <target>Replace</target>
+        <target>Ersetzen</target>
         <jms:reference-file line="7">\..\..\..\..\..\..\./templates\Resource\upload.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="d37537de853a0930e55b638204c0edd09585a7b1" resname="Replace Content">
         <source>Replace Content</source>
-        <target>Replace Content</target>
+        <target>Inhalt ersetzen</target>
         <jms:reference-file line="54">\..\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="87df60de337fb58864343e396696d74611e0d403" resname="Resources">
@@ -340,6 +390,9 @@
       <trans-unit id="efc007a393f66cdb14d57d385822a3d9e36ef873" resname="Save">
         <source>Save</source>
         <target>Speichern</target>
+        <jms:reference-file line="68">\..\..\..\..\..\..\./src\Form\Type\OrganizationType.php\</jms:reference-file>
+        <jms:reference-file line="98">\..\..\..\..\..\..\./src\Form\Type\PersonType.php\</jms:reference-file>
+        <jms:reference-file line="62">\..\..\..\..\..\..\./src\Form\Type\PlaceType.php\</jms:reference-file>
         <jms:reference-file line="27">\..\..\..\..\..\..\./src\Form\Type\TeiHeaderType.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="bce06414177f72ab70e6387b6af9f8ceef0d6049" resname="Search">
@@ -354,7 +407,7 @@
       </trans-unit>
       <trans-unit id="5e054413dacd642ddacc8f8ec146442bea000086" resname="Search Results">
         <source>Search Results</source>
-        <target state="new">Suchergebnisse</target>
+        <target>Suchergebnisse</target>
         <jms:reference-file line="32">\..\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="e75fa612b3435df4dfe963f813cb8a876de9d113" resname="Search in KVK">
@@ -389,7 +442,7 @@
       </trans-unit>
       <trans-unit id="f652fe616e4b3b31da52e8c890154de7584f087a" resname="There was an error querying the items">
         <source>There was an error querying the items</source>
-        <target>There was an error querying the items</target>
+        <target>Bei der Abfrage der Einträge ist ein Fehler aufgetreten</target>
         <jms:reference-file line="26">\..\..\..\..\..\..\./templates\CollectiveAccess\list.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="768e0c1c69573fb588f61f1308a015c11468e05f" resname="Title">

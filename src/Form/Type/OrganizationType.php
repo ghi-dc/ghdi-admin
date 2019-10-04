@@ -64,7 +64,9 @@ extends AbstractType
             )
             ;
 
-        $builder->add('Save', SubmitType::class);
+        $builder->add('save', SubmitType::class, [
+            'label' => 'Save',
+        ]);
     }
 
     public function getName()
