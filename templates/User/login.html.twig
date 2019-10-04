@@ -7,12 +7,12 @@
     {#% form_theme form 'bootstrap_4_horizontal_layout.html.twig' %#}
 
     <form action="{{ path('login') }}" method="post">
-        <label for="username">User Name:</label>
+        <label for="username">{{ 'User Name'|trans }}:</label>
         <input type="text" id="username" name="_username" value="{{ last_username }}" />
 
-        <label for="password">Password:</label>
+        <label for="password">{{ 'Password'|trans }}:</label>
         <input type="password" id="password" name="_password" />
 
-        <button type="submit">Login</button>
+        <button type="submit">{{ 'Login'|trans }}</button>
     </form>
 {% endblock %}
