@@ -79,14 +79,14 @@ trait RenderTeiTrait
             return $url;
         }
 
-        // check if url contains hose
+        // check if url contains host
         $host = parse_url($url, PHP_URL_HOST);
         if (!empty($host)) {
             // nothing to prepend
             return $url;
         }
 
-        return $baseUrl . '/' . $src;
+        return $baseUrl . '/' . $url;
     }
 
     protected function adjustMedia($html, $baseUrl, $imgClass = 'image-responsive')
