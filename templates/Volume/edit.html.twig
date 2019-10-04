@@ -5,7 +5,7 @@
 {% block body %}
     <h2>
         {% if id is empty %}
-        Add Resource
+        {{ 'Add Resource'|trans }}
         {% else %}
         <a href="{{ path('volume-detail', { 'id' : id }) }}">
             {{ entity.title }}

@@ -10,7 +10,7 @@
         {% for person in info.data %}
             <li>
                 <a href="http://d-nb.info/gnd/{{ person.gnd }}" target="_blank">{{ person.gnd }}</a>
-                [<a href="{{ path('person-add-from-identifier', { 'type' : 'gnd', 'identifier' : person.gnd }) }}">Add</a>]
+                [<a href="{{ path('person-add-from-identifier', { 'type' : 'gnd', 'identifier' : person.gnd }) }}">{{ 'Add'|trans }}</a>]
             </li>
         {% endfor %}
     </ul>

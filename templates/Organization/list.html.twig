@@ -8,10 +8,10 @@
 
     <form method="POST"><input name="q" value="{{ q }}" /><input type="submit" value="{{ 'Search'|trans }}" /></form>
     <a href="{{ path('organization-add-from-identifier') }}" class="btn btn-default btn-sm">
-        <span class="glyphicon glyphicon-plus"></span> {{ 'Add from Identifier'|trans }}
+        <span class="fa fa-plus"></span> {{ 'Add from Identifier'|trans }}
     </a>
     <a href="{{ path('organization-import-missing') }}" class="btn btn-default btn-sm">
-        <span class="glyphicon glyphicon-plus"></span> {{ 'Add missing'|trans }}
+        <span class="fa fa-plus"></span> {{ 'Add missing'|trans }}
     </a>
     <ul>
         {% for organization in organizations.data %}

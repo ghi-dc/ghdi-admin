@@ -8,7 +8,7 @@
 
     <form method="POST"><input name="q" value="{{ q }}" /><input type="submit" value="{{ 'Search'|trans }}" /></form>
     <a href="{{ path('place-add-from-identifier') }}" class="btn btn-default btn-sm">
-        <span class="glyphicon glyphicon-plus"></span> Add from Identifier
+        <span class="fa fa-plus"></span> {{ 'Add from Identifier'|trans }}
     </a>
     <ul>
         {% for place in places.data %}
