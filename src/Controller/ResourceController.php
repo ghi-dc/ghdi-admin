@@ -102,7 +102,9 @@ EOXQL;
      * @Route("/resource/{volume}/{id}", name="resource-detail",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      */
-    public function detailAction(Request $request, $volume, $id)
+    public function detailAction(Request $request,
+                                 \App\Utils\MpdfConverter $pdfConverter,
+                                 $volume, $id)
     {
         $textRazorApiKey = $this->container->hasParameter('app.textrazor')
             ? $this->getParameter('app.textrazor')['api_key']
@@ -212,9 +214,7 @@ EOXQL;
                 'html' => $html,
             ]);
 
-            $this->renderPdf($html, str_replace('.xml', '.pdf', $resource['data']['fname']), 'I', $request->getLocale());
-
-            return;
+            return $this->renderPdf($pdfConverter, $html, str_replace('.xml', '.pdf', $resource['data']['fname']), $request->getLocale());
         }
 
         if ('resource-detail-html' == $request->get('_route')) {

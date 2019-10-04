@@ -65,6 +65,17 @@ parameters:
     app.xsl-converter-adapter.arguments:
         "java -jar %kernel.project_dir%\\data\\styles\\test\\saxon9he.jar -s:%%source%% -xsl:%%xsl%% %%additional%%"
 
+    app.mpdf-converter.arguments:
+        config:
+            fontDir: [ "%kernel.project_dir%/data/font" ]
+            fontdata:
+                pdffont:
+                    R: 'GenBasR.ttf'
+                    B: 'GenBasB.ttf'
+                    I: 'GenBasI.ttf'
+                    BI: 'GenBasBI.ttf'
+            default_font: pdffont
+
     app.image-conversion-provider.class:
         # the following works only if you can execute command line programs and have convert installed
         # App\Service\ImageConversion\ImageMagickProvider

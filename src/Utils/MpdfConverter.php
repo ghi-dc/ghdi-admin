@@ -15,7 +15,7 @@ extends DocumentConverter
     {
         parent::__construct($options);
     }
-       
+
     /**
      * Convert documents between two formats
      *
@@ -28,10 +28,16 @@ extends DocumentConverter
        // mpdf
         $pdfGenerator = new PdfGenerator(array_key_exists('config', $this->options) ? $this->options['config'] : []);
 
+        if (array_key_exists('imageVars', $this->options)) {
+            foreach ($this->options['imageVars'] as $key => $val) {
+                $pdfGenerator->imageVars[$key] = $val;
+            }
+        }
+
         $html = (string)$doc;
-        
+
         $pdfGenerator->writeHTML($html);
-        
+
         $ret = new BinaryDocument();
         $ret->loadString(@$pdfGenerator->output(null, \Mpdf\Output\Destination::STRING_RETURN));
 

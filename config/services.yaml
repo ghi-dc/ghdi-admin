@@ -68,6 +68,9 @@ services:
     App\Utils\AnvcScalarClient:
         arguments: [ "%app.scalar_client.options%" ]
 
+    App\Utils\MpdfConverter:
+        arguments: [ "%app.mpdf-converter.arguments%" ]
+
     app.xsl-converter-adapter:
         class: "%app.xsl-converter-adapter.class%"
         arguments:  [ "%app.xsl-converter-adapter.arguments%" ]

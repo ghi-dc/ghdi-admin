@@ -2,6 +2,8 @@
 
 namespace App\Utils;
 
+use Symfony\Component\HttpFoundation\Response;
+
 /**
  *
  *
@@ -26,7 +28,7 @@ trait RenderTeiTrait
             : $crawler->html();
     }
 
-    protected function renderPdf($html, $filename = '', $dest = 'I', $locale = 'en')
+    protected function renderPdf($pdfConverter, $html, $filename = '', $locale = 'en')
     {
         /*
         // for debugging
@@ -34,43 +36,44 @@ trait RenderTeiTrait
         exit;
         */
 
-        // mpdf - TODO: move this to a service
-        $pdfGenerator = new \App\Utils\PdfGenerator([
-            'fontDir' => [
-                $this->get('kernel')->getProjectDir()
-                    . '/data/font',
-            ],
-            'fontdata' => [
-                'brill' => [
-                    'R' => 'Brill-Roman.ttf',
-                    'B' => 'Brill-Bold.ttf',
-                    'I' => 'Brill-Italic.ttf',
-                    'BI' => 'Brill-Bold-Italic.ttf',
-                ],
-            ],
-        ]);
-
         /*
         // hyphenation
         list($lang, $region) = explode('_', $display_lang, 2);
-        $pdfGenerator->SHYlang = $lang;
-        $pdfGenerator->SHYleftmin = 3;
+        $pdfConverter->SHYlang = $lang;
+        $pdfConverter->SHYleftmin = 3;
         */
 
+        $imageVars = [];
         try {
             // try to get logo from repository in order to support multiple sites with same code-base
             $client = $this->getExistDbClient($this->subCollection);
-            $pdfGenerator->imageVars['logo_top'] = $client->getBinaryResource($this->getAssetsPath() . '/logo-print.' . $locale . '.jpg');
+            $image = $client->getBinaryResource($this->getAssetsPath() . '/logo-print.' . $locale . '.jpg');
+            if (false !== $image) {
+                $imageVars['logo_top'] = $image;
+            }
         }
         catch (\Exception $e) {
-            // fall-back to file system
-            $pdfGenerator->imageVars['logo_top'] = $this->get('kernel')->getProjectDir() . '/public/img/logo-print.' . $locale . '.jpg';
+            ; // ignore
         }
 
-        // silence due to https://github.com/mpdf/mpdf/issues/302 when using tables
-        @$pdfGenerator->writeHTML($html);
+        if (!array_key_exists('logo_top', $imageVars)) {
+            // fall-back to file system
+            $imageVars['logo_top'] = file_get_contents($this->get('kernel')->getProjectDir() . '/public/img/logo-print.' . $locale . '.jpg');
+        }
 
-        $pdfGenerator->Output($filename, 'I');
+        if (!empty($imageVars)) {
+            $pdfConverter->setOption('imageVars', $imageVars);
+        }
+
+        $htmlDoc = new \App\Utils\HtmlDocument();
+        $htmlDoc->loadString($html);
+
+        $pdfDoc = @$pdfConverter->convert($htmlDoc);
+
+        return new Response((string)$pdfDoc, Response::HTTP_OK, [
+            'Content-Type'          => 'application/pdf',
+            'Content-Disposition'   => 'inline; filename="' . $filename . '"'
+        ]);
     }
 
     protected function buildAbsoluteUrl($url, $baseUrl)

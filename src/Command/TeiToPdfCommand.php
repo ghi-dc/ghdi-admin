@@ -15,6 +15,16 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 class TeiToPdfCommand
 extends ContainerAwareCommand
 {
+    protected $pdfConverter;
+
+    public function __construct(\App\Utils\MpdfConverter $pdfConverter)
+    {
+        $this->pdfConverter = $pdfConverter;
+
+        // you *must* call the parent constructor
+        parent::__construct();
+    }
+
     protected function configure()
     {
         $this
@@ -37,37 +47,18 @@ extends ContainerAwareCommand
 
             return -1;
         }
-        
+
         $teiDoc = new \App\Utils\TeiDocument();
         $teiDoc->load($file);
-       
+
         $xslConverter = $this->getContainer()->get(\App\Utils\XslConverter::class);
         $xslConverter->setOption('xsl', 'data/styles/dta2html.xsl');
         $xslConverter->setOption('target', new \App\Utils\HtmlDocument());
-              
+
         $htmlDoc = $xslConverter->convert($teiDoc);
-               
-        $pdfConverter = new \App\Utils\MpdfConverter([
-            'config' => [
-                'fontDir' => [
-                    $this->getContainer()->get('kernel')->getProjectDir()
-                        . '/data/font',
-                ],
-                'fontdata' => [
-                    'brill' => [
-                        'R' => 'Brill-Roman.ttf',
-                        'B' => 'Brill-Bold.ttf',
-                        'I' => 'Brill-Italic.ttf',
-                        'BI' => 'Brill-Bold-Italic.ttf',
-                        // 'useOTL' => 0xFF, // this font does not have OTL table
-                    ],
-                ],
-                'default_font' => 'brill',
-            ],
-        ]);
-                
-        $pdfDoc = $pdfConverter->convert($htmlDoc);
-        
+
+        $pdfDoc = $this->pdfConverter->convert($htmlDoc);
+
         echo (string)$pdfDoc;
     }
 }
