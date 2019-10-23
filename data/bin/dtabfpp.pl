@@ -65,9 +65,9 @@ my $element_header = {
     preserves_whitespace => [qw()],
 };
 
-# elements within <text>
+# (additional) elements within <text>
 my $element_text = {
-    inline   => [qw(abbr expan hi)],
+    inline   => [qw(abbr expan hi orgName persName placeName)],
     block    => [qw()],
     compact  => [qw()],
     preserves_whitespace => [qw()],
@@ -77,7 +77,7 @@ my $cb_inline = sub {
     my $node = shift;
 
     # inline elements within <teiHeader>
-    if ( $node->nodeName =~ /^(?:note)$/ ) {
+    if ( $node->nodeName =~ /^(?:)$/ ) {
         my $parent = $node->parentNode;
         while ( $parent ) {
             if ( $parent->nodeName eq 'teiHeader' ) {
@@ -88,10 +88,40 @@ my $cb_inline = sub {
     }
 
     # inline elements within <text>
-    if ( $node->nodeName =~ /^(?:note|persName|placeName)$/ ) {
+    if ( $node->nodeName =~ /^(?:note)$/ ) {
         my $parent = $node->parentNode;
         while ( $parent ) {
-            # note sure why we can end up at '#document-fragment' instead of getting up to 'text'
+            # not sure why we can end up at '#document-fragment' instead of getting up to 'text'
+            if ( $parent->nodeName eq 'text' or $parent->nodeName eq '#document-fragment') {
+                return 1;
+            }
+            $parent = $parent->parentNode;
+        }
+    }
+
+    # everything else
+    return undef;
+};
+
+my $cb_block = sub {
+    my $node = shift;
+    # format <note> as block when it is child of <notesStmt>
+    if ( $node->nodeName =~ /^(?:note)$/
+          and $node->parentNode->nodeName eq 'notesStmt' )
+    {
+        return 1;
+    }
+    # format <publisher|idno> as block when it is child of <publicationStmt>
+    if ( $node->nodeName =~ /^(?:publisher|idno)$/
+          and $node->parentNode->nodeName eq 'publicationStmt' )
+    {
+        return 1;
+    }
+    # block elements within <text>
+    if ( $node->nodeName =~ /^(?:)$/ ) {
+        my $parent = $node->parentNode;
+        while ( $parent ) {
+            # not sure why we can end up at '#document-fragment' instead of getting up to 'text'
             if ( $parent->nodeName eq 'text' or $parent->nodeName eq '#document-fragment') {
                 return 1;
             }
@@ -101,17 +131,24 @@ my $cb_inline = sub {
     return undef;
 };
 
-my $cb_block = sub {
-    my $node = shift;
-    # format <idno> as block when it is the outside <idno> container
-    if ( $node->nodeName eq 'idno' and $node->parentNode->nodeName ne 'idno' ) {
-        return 1;
-    }
-    return undef;
-};
-
 my $cb_compact = sub {
     my $node = shift;
+    # format <author|editor> as compact when it is child of <titleStmt>
+    if ( $node->nodeName =~ /^(?:author|editor)$/
+          and $node->parentNode->nodeName eq 'titleStmt' )
+    {
+        return 1;
+    }
+    # format <publisher|date> as compact when it is child of <publicationStmt>
+    if ( $node->nodeName =~ /^(?:publisher|date)$/
+          and $node->parentNode->nodeName eq 'publicationStmt' )
+    {
+        return 1;
+    }
+    # format <idno> as compact when it in the <idno> container
+    if ( $node->nodeName eq 'idno' and $node->parentNode->nodeName eq 'idno' ) {
+        return 1;
+    }
     return undef;
 };
 
