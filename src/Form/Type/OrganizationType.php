@@ -7,6 +7,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -35,6 +36,27 @@ extends AbstractType
                     'required' => false,
                 ])
             )
+            ->add(
+                $builder
+                ->create('group-descriptions', FormType::class, [
+                    'label' => 'Disambiguating Description',
+                    'inherit_data' => true,
+                ])
+                ->add('disambiguating_description_en', TextareaType::class, [
+                    'label' => 'English',
+                    'required' => false,
+                    'attr' => [
+                        'rows' => 2,
+                    ],
+                ])
+                ->add('disambiguating_description_de', TextareaType::class, [
+                    'label' => 'German',
+                    'required' => false,
+                    'attr' => [
+                        'rows' => 2,
+                    ],
+                ])
+            )
             ->add('url', UrlType::class, [
                 'label' => 'Homepage',
                 'required' => false,
@@ -59,6 +81,14 @@ extends AbstractType
                 ])
                 ->add('wikidata', TextType::class, [
                     'label' => 'Wikidata',
+                    'required' => false,
+                ])
+                ->add('lcauth', TextType::class, [
+                    'label' => 'LoC authority ID',
+                    'required' => false,
+                ])
+                ->add('viaf', TextType::class, [
+                    'label' => 'VIAF',
                     'required' => false,
                 ])
             )

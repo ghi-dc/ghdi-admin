@@ -36,7 +36,7 @@ extends ExistDbCommand
                 InputOption::VALUE_NONE,
                 'Specify to overwrite existing resources'
             )
-            ->setDescription('Import collection (base|volumes|persons|organization|places|styles|assets) into app.existdb.base')
+            ->setDescription('Import collection (base|volumes|persons|organization|places|terms|styles|assets) into app.existdb.base')
             ;
     }
 
@@ -90,6 +90,7 @@ extends ExistDbCommand
             case 'persons':
             case 'organizations':
             case 'places':
+            case 'terms':
                 $filename = !empty($resource) ? $resource :  '';
                 break;
 

@@ -105,6 +105,10 @@ class Builder
             'label' => $this->translator->trans('Places', [], 'menu'),
             'route' => 'place-list',
         ]);
+        $menu['Authority Control']->addChild('term-list', [
+            'label' => $this->translator->trans('Subject Headings', [], 'menu'),
+            'route' => 'term-list',
+        ]);
 
         if ($this->showBibliography) {
             $menu->addChild('bibliography-list', [

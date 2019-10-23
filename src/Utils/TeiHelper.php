@@ -755,6 +755,32 @@ class TeiHelper
             ], true);
         }
 
+        if (array_key_exists('terms', $data)) {
+            $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "term")]';
+            // since there can be multiple, first clear and then add
+            \FluentDom($header)->find($xpath)->remove();
+
+            if (!is_null($data['terms'])) {
+                foreach ($data['terms'] as $code) {
+                    $this->addDescendants($header, $xpath, [
+                        'tei:classCode[contains(@scheme, "term")]' => function ($parentOrSelf, $name, $updateExisting) use ($code) {
+                            if (!$updateExisting) {
+                                $self = $parentOrSelf->appendChild($parentOrSelf->ownerDocument->createElement('classCode', $code));
+                            }
+                            else {
+                                $self = $parentOrSelf;
+                                $self->nodeValue = $code;
+                            }
+
+                            $self->setAttribute('scheme', $this->schemePrefix . 'term');
+
+                            return $self;
+                        },
+                    ], false);
+                }
+            }
+        }
+
         if (array_key_exists('lcsh', $data)) {
             $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "lcsh")]';
             // since there can be multiple, first clear and then add

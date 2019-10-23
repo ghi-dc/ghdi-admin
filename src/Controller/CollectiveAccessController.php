@@ -356,7 +356,8 @@ extends BaseController
                             $val = $this->buildTeiValue($struct[$lang][$dst], false);
                             switch ($dst) {
                                 case 'lcsh_terms':
-                                    $scheme = '#lcsh';
+                                    $scheme = '#term';
+                                    // TODO: resolve $val with something like [info:lc/authorities/names/n80076591]
                                     break;
                             }
 

@@ -174,3 +174,86 @@
     })
     </script>
 {% endmacro %}
+
+{% macro seealso_head(service_key = "pndaks", service_url="https://beacon.findbuch.de/seealso/pnd-aks/-lemo@ap") %}
+    <script src="{{ app.request.basepath }}/js/seealso.js"></script>
+    <script>
+        var service = new SeeAlsoCollection();
+        service.services = {
+            '{{ service_key }}' : new SeeAlsoService('{{ service_url }}')
+        };
+        service.views = {
+            'seealso-ul' : new SeeAlsoUL({
+                linkTarget: '_blank',
+                maxItems: 100
+            })
+        };
+        service.replaceTagsOnLoad();
+    </script>
+{% endmacro %}
+
+{% macro display_info(entity) %}
+    {% set description = entity.getDisambiguatingDescription(app.request.locale) %}
+    {% if description is not empty %}
+    <p>{{ description|prettifyurl|nl2br  }}</p>
+    {% endif %}
+{% endmacro %}
+
+{% macro seealso_box(entity, lookup_route, service_key = "pndaks") %}
+            <div class="container-fluid box">
+                <div class="row box-color-title">
+                    <div class="col-sm-12">
+                        <h4>
+                            {% if entity.gnd is not empty %}
+                            {{ 'Integrated Authority File'|trans }}
+                            <br /><a href="https://d-nb.info/gnd/{{ entity.gnd }}" target="_blank">{{ entity.gnd }}</a>
+                            {% else %}
+                            {{ 'Additional Information'|trans }}
+                            {% endif %}
+                        </h4>
+                    </div>
+                </div>
+                <div class="row box-color-content-inverse">
+                    {% if entity.lcauth is not empty or entity.viaf is not empty or entity.wikidata is not empty%}
+                    <div class="col-sm-12 beacon-ul">
+                        <ul>
+                            {% set lookupIdentifier = false %}
+                            {% if entity.wikidata is not empty %}
+                            <li>
+                                Wikidata: <a href="https://www.wikidata.org/wiki/{{ entity.wikidata }}" target="_blank">{{ entity.wikidata }}</a>
+                            </li>
+                            {% else %}
+                                {% set lookupIdentifier = true %}
+                            {% endif %}
+                            {% if entity.lcauth is not empty %}
+                            <li>
+                                LoC authority ID: <a href="https://id.loc.gov/authorities/{{ entity.lcauth }}" target="_blank">{{ entity.lcauth }}</a>
+                            </li>
+                            {% else %}
+                                {% set lookupIdentifier = true %}
+                            {% endif %}
+                            {% if entity.viaf is not empty %}
+                            <li>
+                                VIAF: <a href="https://viaf.org/viaf/{{ entity.viaf }}" target="_blank">{{ entity.viaf }}</a>
+                            </li>
+                            {% else %}
+                                {% set lookupIdentifier = true %}
+                            {% endif %}
+                            {% if lookupIdentifier and lookup_route is not empty %}
+                            <li>
+                                <a href="{{ path(lookup_route, { 'id' : entity.id }) }}" class="btn btn-default btn-sm">
+                                    <span class="fa fa-refresh"></span> {{ 'Lookup additional'|trans }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    {% if entity.gnd is not empty %}
+                    <div class="col-sm-12">
+                        <div title="{{ entity.gnd }}" class="{{ service_key }} seealso-ul"></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+{% endmacro %}

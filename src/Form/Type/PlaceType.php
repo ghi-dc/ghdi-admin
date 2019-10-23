@@ -55,6 +55,10 @@ extends AbstractType
                     'label' => 'Wikidata',
                     'required' => false,
                 ])
+                ->add('geonames', TextType::class, [
+                    'label' => 'Geonames',
+                    'required' => false,
+                ])
             )
             ;
 

@@ -147,7 +147,7 @@ EOXQL;
         }
 
         if ('resource-detail-tei' == $request->get('_route')) {
-            $tei = $client->getDocument($resourcePath);
+            $tei = $client->getDocument($resourcePath, [ 'omit-xml-declaration' => 'no' ]);
 
             $response = new Response($tei);
             $response->headers->set('Content-Type', 'xml');
@@ -299,7 +299,7 @@ EOXQL;
     protected function fetchTeiHeader($client, $resourcePath)
     {
         if ($client->hasDocument($resourcePath)) {
-            $content = $client->getDocument($resourcePath);
+            $content = $client->getDocument($resourcePath, [ 'omit-xml-declaration' => 'no' ]);
 
             $teiHelper = new \App\Utils\TeiHelper();
             $article = $teiHelper->analyzeHeaderString($content, true);
@@ -326,7 +326,9 @@ EOXQL;
         $teiHelper = new \App\Utils\TeiHelper();
         $content = $teiHelper->adjustHeaderString($content, $data);
 
-        return $client->parse($content->saveXML(), $resourcePath, $update);
+        $xml = $this->prettyPrintTei($content->saveXML());
+
+        return $client->parse((string)$xml, $resourcePath, $update);
     }
 
     /**
@@ -336,10 +338,11 @@ EOXQL;
     protected function updateTeiHeader($entity, $client, $resourcePath)
     {
         if ($client->hasDocument($resourcePath)) {
-            $content = $client->getDocument($resourcePath);
+            $content = $client->getDocument($resourcePath, [ 'omit-xml-declaration' => 'no' ]);
 
             $data = [
                 'title' => $entity->getTitle(),
+                'terms' => $entity->getTerms(),
             ];
 
             return $this->updateTeiHeaderContent($client, $resourcePath, $content, $data);
@@ -348,7 +351,7 @@ EOXQL;
         return false;
     }
 
-    /*
+    /**
      * Naive implementation - takes XML skeleton and updates it
      */
     protected function createTeiHeader($entity, $client, $resourcePath)
@@ -412,13 +415,77 @@ EOXQL;
         return $shelfmark;
     }
 
+    protected function buildTermChoices($locale, $entity = null)
+    {
+        // TODO: share '/data/authority/terms' with TermController
+        $client = $this->getExistDbClient('/data/authority/terms');
+
+        $xql = $this->renderView('Term/list-choices-json.xql.twig', [
+        ]);
+
+        $query = $client->prepareQuery($xql);
+        $query->setJSONReturnType();
+        $query->bindVariable('collection', $client->getCollection());
+        $query->bindVariable('locale', $locale);
+        $query->bindVariable('q', '');
+        $res = $query->execute();
+        $terms = $res->getNextResult();
+        $res->release();
+
+        $choices = [];
+
+        foreach ($terms['data'] as $term) {
+            $name = $term['name'];
+            $value = null;
+
+            foreach ([ 'gnd', 'lcauth', 'wikidata' ] as $vocabulary) {
+                $identifier = null;
+
+                if (!empty($term[$vocabulary])) {
+                    switch ($vocabulary) {
+                        case 'gnd':
+                            $identifier = new \App\Utils\Lod\Identifier\GndIdentifier();
+                            break;
+
+                        case 'lcauth':
+                            $identifier = new \App\Utils\Lod\Identifier\LocLdsSubjectsIdentifier();
+                            break;
+
+                        case 'wikidata':
+                            $identifier = new \App\Utils\Lod\Identifier\WikidataIdentifier();
+                            break;
+                    }
+
+                    if (!is_null($identifier)) {
+                        $identifier->setValue($term[$vocabulary]);
+                        if (is_null($value)) {
+                            $value = $identifier->toUri();
+                        }
+                        else {
+                            // TODO: check $entity->getTerms()
+                        }
+                    }
+                }
+            }
+
+            if (is_null($value)) {
+                $value = $name;
+            }
+
+            $choices[$value] = $name;
+        }
+
+        return $choices;
+    }
+
     /**
      * @Route("/resource/{volume}/{id}/edit", name="resource-edit",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      * @Route("/resource/{volume}/add/{genre}", name="collection-add",
      *          requirements={"volume" = "volume\-\d+", "genre" = "(document-collection|image-collection)"})
      */
-    public function editAction(Request $request, $volume, $id = null, $genre = null)
+    public function editAction(Request $request,
+                               $volume, $id = null, $genre = null)
     {
         $update = 'resource-edit' == $request->get('_route');
 
@@ -448,9 +515,13 @@ EOXQL;
             }
         }
 
-        $form = $this->get('form.factory')
-                ->create(\App\Form\Type\TeiHeaderType::class, $entity)
-                ;
+        $termChoices = $this->buildTermChoices($request->getLocale(), $entity);
+        $form = $this->createForm(\App\Form\Type\TeiHeaderType::class, $entity, [
+            'choices' => [
+                'terms' => array_flip($termChoices),
+            ],
+        ]);
+
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {

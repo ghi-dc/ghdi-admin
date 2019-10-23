@@ -1,0 +1,5 @@
+{% macro head() %}
+    <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/select2-4.0.11/css/select2.min.css" />
+    <script src="{{ app.request.basepath }}/vendor/select2-4.0.11/js/select2.min.js"></script>
+    <script src="{{ app.request.basepath }}/vendor/select2-4.0.11/js/i18n/{{ app.request.getLocale() }}.js"></script>
+{% endmacro %}

@@ -34,11 +34,18 @@ extends SchemaOrg
     protected $foundingDate;
 
     /**
-     * @var Place The place where the Organization was founded.
+     * @var Place The place where the organization was founded.
      *
      * @Serializer\Type("string")
      */
     protected $foundingLocation;
+
+    /**
+     * @var Place The location where the organization is located.
+     *
+     * @Serializer\Type("string")
+     */
+    protected $location;
 
     /**
      * @var Organization The organization that preceded this on.
@@ -124,6 +131,30 @@ extends SchemaOrg
     public function getFoundingLocation()
     {
         return $this->foundingLocation;
+    }
+
+    /**
+     * Sets location.
+     *
+     * @param Place $location
+     *
+     * @return $this
+     */
+    public function setLocation(Place $location = null)
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    /**
+     * Gets location.
+     *
+     * @return Place
+     */
+    public function getLocation()
+    {
+        return $this->location;
     }
 
     /**

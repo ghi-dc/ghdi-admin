@@ -3,20 +3,7 @@
 {% import 'Base/helper.html.twig' as helper %}
 
 {% block head %}
-    <script src="{{ app.request.basepath }}/js/seealso.js"></script>
-    <script>
-        var service = new SeeAlsoCollection();
-        service.services = {
-            'gkdaks' : new SeeAlsoService('https://beacon.findbuch.de/seemore/gnd-aks/-dewp@wd')
-        };
-        service.views = {
-            'seealso-ul' : new SeeAlsoUL({
-                linkTarget: '_blank',
-                maxItems: 100
-            })
-        };
-        service.replaceTagsOnLoad();
-    </script>
+    {{ helper.seealso_head("gndaks", "https://beacon.findbuch.de/seemore/gnd-aks/-dewp@wd") }}
 {% endblock %}
 
 {% block body %}
@@ -66,27 +53,12 @@
             {% endif %}
             </dl>
 
-            <p>{{ entity.description[app.request.locale]|nl2br  }}</p>
-
+            {{ helper.display_info(entity) }}
         </div>
 
         <div class="col-sm-4 sidebar">
-            {% if entity.gnd is not empty %}
-            <div class="container-fluid box">
-                <div class="row box-color-title">
-                    <div class="col-sm-12">
-                        <h4>{{ 'Integrated Authority File'|trans }}
-                        <br /><a href="http://d-nb.info/gnd/{{ entity.gnd }}" target="_blank">{{ entity.gnd }}</a>
-                        </h4>
-                    </div>
-                </div>
-
-                <div class="row box-color-content-inverse">
-                    <div class="col-sm-12">
-                        <div title="{{ entity.gnd }}" class="gkdaks seealso-ul"></div>
-                    </div>
-                </div>
-            </div>
+            {% if entity.hasIdentifiers %}
+                {{ helper.seealso_box(entity, 'organization-lookup-identifier', 'gndaks') }}
             {% endif %}
         </div>
     </div><!-- .row -->

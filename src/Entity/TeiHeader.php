@@ -61,7 +61,7 @@ implements \JsonSerializable
      */
     public function setTitle($title)
     {
-        $this->title = $title;
+        $this->title = preg_replace('/\R+/', ' ', $title); // get rid of newlines in original markup
 
         return $this;
     }
@@ -269,6 +269,18 @@ implements \JsonSerializable
     }
 
     /**
+     * Clears classification codes with $scheme
+     */
+    public function clearClassCodes($scheme)
+    {
+        if (array_key_exists($scheme, $this->classCodes)) {
+            unset($this->classCodes);
+        }
+
+        return $this;
+    }
+
+    /**
      * Gets classification codes
      */
     public function getClassCodes($scheme)
@@ -303,6 +315,48 @@ implements \JsonSerializable
         if (!empty($codes)) {
             return $codes[0];
         }
+    }
+
+    /**
+     * Add term.
+     *
+     * @param string $term
+     *
+     * @return $this
+     */
+    public function addTerm($term)
+    {
+        $this->addClassCode('#term', $term);
+
+        return $this;
+    }
+
+    /**
+     * Sets terms.
+     *
+     * @param array $terms
+     *
+     * @return $this
+     */
+    public function setTerms($terms)
+    {
+        $this->clearClassCodes('#term');
+
+        foreach ($terms as $term) {
+            $this->addTerm($term);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Gets terms.
+     *
+     * @return array
+     */
+    public function getTerms()
+    {
+        return $this->getClassCodes('#term');
     }
 
     /**

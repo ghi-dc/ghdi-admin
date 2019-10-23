@@ -1,0 +1,22 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block body %}
+    <h2>{{ 'Subject Headings'|trans }}</h2>
+    {{ helper.display_flashes() }}
+
+    <form method="POST"><input name="q" value="{{ q }}" /><input type="submit" value="{{ 'Search'|trans }}" /></form>
+    <a href="{{ path('term-add-from-identifier') }}" class="btn btn-default btn-sm">
+        <span class="fa fa-plus"></span> {{ 'Add from Identifier'|trans }}
+    </a>
+    <ul>
+        {% for term in terms.data %}
+            <li>
+                <a href="{{ path('term-detail', { id: term.id }) }}">
+                    {{ term.name -}}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -8,7 +8,7 @@
         {{ 'Add Place'|trans }}
         {% else %}
         <a href="{{ path('place-detail', { 'id' : entity.id }) }}">
-            {{ entity.name }}
+            {{ entity.localizedName(app.request.locale, '_') }}
         </a>
         {% endif %}
     </h2>

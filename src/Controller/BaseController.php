@@ -144,6 +144,22 @@ extends Controller
         return $response;
     }
 
+    protected function prettyPrintTei($tei)
+    {
+        $teiDtabfDoc = new \App\Utils\TeiDocument([
+            'prettyPrinter' => $this->get('app.tei-prettyprinter'),
+        ]);
+
+        if (!$teiDtabfDoc->loadString($tei)) {
+            // load failed, just return what we got initially
+            return $tei;
+        }
+
+        $teiDtabfDoc->prettify();
+
+        return $teiDtabfDoc;
+    }
+
     protected function teiToHtml($client, $resourcePath, $lang, $path = null)
     {
         $xql = $this->renderView('Resource/tei2html.xql.twig', [

@@ -1,0 +1,40 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block head %}
+    {{ helper.seealso_head() }}
+{% endblock %}
+
+{% block body %}
+    <h2>
+        {{ entity.localizedName(app.request.locale, '_') }}
+        <a href="{{ path('term-edit', { 'id' : entity.id }) }}" class="btn btn-default btn-sm">
+            <span class="fa fa-edit"></span> {{ 'Edit'|trans }}
+        </a>
+    </h2>
+    {{ helper.display_flashes() }}
+
+    <div class="row">
+        <div class="col-sm-8">
+            <dl>
+            {% if broaderTerm is not empty %}
+                <dt>{{ 'Broader Term'|trans }}:</dt>
+                <dd>
+                    <a href="{{ path('term-detail', { 'id' : broaderTerm.id }) }}">
+                        {{ broaderTerm.name }}
+                    </a>
+                </dd>
+            {% endif %}
+            </dl>
+
+            {{ helper.display_info(entity) }}
+        </div>
+
+        <div class="col-sm-4 sidebar">
+            {% if entity.hasIdentifiers %}
+                {{ helper.seealso_box(entity, 'term-lookup-identifier') }}
+            {% endif %}
+        </div>
+    </div><!-- .row -->
+{% endblock %}

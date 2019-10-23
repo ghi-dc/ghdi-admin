@@ -42,8 +42,8 @@ extends AbstractType
         $resolver->setDefaults(array(
             'types' => [
                 'gnd' => 'GND',
-                // 'lccn' => 'LoC Control Number',
-                'wikidata' => 'Wikidata',
+                'lcauth' => 'LoC authority ID',
+                'wikidata' => 'Wikidata QID',
             ],
         ));
     }

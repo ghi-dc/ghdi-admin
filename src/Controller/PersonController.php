@@ -126,6 +126,8 @@ EOXQL;
     {
         $types = [
             'gnd' => 'GND',
+            'lcauth' => 'LoC authority ID',
+            'viaf' => 'VIAF',
             'wikidata' => 'Wikidata QID',
         ];
 
@@ -179,23 +181,26 @@ EOXQL;
 
             switch ($data['type']) {
                 case 'wikidata':
+                case 'viaf':
+                case 'lcauth':
                     $found = false;
+                    $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
+                    $identifier = \App\Utils\Lod\Identifier\Factory::byName($data['type']);
+                    if (!is_null($identifier)) {
+                        $identifier->setValue($data['identifier']);
 
-                    $qid = $data['identifier'];
-
-                    $bio = new \App\Utils\BiographicalData();
-
-                    try {
-                        $gnds = $bio->lookupGndByQid($data['identifier']);
-                        if (1 == count($gnds)) {
-                            $found = true;
-
-                            $data['identifier'] = $gnds[0];
-                            $data['type'] = 'gnd';
+                        $sameAs = $lodService->lookupSameAs($identifier);
+                        if (!empty($sameAs)) {
+                            foreach ($sameAs as $identifier) {
+                                // hunt for a gnd
+                                if ('gnd' == $identifier->getName()) {
+                                    $data['type'] = 'gnd';
+                                    $data['identifier'] = $identifier->getValue();
+                                    $found = true;
+                                    break;
+                                }
+                            }
                         }
-                    }
-                    catch (\Exception $e) {
-                        ; // ignore
                     }
 
                     if (!$found) {
@@ -209,10 +214,13 @@ EOXQL;
                     // fallthrough
 
                 case 'gnd':
-                    // TODO: look if there is already an entry
-                    $entity = \App\Utils\BiographicalData::lookupPersonByGnd($data['identifier']);
+                    $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($data['identifier']);
 
-                    if (!is_null($entity)) {
+                    $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\DnbProvider());
+                    // TODO: look if there is already an entry
+                    $entity = $lodService->lookup($identifier);
+
+                    if (!is_null($entity) && $entity instanceof \App\Entity\Person) {
                         // display for review
                         $request->getSession()
                                 ->getFlashBag()
@@ -234,7 +242,7 @@ EOXQL;
                     else {
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('warning', 'No info found for GND: ' . $data['identifier'])
+                                ->add('warning', 'No person found for GND: ' . $data['identifier'])
                             ;
                     }
                     break;
@@ -351,28 +359,28 @@ EOXQL;
             return $this->redirect($this->generateUrl('person-detail', [ 'id' => $id ]));
         }
 
-        $bio = new \App\Utils\BiographicalData();
-
-        $wikidataQid = $entity->getWikidata();
-        if (empty($wikidataQid)) {
-            die('Try to Lookup QID from other identifiers');
-        }
-
         $update = false;
-        if (!empty($wikidataQid)) {
-            try {
-                $identifiers = $bio->lookupIdentifiersByQid($wikidataQid);
 
-                foreach ($identifiers as $name => $val) {
-                    $current = $entity->getIdentifier($name);
-                    if (empty($current)) {
-                        $update = true;
-                        $entity->setIdentifier($name, $val);
+        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
+        foreach ($entity->getIdentifiers() as $name => $value) {
+            $identifier = \App\Utils\Lod\Identifier\Factory::byName($name);
+            if (!is_null($identifier) && !empty($value)) {
+                $identifier->setValue($value);
+
+                $sameAs = $lodService->lookupSameAs($identifier);
+                if (!empty($sameAs)) {
+                    foreach ($sameAs as $identifier) {
+                        $name = $identifier->getName();
+                        $current = $entity->getIdentifier($name);
+                        if (empty($current)) {
+                            $update = true;
+                            $entity->setIdentifier($name, $identifier->getValue());
+                        }
                     }
+
+                    // one successful call gets all the others
+                    break;
                 }
-            }
-            catch (\Exception $e) {
-                ; // ignore
             }
         }
 
@@ -395,10 +403,10 @@ EOXQL;
             }
         }
         else {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('info', 'No additional information could be found.');
-                    ;
+            $request->getSession()
+                    ->getFlashBag()
+                    ->add('info', 'No additional information could be found.');
+                ;
         }
 
         return $this->redirect($this->generateUrl('person-detail', [ 'id' => $id ]));

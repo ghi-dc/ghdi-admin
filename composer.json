@@ -33,6 +33,8 @@
     ],
 
     "require": {
+        "php" : ">=7.2.21",
+
         "symfony/config": "^4.3",
         "symfony/finder": "^4.3",
         "symfony/filesystem": "^4.3",
@@ -109,7 +111,7 @@
         "fale/isbn": "3.*",
 
         "semsol/arc2": "2.3.*",
-        "easyrdf/easyrdf": "0.9.*",
+        "easyrdf/easyrdf": "0.10.*@dev",
         "ml/json-ld": "1.1.*",
 
         "lstrojny/fxmlrpc": "@stable",
@@ -125,7 +127,9 @@
 
         "textrazor/textrazor-php": "*@dev",
 
-        "nategood/httpful": "*"
+        "nategood/httpful": "*",
+
+        "symfony/polyfill-intl-normalizer": "*"
     },
 
     "autoload": {

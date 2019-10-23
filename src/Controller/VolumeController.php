@@ -264,7 +264,7 @@ extends ResourceController
         }
 
         if ('volume-detail-tei' == $request->get('_route')) {
-            $tei = $client->getDocument($volumepath);
+            $tei = $client->getDocument($volumepath, [ 'omit-xml-declaration' => 'no' ]);
 
             $response = new Response($tei);
             $response->headers->set('Content-Type', 'xml');

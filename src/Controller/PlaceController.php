@@ -41,6 +41,19 @@ extends BaseController
         ]);
     }
 
+    protected function fetchEntity($client, $id)
+    {
+        if ($client->hasDocument($name = $id . '.xml')) {
+            $content = $client->getDocument($name);
+
+            $serializer = $this->getSerializer();
+
+            return $serializer->deserialize($content, 'App\Entity\Place', 'xml');
+        }
+
+        return null;
+    }
+
     /**
      * @Route("/place/{id}", name="place-detail", requirements={"id" = "place\-\d+"})
      */
@@ -48,12 +61,11 @@ extends BaseController
     {
         $client = $this->getExistDbClient($this->subCollection);
 
-        $place = $this->fetchById($client, $id);
-
-        if (is_null($place)) {
+        $entity = $this->fetchEntity($client, $id);
+        if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No item found for id: ' . $id)
+                    ->add('warning', 'No entry found for id: ' . $id)
                 ;
 
             return $this->redirect($this->generateUrl('place-list'));
@@ -61,13 +73,13 @@ extends BaseController
 
         $containedInPlace = null;
 
-        $containedIn = $place->getContainedInPlace();
+        $containedIn = $entity->getContainedInPlace();
         if (!is_null($containedIn)) {
             $containedInPlace = $this->findByIdentifier($containedIn->getTgn(), 'tgn', true);
         }
 
         return $this->render('Place/detail.html.twig', [
-            'entity' => $place,
+            'entity' => $entity,
             'containedInPlace' => $containedInPlace,
         ]);
     }
@@ -115,19 +127,6 @@ EOXQL;
         return $place;
     }
 
-    function fetchById($client, $id)
-    {
-        if ($client->hasDocument($name = $id . '.xml')) {
-            $content = $client->getDocument($name);
-
-            $serializer = $this->getSerializer();
-
-            return $serializer->deserialize($content, 'App\Entity\Place', 'xml');
-        }
-
-        return null;
-    }
-
     protected function findByIdentifier($value, $type = 'tgn', $fetchEntity = false)
     {
         $xql = $this->renderView('Place/lookup-by-identifier-json.xql.twig', [
@@ -152,13 +151,13 @@ EOXQL;
             $id = array_key_exists('id', $info['data'])
                 ? $info['data']['id'] : $info['data'][0]['id'];
 
-            return $this->fetchById($client, $id);
+            return $this->fetchEntity($client, $id);
         }
 
         return $info;
     }
 
-    protected function lookupContainedInPlace ($client, $place)
+    protected function lookupContainedInPlace ($client, $place, $lodService)
     {
         $containedInPlace = $place->getContainedInPlace();
 
@@ -167,9 +166,10 @@ EOXQL;
             $containedInPlace = null;
             $info = $this->findByIdentifier($tgn, 'tgn');
             if (is_null($info)) {
-                $containedInPlace = \App\Utils\GeographicalDataTgn::lookupPlaceByTgn($tgn);
+                $identifier = new \App\Utils\Lod\Identifier\TgnIdentifier($tgn);
+                $containedInPlace = $lodService->lookup($identifier);
                 if (!is_null($containedInPlace)) {
-                    $this->lookupContainedInPlace($client, $containedInPlace);
+                    $this->lookupContainedInPlace($client, $containedInPlace, $lodService);
                     $this->persist($client, $containedInPlace);
                 }
             }
@@ -215,12 +215,16 @@ EOXQL;
 
                 switch ($data['type']) {
                     case 'tgn':
-                        $client = $this->getExistDbClient($this->subCollection);
-                        $place = \App\Utils\GeographicalDataTgn::lookupPlaceByTgn($data['identifier']);
+                        $identifier = new \App\Utils\Lod\Identifier\TgnIdentifier($data['identifier']);
 
-                        if (!is_null($place)) {
+                        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\GettyVocabulariesProvider());
+                        $entity = $lodService->lookup($identifier);
+
+                        if (!is_null($entity) && $entity instanceof \App\Entity\Place) {
+                            $client = $this->getExistDbClient($this->subCollection);
+
                             // fetch / store all the parents
-                            $this->lookupContainedInPlace($client, $place);
+                            $this->lookupContainedInPlace($client, $entity, $lodService);
 
                             /* currently no review since we can't handle containedInPlace in Form
                             // display for review
@@ -241,16 +245,11 @@ EOXQL;
                                 'entity' => $place,
                             ]);
                             */
-                            $place = $this->persist($client, $place);
+
+                            $entity = $this->persist($client, $entity);
                             return $this->redirect($this->generateUrl('place-detail', [
-                                'id' => $place->getId(),
+                                'id' => $entity->getId(),
                             ]));
-                        }
-                        else {
-                            $request->getSession()
-                                    ->getFlashBag()
-                                    ->add('warning', 'No info found for TGN: ' . $data['identifier'])
-                                ;
                         }
                         break;
 
@@ -280,21 +279,21 @@ EOXQL;
 
         $client = $this->getExistDbClient($this->subCollection);
 
-        $place = null;
+        $entity = null;
 
         if (!is_null($id)) {
-            $place = $this->fetchById($client, $id);
+            $entity = $this->fetchEntity($client, $id);
         }
 
-        if (is_null($place)) {
+        if (is_null($entity)) {
             if (is_null($id)) {
                 // add new
-                $place = new \App\Entity\Place();
+                $entity = new \App\Entity\Place();
             }
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'No item found for id: ' . $id)
+                        ->add('warning', 'No entry found for id: ' . $id)
                     ;
 
                 return $this->redirect($this->generateUrl('place-list'));
@@ -302,11 +301,11 @@ EOXQL;
         }
 
         $form = $this->get('form.factory')->create(\App\Form\Type\PlaceType::class,
-                                                   $place);
+                                                   $entity);
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
-                $res = $this->persist($client, $place, $update);
+                $res = $this->persist($client, $entity, $update);
                 if (!$res) {
                     $request->getSession()
                             ->getFlashBag()
@@ -316,7 +315,7 @@ EOXQL;
                 else {
                     $request->getSession()
                             ->getFlashBag()
-                            ->add('in', 'Entry ' . ($update ? ' updated' : ' created'));
+                            ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
                         ;
                 }
 
@@ -326,8 +325,88 @@ EOXQL;
 
         return $this->render('Place/edit.html.twig', [
             'form' => $form->createView(),
-            'entity' => $place,
+            'entity' => $entity,
         ]);
+    }
+
+    /**
+     * @Route("/place/{id}/lookup-identifier", name="place-lookup-identifier", requirements={"id" = "place\-\d+"})
+     */
+    public function enhanceAction(Request $request, $id)
+    {
+        $client = $this->getExistDbClient($this->subCollection);
+
+        $entity = $this->fetchEntity($client, $id);
+
+        if (is_null($entity)) {
+            $request->getSession()
+                    ->getFlashBag()
+                    ->add('warning', 'No entry found for id: ' . $id)
+                ;
+
+            return $this->redirect($this->generateUrl('person-list'));
+        }
+
+        if (!$entity->hasIdentifiers()) {
+            $request->getSession()
+                    ->getFlashBag()
+                    ->add('warning', 'Entry has no identifier')
+                ;
+
+            return $this->redirect($this->generateUrl('place-detail', [ 'id' => $id ]));
+        }
+
+        $update = false;
+
+        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
+        foreach ($entity->getIdentifiers() as $name => $value) {
+            $identifier = \App\Utils\Lod\Identifier\Factory::byName($name);
+            if (!is_null($identifier) && !empty($value)) {
+                $identifier->setValue($value);
+
+                $sameAs = $lodService->lookupSameAs($identifier);
+                if (!empty($sameAs)) {
+                    foreach ($sameAs as $identifier) {
+                        $name = $identifier->getName();
+                        $current = $entity->getIdentifier($name);
+                        if (empty($current)) {
+                            $update = true;
+                            $entity->setIdentifier($name, $identifier->getValue());
+                        }
+                    }
+
+                    // one successful call gets all the others
+                    break;
+                }
+            }
+        }
+
+        if ($update) {
+            $serializer = $this->getSerializer();
+            $content = $serializer->serialize($entity, 'xml');
+            $name = $id . '.xml';
+            $res = $client->parse($content, $name, $update);
+            if (!$res) {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                    ;
+            }
+            else {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'The entry has been updated.');
+                    ;
+            }
+        }
+        else {
+            $request->getSession()
+                    ->getFlashBag()
+                    ->add('info', 'No additional information could be found.');
+                ;
+        }
+
+        return $this->redirect($this->generateUrl('place-detail', [ 'id' => $id ]));
     }
 
     /**

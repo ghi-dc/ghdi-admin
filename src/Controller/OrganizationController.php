@@ -41,6 +41,19 @@ extends BaseController
         ]);
     }
 
+    protected function fetchEntity($client, $id)
+    {
+        if ($client->hasDocument($name = $id . '.xml')) {
+            $content = $client->getDocument($name);
+
+            $serializer = $this->getSerializer();
+
+            return $serializer->deserialize($content, 'App\Entity\Organization', 'xml');
+        }
+
+        return null;
+    }
+
     /**
      * @Route("/organization/{id}", name="organization-detail", requirements={"id" = "organization\-\d+"})
      */
@@ -48,30 +61,17 @@ extends BaseController
     {
         $client = $this->getExistDbClient($this->subCollection);
 
-        $xql = $this->renderView('Organization/detail-json.xql.twig', [
-        ]);
-
-        $query = $client->prepareQuery($xql);
-        $query->setJSONReturnType();
-        $query->bindVariable('collection', $client->getCollection());
-        $query->bindVariable('id', $id);
-        $res = $query->execute();
-        $organization = $res->getNextResult();
-        $res->release();
-        if (is_null($organization)) {
+        $entity = $this->fetchEntity($client, $id);
+        if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No item found for id: ' . $id)
+                    ->add('warning', 'No entry found for id: ' . $id)
                 ;
 
             return $this->redirect($this->generateUrl('organization-list'));
         }
 
-        $serializer = $this->getSerializer();
-        $entity = $serializer->deserialize(json_encode($organization['data'], true), 'App\Entity\Organization', 'json');
-
         return $this->render('Organization/detail.html.twig', [
-            'organization' => $organization,
             'entity' => $entity,
         ]);
     }
@@ -126,6 +126,8 @@ EOXQL;
     {
         $types = [
             'gnd' => 'GND',
+            'lcauth' => 'LoC authority ID',
+            'viaf' => 'VIAF',
             'wikidata' => 'Wikidata QID',
         ];
 
@@ -179,23 +181,26 @@ EOXQL;
 
             switch ($data['type']) {
                 case 'wikidata':
+                case 'viaf':
+                case 'lcauth':
                     $found = false;
+                    $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
+                    $identifier = \App\Utils\Lod\Identifier\Factory::byName($data['type']);
+                    if (!is_null($identifier)) {
+                        $identifier->setValue($data['identifier']);
 
-                    $qid = $data['identifier'];
-
-                    $corporateBody = new \App\Utils\CorporateBodyData();
-
-                    try {
-                        $gnds = $corporateBody->lookupGndByQid($data['identifier']);
-                        if (1 == count($gnds)) {
-                            $found = true;
-
-                            $data['identifier'] = $gnds[0];
-                            $data['type'] = 'gnd';
+                        $sameAs = $lodService->lookupSameAs($identifier);
+                        if (!empty($sameAs)) {
+                            foreach ($sameAs as $identifier) {
+                                // hunt for a gnd
+                                if ('gnd' == $identifier->getName()) {
+                                    $data['type'] = 'gnd';
+                                    $data['identifier'] = $identifier->getValue();
+                                    $found = true;
+                                    break;
+                                }
+                            }
                         }
-                    }
-                    catch (\Exception $e) {
-                        ; // ignore
                     }
 
                     if (!$found) {
@@ -209,10 +214,13 @@ EOXQL;
                     // fallthrough
 
                 case 'gnd':
-                    // TODO: look if there is already an entry
-                    $organization = \App\Utils\CorporateBodyData::lookupOrganizationByGnd($data['identifier']);
+                    $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($data['identifier']);
 
-                    if (!is_null($organization)) {
+                    $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\DnbProvider());
+                    // TODO: look if there is already an entry
+                    $entity = $lodService->lookup($identifier);
+
+                    if (!is_null($entity)  && $entity instanceof \App\Entity\Organization) {
                         // display for review
                         $request->getSession()
                                 ->getFlashBag()
@@ -220,7 +228,7 @@ EOXQL;
                             ;
 
                         $form = $this->get('form.factory')
-                                ->create(\App\Form\Type\OrganizationType::class, $organization, [
+                                ->create(\App\Form\Type\OrganizationType::class, $entity, [
                                     'action' => $this->generateUrl('organization-add'),
                                 ])
                                 ;
@@ -228,13 +236,13 @@ EOXQL;
 
                         return $this->render('Organization/edit.html.twig', [
                             'form' => $form->createView(),
-                            'entity' => $organization,
+                            'entity' => $entity,
                         ]);
                     }
                     else {
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('warning', 'No info found for GND: ' . $data['identifier'])
+                                ->add('warning', 'No organization found for GND: ' . $data['identifier'])
                             ;
                     }
                     break;
@@ -263,22 +271,17 @@ EOXQL;
 
         $client = $this->getExistDbClient($this->subCollection);
 
-        $organization = null;
-        $serializer = $this->getSerializer();
-        if ($client->hasDocument($name = $id . '.xml')) {
-            $content = $client->getDocument($name);
-            $organization = $serializer->deserialize($content, 'App\Entity\Organization', 'xml');
-        }
+        $entity = $this->fetchEntity($client, $id);
 
-        if (is_null($organization)) {
+        if (is_null($entity)) {
             if (is_null($id)) {
                 // add new
-                $organization = new \App\Entity\Organization();
+                $entity = new \App\Entity\Organization();
             }
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'No item found for id: ' . $id)
+                        ->add('warning', 'No entry found for id: ' . $id)
                     ;
 
                 return $this->redirect($this->generateUrl('organization-list'));
@@ -286,20 +289,21 @@ EOXQL;
         }
 
         $form = $this->get('form.factory')
-                    ->create(\App\Form\Type\OrganizationType::class, $organization)
-                    ;
+                    ->create(\App\Form\Type\OrganizationType::class, $entity)
+                ;
 
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 if (!$update) {
                     $id = $this->nextInSequence($client, $client->getCollection());
-                    $organization->setId($id);
+                    $entity->setId($id);
                 }
 
                 $redirectUrl = $this->generateUrl('organization-detail', [ 'id' => $id ]);
 
-                $content = $serializer->serialize($organization, 'xml');
+                $serializer = $this->getSerializer();
+                $content = $serializer->serialize($entity, 'xml');
                 $name = $id . '.xml';
                 $res = $client->parse($content, $name, $update);
                 if (!$res) {
@@ -315,7 +319,7 @@ EOXQL;
 
                     $request->getSession()
                             ->getFlashBag()
-                            ->add('in', 'Entry ' . ($update ? ' updated' : ' created'));
+                            ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
                         ;
                 }
 
@@ -325,8 +329,88 @@ EOXQL;
 
         return $this->render('Organization/edit.html.twig', [
             'form' => $form->createView(),
-            'entity' => $organization,
+            'entity' => $entity,
         ]);
+    }
+
+    /**
+     * @Route("/organization/{id}/lookup-identifier", name="organization-lookup-identifier", requirements={"id" = "organization\-\d+"})
+     */
+    public function enhanceAction(Request $request, $id)
+    {
+        $client = $this->getExistDbClient($this->subCollection);
+
+        $entity = $this->fetchEntity($client, $id);
+
+        if (is_null($entity)) {
+            $request->getSession()
+                    ->getFlashBag()
+                    ->add('warning', 'No entry found for id: ' . $id)
+                ;
+
+            return $this->redirect($this->generateUrl('organization-list'));
+        }
+
+        if (!$entity->hasIdentifiers()) {
+            $request->getSession()
+                    ->getFlashBag()
+                    ->add('warning', 'Entry has no identifier')
+                ;
+
+            return $this->redirect($this->generateUrl('organization-detail', [ 'id' => $id ]));
+        }
+
+        $update = false;
+
+        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
+        foreach ($entity->getIdentifiers() as $name => $value) {
+            $identifier = \App\Utils\Lod\Identifier\Factory::byName($name);
+            if (!is_null($identifier) && !empty($value)) {
+                $identifier->setValue($value);
+
+                $sameAs = $lodService->lookupSameAs($identifier);
+                if (!empty($sameAs)) {
+                    foreach ($sameAs as $identifier) {
+                        $name = $identifier->getName();
+                        $current = $entity->getIdentifier($name);
+                        if (empty($current)) {
+                            $update = true;
+                            $entity->setIdentifier($name, $identifier->getValue());
+                        }
+                    }
+
+                    // one successful call gets all the others
+                    break;
+                }
+            }
+        }
+
+        if ($update) {
+            $serializer = $this->getSerializer();
+            $content = $serializer->serialize($entity, 'xml');
+            $name = $id . '.xml';
+            $res = $client->parse($content, $name, $update);
+            if (!$res) {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                    ;
+            }
+            else {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'The entry has been updated.');
+                    ;
+            }
+        }
+        else {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'No additional information could be found.');
+                    ;
+        }
+
+        return $this->redirect($this->generateUrl('organization-detail', [ 'id' => $id ]));
     }
 
     /**

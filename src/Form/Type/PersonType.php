@@ -71,7 +71,7 @@ extends AbstractType
             ])
             ->add(
                 $builder
-                ->create('group', FormType::class, [
+                ->create('group-identifiers', FormType::class, [
                     'label' => 'Identifiers',
                     'inherit_data' => true,
                 ])
@@ -83,8 +83,8 @@ extends AbstractType
                     'label' => 'Wikidata',
                     'required' => false,
                 ])
-                ->add('lccn', TextType::class, [
-                    'label' => 'LoC Call Number',
+                ->add('lcauth', TextType::class, [
+                    'label' => 'LoC authority ID',
                     'required' => false,
                 ])
                 ->add('viaf', TextType::class, [

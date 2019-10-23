@@ -137,54 +137,6 @@ abstract class SchemaOrg
     }
 
     /**
-     * Sets dissolutionDate.
-     *
-     * @param string $dissolutionDate
-     *
-     * @return $this
-     */
-    public function setDissolutionDate($dissolutionDate = null)
-    {
-        $this->dissolutionDate = self::formatDateIncomplete($dissolutionDate);
-
-        return $this;
-    }
-
-    /**
-     * Gets dissolutionDate.
-     *
-     * @return string
-     */
-    public function getDissolutionDate()
-    {
-        return $this->dissolutionDate;
-    }
-
-    /**
-     * Sets foundingDate.
-     *
-     * @param string $foundingDate
-     *
-     * @return $this
-     */
-    public function setFoundingDate($foundingDate = null)
-    {
-        $this->foundingDate = self::formatDateIncomplete($foundingDate);
-
-        return $this;
-    }
-
-    /**
-     * Gets foundingDate.
-     *
-     * @return string
-     */
-    public function getFoundingDate()
-    {
-        return $this->foundingDate;
-    }
-
-    /**
      * Sets url.
      *
      * @param string $url
@@ -231,27 +183,27 @@ abstract class SchemaOrg
     }
 
     /**
-     * Sets lccn.
+     * Sets lcauth.
      *
-     * @param string $lccn
+     * @param string $lcauth
      *
      * @return $this
      */
-    public function setLccn($lccn)
+    public function setLcauth($lcauth)
     {
-        return $this->setIdentifier('lccn', $lccn);
+        return $this->setIdentifier('lcauth', $lcauth);
 
         return $this;
     }
 
     /**
-     * Gets lccn.
+     * Gets lcauth.
      *
      * @return string
      */
-    public function getLccn()
+    public function getLcauth()
     {
-        return $this->getIdentifier('lccn');
+        return $this->getIdentifier('lcauth');
     }
 
     /**
@@ -332,6 +284,11 @@ abstract class SchemaOrg
         return !empty($this->identifiers);
     }
 
+    public function getIdentifiers()
+    {
+        return $this->identifiers;
+    }
+
     /**
      * Sets name localized name.
      *
@@ -350,15 +307,17 @@ abstract class SchemaOrg
     /**
      * Gets localized name.
      *
-     *
      * @param string $lang
+     *
      * @return string
      */
-    public function getLocalizedName($lang)
+    public function getLocalizedName($lang, $fallback = null)
     {
         return array_key_exists($lang, $this->name)
             ? $this->name[$lang]
-            : null;
+            : (!empty($fallback) && $fallback !== $lang
+                ? $this->getLocalizedName($fallback)
+                : null);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2019-10-04T15:05:38Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-10-08T21:33:11Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -181,6 +181,30 @@
       <trans-unit id="b65d488df521c7b8c8366540d5034045166eb6c8" resname="resource-upload-child">
         <source>/resource/{volume}/{id}/upload</source>
         <target>/resource/{volume}/{id}/upload</target>
+      </trans-unit>
+      <trans-unit id="83d6bcfdbc4190dff5756dc549da3ead7c0749c4" resname="term-add">
+        <source>/term/add</source>
+        <target>/term/add</target>
+      </trans-unit>
+      <trans-unit id="389398249da195b5ec43ce0f1d68303d4894178d" resname="term-add-from-identifier">
+        <source>/term/add-from-identifier</source>
+        <target>/term/add-from-identifier</target>
+      </trans-unit>
+      <trans-unit id="ccae8cb53f2e651fe229a1f4277e08142ec27d49" resname="term-detail">
+        <source>/term/{id}</source>
+        <target>/term/{id}</target>
+      </trans-unit>
+      <trans-unit id="4fc0aed0e40a4e276a710859c38d3b84631a8f06" resname="term-edit">
+        <source>/term/{id}/edit</source>
+        <target>/term/{id}/edit</target>
+      </trans-unit>
+      <trans-unit id="07b0c9d359345964bdd6d0b5bc41e4a059617fe4" resname="term-list">
+        <source>/term</source>
+        <target>/term</target>
+      </trans-unit>
+      <trans-unit id="311541dd1cfb5599154f180217b8c8152d58492d" resname="term-test">
+        <source>/term/test</source>
+        <target>/term/test</target>
       </trans-unit>
       <trans-unit id="bb73aaafa1596e5425dc514a361ad4ef658f2758" resname="upload">
         <source>/upload</source>

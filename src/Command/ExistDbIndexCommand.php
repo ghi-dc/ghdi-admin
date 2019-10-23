@@ -21,7 +21,7 @@ extends ExistDbCommand
             ->addArgument(
                 'collection',
                 InputArgument::REQUIRED,
-                'What collection (volumes|persons|organization|places) do you want to index'
+                'What collection (volumes|persons|organization|places|terms) do you want to index'
             )
             ->setDescription('Import collection.xconf and re-index')
             ;
@@ -48,6 +48,7 @@ extends ExistDbCommand
             case 'persons':
             case 'organizations':
             case 'places':
+            case 'terms':
                 $filenameFull = $this->getContainer()->get('kernel')->getProjectDir()
                     . '/data/authority/' . $collection . '/collection.xconf';
                 $subCollection = $existDbBase . '/data/authority/' . $collection;
