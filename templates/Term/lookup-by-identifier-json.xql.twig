@@ -13,7 +13,7 @@ declare option output:media-type "text/javascript";
 
 <json:value>
 {
-for $identifier in collection($collection)/Term/identifier[@propertyID=$type and node() = $value] (: 0 or 1 :)
+for $identifier in collection($collection)/CategoryCode/identifier[@propertyID=$type and node() = $value] (: 0 or 1 :)
     let $term := $identifier/..
     return <data id="{ $term/@id }" gnd="{ $term/identifier[@propertyID='gnd'] }" lcauth="{ $term/identifier[@propertyID='lcauth'] }" />
 }
