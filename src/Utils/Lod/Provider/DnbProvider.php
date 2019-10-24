@@ -30,7 +30,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
     public function lookup(Identifier $identifier)
     {
         if (!($identifier instanceof GndIdentifier)) {
-            throw InvalidArgumentException('Expecting a GndIdentifier');
+            throw new \InvalidArgumentException('Expecting a GndIdentifier');
         }
 
         return $this->buildEntityFromUri($identifier->toUri());
@@ -57,6 +57,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
                 break;
 
             case 'https://d-nb.info/standards/elementset/gnd#Company':
+            case 'https://d-nb.info/standards/elementset/gnd#CorporateBody':
                 return $this->instantiateOrganizationFromResource($resource);
                 break;
 
@@ -70,59 +71,6 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
 
             default:
                 throw new \Exception('No handler for rdf:type ' . $type);
-        }
-    }
-
-    protected function setEntityFromResource($entity, $resource, $map)
-    {
-        foreach ($map as $key => $property) {
-            $value = $resource->get($key);
-
-            if (!is_null($value)) {
-                $method = 'set' . ucfirst($property);
-
-                if (method_exists($entity, $method)) {
-                    $entity->$method(self::normalizeString((string)$value));
-                }
-            }
-        }
-    }
-
-    protected function setEntityValues($entity, $valueMap)
-    {
-        foreach ($valueMap as $property => $value) {
-            $method = 'set' . ucfirst($property);
-
-            if (method_exists($entity, $method)) {
-                $entity->$method($value);
-            }
-        }
-    }
-
-    protected function setDisambiguatingDescription($entity, $resource, $key = 'gndo:biographicalOrHistoricalInformation')
-    {
-        $descriptions = $resource->all($key);
-        if (!empty($descriptions)) {
-            foreach ($descriptions as $description) {
-                $lang = $description->getLang();
-                if (!empty($lang)) {
-                    $entity->setDisambiguatingDescription($lang, self::normalizeString($description->getValue()));
-                }
-            }
-        }
-    }
-
-    protected function processSameAs($entity, $resource)
-    {
-        $resources = $resource->all('owl:sameAs');
-        if (!is_null($resources)) {
-            foreach ($resources as $resource) {
-                $identifier = \App\Utils\Lod\Identifier\Factory::fromUri((string)$resource);
-
-                if (!is_null($identifier) && 'gnd' != $identifier->getName()) {
-                    $entity->setIdentifier($identifier->getName(), $identifier->getValue());
-                }
-            }
         }
     }
 
@@ -178,7 +126,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
             }
         }
 
-        $this->setDisambiguatingDescription($entity, $resource);
+        $this->setDisambiguatingDescription($entity, $resource, 'gndo:biographicalOrHistoricalInformation');
 
         $this->processSameAs($entity, $resource);
 
@@ -217,7 +165,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
             }
         }
 
-        $this->setDisambiguatingDescription($entity, $resource);
+        $this->setDisambiguatingDescription($entity, $resource, 'gndo:biographicalOrHistoricalInformation');
 
         $this->processSameAs($entity, $resource);
 
@@ -233,7 +181,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
             'gndo:preferredNameForThePlaceOrGeographicName' => 'name',
         ]);
 
-        $this->setDisambiguatingDescription($entity, $resource);
+        $this->setDisambiguatingDescription($entity, $resource, 'gndo:biographicalOrHistoricalInformation');
 
         $this->processSameAs($entity, $resource);
 

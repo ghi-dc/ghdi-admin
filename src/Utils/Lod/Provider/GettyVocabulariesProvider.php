@@ -19,7 +19,7 @@ implements PlaceProvider
             return $this->lookupPlaceEntity($identifier);
         }
 
-        throw InvalidArgumentException('Expecting a TgnIdentifier');
+        throw new \InvalidArgumentException('Expecting a TgnIdentifier');
     }
 
     protected function lookupPlaceEntity($identifier)

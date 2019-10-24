@@ -185,7 +185,7 @@ EOXQL;
                 case 'lcauth':
                     $found = false;
                     $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
-                    $identifier = \App\Utils\Lod\Identifier\Factory::byName($data['type']);
+                    $identifier = \App\Utils\Lod\Identifier\Factory::byName('lcauth' == $data['type'] ? 'lcnaf' : $data['type']);
                     if (!is_null($identifier)) {
                         $identifier->setValue($data['identifier']);
 
@@ -203,7 +203,7 @@ EOXQL;
                         }
                     }
 
-                    if (!$found) {
+                    if (!$found && $data['type'] != 'lcauth') {
                         $request->getSession()
                                 ->getFlashBag()
                                 ->add('warning', 'Could not find a corresponding GND')
@@ -214,13 +214,18 @@ EOXQL;
                     // fallthrough
 
                 case 'gnd':
-                    $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($data['identifier']);
+                    if ('gnd' == $data['type']) {
+                        $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($data['identifier']);
+                        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\DnbProvider());
+                    }
+                    else {
+                        $identifier = new \App\Utils\Lod\Identifier\LocLdsNamesIdentifier($data['identifier']);
+                        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\LocProvider());
+                    }
 
-                    $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\DnbProvider());
-                    // TODO: look if there is already an entry
                     $entity = $lodService->lookup($identifier);
 
-                    if (!is_null($entity)  && $entity instanceof \App\Entity\Organization) {
+                    if (!is_null($entity) && $entity instanceof \App\Entity\Organization) {
                         // display for review
                         $request->getSession()
                                 ->getFlashBag()
@@ -242,7 +247,7 @@ EOXQL;
                     else {
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('warning', 'No organization found for GND: ' . $data['identifier'])
+                                ->add('warning', 'No organization found for: ' . $data['identifier'])
                             ;
                     }
                     break;
@@ -404,10 +409,10 @@ EOXQL;
             }
         }
         else {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('info', 'No additional information could be found.');
-                    ;
+            $request->getSession()
+                    ->getFlashBag()
+                    ->add('info', 'No additional information could be found.');
+                ;
         }
 
         return $this->redirect($this->generateUrl('organization-detail', [ 'id' => $id ]));

@@ -214,7 +214,6 @@
                     </div>
                 </div>
                 <div class="row box-color-content-inverse">
-                    {% if entity.lcauth is not empty or entity.viaf is not empty or entity.wikidata is not empty%}
                     <div class="col-sm-12 beacon-ul">
                         <ul>
                             {% set lookupIdentifier = false %}
@@ -248,7 +247,6 @@
                             {% endif %}
                         </ul>
                     </div>
-                    {% endif %}
                     {% if entity.gnd is not empty %}
                     <div class="col-sm-12">
                         <div title="{{ entity.gnd }}" class="{{ service_key }} seealso-ul"></div>

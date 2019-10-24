@@ -5,7 +5,8 @@ namespace App\Utils\Lod\Provider;
 use App\Utils\Lod\Identifier\Identifier;
 use App\Utils\Lod\Identifier\GeonamesIdentifier;
 use App\Utils\Lod\Identifier\GndIdentifier;
-use App\Utils\Lod\Identifier\LocLdsAgentsIdentifier;
+use App\Utils\Lod\Identifier\LocLdsNamesIdentifier;
+use App\Utils\Lod\Identifier\LocLdsSubjectsIdentifier;
 use App\Utils\Lod\Identifier\ViafIdentifier;
 use App\Utils\Lod\Identifier\WikidataIdentifier;
 
@@ -32,13 +33,14 @@ extends AbstractProvider
         \App\Utils\Lod\Identifier\Factory::register(GeonamesIdentifier::class);
         \App\Utils\Lod\Identifier\Factory::register(GndIdentifier::class);
         \App\Utils\Lod\Identifier\Factory::register(ViafIdentifier::class);
-        \App\Utils\Lod\Identifier\Factory::register(LocLdsAgentsIdentifier::class);
+        \App\Utils\Lod\Identifier\Factory::register(LocLdsNamesIdentifier::class);
+        \App\Utils\Lod\Identifier\Factory::register(LocLdsSubjectsIdentifier::class);
         \App\Utils\Lod\Identifier\Factory::register(WikidataIdentifier::class);
     }
 
     public function lookup(Identifier $identifier)
     {
-        throw Exception('No implemented yet');
+        throw new \Exception('No implemented yet');
     }
 
     protected function lookupQidByProperty($pid, $value, $sparqlClient = null)
@@ -69,6 +71,10 @@ extends AbstractProvider
             $qid = $identifier->getValue();
         }
         else {
+            if (in_array($name, [ 'lcnaf', 'lcsh' ])) {
+                $name = 'lcauth';
+            }
+
             $propertiesByName = array_flip(self::$WIKIDATA_IDENTIFIERS);
             if (array_key_exists($name, $propertiesByName)) {
                 $pid = $propertiesByName[$name];
@@ -122,33 +128,5 @@ extends AbstractProvider
         }
 
         return $sparqlClient->query($query);
-    }
-
-    protected function processSameAs($entity, $resource)
-    {
-        $resources = $resource->all('owl:sameAs');
-        if (!is_null($resources)) {
-            foreach ($resources as $resource) {
-                $identifier = \App\Utils\Lod\Identifier\Factory::fromUri((string)$resource);
-
-                if (!is_null($identifier) && 'gnd' != $identifier->getName()) {
-                    $entity->setIdentifier($identifier->getName(), $identifier->getValue());
-                }
-            }
-        }
-    }
-
-    protected function instantiatePlaceFromResource($resource)
-    {
-        $place = new \App\Entity\Place();
-        $place->setIdentifier('gnd', $resource->get('gndo:gndIdentifier'));
-
-        $this->setEntityFromResource($place, $resource, [
-            'gndo:preferredNameForThePlaceOrGeographicName' => 'name',
-        ]);
-
-        $this->processSameAs($place, $resource);
-
-        return $place;
     }
 }

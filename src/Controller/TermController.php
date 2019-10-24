@@ -166,9 +166,10 @@ EOXQL;
     {
         $types = [
             'gnd' => 'GND',
-            // 'lcauth' => 'LoC authority ID',
+            'lcauth' => 'LoC authority ID',
             'wikidata' => 'Wikidata QID',
         ];
+
         $data = [];
 
         $form = $this->get('form.factory')
@@ -197,42 +198,52 @@ EOXQL;
                     ]));
                 }
 
+                if ('wikidata' == $data['type']) {
+                    // don't query directly but check instead for a sameAs
+                    $found = false;
+                    $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
+                    $identifier = \App\Utils\Lod\Identifier\Factory::byName($data['type']);
+                    if (!is_null($identifier)) {
+                        $identifier->setValue($data['identifier']);
 
-                switch ($data['type']) {
-                    case 'wikidata':
-                        $found = false;
-                        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
-                        $identifier = \App\Utils\Lod\Identifier\Factory::byName($data['type']);
-                        if (!is_null($identifier)) {
-                            $identifier->setValue($data['identifier']);
-
-                            $sameAs = $lodService->lookupSameAs($identifier);
-                            if (!empty($sameAs)) {
-                                foreach ($sameAs as $identifier) {
-                                    // hunt for a gnd
-                                    if ('gnd' == $identifier->getName()) {
-                                        $data['type'] = 'gnd';
-                                        $data['identifier'] = $identifier->getValue();
-                                        $found = true;
-                                        break;
-                                    }
+                        $sameAs = $lodService->lookupSameAs($identifier);
+                        if (!empty($sameAs)) {
+                            foreach ($sameAs as $identifier) {
+                                // hunt for a gnd or lcauth
+                                if (in_array($identifier->getName(), [ 'gnd', 'lcauth' ] )) {
+                                    $data['type'] = $identifier->getName();
+                                    $data['identifier'] = $identifier->getValue();
+                                    $found = true;
+                                    break;
                                 }
                             }
                         }
+                    }
 
-                        if (!$found) {
-                            $request->getSession()
-                                    ->getFlashBag()
-                                    ->add('warning', 'Could not find a corresponding GND')
-                                ;
+                    if (!$found) {
+                        $request->getSession()
+                                ->getFlashBag()
+                                ->add('warning', 'Could not find a corresponding GND or LoC authority ID')
+                            ;
+                    }
+                }
 
-                            break;
-                        }
-                        // fallthrough
+                switch ($data['type']) {
+                    case 'wikidata':
+                        // handled above
+                        break;
+
                     case 'gnd':
-                        $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($data['identifier']);
+                    case 'lcauth':
+                        if ('gnd' == $data['type']) {
+                            $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($data['identifier']);
+                            $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\DnbProvider());
+                        }
+                        else if ('lcauth' == $data['type']) {
+                            $identifier = new \App\Utils\Lod\Identifier\LocLdsSubjectsIdentifier($data['identifier']);
+                            $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\LocProvider());
+                        }
 
-                        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\DnbProvider());
                         $entity = $lodService->lookup($identifier);
 
                         if (!is_null($entity) && $entity instanceof \App\Entity\Term) {
@@ -257,7 +268,7 @@ EOXQL;
                         else {
                             $request->getSession()
                                     ->getFlashBag()
-                                    ->add('warning', 'No term found for GND: ' . $data['identifier'])
+                                    ->add('warning', 'No term found for: ' . $data['identifier'])
                                 ;
                         }
                         break;

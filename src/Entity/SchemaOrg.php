@@ -262,6 +262,10 @@ abstract class SchemaOrg
      */
     public function setIdentifier($name, $value)
     {
+        if (in_array($name, [ 'lcnaf', 'lcsh', 'lcagents' ])) {
+            $name = 'lcauth';
+        }
+
         $this->identifiers[$name] = $value;
 
         return $this;
