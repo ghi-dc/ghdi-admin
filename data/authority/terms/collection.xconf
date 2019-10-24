@@ -1,0 +1,24 @@
+<collection xmlns="http://exist-db.org/collection-config/1.0">
+    <index>
+        <!-- Disable the standard full text index -->
+        <fulltext default="none" attributes="false"/>
+
+        <!-- Range index configuration on the id attribute -->
+        <!-- @xml:id would seem correct, but leads to error in browsing in monex
+        <create qname="@xml:id" type="xs:string"/> -->
+        <create qname="@id" type="xs:string"/>
+
+        <!-- Lucene index configuration -->
+        <lucene>
+            <!-- Use the standard analyzer will ignore stopwords like 'the', 'and' -->
+            <analyzer class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
+
+            <!-- an index boost can be used to give matches in the
+            name a higher score. This means a name match will have higher rank then
+            an match in the definition. -->
+            <text match="//CategoryCode/name" boost="2"/>
+            <text match="//CategoryCode/disambiguatingDescription"/>
+            <text match="//CategoryCode/identifier"/>
+        </lucene>
+    </index>
+</collection>
