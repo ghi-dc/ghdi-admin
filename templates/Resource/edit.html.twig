@@ -21,7 +21,7 @@
         {{ 'Add Resource'|trans }}
         {% else %}
         <a href="{{ path('resource-detail', { 'volume': volume, 'id' : id }) }}">
-            {{ entity.title }}
+            <h1>{{ titleHtml|raw }}</h1>
         </a>
         {% endif %}
     </h2>

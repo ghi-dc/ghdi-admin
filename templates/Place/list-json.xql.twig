@@ -26,6 +26,7 @@ declare option output:media-type "text/javascript";
 for $place in collection($collection)/Place{% if q is not empty %}[ft:query(*, $q)]{% endif %}
     let $name := functx:if-absent($place/name[@lang=$locale], $place/name[empty(@lang) or '_' = @lang])
     order by $name
+    collation "http://www.w3.org/2013/collation/UCA"
     return <data json:array="true" id="{$place/@id}">
         <name>{$name/text()}</name>
         {$place/additionalType}

@@ -26,10 +26,16 @@ declare option output:media-type "text/javascript";
 for $tei in collection($collection)/TEI
     where $tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'] = $id
         and $tei/teiHeader/profileDesc/langUsage/language[@ident=$lang]
+
     let $name := $tei/teiHeader/fileDesc/titleStmt/title[@type="main"]
+
     return <data id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], '{{ prefix }}:', '')}">
         <name>{string($name)}</name>
         <genre>{$tei/teiHeader/profileDesc/textClass/classCode[@scheme='http://germanhistorydocs.org/docs/#genre']/text()}</genre>
+        {
+        for $term in $tei/teiHeader/profileDesc/textClass/classCode[@scheme='http://germanhistorydocs.org/docs/#term']
+           return <term>{$term/text()}</term>
+        }
         <fname>{util:document-name($tei)}</fname>
     </data>
 }

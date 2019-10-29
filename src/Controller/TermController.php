@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use JMS\Serializer\SerializationContext;
+
 /**
  *
  */
@@ -41,17 +43,16 @@ extends BaseController
         ]);
     }
 
-    protected function fetchEntity($client, $id)
+    /**
+     * @Route("/term/autocomplete", methods="GET", name="term-autocomplete")
+     */
+    public function getTermsAutocomplete()
     {
-        if ($client->hasDocument($name = $id . '.xml')) {
-            $content = $client->getDocument($name);
+        $terms = [ 'term-1' => 'Term 1' ];
 
-            $serializer = $this->getSerializer();
-
-            return $serializer->deserialize($content, 'App\Entity\Term', 'xml');
-        }
-
-        return null;
+        return $this->json([
+            'terms' => $terms,
+        ], 200);
     }
 
     /**
@@ -61,7 +62,7 @@ extends BaseController
     {
         $client = $this->getExistDbClient($this->subCollection);
 
-        $entity = $this->fetchEntity($client, $id);
+        $entity = $this->fetchEntity($client, $id, \App\Entity\Term::class);
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
@@ -71,18 +72,20 @@ extends BaseController
             return $this->redirect($this->generateUrl('term-list'));
         }
 
-        $broader = null;
-        /*
-        // TODO
-        $term->getBroader();
+        $broader = $entity->getBroader();
         if (!is_null($broader)) {
-            $broader = $this->findByIdentifier($containedIn->getTgn(), 'tgn', true);
+            if (!empty($broader->getId())) {
+                // fetch since we only store the id and not everything else
+                $broader = $this->fetchEntity($client, $broader->getId(), \App\Entity\Term::class);
+                $entity->setBroader($broader);
+            }
+            else {
+                $entity->setBroader(null);
+            }
         }
-        */
 
         return $this->render('Term/detail.html.twig', [
             'entity' => $entity,
-            'broader' => $broader,
         ]);
     }
 
@@ -119,7 +122,7 @@ EOXQL;
 
         $serializer = $this->getSerializer();
 
-        $content = $serializer->serialize($term, 'xml');
+        $content = $serializer->serialize($term, 'xml', SerializationContext::create()->enableMaxDepthChecks());
 
         $id = $term->getId();
         $name = $id . '.xml';
@@ -127,36 +130,6 @@ EOXQL;
         $res = $client->parse($content, $name, $update);
 
         return $term;
-    }
-
-    protected function findByIdentifier($value, $type = 'gnd', $fetchEntity = false)
-    {
-        $xql = $this->renderView('Term/lookup-by-identifier-json.xql.twig', [
-        ]);
-        $client = $this->getExistDbClient($this->subCollection);
-
-        $query = $client->prepareQuery($xql);
-
-        $query->setJSONReturnType();
-        $query->bindVariable('collection', $client->getCollection());
-        $query->bindVariable('type', $type);
-        $query->bindVariable('value', $value);
-        $res = $query->execute();
-        $info = $res->getNextResult();
-        $res->release();
-
-        if ($fetchEntity) {
-            if (empty($info['data'])) {
-                return null;
-            }
-
-            $id = array_key_exists('id', $info['data'])
-                ? $info['data']['id'] : $info['data'][0]['id'];
-
-            return $this->fetchEntity($client, $id);
-        }
-
-        return $info;
     }
 
     /**
@@ -172,114 +145,111 @@ EOXQL;
 
         $data = [];
 
-        $form = $this->get('form.factory')
-                ->create(\App\Form\Type\EntityIdentifierType::class, $data, [
-                    'types' => $types,
-                ])
-                ;
+        $form = $this->createForm(\App\Form\Type\EntityIdentifierType::class, $data, [
+            'types' => $types,
+        ]);
 
-        if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $data = $form->getData();
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
 
-                $info = $this->findByIdentifier(trim($data['identifier']), $data['type']);
-                if (!empty($info['data'])) {
-                    $id = array_key_exists('id', $info['data'])
-                        ? $info['data']['id'] : $info['data'][0]['id'];
+            $info = $this->findTermByIdentifier(trim($data['identifier']), $data['type']);
+            if (!empty($info['data'])) {
+                $id = array_key_exists('id', $info['data'])
+                    ? $info['data']['id'] : $info['data'][0]['id'];
 
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('info', 'There is already an entry for this identifier')
-                        ;
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'There is already an entry for this identifier')
+                    ;
 
-                    return $this->redirect($this->generateUrl('term-detail', [
-                        'id' => $id,
-                    ]));
-                }
+                return $this->redirect($this->generateUrl('term-detail', [
+                    'id' => $id,
+                ]));
+            }
 
-                if ('wikidata' == $data['type']) {
-                    // don't query directly but check instead for a sameAs
-                    $found = false;
-                    $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
-                    $identifier = \App\Utils\Lod\Identifier\Factory::byName($data['type']);
-                    if (!is_null($identifier)) {
-                        $identifier->setValue($data['identifier']);
+            if ('wikidata' == $data['type']) {
+                // don't query directly but check instead for a sameAs
+                $found = false;
+                $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
+                $identifier = \App\Utils\Lod\Identifier\Factory::byName($data['type']);
+                if (!is_null($identifier)) {
+                    $identifier->setValue($data['identifier']);
 
-                        $sameAs = $lodService->lookupSameAs($identifier);
-                        if (!empty($sameAs)) {
-                            foreach ($sameAs as $identifier) {
-                                // hunt for a gnd or lcauth
-                                if (in_array($identifier->getName(), [ 'gnd', 'lcauth' ] )) {
-                                    $data['type'] = $identifier->getName();
-                                    $data['identifier'] = $identifier->getValue();
-                                    $found = true;
-                                    break;
-                                }
+                    $sameAs = $lodService->lookupSameAs($identifier);
+                    if (!empty($sameAs)) {
+                        foreach ($sameAs as $identifier) {
+                            // hunt for a gnd or lcauth
+                            if (in_array($identifier->getPrefix(), [ 'gnd', 'lcauth' ] )) {
+                                $data['type'] = $identifier->getPrefix();
+                                $data['identifier'] = $identifier->getValue();
+                                $found = true;
+                                break;
                             }
                         }
                     }
+                }
 
-                    if (!$found) {
+                if (!$found) {
+                    $request->getSession()
+                            ->getFlashBag()
+                            ->add('warning', 'Could not find a corresponding GND or LoC authority ID')
+                        ;
+                }
+            }
+
+            switch ($data['type']) {
+                case 'wikidata':
+                    // handled above
+                    break;
+
+                case 'gnd':
+                case 'lcauth':
+                    if ('gnd' == $data['type']) {
+                        $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($data['identifier']);
+                        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\DnbProvider());
+                    }
+                    else if ('lcauth' == $data['type']) {
+                        $identifier = new \App\Utils\Lod\Identifier\LocLdsSubjectsIdentifier($data['identifier']);
+                        $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\LocProvider());
+                    }
+
+                    $entity = $lodService->lookup($identifier);
+
+                    if (!is_null($entity) && $entity instanceof \App\Entity\Term) {
+                        // display for review
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('warning', 'Could not find a corresponding GND or LoC authority ID')
+                                ->add('info', 'Please review and enhance before pressing [Save]')
+                            ;
+
+                        $termChoices = $this->buildTermChoices($request->getLocale(), $entity);
+                        $form = $this->createForm(\App\Form\Type\TermType::class, $entity, [
+                            'action' => $this->generateUrl('term-add'),
+                            'choices' => [
+                                'terms' => array_flip($termChoices),
+                            ],
+                        ]);
+
+                        return $this->render('Term/edit.html.twig', [
+                            'form' => $form->createView(),
+                            'entity' => $entity,
+                        ]);
+                    }
+                    else {
+                        $request->getSession()
+                                ->getFlashBag()
+                                ->add('warning', 'No term found for: ' . $data['identifier'])
                             ;
                     }
-                }
+                    break;
 
-                switch ($data['type']) {
-                    case 'wikidata':
-                        // handled above
-                        break;
+                default:
+                    $request->getSession()
+                            ->getFlashBag()
+                            ->add('warning', 'Not handling type: ' . $data['type'])
+                        ;
 
-                    case 'gnd':
-                    case 'lcauth':
-                        if ('gnd' == $data['type']) {
-                            $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($data['identifier']);
-                            $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\DnbProvider());
-                        }
-                        else if ('lcauth' == $data['type']) {
-                            $identifier = new \App\Utils\Lod\Identifier\LocLdsSubjectsIdentifier($data['identifier']);
-                            $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\LocProvider());
-                        }
-
-                        $entity = $lodService->lookup($identifier);
-
-                        if (!is_null($entity) && $entity instanceof \App\Entity\Term) {
-                            // display for review
-                            $request->getSession()
-                                    ->getFlashBag()
-                                    ->add('info', 'Please review and enhance before pressing [Save]')
-                                ;
-
-                            $form = $this->get('form.factory')
-                                    ->create(\App\Form\Type\TermType::class, $entity, [
-                                        'action' => $this->generateUrl('term-add'),
-                                    ])
-                                    ;
-
-
-                            return $this->render('Term/edit.html.twig', [
-                                'form' => $form->createView(),
-                                'entity' => $entity,
-                            ]);
-                        }
-                        else {
-                            $request->getSession()
-                                    ->getFlashBag()
-                                    ->add('warning', 'No term found for: ' . $data['identifier'])
-                                ;
-                        }
-                        break;
-
-                    default:
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add('warning', 'Not handling type: ' . $data['type'])
-                            ;
-
-                }
             }
         }
 
@@ -287,6 +257,32 @@ EOXQL;
             'form' => $form->createView(),
             'data' => $data,
         ]);
+    }
+
+    protected function buildTermChoices($locale, $entity = null)
+    {
+        $client = $this->getExistDbClient($this->authorityPaths['terms']);
+
+        $xql = $this->renderView('Term/list-choices-json.xql.twig', [
+        ]);
+
+        $query = $client->prepareQuery($xql);
+        $query->setJSONReturnType();
+        $query->bindVariable('collection', $client->getCollection());
+        $query->bindVariable('locale', $locale);
+        $query->bindVariable('q', '');
+        $res = $query->execute();
+        $terms = $res->getNextResult();
+        $res->release();
+
+        $choices = [];
+
+        foreach ($terms['data'] as $term) {
+            $name = $term['name'];
+            $choices[$term['id']] = $name;
+        }
+
+        return $choices;
     }
 
     /**
@@ -302,7 +298,7 @@ EOXQL;
         $entity = null;
 
         if (!is_null($id)) {
-            $entity = $this->fetchEntity($client, $id);
+            $entity = $this->fetchEntity($client, $id, \App\Entity\Term::class);
         }
 
         if (is_null($entity)) {
@@ -320,31 +316,34 @@ EOXQL;
             }
         }
 
-        $form = $this->get('form.factory')->create(\App\Form\Type\TermType::class,
-                                                   $entity);
-        if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $res = $this->persist($client, $entity, $update);
-                if (!$res) {
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('warning', 'An issue occured while storing id: ' . $id)
-                        ;
-                }
-                else {
-                    if (is_null($id)) {
-                        $id = $res->getId();
-                    }
+        $termChoices = $this->buildTermChoices($request->getLocale(), $entity);
+        $form = $this->createForm(\App\Form\Type\TermType::class, $entity, [
+            'choices' => [
+                'terms' => array_flip($termChoices),
+            ],
+        ]);
 
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
-                        ;
-                }
-
-                return $this->redirect($this->generateUrl('term-detail', [ 'id' => $id ]));
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $res = $this->persist($client, $entity, $update);
+            if (!$res) {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                    ;
             }
+            else {
+                if (is_null($id)) {
+                    $id = $res->getId();
+                }
+
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
+                    ;
+            }
+
+            return $this->redirect($this->generateUrl('term-detail', [ 'id' => $id ]));
         }
 
         return $this->render('Term/edit.html.twig', [
@@ -360,7 +359,7 @@ EOXQL;
     {
         $client = $this->getExistDbClient($this->subCollection);
 
-        $entity = $this->fetchEntity($client, $id);
+        $entity = $this->fetchEntity($client, $id, \App\Entity\Term::class);
 
         if (is_null($entity)) {
             $request->getSession()
@@ -391,7 +390,7 @@ EOXQL;
                 $sameAs = $lodService->lookupSameAs($identifier);
                 if (!empty($sameAs)) {
                     foreach ($sameAs as $identifier) {
-                        $name = $identifier->getName();
+                        $name = $identifier->getPrefix();
                         $current = $entity->getIdentifier($name);
                         if (empty($current)) {
                             $update = true;
@@ -440,17 +439,28 @@ EOXQL;
     {
         $term = new \App\Entity\Term();
 
-        $term->setId('term-1');
-        $term->setName('Eugenik');
-        $term->setIdentifier('gnd', '4015656-4');
-        // $term->setBroader($province);
+        $term->setId('term-99');
+        $term->setName('Rassehygiene');
+        $term->setIdentifier('gnd', '4176978-8');
+
+        $broader = new \App\Entity\Term();
+        $broader->setId('term-1');
+        $broader->setName('Eugenik');
+        $broader->setIdentifier('gnd', '4015656-4');
+        $term->setBroader($broader);
+
+        /* test depth */
+        $evenBroader = new \App\Entity\Term();
+        $evenBroader->setId('term-100');
+        $evenBroader->setName('Medizin');
+        $broader->setBroader($evenBroader);
 
         $serializer = $this->getSerializer();
 
         $content = $serializer->serialize($term, 'json');
         var_dump($content);
 
-        $content = $serializer->serialize($term, 'xml');
+        $content = $serializer->serialize($term, 'xml', SerializationContext::create()->enableMaxDepthChecks());
         var_dump($content);
 
         $term = $serializer->deserialize($content, 'App\Entity\Term', 'xml');

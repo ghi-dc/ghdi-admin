@@ -274,7 +274,7 @@ implements \JsonSerializable
     public function clearClassCodes($scheme)
     {
         if (array_key_exists($scheme, $this->classCodes)) {
-            unset($this->classCodes);
+            unset($this->classCodes[$scheme]);
         }
 
         return $this;

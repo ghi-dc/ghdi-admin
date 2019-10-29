@@ -6,6 +6,7 @@ class AbstractIdentifier
 implements Identifier
 {
     protected $name;
+    protected $prefix = null;
     protected $value;
 
     public function __construct($value = null)
@@ -23,6 +24,18 @@ implements Identifier
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * We want different names like lcsh, lccn map to the same prefix lcauth
+     */
+    public function getPrefix()
+    {
+        if (empty($this->prefix)) {
+            return $this->getName();
+        }
+
+        return $this->prefix;
     }
 
     public function getValue()

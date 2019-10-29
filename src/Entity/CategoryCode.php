@@ -20,7 +20,7 @@ extends SchemaOrg
 {
     /**
      * A CategoryCodeSet that contains this category code.
-     * 
+     *
      * @Serializer\XmlElement(cdata=false)
      * @Serializer\Type("string")
      */
@@ -34,29 +34,5 @@ extends SchemaOrg
     public function getCodeSet()
     {
         return $this->codeSet;
-    }
-
-    /**
-     * Sets Getty Thesaurus of Geographic Names Identifier.
-     *
-     * @param string $tgn
-     *
-     * @return $this
-     */
-    public function setTgn($tgn)
-    {
-        return $this->setIdentifier('tgn', $tgn);
-
-        return $this;
-    }
-
-    /**
-     * Gets Getty Thesaurus of Geographic Names.
-     *
-     * @return string
-     */
-    public function getTgn()
-    {
-        return $this->getIdentifier('tgn');
     }
 }

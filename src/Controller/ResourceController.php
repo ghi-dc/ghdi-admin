@@ -86,6 +86,44 @@ EOXQL;
         return true;
     }
 
+    protected function reorderChildResources($client, $volume, $lang, $hasPart, $postData)
+    {
+        $order = json_decode($postData, true);
+
+        $updated = false;
+        if (false !== $order) {
+            $newOrder = [];
+            $count = 0;
+            foreach ($order as $childId) {
+                $newOrder[$childId] = ++$count;
+            }
+
+            foreach ($hasPart as $child) {
+                $childId = $child['id'];
+                if (array_key_exists($childId, $newOrder)) {
+                    $parts = explode('/', $child['shelfmark']);
+                    list($order, $ignore) = explode(':', end($parts), 2);
+                    if ($order != $newOrder) {
+                        $newOrderAndId = sprintf('%03d:%s',
+                                                 $newOrder[$childId], $childId);
+                        $parts[count($parts) - 1] = $newOrderAndId;
+                        $newShelfmark = implode('/', $parts);
+
+                        if ($child['shelfmark'] != $newShelfmark) {
+                            $this->updateDocumentShelfmark($client,
+                                                           $client->getCollection() . '/' . $volume . '/' . $childId . '.' . $lang . '.xml',
+                                                           $newShelfmark);
+
+                            $updated = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $updated;
+    }
+
     /**
      * @Route("/resource/{volume}/{id}.dc.xml", name="resource-detail-dc",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map|)\-\d+"})
@@ -202,7 +240,7 @@ EOXQL;
             $html = $this->teiToHtml($client, $resourcePath, $lang);
         }
 
-        $html = $this->adjustHtml($html);
+        $html = $this->adjustHtml($html, $this->buildBaseUriMedia($volume, $id));
 
         if ('resource-detail-pdf' == $request->get('_route')) {
             $templating = $this->container->get('templating');
@@ -233,53 +271,33 @@ EOXQL;
             $showAddEntities = 0;
         }
 
-        $entityLookup = $this->buildEntityLookup($parts['entities']);
-
         // child resources
         $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
         if (!empty($hasPart) && $request->isMethod('post')) {
             // check for updated order
             $postData = $request->request->get('order');
             if (!empty($postData)) {
-                $order = json_decode($postData, true);
-                if (false !== $order) {
-                    $newOrder = [];
-                    $count = 0;
-                    foreach ($order as $childId) {
-                        $newOrder[$childId] = ++$count;
-                    }
+                $updated = $this->reorderChildResources($client, $volume, $lang, $hasPart, $postData);
+                if ($updated) {
+                    $this->addFlash('info', 'The order has been updated');
 
-                    $updated = false;
-                    foreach ($hasPart as $child) {
-                        $childId = $child['id'];
-                        if (array_key_exists($childId, $newOrder)) {
-                            $parts = explode('/', $child['shelfmark']);
-                            list($order, $ignore) = explode(':', end($parts), 2);
-                            if ($order != $newOrder) {
-                                $newOrderAndId = sprintf('%03d:%s',
-                                                         $newOrder[$childId], $childId);
-                                $parts[count($parts) - 1] = $newOrderAndId;
-                                $newShelfmark = implode('/', $parts);
-
-                                if ($child['shelfmark'] != $newShelfmark) {
-
-                                    $this->updateDocumentShelfmark($client,
-                                                                   $client->getCollection() . '/' . $volume . '/' . $childId . '.' . $lang . '.xml',
-                                                                   $newShelfmark);
-
-                                    $updated = true;
-                                }
-                            }
-                        }
-                    }
-
-                    if ($updated) {
-                        $this->addFlash('info', 'The order has been updated');
-
-                        // fetch again with new order
-                        $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
-                    }
+                    // fetch again with new order
+                    $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
                 }
+            }
+        }
+
+        $entityLookup = $this->buildEntityLookup($parts['entities']);
+
+        $terms = [];
+        $uris = !empty($resource['data']['term'])
+            ? (is_scalar($resource['data']['term']) ? [ $resource['data']['term'] ] : $resource['data']['term'])
+            : [];
+
+        foreach ($uris as $uri) {
+            $term = $this->findTermByUri($uri);
+            if (!is_null($term)) {
+                $terms[] = $term;
             }
         }
 
@@ -291,6 +309,7 @@ EOXQL;
             'webdav_base' => $this->buildWebDavBaseUrl($client),
             'titleHtml' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
             'html' => $html,
+            'terms' => $terms,
             'entity_lookup' => $entityLookup,
             'showAddEntities' => $showAddEntities,
         ]);
@@ -314,6 +333,7 @@ EOXQL;
             $entity->setTitle($article->name);
             $entity->setShelfmark($article->shelfmark);
             $entity->setGenre($article->genre);
+            $entity->setTerms($article->terms);
 
             return $entity;
         }
@@ -417,8 +437,7 @@ EOXQL;
 
     protected function buildTermChoices($locale, $entity = null)
     {
-        // TODO: share '/data/authority/terms' with TermController
-        $client = $this->getExistDbClient('/data/authority/terms');
+        $client = $this->getExistDbClient($this->authorityPaths['terms']);
 
         $xql = $this->renderView('Term/list-choices-json.xql.twig', [
         ]);
@@ -478,6 +497,25 @@ EOXQL;
         return $choices;
     }
 
+    protected function findTermByUri($uri)
+    {
+        static $registered = false;
+
+        if (!$registered) {
+            \App\Utils\Lod\Identifier\Factory::register(\App\Utils\Lod\Identifier\GndIdentifier::class);
+            \App\Utils\Lod\Identifier\Factory::register(\App\Utils\Lod\Identifier\LocLdsSubjectsIdentifier::class);
+            \App\Utils\Lod\Identifier\Factory::register(\App\Utils\Lod\Identifier\WikidataIdentifier::class);
+
+            $registered = true;
+        }
+
+        $identifier = \App\Utils\Lod\Identifier\Factory::fromUri($uri);
+
+        if (!is_null($identifier)) {
+            return $this->findTermByIdentifier($identifier->getValue(), $identifier->getPrefix(), true);
+        }
+    }
+
     /**
      * @Route("/resource/{volume}/{id}/edit", name="resource-edit",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
@@ -491,11 +529,14 @@ EOXQL;
 
         $client = $this->getExistDbClient($this->subCollection);
 
+        $titleHtml = null;
         if (!is_null($id)) {
             $lang = \App\Utils\Iso639::code1To3($request->getLocale());
             $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
 
             $entity = $this->fetchTeiHeader($client, $resourcePath);
+
+            $titleHtml = $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title');
         }
         else {
             $entity = null;
@@ -522,50 +563,48 @@ EOXQL;
             ],
         ]);
 
-        if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                if (!$update) {
-                    $lang = \App\Utils\Iso639::code1To3($request->getLocale());
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (!$update) {
+                $lang = \App\Utils\Iso639::code1To3($request->getLocale());
 
-                    $id = $this->nextInSequence($client, $client->getCollection(), $prefix = 'chapter-');
+                $id = $this->nextInSequence($client, $client->getCollection(), $prefix = 'chapter-');
 
-                    $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
+                $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
 
-                    $entity->setId($this->siteKey . ':' . $id);
-                    $entity->setLanguage($lang);
-                    $entity->setGenre($genre);
+                $entity->setId($this->siteKey . ':' . $id);
+                $entity->setLanguage($lang);
+                $entity->setGenre($genre);
 
-                    $shelfmark = $this->generateShelfmark($client, $volume, $lang, $id);
-                    $entity->setShelfmark($shelfmark);
+                $shelfmark = $this->generateShelfmark($client, $volume, $lang, $id);
+                $entity->setShelfmark($shelfmark);
 
-                    $res = $this->createTeiHeader($entity, $client, $resourcePath);
-                }
-                else {
-                    $res = $this->updateTeiHeader($entity, $client, $resourcePath);
-                }
-
-                $redirectUrl = $this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]);
-
-                if (!$res) {
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('warning', 'An issue occured while storing id: ' . $id)
-                        ;
-                }
-                else {
-                    if ($request->getSession()->has('return-after-save')) {
-                        $redirectUrl = $this->generateUrl($request->getSession()->remove('return-after-save'));
-                    }
-
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
-                        ;
-                }
-
-                return $this->redirect($redirectUrl);
+                $res = $this->createTeiHeader($entity, $client, $resourcePath);
             }
+            else {
+                $res = $this->updateTeiHeader($entity, $client, $resourcePath);
+            }
+
+            $redirectUrl = $this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]);
+
+            if (!$res) {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                    ;
+            }
+            else {
+                if ($request->getSession()->has('return-after-save')) {
+                    $redirectUrl = $this->generateUrl($request->getSession()->remove('return-after-save'));
+                }
+
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
+                    ;
+            }
+
+            return $this->redirect($redirectUrl);
         }
 
         return $this->render('Resource/edit.html.twig', [
@@ -573,6 +612,7 @@ EOXQL;
             'entity' => $entity,
             'volume' => $volume,
             'id' => $id,
+            'titleHtml' => $titleHtml,
         ]);
     }
 
@@ -685,7 +725,6 @@ EOXQL;
                                 ;
                         }
                     }
-
 
                     if (false !== $teiDtabfDoc) {
                         $valid = $teiDtabfDoc->validate($this->get('kernel')->getProjectDir() . '/data/schema/basisformat.rng');

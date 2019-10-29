@@ -125,7 +125,7 @@ trait RenderTeiTrait
         return preg_replace('/([aou]\x{0364})/u', '<span class="combining-e">\1</span>', $html);
     }
 
-    protected function adjustHtml($html, $baseUrl = 'http://germanhistorydocs.ghi-dc.org/images/')
+    protected function adjustHtml($html, $baseUrlMedia)
     {
         // run even if there is nothing to remove since xslt creates
         // self-closing tags like <div/> which are not valid in HTML5
@@ -135,7 +135,7 @@ trait RenderTeiTrait
             // 'div#license',
         ], true);
 
-        $html = $this->adjustMedia($html, $baseUrl);
+        $html = $this->adjustMedia($html, $baseUrlMedia);
 
         // since it doesn't seem to possible to style this with unicode-range
         // set a span around Combining Latin Small Letter E so we can set an alternate font-family

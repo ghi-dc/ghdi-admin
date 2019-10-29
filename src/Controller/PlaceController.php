@@ -41,19 +41,6 @@ extends BaseController
         ]);
     }
 
-    protected function fetchEntity($client, $id)
-    {
-        if ($client->hasDocument($name = $id . '.xml')) {
-            $content = $client->getDocument($name);
-
-            $serializer = $this->getSerializer();
-
-            return $serializer->deserialize($content, 'App\Entity\Place', 'xml');
-        }
-
-        return null;
-    }
-
     /**
      * @Route("/place/{id}", name="place-detail", requirements={"id" = "place\-\d+"})
      */
@@ -61,7 +48,7 @@ extends BaseController
     {
         $client = $this->getExistDbClient($this->subCollection);
 
-        $entity = $this->fetchEntity($client, $id);
+        $entity = $this->fetchEntity($client, $id, \App\Entity\Place::class);
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
@@ -151,7 +138,7 @@ EOXQL;
             $id = array_key_exists('id', $info['data'])
                 ? $info['data']['id'] : $info['data'][0]['id'];
 
-            return $this->fetchEntity($client, $id);
+            return $this->fetchEntity($client, $id, \App\Entity\Place::class);
         }
 
         return $info;
@@ -185,16 +172,13 @@ EOXQL;
             'tgn' => 'Getty TGN',
         ];
         $data = [];
+        $form = $this->createForm(\App\Form\Type\EntityIdentifierType::class, $data, [
+            'types' => $types,
+        ]);
 
-        $form = $this->get('form.factory')
-                ->create(\App\Form\Type\EntityIdentifierType::class, $data, [
-                    'types' => $types,
-                ])
-                ;
-
-        if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
+        $form->handleRequest($request);
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
                 $data = $form->getData();
 
                 $info = $this->findByIdentifier(trim($data['identifier']), $data['type']);
@@ -211,7 +195,6 @@ EOXQL;
                         'id' => $id,
                     ]));
                 }
-
 
                 switch ($data['type']) {
                     case 'tgn':
@@ -233,11 +216,10 @@ EOXQL;
                                     ->add('info', 'Please review and enhance before pressing [Save]')
                                 ;
 
-                            $form = $this->get('form.factory')
-                                    ->create(\App\Form\Type\PlaceType::class, $place, [
-                                        'action' => $this->generateUrl('place-add'),
-                                    ])
-                                    ;
+                            $form = $this->createForm(\App\Form\Type\PlaceType::class, $place, [
+                                'action' => $this->generateUrl('place-add'),
+                            ])
+                            ;
 
 
                             return $this->render('Place/edit.html.twig', [
@@ -282,7 +264,7 @@ EOXQL;
         $entity = null;
 
         if (!is_null($id)) {
-            $entity = $this->fetchEntity($client, $id);
+            $entity = $this->fetchEntity($client, $id, \App\Entity\Place::class);
         }
 
         if (is_null($entity)) {
@@ -300,27 +282,25 @@ EOXQL;
             }
         }
 
-        $form = $this->get('form.factory')->create(\App\Form\Type\PlaceType::class,
-                                                   $entity);
-        if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $res = $this->persist($client, $entity, $update);
-                if (!$res) {
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('warning', 'An issue occured while storing id: ' . $id)
-                        ;
-                }
-                else {
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
-                        ;
-                }
+        $form = $this->createForm(\App\Form\Type\PlaceType::class, $entity);
 
-                return $this->redirect($this->generateUrl('place-detail', [ 'id' => $id ]));
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $res = $this->persist($client, $entity, $update);
+            if (!$res) {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                    ;
             }
+            else {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
+                    ;
+            }
+
+            return $this->redirect($this->generateUrl('place-detail', [ 'id' => $id ]));
         }
 
         return $this->render('Place/edit.html.twig', [
@@ -336,7 +316,7 @@ EOXQL;
     {
         $client = $this->getExistDbClient($this->subCollection);
 
-        $entity = $this->fetchEntity($client, $id);
+        $entity = $this->fetchEntity($client, $id, \App\Entity\Place::class);
 
         if (is_null($entity)) {
             $request->getSession()

@@ -26,6 +26,7 @@ declare option output:media-type "text/javascript";
 for $term in collection($collection)/CategoryCode{% if q is not empty %}[ft:query(*, $q)]{% endif %}
     let $name := functx:if-absent($term/name[@lang=$locale], $term/name[empty(@lang) or '_' = @lang])
     order by $name
+    collation "http://www.w3.org/2013/collation/UCA"
     return <data json:array="true" id="{$term/@id}" gnd="{ $term/identifier[@propertyID='gnd'] }" lcauth="{ $term/identifier[@propertyID='lcauth'] }" wikidata="{ $term/identifier[@propertyID='wikidata'] }">
         <name>{$name/text()}</name>
     </data>

@@ -319,36 +319,34 @@ extends ResourceController
             return $this->redirect($this->generateUrl('volume-list'));
         }
 
-        $form = $this->get('form.factory')->create(\App\Form\Type\TeiHeaderType::class,
-                                                   $entity);
-        if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                if (!$update) {
-                    die('TODO: handle');
-                    $id = $this->nextInSequence($client, $client->getCollection());
-                    $entity->setId($id);
-                    // TODO: createTeiHeader
-                }
-                else {
-                    $res = $this->updateTeiHeader($entity, $client, $resourcePath);
-                }
+        $form = $this->createForm(\App\Form\Type\TeiHeaderType::class, $entity);
 
-                if (!$res) {
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('warning', 'An issue occured while storing id: ' . $id)
-                        ;
-                }
-                else {
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('info', 'Volume ' . ($update ? ' updated' : ' created'));
-                        ;
-                }
-
-                return $this->redirect($this->generateUrl('volume-detail', [ 'id' => $id ]));
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (!$update) {
+                die('TODO: handle');
+                $id = $this->nextInSequence($client, $client->getCollection());
+                $entity->setId($id);
+                // TODO: createTeiHeader
             }
+            else {
+                $res = $this->updateTeiHeader($entity, $client, $resourcePath);
+            }
+
+            if (!$res) {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                    ;
+            }
+            else {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'Volume ' . ($update ? ' updated' : ' created'));
+                    ;
+            }
+
+            return $this->redirect($this->generateUrl('volume-detail', [ 'id' => $id ]));
         }
 
         return $this->render('Volume/edit.html.twig', [

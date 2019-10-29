@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TermType
 extends AbstractType
@@ -36,6 +37,11 @@ extends AbstractType
                     'required' => false,
                 ])
             )
+            ->add('broader', TermSelectType::class, [
+                'label' => 'Broader Term',
+                'required' => false,
+                'choices'  => $options['choices']['terms'],
+            ])
             ->add(
                 $builder
                 ->create('group-descriptions', FormType::class, [
@@ -80,6 +86,13 @@ extends AbstractType
 
         $builder->add('save', SubmitType::class, [
             'label' => 'Save',
+        ]);
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+          'choices' => null,
         ]);
     }
 

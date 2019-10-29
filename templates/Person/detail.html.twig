@@ -8,7 +8,7 @@
 
 {% block body %}
     <h2>
-        {{ entity.fullname(true) }}
+        {{ entity.localizedName(app.request.locale, '_') }}
         <a href="{{ path('person-edit', { 'id' : entity.id }) }}" class="btn btn-default btn-sm">
             <span class="fa fa-edit"></span> {{ 'Edit'|trans }}
         </a>

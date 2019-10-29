@@ -41,19 +41,6 @@ extends BaseController
         ]);
     }
 
-    protected function fetchEntity($client, $id)
-    {
-        if ($client->hasDocument($name = $id . '.xml')) {
-            $content = $client->getDocument($name);
-
-            $serializer = $this->getSerializer();
-
-            return $serializer->deserialize($content, 'App\Entity\Organization', 'xml');
-        }
-
-        return null;
-    }
-
     /**
      * @Route("/organization/{id}", name="organization-detail", requirements={"id" = "organization\-\d+"})
      */
@@ -61,7 +48,7 @@ extends BaseController
     {
         $client = $this->getExistDbClient($this->subCollection);
 
-        $entity = $this->fetchEntity($client, $id);
+        $entity = $this->fetchEntity($client, $id, \App\Entity\Organization::class);
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
@@ -132,15 +119,11 @@ EOXQL;
         ];
 
         $data = [];
-
-        $form = $this->get('form.factory')
-                ->create(\App\Form\Type\EntityIdentifierType::class, $data, [
-                    'types' => $types,
-                ])
-                ;
+        $form = $this->createForm(\App\Form\Type\EntityIdentifierType::class, $data, [
+            'types' => $types,
+        ]);
 
         $form->handleRequest($request);
-        $data = [];
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $data = $form->getData();
@@ -232,12 +215,9 @@ EOXQL;
                                 ->add('info', 'Please review and enhance before pressing [Save]')
                             ;
 
-                        $form = $this->get('form.factory')
-                                ->create(\App\Form\Type\OrganizationType::class, $entity, [
-                                    'action' => $this->generateUrl('organization-add'),
-                                ])
-                                ;
-
+                        $form = $this->createForm(\App\Form\Type\OrganizationType::class, $entity, [
+                            'action' => $this->generateUrl('organization-add'),
+                        ]);
 
                         return $this->render('Organization/edit.html.twig', [
                             'form' => $form->createView(),
@@ -276,7 +256,7 @@ EOXQL;
 
         $client = $this->getExistDbClient($this->subCollection);
 
-        $entity = $this->fetchEntity($client, $id);
+        $entity = $this->fetchEntity($client, $id, \App\Entity\Organization::class);
 
         if (is_null($entity)) {
             if (is_null($id)) {
@@ -293,43 +273,39 @@ EOXQL;
             }
         }
 
-        $form = $this->get('form.factory')
-                    ->create(\App\Form\Type\OrganizationType::class, $entity)
-                ;
+        $form = $this->createForm(\App\Form\Type\OrganizationType::class, $entity);
 
-        if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                if (!$update) {
-                    $id = $this->nextInSequence($client, $client->getCollection());
-                    $entity->setId($id);
-                }
-
-                $redirectUrl = $this->generateUrl('organization-detail', [ 'id' => $id ]);
-
-                $serializer = $this->getSerializer();
-                $content = $serializer->serialize($entity, 'xml');
-                $name = $id . '.xml';
-                $res = $client->parse($content, $name, $update);
-                if (!$res) {
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('warning', 'An issue occured while storing id: ' . $id)
-                        ;
-                }
-                else {
-                    if ($request->getSession()->has('return-after-save')) {
-                        $redirectUrl = $this->generateUrl($request->getSession()->remove('return-after-save'));
-                    }
-
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
-                        ;
-                }
-
-                return $this->redirect($redirectUrl);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (!$update) {
+                $id = $this->nextInSequence($client, $client->getCollection());
+                $entity->setId($id);
             }
+
+            $redirectUrl = $this->generateUrl('organization-detail', [ 'id' => $id ]);
+
+            $serializer = $this->getSerializer();
+            $content = $serializer->serialize($entity, 'xml');
+            $name = $id . '.xml';
+            $res = $client->parse($content, $name, $update);
+            if (!$res) {
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                    ;
+            }
+            else {
+                if ($request->getSession()->has('return-after-save')) {
+                    $redirectUrl = $this->generateUrl($request->getSession()->remove('return-after-save'));
+                }
+
+                $request->getSession()
+                        ->getFlashBag()
+                        ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
+                    ;
+            }
+
+            return $this->redirect($redirectUrl);
         }
 
         return $this->render('Organization/edit.html.twig', [
@@ -345,7 +321,7 @@ EOXQL;
     {
         $client = $this->getExistDbClient($this->subCollection);
 
-        $entity = $this->fetchEntity($client, $id);
+        $entity = $this->fetchEntity($client, $id, \App\Entity\Organization::class);
 
         if (is_null($entity)) {
             $request->getSession()

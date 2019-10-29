@@ -27,7 +27,7 @@
                 <dt>{{ 'Contained in'|trans }}:</dt>
                 <dd>
                     <a href="{{ path('place-detail', { 'id' : containedInPlace.id }) }}">
-                        {{ containedInPlace.name }}
+                        {{ containedInPlace.localizedName(app.request.locale, '_') }}
                     </a>
                 </dd>
             {% endif %}

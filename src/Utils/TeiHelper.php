@@ -285,18 +285,14 @@ class TeiHelper
         }
 
         // classification
-        $keywords = [];
+        $terms = [];
         $result = $header('./tei:profileDesc/tei:textClass/tei:classCode');
         foreach ($result as $element) {
-            $label_parts = explode(':', (string)$element, 2);
-            $label = $label_parts[0];
-            if (count($label_parts) > 1) {
-                $article->sourceType = $label_parts[1];
-            }
+            $text = (string)$element;
 
             switch ($element['scheme']) {
                 case $this->schemePrefix . 'genre':
-                    switch ($label) {
+                    switch ($text) {
                         case 'volume':
                         case 'introduction':
                         case 'document-collection':
@@ -304,22 +300,27 @@ class TeiHelper
                         case 'image-collection':
                         case 'image':
                         case 'map':
-                            $article->genre = $label;
+                            $article->genre = $text;
                             break;
 
                         default:
-                            // var_dump($label);
+                            // var_dump($text);
                     }
                     break;
 
                 case $this->schemePrefix . 'translated-from':
                     if (!empty($label)) {
-                        $article->translatedFrom = $label;
+                        $article->translatedFrom = $text;
                     }
+                    break;
+
+                case $this->schemePrefix . 'term':
+                    $terms[] = $text;
                     break;
             }
         }
-        $article->keywords = $keywords;
+
+        $article->terms = $terms;
 
         // isPartOf
         if (isset($article->genre) && 'source' == $article->genre) {

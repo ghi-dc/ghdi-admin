@@ -16,6 +16,12 @@ abstract class BaseController
 extends Controller
 {
     protected $siteKey = null;
+    protected $authorityPaths = [
+        'persons' => '/data/authority/persons',
+        'organizations' => '/data/authority/organizations',
+        'places' => '/data/authority/places',
+        'terms' => '/data/authority/terms',
+    ];
 
     public function __construct(string $siteKey)
     {
@@ -276,6 +282,7 @@ extends Controller
                 $url = $media['url'];
                 $scheme = parse_url($url, PHP_URL_SCHEME);
                 if (empty($scheme)) {
+                    // TODO: switch to $this->buildBaseUriMedia()
                     $url = 'http://germanhistorydocs.ghi-dc.org/images/' . $url;
                 }
 
@@ -327,6 +334,18 @@ extends Controller
         return new JsonResponse($ret);
     }
 
+    protected function buildBaseUriMedia($volumeId, $resourceId)
+    {
+        $baseUri = $this->getParameter('app.site.base_uri_media');
+        $useResourcePath = $this->getParameter('app.site.base_uri_media_use_resource_path');
+
+        if ($useResourcePath) {
+            $baseUri .= '/' . $volumeId . '/' . $resourceId;
+        }
+
+        return $baseUri;
+    }
+
     protected function extractPartsFromHtml($html)
     {
         $crawler = new \Symfony\Component\DomCrawler\Crawler();
@@ -335,10 +354,12 @@ extends Controller
         // extract entities
         $entities = $crawler->filterXPath("//span[@class='entity-ref']")->each(function ($node, $i) {
             $entity = [];
+
             $type = $node->attr('data-type');
             if (!empty($type)) {
                 $entity['type'] = $type;
             }
+
             $uri = $node->attr('data-uri');
             if (!empty($uri)) {
                 $entity['uri'] = $uri;
@@ -377,9 +398,11 @@ extends Controller
             if (!array_key_exists($entity['type'], $entitiesByType)) {
                 continue;
             }
+
             if (!array_key_exists($entity['uri'], $entitiesByType[$entity['type']])) {
                 $entitiesByType[$entity['type']][$entity['uri']] = [ 'count' => 0 ];
             }
+
             ++$entitiesByType[$entity['type']][$entity['uri']]['count'];
         }
 
@@ -421,7 +444,7 @@ extends Controller
 
             switch ($type) {
                 case 'person':
-                    $params['collection'] = $this->getParameter('app.existdb.base') . '/data/authority/persons';
+                    $params['collection'] = $this->getParameter('app.existdb.base') . $this->authorityPaths['persons'];
                     $params['type'] = 'wikidata';
                     $params['value'] = $qid;
                     $xql = $this->renderView('Person/lookup-by-identifier-json.xql.twig', []);
@@ -429,7 +452,7 @@ extends Controller
                     break;
 
                 case 'organization':
-                    $params['collection'] = $this->getParameter('app.existdb.base') . '/data/authority/organizations';
+                    $params['collection'] = $this->getParameter('app.existdb.base') . $this->authorityPaths['organizations'];
                     $params['type'] = 'wikidata';
                     $params['value'] = $qid;
                     $xql = $this->renderView('Organization/lookup-by-identifier-json.xql.twig', []);
@@ -437,7 +460,7 @@ extends Controller
                     break;
 
                 case 'place':
-                    $params['collection'] = $this->getParameter('app.existdb.base') . '/data/authority/places';
+                    $params['collection'] = $this->getParameter('app.existdb.base') . $this->authorityPaths['places'];
                     $params['type'] = 'wikidata';
                     $params['value'] = $qid;
                     $xql = $this->renderView('Place/lookup-by-identifier-json.xql.twig', []);
@@ -481,32 +504,77 @@ extends Controller
                 // tgn is primary
             }
             else if (is_null($gnd)) {
-                // no internal storage, so try to lookup
-                // TODO: differentiate between person and organization
-                $bio = new \App\Utils\BiographicalData();
-
-                try {
-                    $gnds = $bio->lookupGndByQid($qid);
-                    if (1 == count($gnds)) {
-                        $gnd = $gnds[0];
+                // no internal storage, so try to lookup by $qid
+                $lodService = new \App\Utils\Lod\LodService(new \App\Utils\Lod\Provider\WikidataProvider());
+                $identifier = new \App\Utils\Lod\Identifier\WikidataIdentifier($qid);
+                $sameAs = $lodService->lookupSameAs($identifier);
+                if (!empty($sameAs)) {
+                    foreach ($sameAs as $identifier) {
+                        // hunt for a gnd
+                        if ('gnd' == $identifier->getName()) {
+                            $gnd = $identifier->getValue();
+                            break;
+                        }
                     }
-                }
-                catch (\Exception $e) {
-                    ; // ignore
                 }
             }
 
             if (!is_null($gnd)) {
-                $uri = sprintf('http://d-nb.info/gnd/%s', $gnd);
+                $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($gnd);
+                $uri = $identifier->toUri();
             }
 
             if (!is_null($tgn)) {
-                $uri = sprintf('http://vocab.getty.edu/tgn/%s', $tgn);
+                $identifier = new \App\Utils\Lod\Identifier\TgnIdentifier($tgn);
+                $uri = $identifier->toUri();
             }
         }
 
         $normalized[$type][$uriSrc] = $uri;
 
         return $uri;
+    }
+
+    protected function fetchEntity($client, $id, $class)
+    {
+        if ($client->hasDocument($name = $id . '.xml')) {
+            $content = $client->getDocument($name);
+
+            $serializer = $this->getSerializer();
+
+            return $serializer->deserialize($content, $class, 'xml');
+        }
+
+        return null;
+    }
+
+    protected function findTermByIdentifier($value, $type = 'gnd', $fetchEntity = false)
+    {
+        $xql = $this->renderView('Term/lookup-by-identifier-json.xql.twig', [
+        ]);
+        $client = $this->getExistDbClient($this->authorityPaths['terms']);
+
+        $query = $client->prepareQuery($xql);
+
+        $query->setJSONReturnType();
+        $query->bindVariable('collection', $client->getCollection());
+        $query->bindVariable('type', $type);
+        $query->bindVariable('value', $value);
+        $res = $query->execute();
+        $info = $res->getNextResult();
+        $res->release();
+
+        if ($fetchEntity) {
+            if (empty($info['data'])) {
+                return null;
+            }
+
+            $id = array_key_exists('id', $info['data'])
+                ? $info['data']['id'] : $info['data'][0]['id'];
+
+            return $this->fetchEntity($client, $id, \App\Entity\Term::class);
+        }
+
+        return $info;
     }
 }

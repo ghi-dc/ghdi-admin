@@ -66,15 +66,11 @@ extends AbstractProvider
     {
         $identifiers = [];
 
-        $name = $identifier->getName();
+        $name = $identifier->getPrefix();
         if ('wikidata' == $name) {
             $qid = $identifier->getValue();
         }
         else {
-            if (in_array($name, [ 'lcnaf', 'lcsh' ])) {
-                $name = 'lcauth';
-            }
-
             $propertiesByName = array_flip(self::$WIKIDATA_IDENTIFIERS);
             if (array_key_exists($name, $propertiesByName)) {
                 $pid = $propertiesByName[$name];
@@ -102,15 +98,26 @@ extends AbstractProvider
 
             foreach ($result as $row) {
                 $propertyId = (string)$row->propertyId;
-                $identifier = \App\Utils\Lod\Identifier\Factory::byName(self::$WIKIDATA_IDENTIFIERS[$propertyId]);
-                if (!is_null($identifier)) {
-                    $property = $row->property;
-                    if ($property instanceOf \EasyRdf\Literal) {
-                        $property = $property->getValue();
+                $propertyValue = $row->property;
+                if ($propertyValue instanceOf \EasyRdf\Literal) {
+                    $propertyValue = $propertyValue->getValue();
+                }
+
+                if (!empty($propertyValue)) {
+                    $name = self::$WIKIDATA_IDENTIFIERS[$propertyId];
+                    if ('lcauth' == $name) {
+                        // can be lcsh or lcnaf,
+                        if (preg_match('/^sh/', $propertyValue)) {
+                            $name = 'lcsh';
+                        }
+                        else if (preg_match('/^n/', $propertyValue)) {
+                            $name = 'lcnaf';
+                        }
                     }
 
-                    if (!empty($property)) {
-                        $identifier->setValue($property);
+                    $identifier = \App\Utils\Lod\Identifier\Factory::byName($name);
+                    if (!is_null($identifier)) {
+                        $identifier->setValue($propertyValue);
 
                         $identifiers[] = $identifier;
                     }
