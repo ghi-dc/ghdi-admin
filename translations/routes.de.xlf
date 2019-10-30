@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2019-10-08T21:33:11Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2019-10-30T19:20:23Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
     </header>
     <body>
+      <trans-unit id="433bcbdff61193660c9f3cc632ba58ca53edea60" resname="app_media_send">
+        <source>/media/{path}</source>
+        <target>/media/{path}</target>
+      </trans-unit>
       <trans-unit id="4e0b99adbe01b25fdbbed5b3f1b6d708d3b294d6" resname="app_resource_test">
         <source>/test/binary</source>
         <target>/test/binary</target>
@@ -82,6 +86,10 @@
         <source>/organization</source>
         <target>/organization</target>
       </trans-unit>
+      <trans-unit id="5a7f2b8c819af8a883a0d99338181b76b8eaf810" resname="organization-lookup-identifier">
+        <source>/organization/{id}/lookup-identifier</source>
+        <target>/organization/{id}/lookup-identifier</target>
+      </trans-unit>
       <trans-unit id="0c46416a7204247f39eb865007c4b2e2835720bd" resname="organization-test">
         <source>/organization/test</source>
         <target>/organization/test</target>
@@ -138,6 +146,10 @@
         <source>/place</source>
         <target>/place</target>
       </trans-unit>
+      <trans-unit id="7fbb558f5116c8e7db23459de8d7c25a5585bd37" resname="place-lookup-identifier">
+        <source>/place/{id}/lookup-identifier</source>
+        <target>/place/{id}/lookup-identifier</target>
+      </trans-unit>
       <trans-unit id="7f8ea9a9dfd4b61a80f7d216e59067be935fbf39" resname="place-test">
         <source>/place/test</source>
         <target>/place/test</target>
@@ -190,6 +202,10 @@
         <source>/term/add-from-identifier</source>
         <target>/term/add-from-identifier</target>
       </trans-unit>
+      <trans-unit id="e4840091b4252d2e568ccd5844f785c179a59ee3" resname="term-autocomplete">
+        <source>/term/autocomplete</source>
+        <target>/term/autocomplete</target>
+      </trans-unit>
       <trans-unit id="ccae8cb53f2e651fe229a1f4277e08142ec27d49" resname="term-detail">
         <source>/term/{id}</source>
         <target>/term/{id}</target>
@@ -202,6 +218,10 @@
         <source>/term</source>
         <target>/term</target>
       </trans-unit>
+      <trans-unit id="2289b364fc9d0a79aca24147a58f7e56135e580d" resname="term-lookup-identifier">
+        <source>/term/{id}/lookup-identifier</source>
+        <target>/term/{id}/lookup-identifier</target>
+      </trans-unit>
       <trans-unit id="311541dd1cfb5599154f180217b8c8152d58492d" resname="term-test">
         <source>/term/test</source>
         <target>/term/test</target>
@@ -209,10 +229,6 @@
       <trans-unit id="bb73aaafa1596e5425dc514a361ad4ef658f2758" resname="upload">
         <source>/upload</source>
         <target>/upload</target>
-      </trans-unit>
-      <trans-unit id="19e21981fba9c073ed576697aefd1b57a91cd395" resname="upload-handler">
-        <source>/upload/handler</source>
-        <target>/upload/handler</target>
       </trans-unit>
       <trans-unit id="ca481144f761bee83c6e0afe90ab60b3b48def05" resname="volume-detail">
         <source>/volume/{id}</source>

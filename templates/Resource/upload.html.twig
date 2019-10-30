@@ -2,6 +2,11 @@
 
 {% import 'Base/helper.html.twig' as helper %}
 
+{% block head %}
+    {{ parent() }}
+    {{ helper.dropzone_head() }}
+{% endblock %}
+
 {% block body %}
     {% if 'resource-upload' == app.request.attributes.get('_route') %}
         {{ 'Replace'|trans }}
@@ -12,11 +17,6 @@
     {{ helper.display_flashes() }}
     <form action="{{ path(app.request.attributes.get('_route'), { 'volume' : volume, 'id' : id }) }}" method="post" enctype="multipart/form-data" class="dropzone">
         {{ helper.dropzone_fileinput() }}
-        <input type="submit" value="Upload" id="upload" />
+        <input type="submit" value="{{ 'Upload'|trans }}" id="upload" />
     </form>
-{% endblock %}
-
-{% block head %}
-    {{ parent() }}
-    {{ helper.dropzone_head() }}
 {% endblock %}

@@ -40,9 +40,9 @@
 {% macro dropzone_fileinput() %}
     {# see https://stackoverflow.com/a/12713396, TODO: make name/id configurable and support multiple elements in form #}
     <div id="drop-zone">
-        Drop file here...
+        {{ 'Drop file here...'|trans }}
         <div id="clickHere">
-            or click here..
+            {{ '...or click here'|trans }}
             <input type="file" name="file" id="file" />
         </div>
         <div id="filename"></div>
@@ -104,7 +104,7 @@
         line-height: 26px;
         color: white;
         font-size: 12px;
-        width: 100px;
+        width: 140px;
         height: 26px;
         border-radius: 4px;
         background-color: #3b85c3;
@@ -130,7 +130,7 @@
 
         inputFile.change(function() {
             var input = this;
-            var fname = $(this).val().replace("C:\\fakepath\\", ""); // https://davidwalsh.name/fakepath
+            var fname = $(this).val().replace("C:\\fakepath\\", ""); // see https://davidwalsh.name/fakepath
             $('#filename').html(fname);
         });
 
