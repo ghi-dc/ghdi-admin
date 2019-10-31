@@ -24,16 +24,21 @@ extends AbstractType
                 'label' => 'Title',
                 'required' => true,
             ])
-            ->add('terms', ChoiceType::class, [
-                'choices'  => $options['choices']['terms'],
-                'label' => 'Subject Headings',
-                'required' => false,
-                'multiple' => true,
-                'attr' => [
-                    'class' => 'select2',
-                ],
-            ])
             ;
+
+        if (!empty($options['choices']['terms'])) {
+            $builder
+                ->add('terms', ChoiceType::class, [
+                    'choices'  => $options['choices']['terms'],
+                    'label' => 'Subject Headings',
+                    'required' => false,
+                    'multiple' => true,
+                    'attr' => [
+                        'class' => 'select2',
+                    ],
+                ])
+                ;
+        }
 
         $builder->add('save', SubmitType::class, [
             'label' => 'Save',

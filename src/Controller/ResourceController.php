@@ -169,7 +169,7 @@ EOXQL;
                     ->add('warning', 'No item found for id: ' . $id)
                 ;
 
-            return $this->redirect($this->generateUrl('volume-list'));
+            return $this->redirect($this->generateUrl('volume-detail', [ 'id' => $volume ]));
         }
 
         $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resource['data']['fname'];

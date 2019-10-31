@@ -1,6 +1,19 @@
 {% extends 'Base/base.html.twig' %}
 
 {% import 'Base/helper.html.twig' as helper %}
+{% import 'Shared/select2.html.twig' as select2 %}
+
+{% block head %}
+    {{ select2.head() }}
+
+    <script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            language: {{ app.request.getLocale()|json_encode|raw }}
+        });
+    });
+    </script>
+{% endblock %}
 
 {% block body %}
     <h2>
