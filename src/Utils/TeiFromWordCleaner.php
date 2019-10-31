@@ -111,23 +111,25 @@ trait TeiFromWordCleaner
                             if (in_array($node->attributes['xml:id']->textContent, [ 'quellentext' ])) {
                                 // this is the main content we are after
 
-                                // check if it starts with <head>QUELLENTEXT</head>, if so remove
+                                // check if it starts with <head>{QUELLENTEXT|SOURCE_TEXT}</head>, if so remove
                                 $firstChild = $xpath->evaluate("./*[1]", $node);
                                 if (1 == $firstChild->length) {
                                     $firstChild = $firstChild->item(0);
                                     if ('head' == $firstChild->nodeName) {
-                                        if ('QUELLENTEXT' == mb_strtoupper($firstChild->textContent, 'UTF-8')) {
+                                        if (in_array(trim(mb_strtoupper($firstChild->textContent, 'UTF-8')),
+                                                     [ 'QUELLENTEXT', 'SOURCE TEXT' ]))
+                                        {
                                             $node->removeChild($firstChild);
                                         }
                                     }
                                 }
 
-                                // check if last paragraph starts with Quelle:
+                                // check if last paragraph starts with {Quelle|Source}:
                                 $pLast = $xpath->evaluate('(.//tei:p)[last()]', $node);
 
                                 if (1 == $pLast->length) {
                                     $pLast = $pLast->item(0);
-                                    if (preg_match('/^Quelle:/', $pLast->textContent)) {
+                                    if (preg_match('/^(Quelle|Source):/', $pLast->textContent)) {
                                         $this->moveCitationToSourceDesc($pLast);
                                     }
                                 }

@@ -799,16 +799,18 @@ EOXQL;
     }
 
     /**
-     * @Route("/test/binary")
+     * @Route("/test/cetei")
+     *
+     * Simple test for https://github.com/TEIC/CETEIcean
+     *
+     * Grab CETEI.js from https://github.com/TEIC/CETEIcean/releases
+     *
      */
     public function testAction(Request $request)
     {
-        $client = $this->getExistDbClient($this->subCollection);
-        $path = $this->getAssetsPath();
-
-        header('Content-type: image/jpeg');
-        echo $client->getBinaryResource($path . '/logo-print.de.jpg');
-
-        exit;
+        return $this->render('Resource/cetei.html.twig', [
+            'volume' => 'volume-2',
+            'id' => 'document-5',
+        ]);
     }
 }

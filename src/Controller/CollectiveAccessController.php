@@ -83,12 +83,7 @@ extends BaseController
         return trim($xhtml);
     }
 
-    protected function xmlSpecialchars($txt)
-    {
-        return htmlspecialchars($txt, ENT_XML1, 'UTF-8');;
-    }
-
-    /*
+    /**
      * TODO: Switch to Pandoc Converter
      */
     protected function htmlFragmentToTei($htmlFragment, $omitPara = false)

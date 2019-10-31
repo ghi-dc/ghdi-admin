@@ -117,6 +117,11 @@ extends Controller
         return $volume;
     }
 
+    protected function xmlSpecialchars($txt)
+    {
+        return htmlspecialchars($txt, ENT_XML1, 'UTF-8');;
+    }
+
     protected function getTeiSkeleton()
     {
         // TODO: maybe get from exist instead of filesystem, so it can differ among projects
