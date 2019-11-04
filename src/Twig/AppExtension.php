@@ -7,6 +7,7 @@
  * register in
  *   app/config/services.yml
  * as
+ *
  * services:
  *   app.twig_extension:
  *       class: App\Twig\AppExtension
@@ -50,11 +51,10 @@ extends \Twig\Extension\AbstractExtension
         return [
             // general
             new \Twig\TwigFilter('dateincomplete', [ $this, 'dateincompleteFilter' ]),
-            new \Twig\TwigFilter('prettifyurl', [ $this, 'prettifyurlFilter' ]),
             new \Twig\TwigFilter('remove_by_key', [ $this, 'removeElementByKey' ]),
+            new \Twig\TwigFilter('prettifyurl', [ $this, 'prettifyurlFilter' ]),
 
             // app specific
-            // new \Twig\TwigFilter('tei2html', [ $this, 'teiToHtml' ], [ 'is_safe' => [ 'html' ] ]),
         ];
     }
 
@@ -67,7 +67,7 @@ extends \Twig\Extension\AbstractExtension
         return $this->translator->getLocale();
     }
 
-    public function dateincompleteFilter($datestr, $locale = null)
+    protected function dateincompleteFilter($datestr, $locale = null)
     {
         if (is_null($locale)) {
             $locale = $this->getLocale();
@@ -80,7 +80,7 @@ extends \Twig\Extension\AbstractExtension
         return \App\Utils\Formatter::dateIncomplete($datestr, $locale);
     }
 
-    public function removeElementByKey($array, $key)
+    protected function removeElementByKey($array, $key)
     {
         if (is_array($array) && array_key_exists($key, $array)) {
             unset($array[$key]);
@@ -89,38 +89,17 @@ extends \Twig\Extension\AbstractExtension
         return $array;
     }
 
-    public function prettifyurlFilter($url)
+    protected function prettifyurlFilter($url)
     {
         $parsed = parse_url($url);
         if (empty($parsed['host'])) {
-            // probably not an url, so return as is;
+            // probably not an url, so return as is
             return $url;
         }
 
         return $parsed['host']
             . (!empty($parsed['path']) && '/' !== $parsed['path'] ? $parsed['path'] : '');
     }
-
-    /*
-    public function teiToHtml($teiFragment)
-    {
-        return $this->kernel->getProjectDir();
-        // Load the XML source
-        $xml = new \DOMDocument;
-        $xml->loadXML('<body>' . $teiFragment . '</body>');
-
-        // Configure the transformer
-        $xsl = new \DOMDocument;
-        $xsl->load('collection.xsl');
-
-        $proc = new \XSLTProcessor;
-        $proc->importStyleSheet($xsl); // attach the xsl rules
-
-        $html = $proc->transformToDoc($xml);
-
-        return $html->saveHtml($html->firstChild);
-    }
-    */
 
     public function getName()
     {
