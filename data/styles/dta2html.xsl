@@ -14,6 +14,7 @@
 
   <!-- main match including source description -->
   <xsl:template match="/">
+    <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:author/*">
     <ul id="authors">
       <xsl:for-each select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:author/tei:persName">
         <li>
@@ -24,6 +25,7 @@
         </li>
       </xsl:for-each>
     </ul>
+    </xsl:if>
 
     <div class="article">
       <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:notesStmt/tei:note/*">
@@ -319,5 +321,4 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
 </xsl:stylesheet>

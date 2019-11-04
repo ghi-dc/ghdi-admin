@@ -117,6 +117,24 @@ extends Controller
         return $volume;
     }
 
+    protected function fetchResource($client, $id, $lang)
+    {
+        $xql = $this->renderView('Resource/detail-json.xql.twig', [
+            'prefix' => $this->siteKey,
+        ]);
+
+        $query = $client->prepareQuery($xql);
+        $query->setJSONReturnType();
+        $query->bindVariable('collection', $client->getCollection());
+        $query->bindVariable('id', implode(':', [ $this->siteKey,  $id ]));
+        $query->bindVariable('lang', $lang);
+        $res = $query->execute();
+        $resource = $res->getNextResult();
+        $res->release();
+
+        return $resource;
+    }
+
     protected function xmlSpecialchars($txt)
     {
         return htmlspecialchars($txt, ENT_XML1, 'UTF-8');;
@@ -171,19 +189,26 @@ extends Controller
         return $teiDtabfDoc;
     }
 
-    protected function teiToHtml($client, $resourcePath, $lang, $path = null)
+    protected function teiToHtml($client, $resourcePath, $lang, $path = null, $unwrapArticleDiv = false)
     {
         $xql = $this->renderView('Resource/tei2html.xql.twig', [
             'path' => $path,
         ]);
         $query = $client->prepareQuery($xql);
         $query->bindVariable('stylespath', $this->getStylesPath());
-        $resourcePath =
         $query->bindVariable('resource', $resourcePath);
         $query->bindVariable('lang', $lang);
         $res = $query->execute();
         $html = $res->getNextResult();
         $res->release();
+
+        if ($unwrapArticleDiv) {
+            // for inline content addressed by $resourcePath, just return the content of <div class="article"></div>
+            $crawler = new \Symfony\Component\DomCrawler\Crawler();
+            $crawler->addHtmlContent($html);
+
+            $html = $crawler->filter('div > div.article')->html();
+        }
 
         return $html;
     }

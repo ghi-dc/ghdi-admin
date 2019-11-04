@@ -69,11 +69,11 @@ extends DocumentConverter
                 }
             }
             else {
-                die('Not sure how to handle ' . $className);
+                throw new \InvalidArgumentException('Not handling conversion to ' . $className . ' yet');
             }
         }
         else {
-            die('no target given');
+            throw new \InvalidArgumentException('No target given');
         }
 
         // reading from stdin messes up encoding, so write into tmp

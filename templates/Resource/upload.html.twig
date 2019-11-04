@@ -8,13 +8,17 @@
 {% endblock %}
 
 {% block body %}
+    {{ helper.render_parent_path(parentPath) }}
+
     {% if 'resource-upload' == app.request.attributes.get('_route') %}
         {{ 'Replace'|trans }}
     {% else %}
         {{ 'Add to'|trans }}
     {% endif %}
+
     <h2>{{ name|raw }}</h2>
     {{ helper.display_flashes() }}
+
     <form action="{{ path(app.request.attributes.get('_route'), { 'volume' : volume, 'id' : id }) }}" method="post" enctype="multipart/form-data" class="dropzone">
         {{ helper.dropzone_fileinput() }}
         <input type="submit" value="{{ 'Upload'|trans }}" id="upload" />

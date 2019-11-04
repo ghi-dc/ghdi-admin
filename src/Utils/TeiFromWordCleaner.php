@@ -106,9 +106,9 @@ trait TeiFromWordCleaner
                     }
 
                     if ('div' == $node->nodeName) {
-                        // check if we get the quellentext
+                        // check if we get the quellentext / source-text
                         if ($node->hasAttribute('xml:id')) {
-                            if (in_array($node->attributes['xml:id']->textContent, [ 'quellentext' ])) {
+                            if (in_array($node->attributes['xml:id']->textContent, [ 'quellentext', 'source-text' ])) {
                                 // this is the main content we are after
 
                                 // check if it starts with <head>{QUELLENTEXT|SOURCE_TEXT}</head>, if so remove
@@ -124,15 +124,26 @@ trait TeiFromWordCleaner
                                     }
                                 }
 
-                                // check if last paragraph starts with {Quelle|Source}:
-                                $pLast = $xpath->evaluate('(.//tei:p)[last()]', $node);
+                                // check if last paragraph starts with {Quelle|Source}: or Translation :
+                                do {
+                                    $found = false;
 
-                                if (1 == $pLast->length) {
-                                    $pLast = $pLast->item(0);
-                                    if (preg_match('/^(Quelle|Source):/', $pLast->textContent)) {
-                                        $this->moveCitationToSourceDesc($pLast);
+                                    $pLast = $xpath->evaluate('(.//tei:p)[last()]', $node);
+
+                                    if (1 == $pLast->length) {
+                                        $pLast = $pLast->item(0);
+
+                                        if (preg_match('/^(Quelle|Source):/', $pLast->textContent)) {
+                                            $this->moveCitationToSourceDesc($pLast);
+                                            $found = true;
+                                        }
+
+                                        if (preg_match('/^(Translation):/', $pLast->textContent)) {
+                                            $this->moveTranslationToHeader($pLast);
+                                            $found = true;
+                                        }
                                     }
-                                }
+                                } while ($found);
 
                                 // check if we get weiterführende-inhalte or similar heading-2 afterwards that we want to keep
                                 $append = [];
@@ -163,6 +174,8 @@ trait TeiFromWordCleaner
                             }
                         }
                     }
+
+                    break; // so we don't fall into an infinite loop
                 }
             }
 
@@ -180,6 +193,7 @@ trait TeiFromWordCleaner
         if (0 == $title->length) {
             die('TODO: add a title');
         }
+
         $title = $title->item(0);
 
         // TODO: maybe split creator and title
@@ -189,6 +203,25 @@ trait TeiFromWordCleaner
         }
 
         $headNode->parentNode->removeChild($headNode);
+    }
+
+    protected function moveTranslationToHeader($pNode)
+    {
+        if (preg_match('/^(Translation):\s*(.*?)\s*$/', $pNode->textContent, $matches)) {
+            $xpath = $this->getXPath();
+            $titleStmt = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:titleStmt');
+            if (0 == $titleStmt->length) {
+                // should never happen
+                die('TODO: add a titleStmt');
+            }
+            $titleStmt = $titleStmt->item(0);
+
+            $editor = $this->dom->createElementNS('http://www.tei-c.org/ns/1.0', 'editor', $matches[2]);
+            $editor->setAttribute('role', 'translator');
+            $titleStmt->appendChild($editor);
+        }
+
+        $pNode->parentNode->removeChild($pNode);
     }
 
     protected function moveCitationToSourceDesc($pNode)

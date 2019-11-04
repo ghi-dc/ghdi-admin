@@ -37,6 +37,21 @@
     </script>
 {% endmacro %}
 
+{% macro render_parent_path(parentPath) %}
+    <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+    {% for id, label in parentPath %}
+        {% if loop.first %}
+            {% set volume = id %}
+            <li class="breadcrumb-item"><a href="{{ path('volume-detail', { 'id': id }) }}">{{ label|raw }}</a></li>
+        {% else %}
+            <li class="breadcrumb-item"><a href="{{ path('resource-detail', { 'volume': volume, 'id': id }) }}">{{ label|raw }}</a></li>
+        {% endif %}
+    {% endfor %}
+    </ol>
+    </nav>
+{% endmacro %}
+
 {% macro dropzone_fileinput() %}
     {# see https://stackoverflow.com/a/12713396, TODO: make name/id configurable and support multiple elements in form #}
     <div id="drop-zone">

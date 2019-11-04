@@ -9,7 +9,6 @@ namespace App\Utils;
  */
 class Iso639
 {
-
     private static $languages = null;
 
     /** No instances */

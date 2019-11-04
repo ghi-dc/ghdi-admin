@@ -86,7 +86,7 @@ body {
 /********************************************************/
 /* Styling for the page header                          */
 /********************************************************/
-nav {
+nav.navbar {
     a {
         color: white;
         &:hover {
@@ -388,6 +388,11 @@ nav {
 
 .source-citation {
     margin-top: 1em;
+}
+
+/* inline content transformed from TEI with possible style markup */
+.richtext {
+    @include dta-styles;
 }
 
 .article {

@@ -152,6 +152,7 @@ extends ResourceController
      * @Route("/volume/{id}.scalar.json", name="volume-detail-scalar", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}.tei.xml", name="volume-detail-tei", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}", name="volume-detail", requirements={"id" = "volume\-\d+"})
+     * @Route("/volume/{id}/create", name="volume-create", requirements={"id" = "volume\-\d+"})
      */
     public function volumeDetailAction(Request $request, $id)
     {
@@ -160,6 +161,54 @@ extends ResourceController
         $volume = $this->fetchVolume($client, $id, $lang = \App\Utils\Iso639::code1To3($request->getLocale()));
 
         if (is_null($volume)) {
+            // check if we have one in another locale
+            $createFrom = [];
+
+            foreach ($this->getParameter('locales') as $alternate) {
+                if ($alternate == $request->getLocale()) {
+                    continue;
+                }
+
+                $volumeAlternate = $this->fetchVolume($client, $id, $alternateCode3 = \App\Utils\Iso639::code1To3($alternate));
+                if (!is_null($volumeAlternate)) {
+                    if (!empty($_POST['from-locale']) && $_POST['from-locale'] == $alternate) {
+                        $from = $client->getCollection() . '/' . $id . '/' . $id . '.' . $alternateCode3 . '.xml';
+
+                        $content = $client->getDocument($from, [ 'omit-xml-declaration' => 'no' ]);
+
+                        if (false !== $content) {
+                            $to = $client->getCollection() . '/' . $id . '/' . $id . '.' . $lang . '.xml';
+
+                            // set new language
+                            // TODO: adjust translated-from if needed
+                            $data = [
+                                'language' => $lang,
+                            ];
+
+                            $res = $this->updateTeiHeaderContent($client, $to, $content, $data, false);
+
+                            if ($res) {
+                                $request->getSession()
+                                        ->getFlashBag()
+                                        ->add('info', 'The Entry has been copied')
+                                    ;
+
+                                return $this->redirect($this->generateUrl('volume-edit', [ 'id' => $id ]));
+                            }
+                        }
+                    }
+
+                    $createFrom[$alternate] = \App\Utils\Iso639::nameByCode3($alternateCode3);
+                }
+            }
+
+            if (!empty($createFrom)) {
+                return $this->render('Volume/import.html.twig', [
+                    'id' => $id,
+                    'createFrom' => $createFrom,
+                ]);
+            }
+
             $request->getSession()
                     ->getFlashBag()
                     ->add('warning', 'No item found for id: ' . $id)

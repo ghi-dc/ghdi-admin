@@ -32,6 +32,7 @@ for $tei in collection($collection)/TEI
     return <data id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], '{{ prefix }}:', '')}">
         <name>{string($name)}</name>
         <genre>{$tei/teiHeader/profileDesc/textClass/classCode[@scheme='http://germanhistorydocs.org/docs/#genre']/text()}</genre>
+        <shelfmark>{$tei/teiHeader/fileDesc/publicationStmt//idno[@type='shelfmark']/text()}</shelfmark>
         {
         for $term in $tei/teiHeader/profileDesc/textClass/classCode[@scheme='http://germanhistorydocs.org/docs/#term']
            return <term>{$term/text()}</term>
