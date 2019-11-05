@@ -19,6 +19,7 @@ implements \JsonSerializable
     protected $id;
     protected $title;
     protected $authors = [];
+    protected $translator;
     protected $responsible = [];
     protected $note;
     protected $licence;
@@ -27,6 +28,11 @@ implements \JsonSerializable
     protected $shelfmark;
     protected $dateCreation;
     protected $classCodes = [];
+
+    protected static function normalizeWhitespace($tei)
+    {
+        return preg_replace('/\R+/', ' ', $tei); // get rid of newlines added e.g. through pretty-printing
+    }
 
     /**
      * Sets id.
@@ -61,7 +67,7 @@ implements \JsonSerializable
      */
     public function setTitle($title)
     {
-        $this->title = preg_replace('/\R+/', ' ', $title); // get rid of newlines in original markup
+        $this->title = self::normalizeWhitespace($title);
 
         return $this;
     }
@@ -92,6 +98,30 @@ implements \JsonSerializable
     public function getAuthors()
     {
         return $this->authors;
+    }
+
+    /**
+     * Sets translator.
+     *
+     * @param string $translator
+     *
+     * @return $this
+     */
+    public function setTranslator($translator)
+    {
+        $this->translator = self::normalizeWhitespace($translator);
+
+        return $this;
+    }
+
+    /**
+     * Gets translator.
+     *
+     * @return string
+     */
+    public function getTranslator()
+    {
+        return $this->translator;
     }
 
     /**
@@ -397,6 +427,7 @@ implements \JsonSerializable
             'id' => $this->getId(),
             'title' => $this->getTitle(),
             'authors' => $this->getAuthors(),
+            'translator' => $this->getTranslator(),
             'responsible' => $this->getResponsible(),
             'dateCreation' => $this->getDateCreation(),
             'language' => $this->getLanguage(),

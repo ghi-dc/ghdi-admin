@@ -24,6 +24,10 @@ extends AbstractType
                 'label' => 'Title',
                 'required' => true,
             ])
+            ->add('translator', TextType::class, [
+                'label' => 'Translation',
+                'required' => false,
+            ])
             ;
 
         if (!empty($options['choices']['terms'])) {

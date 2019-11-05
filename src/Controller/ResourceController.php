@@ -425,6 +425,7 @@ EOXQL;
             $entity = new \App\Entity\TeiHeader();
             $entity->setId($article->uid);
             $entity->setTitle($article->name);
+            $entity->setTranslator($article->translator);
             $entity->setShelfmark($article->shelfmark);
             $entity->setGenre($article->genre);
             $entity->setTerms($article->terms);
@@ -456,6 +457,7 @@ EOXQL;
 
             $data = [
                 'title' => $entity->getTitle(),
+                'translator' => $entity->getTranslator(),
                 'terms' => $entity->getTerms(),
             ];
 

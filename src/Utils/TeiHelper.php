@@ -12,6 +12,14 @@ namespace App\Utils;
 
 class TeiHelper
 {
+    // Function for basic field validation (present and neither empty nor only white space
+    // empty return true for "0" as well
+    protected static function isNullOrEmpty($str)
+    {
+        return is_null($str) || '' === trim($str);
+    }
+
+
     protected $errors = [];
     protected $schemePrefix = 'http://germanhistorydocs.org/docs/#';
 
@@ -136,7 +144,7 @@ class TeiHelper
 
         // name
         $result = $header('./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]');
-        if (!empty($result)) {
+        if ($result->length > 0) {
             $article->name = $asXml
                 ? $this->extractInnerContent($result[0])
                 : $this->extractTextContent($result[0]);
@@ -154,14 +162,15 @@ class TeiHelper
             }
         }
 
-        // translator
-        $result = $header('./tei:fileDesc/tei:titleStmt/tei:editor[@role="translator"]/tei:persName');
-        if (!empty($result)) {
-            $element = $result[0];
-            $person = $this->buildPerson($element);
-            if (!is_null($person)) {
-                $article->translator = $person;
-            }
+        // translator - currently don't expect persName due to things like David Haney and GHI staff
+        $result = $header('./tei:fileDesc/tei:titleStmt/tei:editor[@role="translator"]');
+        if ($result->length > 0) {
+            $article->translator = $asXml
+                ? $this->extractInnerContent($result[0])
+                : $this->extractTextContent($result[0]);
+        }
+        else {
+            $article->translator = null;
         }
 
         // datePublication
@@ -510,18 +519,25 @@ class TeiHelper
 
         foreach ([
                 'title' => 'tei:fileDesc/tei:titleStmt/tei:title[@type="main"]',
+                'translator' => 'tei:fileDesc/tei:titleStmt/tei:editor[@role="translator"]',
                 'note' => 'tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"]',
-            ] as $key => $path)
+            ] as $key => $xpath)
         {
             if (array_key_exists($key, $data)) {
-                $node = $this->addDescendants($header, $path, [], true);
+                if (self::isNullOrEmpty($data[$key])) {
+                    // remove
+                    \FluentDom($header)->find($xpath)->remove();
+                }
+                else {
+                    $node = $this->addDescendants($header, $xpath, [], true);
 
-                // assume for the moment that $data[$key] is valid XML
-                $fragment = $xml->createDocumentFragment();
-                $fragment->appendXML($data[$key]);
+                    // assume for the moment that $data[$key] is valid XML
+                    $fragment = $xml->createDocumentFragment();
+                    $fragment->appendXML($data[$key]);
 
-                (new \FluentDOM\Nodes\Modifier($node))
-                    ->replaceChildren($fragment);
+                    (new \FluentDOM\Nodes\Modifier($node))
+                        ->replaceChildren($fragment);
+                }
             }
         }
 
