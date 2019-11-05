@@ -19,6 +19,8 @@ parameters:
     # for api-calls to the admin
     app.site.base_uri: 'http://localhost/ghdi/admin/'
     app.site.auth_basic: 'guest:guest'
+    app.site.base_uri_media: 'http://%app.site.auth_basic%@localhost/ghdi/admin/media' # 'http://germanhistorydocs.ghi-dc.org/images'
+    app.site.base_uri_media_use_resource_path: true # false for external app.site.base_uri_media like 'http://germanhistorydocs.ghi-dc.org/images'
 
     app.site.key: ghdi
     app.site.short: GHDI
