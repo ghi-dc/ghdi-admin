@@ -59,6 +59,13 @@
           <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl/node()"/>
         </div>
       </xsl:if>
+      <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:editor[@role='translator']">
+        <div class="source-citation">
+          <xsl:call-template name="translate">
+            <xsl:with-param name="label" select="'Übersetzung'" />
+          </xsl:call-template>: <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:editor[@role='translator']/node()"/>.
+        </div>
+      </xsl:if>
     </div>
 
     <xsl:choose>
