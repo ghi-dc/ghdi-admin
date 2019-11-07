@@ -61,6 +61,9 @@ extends Kernel
             // menu
             // see http://symfony.com/doc/current/bundles/KnpMenuBundle/index.html
             new \Knp\Bundle\MenuBundle\KnpMenuBundle(),
+
+            // slug
+            new \Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

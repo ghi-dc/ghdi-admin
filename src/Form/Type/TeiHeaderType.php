@@ -24,6 +24,11 @@ extends AbstractType
                 'label' => 'Title',
                 'required' => true,
             ])
+            ->add('dtaDirName', TextType::class, [
+                'label' => 'URL Slug',
+                'required' => false,
+                'block_prefix' => 'generate_slug',
+            ])
             ->add('translator', TextType::class, [
                 'label' => 'Translation',
                 'required' => false,

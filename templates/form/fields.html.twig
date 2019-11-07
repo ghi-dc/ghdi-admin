@@ -1,0 +1,8 @@
+{% block generate_slug_widget %}
+    <div class="input-group">
+        {{ form_widget(form) }}
+        <div class="input-group-append">
+            <button id="{{ form.vars.name }}Button" class="btn btn-outline-secondary" type="button">{{ 'Generate from Title'|trans }}</button>
+        </div>
+    </div>
+{% endblock %}

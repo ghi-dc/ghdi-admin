@@ -27,6 +27,7 @@ implements \JsonSerializable
     protected $language;
     protected $shelfmark;
     protected $dateCreation;
+    protected $idno = [];
     protected $classCodes = [];
 
     protected static function normalizeWhitespace($tei)
@@ -387,6 +388,43 @@ implements \JsonSerializable
     public function getTerms()
     {
         return $this->getClassCodes('#term');
+    }
+
+    /**
+     * Sets idno.
+     *
+     * @param string $idno
+     * @param string $type
+     *
+     * @return $this
+     */
+    public function setIdno($idno, $type)
+    {
+        $this->idno[$type] = $idno;
+
+        return $this;
+    }
+
+    /**
+     * Gets idno.
+     *
+     * @return string
+     */
+    public function getIdno($type)
+    {
+        if (array_key_exists($type, $this->idno)) {
+            return $this->idno[$type];
+        }
+    }
+
+    public function setDtaDirName($DTADirName)
+    {
+        return $this->setIdno($DTADirName, 'DTADirName');
+    }
+
+    public function getDtaDirName()
+    {
+        return $this->getIdno('DTADirName');
     }
 
     /**

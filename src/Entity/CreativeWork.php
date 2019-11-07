@@ -31,6 +31,7 @@ extends SchemaOrg
 
         $creator = !empty($zoteroMeta['creatorSummary'])
             ? $zoteroMeta['creatorSummary'] : 'NN';
+
         if (!empty($zoteroMeta['parsedDate'])
             && preg_match('/^(\d+)/', $zoteroMeta['parsedDate'], $matches))
         {

@@ -426,6 +426,9 @@ EOXQL;
             $entity->setId($article->uid);
             $entity->setTitle($article->name);
             $entity->setTranslator($article->translator);
+            if (!empty($article->slug)) {
+                $entity->setDtaDirName($article->slug);
+            }
             $entity->setShelfmark($article->shelfmark);
             $entity->setGenre($article->genre);
             $entity->setTerms($article->terms);
@@ -458,6 +461,7 @@ EOXQL;
             $data = [
                 'title' => $entity->getTitle(),
                 'translator' => $entity->getTranslator(),
+                'slug' => $entity->getDtaDirName(),
                 'terms' => $entity->getTerms(),
             ];
 

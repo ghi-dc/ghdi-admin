@@ -140,7 +140,7 @@ class TeiHelper
 
         $header = $result[0];
 
-        $article = new \stdClass();
+        $article = new \stdClass(); // TODO: probably better to return TeiHeader entity directly
 
         // name
         $result = $header('./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]');
@@ -659,36 +659,36 @@ class TeiHelper
             ], true);
         }
 
-        if (!empty($data['id'])) {
-            $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTAID"]', [
-                'tei:idno[@type="DTAID"]' => function ($parent, $name, $updateExisting) use ($data) {
-                    if (!$updateExisting) {
-                        $self = $parent->appendElement('idno', $data['id'], [ 'type' => 'DTAID' ]);
-                    }
-                    else {
-                        $self = $parent;
-                        $self->nodeValue = $data['id'];
-                    }
+        foreach ([
+                'id' => 'DTAID',
+                'shelfmark' => 'shelfmark',
+                'slug' => 'DTADirName' ]
+            as $key => $type)
+        {
+            if (array_key_exists($key, $data)) {
+                $xpath = sprintf('tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="%s"]', $type);
 
-                    return $self;
-                },
-            ], true);
-        }
+                if (self::isNullOrEmpty($data[$key])) {
+                    // remove
+                    \FluentDom($header)->find($xpath)->remove();
+                }
+                else {
+                    $this->addDescendants($header, $xpath, [
+                        sprintf('tei:idno[@type="%s"]', $type) => function ($parent, $name, $updateExisting) use ($data, $key, $type) {
+                            if (!$updateExisting) {
+                                $self = $parent->appendElement('idno', $data[$key], [ 'type' => $type ]);
+                            }
+                            else {
+                                $self = $parent;
+                                $self->nodeValue = $data[$key];
+                            }
 
-        if (!empty($data['shelfmark'])) {
-            $this->addDescendants($header, 'tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="shelfmark"]', [
-                'tei:idno[@type="shelfmark"]' => function ($parent, $name, $updateExisting) use ($data) {
-                    if (!$updateExisting) {
-                        $self = $parent->appendElement('idno', $data['shelfmark'], [ 'type' => 'shelfmark' ]);
-                    }
-                    else {
-                        $self = $parent;
-                        $self->nodeValue = $data['shelfmark'];
-                    }
+                            return $self;
+                        },
+                    ], true);
+                }
+            }
 
-                    return $self;
-                },
-            ], true);
         }
 
         // sourceDesc
@@ -710,6 +710,7 @@ class TeiHelper
                         else {
                             $self = $parent;
                         }
+
                         return $self;
                     },
                     'tei:date' => function ($parent, $name, $updateExisting) use ($data) {
