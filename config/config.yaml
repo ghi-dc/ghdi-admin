@@ -29,6 +29,7 @@ twig:
         siteName: '%app.site.name%'
         siteHeader: '%app.site.name% - Administration'
         locales: "%locales%"
+    form_themes: ['bootstrap_4_horizontal_layout.html.twig']
 
 assetic:
     debug:          '%kernel.debug%'

@@ -1,12 +1,10 @@
 {% extends 'Base/base.html.twig' %}
 
 {% block body %}
-    {% form_theme form 'bootstrap_4_horizontal_layout.html.twig' %}
-    {# custom form_row since the field name has to be _username/_password #}
-
     {{ form_errors(form) }}
 
     {{ form_start(form) }}
+    {# custom form_row since the field name has to be _username/_password #}
     {{ form_row(form._username, {'full_name': '_username'}) }}
     {{ form_row(form._password, {'full_name': '_password'}) }}
     {{ form_end(form) }}
