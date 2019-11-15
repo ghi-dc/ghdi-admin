@@ -23,6 +23,9 @@ extends AbstractType
             ->add('title', TextType::class, [
                 'label' => 'Title',
                 'required' => true,
+                'attr' => [
+                    'class' => 'tei inline',
+                ],
             ])
             ->add('dtaDirName', TextType::class, [
                 'label' => 'URL Slug',
@@ -32,6 +35,9 @@ extends AbstractType
             ->add('translator', TextType::class, [
                 'label' => 'Translation',
                 'required' => false,
+                'attr' => [
+                    'class' => 'tei inline',
+                ],
             ])
             ;
 

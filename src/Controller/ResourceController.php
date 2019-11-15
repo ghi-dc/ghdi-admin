@@ -917,7 +917,7 @@ EOXQL;
      * Grab CETEI.js from https://github.com/TEIC/CETEIcean/releases
      *
      */
-    public function testAction(Request $request)
+    public function testCeteiAction(Request $request)
     {
         return $this->render('Resource/cetei.html.twig', [
             'volume' => 'volume-2',
