@@ -38,9 +38,10 @@ assetic:
     write_to: '%kernel.project_dir%/public' #  (instead default /web !!!)
     
     # assetic scans bundles to find assetic tags
-    # that's why we set it in
-    # AppBundle\Resources\views\Shared\stylesheets.html.twig
-    # and not directly in temples/Base/base.html.twig
+    # that's why we have to put {% stylesheets ..%}{% endstylesheets %} in
+    #   lib/LegacyAsseticBundle/Resources/views/Shared/stylesheets.html.twig
+    # and not directly in
+    #   temples/Base/base.html.twig
     # bundles: [ AppBundle ]
     filters:
         cssrewrite: ~

@@ -9,8 +9,15 @@ $color-gray-ultralight: #E9E9E9;
 $color-text: #333;
 
 /*
- * If you want to tweak the @font-face settings, you might use instead
- * @import 'font/Lato';
+ * Google Fonts uses Lato 1. For version 2 switch to Adobe Typekit
+ *  https://fonts.adobe.com/fonts/lato
+ * or download a local copy from
+ *  http://www.latofonts.com/lato-free-fonts/
+ *
+ * If you want to tweak the @font-face settings, you might use something like
+ *  @import 'font/Lato';
+ * instead.
+ *
  */
 @import url('https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i&display=swap&subset=latin-ext');
 
