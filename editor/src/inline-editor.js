@@ -117,13 +117,13 @@ const dtabfMarks = {
   },
   persName: {
     attrs: {ref: {}},
-    toDOM(node) { return ["persName", {target: node.attrs.ref}] },
+    toDOM(node) { return ["persName", {ref: node.attrs.ref}] },
     parseDOM: [{tag: "persName", getAttrs(dom) { return {ref: dom.getAttribute("ref")} }}],
     inclusive: false
   },
   orgName: {
     attrs: {ref: {}},
-    toDOM(node) { return ["orgName", {target: node.attrs.ref}] },
+    toDOM(node) { return ["orgName", {ref: node.attrs.ref}] },
     parseDOM: [{tag: "orgName", getAttrs(dom) { return {ref: dom.getAttribute("ref")} }}],
     inclusive: false
   }
