@@ -102,7 +102,7 @@
         "brunty/relax-ng-domdocument": "^0.2",
 
         "masterminds/html5": "2.*",
-        "danielstjules/stringy": "^3.1",
+        "symfony/string": "v5.0.0-RC1",
 
         "hedii/zotero-api": "@stable",
 

@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-use function Stringy\create as s;
+use function Symfony\Component\String\u;
 
 /**
  *
@@ -276,7 +276,7 @@ extends ResourceController
 
                                     // TODO: adjust shelfmark of inherited
                                     foreach ($child['resources'] as $grandChild) {
-                                        if (!s($grandChild['shelfmark'])->startsWith($newShelfmark)) {
+                                        if (!u($grandChild['shelfmark'])->startsWith($newShelfmark)) {
                                             // replace everything until $childId with $newShelfmark
                                             $subShelfmark = preg_replace('/^(.*?)' . preg_quote($childId, '/') . '/',
                                                                          $newShelfmark,

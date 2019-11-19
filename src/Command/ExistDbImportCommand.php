@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
-use function Stringy\create as s;
+use function Symfony\Component\String\u;
 
 class ExistDbImportCommand
 extends ExistDbCommand
@@ -134,7 +134,7 @@ extends ExistDbCommand
             }
         }
 
-        if (s($filenameFull)->endsWith('/')) {
+        if (u($filenameFull)->endsWith('/')) {
             return 0;
         }
 
