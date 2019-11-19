@@ -67,7 +67,7 @@ extends \Twig\Extension\AbstractExtension
         return $this->translator->getLocale();
     }
 
-    protected function dateincompleteFilter($datestr, $locale = null)
+    public function dateincompleteFilter($datestr, $locale = null)
     {
         if (is_null($locale)) {
             $locale = $this->getLocale();
@@ -80,7 +80,7 @@ extends \Twig\Extension\AbstractExtension
         return \App\Utils\Formatter::dateIncomplete($datestr, $locale);
     }
 
-    protected function removeElementByKey($array, $key)
+    public function removeElementByKey($array, $key)
     {
         if (is_array($array) && array_key_exists($key, $array)) {
             unset($array[$key]);
@@ -89,7 +89,7 @@ extends \Twig\Extension\AbstractExtension
         return $array;
     }
 
-    protected function prettifyurlFilter($url)
+    public function prettifyurlFilter($url)
     {
         $parsed = parse_url($url);
         if (empty($parsed['host'])) {
