@@ -609,7 +609,7 @@ class TeiHelper
                     $content = !empty($data['licence']) ? $data['licence'] : null;
 
                     if (!$updateExisting) {
-                        if (empty($content) && empty($data['licence'])) {
+                        if (empty($content) && empty($data['licenceTarget'])) {
                             return;
                         }
 
@@ -622,7 +622,7 @@ class TeiHelper
 
                         $self = $parent;
 
-                        if (empty($content) && empty($data['licence'])) {
+                        if (empty($content) && empty($data['licenceTarget'])) {
                             // we remove the existing tag
                             $self->parentNode->removeChild($self);
 
@@ -633,7 +633,6 @@ class TeiHelper
                             // we remove a possible licence child
                             \FluentDom($self)->find('tei:licence')->remove();
                         }
-
                     }
 
                     // at this point, $self is the availability node and we add a licence-tag depending on $data['licenceTarget']
@@ -692,9 +691,31 @@ class TeiHelper
         }
 
         // sourceDesc
+        foreach ([
+                'sourceDescBibl' => 'tei:fileDesc/tei:sourceDesc/tei:bibl',
+            ] as $key => $xpath)
+        {
+            if (array_key_exists($key, $data)) {
+                if (self::isNullOrEmpty($data[$key])) {
+                    // remove
+                    \FluentDom($header)->find($xpath)->remove();
+                }
+                else {
+                    $node = $this->addDescendants($header, $xpath, [], true);
+
+                    // assume for the moment that $data[$key] is valid XML
+                    $fragment = $xml->createDocumentFragment();
+                    $fragment->appendXML($data[$key]);
+
+                    (new \FluentDOM\Nodes\Modifier($node))
+                        ->replaceChildren($fragment);
+                }
+            }
+        }
+
         if (array_key_exists('dateCreation', $data)) {
             if (!empty($data['dateCreation'])) {
-                $this->addDescendants($header, 'tei:fileDesc/sourceDesc/tei:biblFull/tei:publicationStmt/tei:date', [
+                $this->addDescendants($header, 'tei:fileDesc/tei:sourceDesc/tei:biblFull/tei:publicationStmt/tei:date', [
                     'tei:biblFull' => function ($parent, $name, $updateExisting) use ($xml, $data) {
                         if (!$updateExisting) {
                             $self = $parent->appendChild($this->createElement($parent->ownerDocument, $name));
@@ -724,6 +745,11 @@ class TeiHelper
 
                         $self->setAttribute('type', 'creation');
 
+                        // TODO: maybe add support for things like circa
+                        if (preg_match('/^\d+$/', $data['dateCreation'])) {
+                            $self->setAttribute('when', $data['dateCreation']);
+                        }
+
                         return $self;
                     },
                 ], true);
@@ -732,6 +758,7 @@ class TeiHelper
 
         $hasSourceDesc = $header('count(tei:fileDesc/tei:sourceDesc) > 0');
         if (!$hasSourceDesc) {
+            // add an empty p since element is required
             $this->addDescendants($header, 'tei:fileDesc/tei:sourceDesc/tei:p', []);
         }
 

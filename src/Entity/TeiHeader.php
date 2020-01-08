@@ -21,9 +21,10 @@ implements \JsonSerializable
     protected $authors = [];
     protected $translator;
     protected $responsible = [];
-    protected $note;
     protected $licence;
     protected $licenceTarget;
+    protected $note;
+    protected $sourceDescBibl;
     protected $language;
     protected $shelfmark;
     protected $dateCreation;
@@ -144,30 +145,6 @@ implements \JsonSerializable
     }
 
     /**
-     * Sets note.
-     *
-     * @param string $note
-     *
-     * @return $this
-     */
-    public function setNote($note)
-    {
-        $this->note = $note;
-
-        return $this;
-    }
-
-    /**
-     * Gets note.
-     *
-     * @return string
-     */
-    public function getNote()
-    {
-        return $this->note;
-    }
-
-    /**
      * Sets licence.
      *
      * @param string $licence
@@ -213,6 +190,54 @@ implements \JsonSerializable
     public function getLicenceTarget()
     {
         return $this->licenceTarget;
+    }
+
+    /**
+     * Sets note.
+     *
+     * @param string $note
+     *
+     * @return $this
+     */
+    public function setNote($note)
+    {
+        $this->note = $note;
+
+        return $this;
+    }
+
+    /**
+     * Gets note.
+     *
+     * @return string
+     */
+    public function getNote()
+    {
+        return $this->note;
+    }
+
+    /**
+     * Sets sourceDescBibl.
+     *
+     * @param string $sourceDescBibl
+     *
+     * @return $this
+     */
+    public function setSourceDescBibl($sourceDescBibl)
+    {
+        $this->sourceDescBibl = $sourceDescBibl;
+
+        return $this;
+    }
+
+    /**
+     * Gets sourceDescBibl.
+     *
+     * @return string
+     */
+    public function getSourceDescBibl()
+    {
+        return $this->sourceDescBibl;
     }
 
     /**
@@ -468,10 +493,11 @@ implements \JsonSerializable
             'translator' => $this->getTranslator(),
             'responsible' => $this->getResponsible(),
             'dateCreation' => $this->getDateCreation(),
-            'language' => $this->getLanguage(),
-            'genre' => $this->getGenre(),
             'settingDate' => $this->getSettingDate(),
             'note' => $this->getNote(),
+            'sourceDescBibl' => $this->getSourceDescBibl(),
+            'language' => $this->getLanguage(),
+            'genre' => $this->getGenre(),
             'shelfmark' => $this->getShelfmark(),
             'licence' => $this->getLicence(),
             'licenceTarget' => $this->getLicenceTarget(),
