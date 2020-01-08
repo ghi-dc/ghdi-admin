@@ -17,7 +17,7 @@ implements VoterInterface
         $this->requestStack = $requestStack;
     }
 
-    public function matchItem(ItemInterface $item)
+    public function matchItem(ItemInterface $item): ?bool
     {
     	if ($item->getUri() === $this->requestStack->getCurrentRequest()->getRequestUri()) {
     		// URL's completely match

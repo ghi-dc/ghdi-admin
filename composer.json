@@ -82,7 +82,7 @@
 
         "symfony/http-client": "^4.3",
 
-        "knplabs/knp-menu-bundle": "^2.2",
+        "knplabs/knp-menu-bundle": "^3.0",
 
         "symfony/web-profiler-bundle": "^4.3",
         "symfony/debug": "^4.3",
