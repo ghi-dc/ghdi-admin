@@ -227,9 +227,10 @@ extends BaseController
                                     foreach ([ 'forename', 'surname' ] as $key) {
                                         if (!empty($entity[$key])) {
                                             $val = $this->buildTeiValue($entity[$key], true);
-                                            $nameParts[] = sprintf('<%s>%s</%s>', $key, $val, $key);
+                                            $nameParts[] = $val; // if you want to wrap into extra tags: sprintf('<%s>%s</%s>', $key, $val, $key);
                                         }
                                     }
+
                                     $name = sprintf('<persName>%s</persName>', join(' ', $nameParts));
                                 }
                                 else {
@@ -246,9 +247,10 @@ extends BaseController
                                     foreach ([ 'forename', 'surname' ] as $key) {
                                         if (!empty($entity[$key])) {
                                             $val = $this->buildTeiValue($entity[$key], true);
-                                            $nameParts[] = sprintf('<%s>%s</%s>', $key, $val, $key);
+                                            $nameParts[] = $val; // if you want to wrap into extra tags: sprintf('<%s>%s</%s>', $key, $val, $key);
                                         }
                                     }
+
                                     $teiHeader->addResponsible(join(' ', $nameParts), 'Contributor', 'persName');
                                 }
                                 else {
@@ -323,7 +325,7 @@ extends BaseController
                         if (array_key_exists($lang, $struct) && !empty($struct[$lang])) {
                             $val = $this->buildTeiValue($struct[$lang][$dst], false);
                             if (!empty($val)) {
-                                $teiHeader->setLicence($val);
+                                $teiHeader->setSourceDescBibl($val);
                             }
 
                             if (!empty($struct[$lang]['copyrightStatement'])) {
@@ -376,9 +378,12 @@ extends BaseController
         }
 
         foreach ($data['representations'] as $representation) {
+            /*
+            // if we only want first one
             if (!$representation['is_primary']) {
                 continue;
             }
+            */
 
             $figures[] = $representation;
         }
@@ -413,13 +418,11 @@ extends BaseController
     {
         $caItemService = $caService->getItemService($id);
 
-        /*
         // seemingly doesn't make a difference
         $locale = $request->getLocale();
         if (array_key_exists($locale, self::$LOCALE_MAP)) {
             $caItemService->setLang(self::$LOCALE_MAP[$locale]);
         }
-        */
 
         $result = $caItemService->request();
         if (!$result->isOk()) {
@@ -453,7 +456,7 @@ extends BaseController
                         ->replaceChildren($fragment);
                 }
 
-                $response = new Response($tei->saveXML());
+                $response = new Response($this->prettyPrintTei($tei->saveXML()));
                 $response->headers->set('Content-Type', 'xml');
 
                 return $response;

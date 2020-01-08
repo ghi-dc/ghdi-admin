@@ -37,13 +37,17 @@
       <dd class="col-sm-9 col-md-10"><a href="{{ item.licenceTarget }}" target="_blank">{{ item.licenceTarget|prettifyurl }}</a></dd>
     {% endif %}
 
-    {% for figure in figures %}
+    {% if figures is not empty %}
       <dt class="col-sm-3 col-md-2">{{ 'Figure'|trans }}</dt>
       <dd class="col-sm-9 col-md-10">
-        {{ figure['tags']['preview170']|raw }}
-        <a href="{{ figure['urls']['original'] }}" target="_blank">{{ figure['original_filename'] }}</a>
-      </dd>
-    {% endfor %}
+       {% for figure in figures %}
+           <div>
+            {{ figure['tags']['preview170']|raw }}
+            <a href="{{ figure['urls']['original'] }}" target="_blank">{{ figure['original_filename'] }}</a>
+            </div>
+        {% endfor %}
+     </dd>
+      {% endif %}
 
     {% if item.genre is not empty %}
       <dt class="col-sm-3 col-md-2">Genre</dt>
