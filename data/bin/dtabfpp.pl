@@ -111,6 +111,12 @@ my $cb_block = sub {
     {
         return 1;
     }
+    # format <bibl> as block when it is child of <sourceDesc>
+    if ( $node->nodeName =~ /^(?:bibl)$/
+          and $node->parentNode->nodeName eq 'sourceDesc' )
+    {
+        return 1;
+    }
     # format <publisher|idno> as block when it is child of <publicationStmt>
     if ( $node->nodeName =~ /^(?:publisher|idno)$/
           and $node->parentNode->nodeName eq 'publicationStmt' )
