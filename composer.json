@@ -74,8 +74,7 @@
         "symfony/monolog-bridge": "^4.4",
 
         "symfony/asset": "^4.4",
-        "sanpi/assetic-bundle": "^2.11",
-        "leafo/scssphp": "@stable",
+        "armin/scssphp-bundle": "@stable",
 
         "symfony/dom-crawler": "^4.4",
         "symfony/css-selector": "^4.4",

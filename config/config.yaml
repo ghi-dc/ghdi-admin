@@ -13,14 +13,9 @@ framework:
     session: ~
     # JMS\TranslationBundle\JMSTranslationBundle needs validation
     validation: ~
-    # the following leads to
-    # The "framework.templating" configuration is deprecated since Symfony 4.3.
-    # but the parameter still in use by sanpi/assetic-bundle
-    templating:
-        engines: ['twig']
-    profiler: { only_exceptions: false }
     # knp_paginator needs translate bundle
     translator: { fallbacks: ['%default_locale%'], logging: false }
+    profiler: { only_exceptions: false }
     http_client:
         scoped_clients:
             # see: https://symfony.com/doc/current/reference/configuration/framework.html#reference-http-client-scoped-clients
@@ -35,23 +30,15 @@ twig:
         locales: "%locales%"
     form_themes: ['bootstrap_4_horizontal_layout.html.twig']
 
-assetic:
-    debug:          '%kernel.debug%'
-    use_controller: '%kernel.debug%'
-    read_from: '%kernel.project_dir%/public' # (instead default /web !!!)
-    write_to: '%kernel.project_dir%/public' #  (instead default /web !!!)
-    
-    # assetic scans bundles to find assetic tags
-    # that's why we have to put {% stylesheets ..%}{% endstylesheets %} in
-    #   lib/LegacyAsseticBundle/Resources/views/Shared/stylesheets.html.twig
-    # and not directly in
-    #   temples/Base/base.html.twig
-    bundles: [ LegacyAsseticBundle ]
-    filters:
-        cssrewrite: ~
-        # see http://symfony.com/doc/current/cookbook/assetic/php.html
-        scssphp:
-            formatter: 'Leafo\ScssPhp\Formatter\Compressed'
+scssphp:
+    assets:
+        "css/base.css":
+            src: "public/assets/scss/base.scss"
+            sourceMap: true
+#            importPaths:
+#                - "vendor/twbs/bootstrap/scss"
+#            variables:
+#                primary: '#ff0066'
 
 knp_menu:
     # use "twig: false" to disable the Twig extension and the TwigRenderer

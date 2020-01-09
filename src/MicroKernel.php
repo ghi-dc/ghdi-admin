@@ -59,16 +59,8 @@ extends Kernel
             // slug
             new \Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle(),
 
-            // asset management
-            // see http://symfony.com/doc/current/cookbook/assetic/asset_management.html
-            new \Symfony\Bundle\AsseticBundle\AsseticBundle(),
-
-            // assetic scans bundles to find assetic tags, so without AppBundle
-            // we have to put {% stylesheets ..%}{% endstylesheets %} in
-            // lib/LegacyAsseticBundle/Resources/views/Shared/stylesheets.html.twig
-            // and not directly in
-            // temples/Base/base.html.twig
-            new \LegacyAsseticBundle\LegacyAsseticBundle(),
+            // https://github.com/a-r-m-i-n/scssphp-bundle
+            new \Armin\ScssphpBundle\ScssphpBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
