@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a68452a20f4d35400bb7d4bc8b93f223",
+    "content-hash": "9c4ec346b9954a315020f9aed9ec3d70",
     "packages": [
         {
             "name": "brunty/relax-ng-domdocument",

@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
-// see https://github.com/ikoene/symfony-micro
+// see https://symfony.com/doc/current/configuration/micro_kernel_trait.html
 class MicroKernel
 extends Kernel
 {
@@ -46,20 +46,11 @@ extends Kernel
             new \Symfony\Bundle\TwigBundle\TwigBundle(),
             new \Symfony\Bundle\MonologBundle\MonologBundle(),
 
-            /*
-            // translate routes - now using built-in
-            // https://symfony.com/blog/new-in-symfony-4-1-internationalized-routing
-            new \JMS\I18nRoutingBundle\JMSI18nRoutingBundle(),
-            */
             // not required, but recommended for better extraction
             new \JMS\TranslationBundle\JMSTranslationBundle(),
 
             // login
             new \Symfony\Bundle\SecurityBundle\SecurityBundle(),
-
-            // asset management
-            // see http://symfony.com/doc/current/cookbook/assetic/asset_management.html
-            new \Symfony\Bundle\AsseticBundle\AsseticBundle(),
 
             // menu
             // see http://symfony.com/doc/current/bundles/KnpMenuBundle/index.html
@@ -67,10 +58,20 @@ extends Kernel
 
             // slug
             new \Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle(),
+
+            // asset management
+            // see http://symfony.com/doc/current/cookbook/assetic/asset_management.html
+            new \Symfony\Bundle\AsseticBundle\AsseticBundle(),
+
+            // assetic scans bundles to find assetic tags, so without AppBundle
+            // we have to put {% stylesheets ..%}{% endstylesheets %} in
+            // lib/LegacyAsseticBundle/Resources/views/Shared/stylesheets.html.twig
+            // and not directly in
+            // temples/Base/base.html.twig
+            new \LegacyAsseticBundle\LegacyAsseticBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
-            $bundles[] = new \LegacyAsseticBundle\LegacyAsseticBundle();
             $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
             $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
         }
@@ -110,33 +111,37 @@ extends Kernel
     {
         $loader->load($this->getConfigDir().'/config_'.$this->getEnvironment().'.yaml');
         $loader->load($this->getConfigDir().'/services.yaml');
+
+        // configure WebProfilerBundle only if the bundle is enabled
+        // see https://symfony.com/doc/current/configuration/micro_kernel_trait.html#advanced-example-twig-annotations-and-the-web-debug-toolbar
+        if (isset($this->bundles['WebProfilerBundle'])) {
+            $c->loadFromExtension('web_profiler', [
+                'toolbar' => true,
+                'intercept_redirects' => false,
+            ]);
+        }
     }
 
     /*
      * {@inheritDoc}
+     *
+     * use
+     *      bin/console debug:router
+     * to show all your routes
+     *
      */
     protected function configureRoutes(RouteCollectionBuilder $routes)
     {
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
-            $routes->mount('/_wdt', $routes->import('@WebProfilerBundle/Resources/config/routing/wdt.xml'));
-            $routes->mount(
-                '/_profiler',
-                $routes->import('@WebProfilerBundle/Resources/config/routing/profiler.xml')
-            );
+            $routes->import('@WebProfilerBundle/Resources/config/routing/wdt.xml', '/_wdt');
+            $routes->import('@WebProfilerBundle/Resources/config/routing/profiler.xml', '/_profiler');
 
             // Preview error pages through /_error/{statusCode}
             //   see http://symfony.com/doc/current/cookbook/controller/error_pages.html
-            // Note: not sure why this is mapped to /_error/_error/{code}.{_format} as can be seen by
-            //   bin/console debug:router | grep twig
-            // ->_twig_error_test            ANY      ANY      ANY    /_error/_error/{code}.{_format}
-
-            $routes->mount(
-                '/_error',
-                $routes->import('@TwigBundle/Resources/config/routing/errors.xml')
-            );
+            $routes->import('@FrameworkBundle/Resources/config/routing/errors.xml', '/_error');
         }
 
         // our controllers
-        $routes->mount('/', $routes->import($this->getConfigDir().'/routes.yaml'));
+        $routes->import($this->getConfigDir().'/routes.yaml');
     }
 }

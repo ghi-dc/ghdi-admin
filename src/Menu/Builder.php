@@ -10,7 +10,7 @@ use Knp\Menu\FactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
-use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\TranslatorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class Builder
@@ -29,7 +29,7 @@ class Builder
      */
     public function __construct(FactoryInterface $factory,
                                 AuthorizationCheckerInterface $authorizationChecker,
-                                Translator $translator,
+                                TranslatorInterface $translator,
                                 RequestStack $requestStack,
                                 array $zoteroOptions)
     {
