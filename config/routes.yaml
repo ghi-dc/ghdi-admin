@@ -1,0 +1,6 @@
+site:
+    resource: '../src/Controller/'
+    type: annotation
+    prefix:
+        en: '/'
+        de: '/de'

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb8acb88314fa9d4c5a5377894de1484",
+    "content-hash": "a68452a20f4d35400bb7d4bc8b93f223",
     "packages": [
         {
             "name": "brunty/relax-ng-domdocument",
@@ -975,62 +975,6 @@
                 "time"
             ],
             "time": "2019-12-10T16:04:23+00:00"
-        },
-        {
-            "name": "jms/i18n-routing-bundle",
-            "version": "3.0.3",
-            "target-dir": "JMS/I18nRoutingBundle",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/schmittjoh/JMSI18nRoutingBundle.git",
-                "reference": "f9f653d1aff48ee85c3477ba4a92f859c064b4a3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/JMSI18nRoutingBundle/zipball/f9f653d1aff48ee85c3477ba4a92f859c064b4a3",
-                "reference": "f9f653d1aff48ee85c3477ba4a92f859c064b4a3",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1",
-                "symfony/framework-bundle": "^4.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^6.0",
-                "sensio/framework-extra-bundle": "*",
-                "symfony/symfony": "^4.0"
-            },
-            "suggest": {
-                "jms/translation-bundle": "If you want to use the RouteTranslation extractor"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-0": {
-                    "JMS\\I18nRoutingBundle": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache2"
-            ],
-            "authors": [
-                {
-                    "name": "Johannes M. Schmitt",
-                    "email": "schmittjoh@gmail.com"
-                },
-                {
-                    "name": "Albert Casademont",
-                    "email": "albertcasademont@gmail.com"
-                }
-            ],
-            "description": "This bundle allows you to create i18n routes.",
-            "homepage": "http://jmsyst.com/bundles/JMSI18nRoutingBundle",
-            "keywords": [
-                "multilanguage",
-                "routing",
-                "translation"
-            ],
-            "time": "2019-05-05T18:42:08+00:00"
         },
         {
             "name": "jms/metadata",
@@ -2969,16 +2913,16 @@
         },
         {
             "name": "sanpi/assetic",
-            "version": "v1.5.0",
+            "version": "v1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sanpii/assetic.git",
-                "reference": "83d3cde04827046df5b743997fdf8d5486494b0c"
+                "reference": "2a63c71ee05daec059a1f2c291d7eb71669cf562"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sanpii/assetic/zipball/83d3cde04827046df5b743997fdf8d5486494b0c",
-                "reference": "83d3cde04827046df5b743997fdf8d5486494b0c",
+                "url": "https://api.github.com/repos/sanpii/assetic/zipball/2a63c71ee05daec059a1f2c291d7eb71669cf562",
+                "reference": "2a63c71ee05daec059a1f2c291d7eb71669cf562",
                 "shasum": ""
             },
             "require": {
@@ -2986,7 +2930,7 @@
                 "symfony/process": "^2.7|^3.0|^4.0"
             },
             "conflict": {
-                "twig/twig": "<1.27"
+                "twig/twig": "<1.34|>=2,<2.4"
             },
             "replace": {
                 "kriswallsmith/assetic": "self.version"
@@ -3043,25 +2987,25 @@
                 "compression",
                 "minification"
             ],
-            "time": "2018-06-02T12:55:21+00:00"
+            "time": "2019-11-29T14:07:38+00:00"
         },
         {
             "name": "sanpi/assetic-bundle",
-            "version": "v2.10.0",
+            "version": "v2.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sanpii/assetic-bundle.git",
-                "reference": "fa329599ee9d6b1f95f15149a1e626e20ccc85ca"
+                "reference": "1dc386397aa68b437567cef9818f430cbc145ce8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sanpii/assetic-bundle/zipball/fa329599ee9d6b1f95f15149a1e626e20ccc85ca",
-                "reference": "fa329599ee9d6b1f95f15149a1e626e20ccc85ca",
+                "url": "https://api.github.com/repos/sanpii/assetic-bundle/zipball/1dc386397aa68b437567cef9818f430cbc145ce8",
+                "reference": "1dc386397aa68b437567cef9818f430cbc145ce8",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
-                "sanpi/assetic": "~1.5",
+                "sanpi/assetic": "^1.6",
                 "symfony/asset": "~2.3|~3.0|~4.0",
                 "symfony/console": "~2.3|~3.0|~4.0",
                 "symfony/dependency-injection": "~2.3|~3.0|~4.0",
@@ -3072,7 +3016,7 @@
             },
             "conflict": {
                 "kriswallsmith/spork": "<=0.2",
-                "twig/twig": "<1.27"
+                "twig/twig": "<1.34|>=2,<2.4"
             },
             "replace": {
                 "symfony/assetic-bundle": "self.version"
@@ -3119,7 +3063,7 @@
                 "compression",
                 "minification"
             ],
-            "time": "2018-08-07T15:17:53+00:00"
+            "time": "2019-11-29T14:10:47+00:00"
         },
         {
             "name": "seboettg/citeproc-php",
@@ -7132,9 +7076,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "jasny/twig-extensions": 0,
+        "twig/twig": 0,
         "symfony/monolog-bundle": 0,
-        "sanpi/assetic-bundle": 20,
         "leafo/scssphp": 0,
         "servo/fluidxml": 0,
         "symfony/string": 5,

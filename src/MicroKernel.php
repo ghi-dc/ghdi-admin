@@ -46,8 +46,11 @@ extends Kernel
             new \Symfony\Bundle\TwigBundle\TwigBundle(),
             new \Symfony\Bundle\MonologBundle\MonologBundle(),
 
-            // translate routes
+            /*
+            // translate routes - now using built-in
+            // https://symfony.com/blog/new-in-symfony-4-1-internationalized-routing
             new \JMS\I18nRoutingBundle\JMSI18nRoutingBundle(),
+            */
             // not required, but recommended for better extraction
             new \JMS\TranslationBundle\JMSTranslationBundle(),
 
@@ -95,13 +98,18 @@ extends Kernel
         return $this->getProjectDir().'/var/logs';
     }
 
+    public function getConfigDir()
+    {
+        return $this->getProjectDir().'/config';
+    }
+
     /*
      * {@inheritDoc}
      */
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
     {
-        $loader->load($this->getProjectDir().'/config/config_' . $this->getEnvironment() . '.yaml');
-        $loader->load($this->getProjectDir().'/config/services.yaml');
+        $loader->load($this->getConfigDir().'/config_'.$this->getEnvironment().'.yaml');
+        $loader->load($this->getConfigDir().'/services.yaml');
     }
 
     /*
@@ -129,6 +137,6 @@ extends Kernel
         }
 
         // our controllers
-        $routes->mount('/', $routes->import($this->getProjectDir().'/src/Controller/', 'annotation'));
+        $routes->mount('/', $routes->import($this->getConfigDir().'/routes.yaml'));
     }
 }
