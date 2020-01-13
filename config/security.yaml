@@ -1,6 +1,6 @@
 # config/security.yaml
 
-# see https://symfony.com/doc/3.4/security.html
+# see https://symfony.com/doc/4.4/security.html
 security:
     providers:
         # see https://symfony.com/doc/current/security/custom_provider.html
@@ -15,16 +15,12 @@ security:
         main:
             anonymous: ~
             pattern: ^/
-            provider: existdb_provider
-            simple_form:
-                authenticator: App\Security\ExistDbAuthenticator
-                check_path: login
-                login_path: login
+            guard:
+                authenticators:
+                    - App\Security\LoginFormAuthenticator
             logout:
-                path:   /logout
+                path:   logout
                 target: /
-            # for the api
-            http_basic: ~
         
     access_control:
         - { path: ^/(login|logout)$, role: IS_AUTHENTICATED_ANONYMOUSLY }

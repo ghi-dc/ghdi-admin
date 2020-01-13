@@ -4,28 +4,27 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
  * Render a Login form
  */
 class UserController
-extends Controller
+extends AbstractController
 {
     /**
      * @Route("/login", name="login")
      */
     public function loginAction(Request $request, AuthenticationUtils $authenticationUtils = null)
     {
-        if (is_null($authenticationUtils)) {
-            $authenticationUtils = $this->get('security.authentication_utils');
-        }
-
         // last username entered by the user
         $defaultData = [ '_username' => $authenticationUtils->getLastUsername() ];
-        $form = $this->createFormBuilder($defaultData)
+
+        // csrf_token_id needs to match with the id in LoginFormAuthenticator
+        $form = $this->createFormBuilder($defaultData, [ 'csrf_token_id' => 'authenticate' ])
             ->add('_username', \Symfony\Component\Form\Extension\Core\Type\TextType::class)
             ->add('_password', \Symfony\Component\Form\Extension\Core\Type\PasswordType::class)
             ->add('Login', \Symfony\Component\Form\Extension\Core\Type\SubmitType::class)
@@ -50,9 +49,9 @@ extends Controller
     /**
      * @Route("/logout", name="logout")
      */
-    public function logoutAction(Request $request)
+    public function logoutAction(Request $request, TokenStorageInterface $tokenStorage)
     {
-        $this->get('security.token_storage')->setToken(null);
+        $tokenStorage->setToken(null);
         $request->getSession()->invalidate();
 
         return $this->redirect($this->generateUrl('login'));
