@@ -128,7 +128,7 @@
     <htmlpageheader name="header" style="display:none">
         <div id="header-wrapper">
             <div id="author-line">
-            {% if authors is not empty %}
+            {% if authors is defined and authors is not empty %}
                 {% for author in authors %}
                     {{ author.text }}{% if not loop.last %}, {% endif %}
                 {% endfor %}
@@ -156,7 +156,7 @@
         </h1>-->
     </header>
 
-    {% if authors is not empty %}
+    {% if authors is defined and authors is not empty %}
         <div class="author">
             <!--<a href="#author">-->
             {% for author in authors %}
@@ -172,8 +172,8 @@
     <div class="appendix">
     {#{ helper.article_authors(authors) }}
 
-    {{ helper.article_citation(article, meta, authors, name) }}#}
+    {{ helper.article_citation(article, meta, authors, name) }}
 
-    {{ helper.article_license(license) }}
+    {{ helper.article_license(license) }#}
     </div>
 {% endblock %}

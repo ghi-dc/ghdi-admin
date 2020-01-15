@@ -10,6 +10,7 @@
     <a href="{{ path('place-add-from-identifier') }}" class="btn btn-default btn-sm">
         <span class="fa fa-plus"></span> {{ 'Add from Identifier'|trans }}
     </a>
+    {% if places is not null %}
     <ul>
         {% for place in places.data %}
             <li>
@@ -19,4 +20,5 @@
             </li>
         {% endfor %}
     </ul>
+    {% endif %}
 {% endblock %}

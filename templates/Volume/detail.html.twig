@@ -27,7 +27,7 @@
     </div>
     <div class="row">
         <div class="col-sm-8">
-        {% if result is not empty %}
+        {% if result is defined and result is not empty %}
             {# coming from a search #}
             <h3>{{ 'Search Results'|trans }}</h3>
             <ul>
@@ -68,7 +68,7 @@
                         <ul id="sortable-{{ key }}" class="list-group">
                         {% for subkey,resource in group.resources %}
                             <li class="list-group-item" data-id="{{ resource.id }}">
-                            {% if resource.resources is not empty %}
+                            {% if resource.resources is defined and resource.resources is not empty %}
                                 <h5>
                                     <a href="#{{ subkey }}" data-toggle="collapse">{{ resource.name }}</a>
                                     ({{ resource.resources|length }})
@@ -115,7 +115,7 @@
             </ul>
             {% endif %}
 
-            {{ html|raw }}
+            {% if html is defined %}{{ html|raw }}{% endif %}
         </div>
 
         <div class="col-sm-4 sidebar">

@@ -3,8 +3,7 @@
 // src/Command/WordToTeiCommand.php
 namespace App\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,10 +11,26 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class WordToTeiCommand
-extends ContainerAwareCommand
+extends Command
 {
+    protected $projectDir;
+    protected $pandocConverter;
+    protected $teiPrettyPrinter;
+
+    public function __construct(KernelInterface $kernel,
+                                \App\Utils\PandocConverter $pandocConverter,
+                                \App\Utils\XmlPrettyPrinter\XmlPrettyPrinter $teiPrettyPrinter)
+    {
+        parent::__construct();
+
+        $this->projectDir = $kernel->getProjectDir();
+        $this->pandocConverter = $pandocConverter;
+        $this->teiPrettyPrinter = $teiPrettyPrinter;
+    }
+
     protected function configure()
     {
         $this
@@ -47,20 +62,19 @@ extends ContainerAwareCommand
             ->setDescription('Convert Word-File (docx or odt) to TEI')
             ;
 
-            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                // the following is currently windows only and needs perl and word installed
-                $this
-                    ->addOption(
-                        'underline2strikethrough',
-                        null,
-                        InputOption::VALUE_NONE,
-                        'Replaces underline with strikethrough'
-                    );
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            // the following is currently windows only and needs perl and word installed
+            $this
+                ->addOption(
+                    'underline2strikethrough',
+                    null,
+                    InputOption::VALUE_NONE,
+                    'Replaces underline with strikethrough'
+                );
             }
-
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $file = $input->getArgument('file');;
         if (!file_exists($file)) {
@@ -74,7 +88,7 @@ extends ContainerAwareCommand
 
         if ($input->getOption('underline2strikethrough')) {
             // TODO: make perl-path configurable
-            $scriptName = $this->getContainer()->get('kernel')->getProjectDir() . '/data/bin/word-search-replace.pl';
+            $scriptName = $this->projectDir . '/data/bin/word-search-replace.pl';
 
             $process = new \Symfony\Component\Process\Process(["C:\\Run\\Perl\\perl\\bin\\perl.exe", $scriptName, $file]);
             $process->run();
@@ -90,8 +104,6 @@ extends ContainerAwareCommand
             $officeDoc->load($file);
         }
 
-        $pandocConverter = $this->getContainer()->get(\App\Utils\PandocConverter::class);
-
         // inject TeiFromWordCleaner
         $myTarget = new class()
         extends \App\Utils\TeiSimplePrintDocument
@@ -99,12 +111,12 @@ extends ContainerAwareCommand
             use \App\Utils\TeiFromWordCleaner;
         };
 
-        $pandocConverter->setOption('target', $myTarget);
+        $this->pandocConverter->setOption('target', $myTarget);
 
-        $teiSimpleDoc = $pandocConverter->convert($officeDoc);
+        $teiSimpleDoc = $this->pandocConverter->convert($officeDoc);
 
         $conversionOptions = [
-            'prettyPrinter' => $this->getContainer()->get('app.tei-prettyprinter'),
+            'prettyPrinter' => $this->teiPrettyPrinter,
         ];
 
         if (!empty($input->getOption('locale'))) {
@@ -122,7 +134,7 @@ extends ContainerAwareCommand
             || !in_array($input->getOption('validate'), [ '0', 'false' ]);
 
         if ($validate) {
-            $valid = $teiDtabfDoc->validate($this->getContainer()->get('kernel')->getProjectDir() . '/data/schema/basisformat.rng');
+            $valid = $teiDtabfDoc->validate($this->projectDir . '/data/schema/basisformat.rng');
             if (!$valid) {
                  $errOutput = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
 
@@ -130,9 +142,12 @@ extends ContainerAwareCommand
                     $errOutput->writeln(sprintf('<error>Validation error: %s</error>',
                                                 $error->message));
                 }
+
+                return -2;
             }
         }
 
         echo $teiDtabfDoc->saveString();
+        return 0;
     }
 }

@@ -9,9 +9,11 @@ use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
 // see https://symfony.com/doc/current/configuration/micro_kernel_trait.html
-class MicroKernel
+final class MicroKernel
 extends Kernel
 {
+    use MicroKernelTrait;
+
     /*
      * Set an Environment Variable in Apache Configuration
      *   SetEnv APP_ENVIRONMENT prod
@@ -32,8 +34,6 @@ extends Kernel
 
         return new self($env, $debug);
     }
-
-    use MicroKernelTrait;
 
     /*
      * {@inheritDoc}

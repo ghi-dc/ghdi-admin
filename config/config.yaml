@@ -11,6 +11,8 @@ parameters:
 framework:
     secret: '%kernel.secret%'
     session: ~
+    # LoginFormAuthenticator checks for csrf_protection
+    csrf_protection: ~
     # JMS\TranslationBundle\JMSTranslationBundle needs validation
     validation: ~
     # knp_paginator needs translate bundle
@@ -29,6 +31,8 @@ twig:
         siteHeader: '%app.site.name% - Administration'
         locales: "%locales%"
     form_themes: ['bootstrap_4_horizontal_layout.html.twig']
+    strict_variables: '%kernel.debug%'
+    exception_controller: null  # as per https://github.com/symfony/symfony/blob/master/UPGRADE-4.4.md#twigbundle
 
 scssphp:
     assets:

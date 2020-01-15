@@ -3,8 +3,7 @@
 // src/Command/WordToTeiCommand.php
 namespace App\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -13,16 +12,21 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 class TeiToPdfCommand
-extends ContainerAwareCommand
+extends Command
 {
     protected $pdfConverter;
+    /**
+     * @var \App\Utils\XslConverter
+     */
+    private $xslConverter;
 
-    public function __construct(\App\Utils\MpdfConverter $pdfConverter)
+    public function __construct(\App\Utils\MpdfConverter $pdfConverter, \App\Utils\XslConverter $xslConverter)
     {
         $this->pdfConverter = $pdfConverter;
 
         // you *must* call the parent constructor
         parent::__construct();
+        $this->xslConverter = $xslConverter;
     }
 
     protected function configure()
@@ -38,7 +42,7 @@ extends ContainerAwareCommand
             ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $file = $input->getArgument('file');;
         if (!file_exists($file)) {
@@ -51,7 +55,7 @@ extends ContainerAwareCommand
         $teiDoc = new \App\Utils\TeiDocument();
         $teiDoc->load($file);
 
-        $xslConverter = $this->getContainer()->get(\App\Utils\XslConverter::class);
+        $xslConverter = $this->xslConverter;
         $xslConverter->setOption('xsl', 'data/styles/dta2html.xsl');
         $xslConverter->setOption('target', new \App\Utils\HtmlDocument());
 
@@ -60,5 +64,6 @@ extends ContainerAwareCommand
         $pdfDoc = $this->pdfConverter->convert($htmlDoc);
 
         echo (string)$pdfDoc;
+        return 0;
     }
 }

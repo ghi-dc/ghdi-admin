@@ -3,11 +3,12 @@
 // src/App/Command/ScalarCommand.php
 namespace App\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  *
@@ -15,20 +16,23 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  */
 class ScalarCommand
-extends ContainerAwareCommand
+extends Command
 {
     protected $adminClient;
     protected $scalarClient;
+    protected $projectDir;
     protected $config = [];
 
-    public function __construct(\Symfony\Contracts\HttpClient\HttpClientInterface $adminClient,
+    public function __construct(KernelInterface $kernel,
+                                \Symfony\Contracts\HttpClient\HttpClientInterface $adminClient,
                                 \App\Utils\AnvcScalarClient $scalarClient)
     {
-        $this->adminClient = $adminClient;
-        $this->scalarClient = $scalarClient;
-
         // you *must* call the parent constructor
         parent::__construct();
+
+        $this->adminClient = $adminClient;
+        $this->scalarClient = $scalarClient;
+        $this->projectDir = $kernel->getProjectDir();
     }
 
     protected function configure()
@@ -114,7 +118,7 @@ extends ContainerAwareCommand
             $maxDimension = 1280;
 
             // check if we need to convert (either resize or change format)
-            $imageConversion = $this->getContainer()->get(\App\Service\ImageConversion\ConversionService::class);
+            $imageConversion = $this->conversionService;
 
             $file = new \Symfony\Component\HttpFoundation\File\File($imagePath . $imageName);
 
@@ -178,7 +182,7 @@ extends ContainerAwareCommand
         if (!empty($pageInfo['scalar:metadata:url'])) {
             $basename = basename($mediaSlug); // chop of leading media/
             $imageName = $this->fetchRemoteImage($pageInfo['scalar:metadata:url'], $basename,
-                                                 $imagePath = $this->getContainer()->get('kernel')->getProjectDir() . '/data/media/');
+                                                 $imagePath = $this->projectDir . '/data/media/');
 
             // now we can upload
             $res = $this->scalarClient->upload($imagePath . $imageName);
@@ -459,7 +463,7 @@ extends ContainerAwareCommand
         // TODO: check if we need to remove existing tags which are not in pages
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $locale = $input->getOption('locale');
         $volumeId = $input->getOption('volume');
@@ -615,6 +619,7 @@ extends ContainerAwareCommand
                                          $input->getArgument('action')));
                 return 1;
         }
+        return 0;
     }
 
     /**

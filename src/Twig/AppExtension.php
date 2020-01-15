@@ -27,7 +27,7 @@ extends \Twig\Extension\AbstractExtension
     private $slugifyer;
 
     public function __construct(\Symfony\Component\HttpKernel\KernelInterface $kernel = null,
-                                \Symfony\Component\Translation\TranslatorInterface $translator = null,
+                                \Symfony\Contracts\Translation\TranslatorInterface $translator = null,
                                 $slugifyer = null)
     {
         $this->kernel = $kernel;

@@ -3,7 +3,7 @@
 // src/Command/ExistDbTestCommand.php
 namespace App\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,7 +14,7 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 class ExistDbTestCommand
 extends ExistDbCommand
 {
-    protected $demoCollection = '/db/apps/demo/data';
+    protected $collection = null; // '/db/apps/demo/data';
 
     protected function configure()
     {
@@ -29,20 +29,22 @@ extends ExistDbCommand
             ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        die('TODO: adjust to new client-library');
-
         $existDbClient = $this->getExistDbClient();
+        if (is_null($this->collection)) {
+            $this->collection = $existDbClient->getCollection();
+        }
 
         switch ($action = $input->getArgument('action')) {
             case 'add-binary':
-                $filename = $this->getContainer()->get('kernel')->getProjectDir()
+                die('TODO: adjust to new client-library');
+                $filename = $this->projectDir
                     . '/data/test/bild.jpg';
                 if (!file_exists($filename)) {
                     $output->writeln(sprintf('<error>File does not exist (%s)</error>',
                                              $filename));
-                    return -2;
+                    return (int) -2;
 
                 }
                 $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
@@ -56,28 +58,30 @@ extends ExistDbCommand
                 $query->setCollection($this->collection);
                 $response = $query->put();
 
-                return false === $response ? -3 : 0;
+                return (int) (false === $response ? -3 : 0);
 
                 break;
 
             case 'get-binary':
+                die('TODO: adjust to new client-library');
                 $query->setCollection($this->collection);
                 $query->setResource('bild.jpg');
                 $query->setBinaryContent(true);
 
                 $response = $query->get();
                 if (false !== $response) {
-                    $filename = $this->getContainer()->get('kernel')->getProjectDir()
+                    $filename = $this->projectDir
                         . '/data/bild_get.jpg';
                     file_put_contents($filename, $response->getRawResult());
 
                     return 0;
                 }
 
-                return -4;
+                return (int) -4;
                 break;
 
             case 'get-resource-info':
+                die('TODO: adjust to new client-library');
                 $query->setCollection($this->collection);
                 $query->setResource('bild.jpg');
                 $response = $query->head();
@@ -93,6 +97,7 @@ extends ExistDbCommand
                 break;
 
             case 'import':
+                die('TODO: adjust to new client-library');
                 $query->setCollection($this->collection);
                 foreach (['hamlet.xml', 'macbeth.xml', 'r_and_j.xml'] as $docname) {
                     $query->setResource($docname);
@@ -126,6 +131,7 @@ extends ExistDbCommand
                 break;
 
             case 'analyze':
+                die('TODO: adjust to new client-library');
                 $existDbClient->setHowMany(0);
 
                 $query = $existDbClient->prepareQuery();
@@ -192,9 +198,6 @@ EOXQL;
                 break;
 
             case 'collection':
-                $query = $existDbClient->prepareQuery();
-                $query->setBinaryContent(true);
-
                 $xql = <<<EOXQL
 xquery version "3.0";
 <plays>
@@ -209,10 +212,6 @@ xquery version "3.0";
 }
 </plays>
 EOXQL;
-                $query->setQuery($xql);
-                $response = $query->get();
-                echo $response->getRawResult();
-                return 0;
                 break;
 
             case 'search':
@@ -230,30 +229,16 @@ EOXQL;
                 $xql = 'system:get-version()';
         }
 
-        $query->setQuery($xql);
+        $query = $existDbClient->prepareQuery($xql);
+        $res = $query->execute();
 
-        $response = $query->get();
-        if (false === $response) {
-            $output->writeln(sprintf('<error>Query failed (%d: %s)</error>',
-                                     $query->errorCode(),
-                                     $query->errorMessage()));
-            return -1;
+        $result = $res->getNextResult();
+        if (false === $result) {
+            $output->writeln('<error>Query faile</error>');
+            return (int) -1;
         }
 
-        $results = $response->getDocument();
-
-        $count = count($results);
-        if (1 == $count) {
-            $output->writeln(sprintf('<info>%s -> %s</info>',
-                                     $xql, $results[$i]['value']));
-        }
-        else {
-            /*
-            $output->writeln(sprintf('<error>Invalid number of results: %d</error>',
-                                     $count));
-            */
-            var_dump($results);
-        }
+        var_dump($result);
 
         return 0;
     }

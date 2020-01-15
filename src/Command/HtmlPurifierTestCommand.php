@@ -3,8 +3,7 @@
 // src/Command/HtmlPurifierTestCommand.php
 namespace App\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -13,7 +12,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 class HtmlPurifierTestCommand
-extends ContainerAwareCommand
+extends Command
 {
     protected function configure()
     {
@@ -23,7 +22,7 @@ extends ContainerAwareCommand
             ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // alternatives might be https://gist.github.com/dave1010/674071
         // https://github.com/aaron-kenny/microsoft-word-to-html-converter/blob/master/app/assets/php/documentConverter.php
@@ -39,5 +38,6 @@ EOT;
         $clean_html = $purifier->purify($dirty_html);
 
         echo $clean_html;
+        return 0;
     }
 }

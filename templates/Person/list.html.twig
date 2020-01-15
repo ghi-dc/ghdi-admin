@@ -13,6 +13,7 @@
     <a href="{{ path('person-import-missing') }}" class="btn btn-default btn-sm">
         <span class="fa fa-plus"></span> {{ 'Add missing'|trans }}
     </a>
+    {% if persons is not null %}
     <ul>
         {% for person in persons.data %}
             <li>
@@ -22,4 +23,5 @@
             </li>
         {% endfor %}
     </ul>
+    {% endif %}
 {% endblock %}

@@ -6,13 +6,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
  * Provide a few services
  */
 class ApiController
-extends Controller
+extends AbstractController
 {
     /**
      * @Route("/api/slugify/{text}", name="api-slugify", requirements={"text"=".*"})

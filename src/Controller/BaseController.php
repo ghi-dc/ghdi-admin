@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 abstract class BaseController
 extends Controller
 {
+    protected $existDbClientService = null;
     protected $siteKey = null;
     protected $authorityPaths = [
         'persons' => '/data/authority/persons',
@@ -23,8 +24,9 @@ extends Controller
         'terms' => '/data/authority/terms',
     ];
 
-    public function __construct(string $siteKey)
+    public function __construct(\App\Service\ExistDbClientService $existDbClientService, string $siteKey)
     {
+        $this->existDbClientService = $existDbClientService;
         $this->siteKey = $siteKey;
     }
 
@@ -32,8 +34,7 @@ extends Controller
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        $existDbClientService = $this->get(\App\Service\ExistDbClientService::class);
-        $existDbClient = $existDbClientService->getClient($user->getUsername(), $user->getPassword());
+        $existDbClient = $this->existDbClientService->getClient($user->getUsername(), $user->getPassword());
 
         $collection = $this->getParameter('app.existdb.base');
         if (!empty($subCollection)) {

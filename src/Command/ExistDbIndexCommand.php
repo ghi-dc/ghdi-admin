@@ -27,7 +27,7 @@ extends ExistDbCommand
             ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $existDbClient = $this->getExistDbClient();
         $existDbBase = $existDbClient->getCollection();
@@ -40,7 +40,7 @@ extends ExistDbCommand
 
         switch ($collection = $input->getArgument('collection')) {
             case 'volumes':
-                $filenameFull = $this->getContainer()->get('kernel')->getProjectDir()
+                $filenameFull = $this->projectDir
                     . '/data/tei/collection.xconf';
                 $subCollection = $existDbBase . '/data/' . $collection;
                 break;
@@ -49,14 +49,14 @@ extends ExistDbCommand
             case 'organizations':
             case 'places':
             case 'terms':
-                $filenameFull = $this->getContainer()->get('kernel')->getProjectDir()
+                $filenameFull = $this->projectDir
                     . '/data/authority/' . $collection . '/collection.xconf';
                 $subCollection = $existDbBase . '/data/authority/' . $collection;
                 break;
 
             default:
                 $output->writeln(sprintf('<error>Invalid collection (%s)</error>',
-                                         $action));
+                                         $collection));
                 return -1;
         }
 
@@ -106,5 +106,6 @@ extends ExistDbCommand
 
         $output->writeln(sprintf('<info>Re-indexed %s</info>',
                                  $subCollection));
+        return 0;
     }
 }

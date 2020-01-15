@@ -336,9 +336,7 @@ EOXQL;
         $html = $this->adjustHtml($html, $this->buildBaseUriMedia($volume, $id));
 
         if ('resource-detail-pdf' == $request->get('_route')) {
-            $templating = $this->container->get('templating');
-
-            $html = $templating->render('Resource/printview.html.twig', [
+            $html = $this->render('Resource/printview.html.twig', [
                 'name' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
                 'volume' => $this->fetchVolume($client, $volume, $lang),
                 'resource' => $resource,

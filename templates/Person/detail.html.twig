@@ -19,34 +19,34 @@
     <div class="row">
         <div class="col-sm-8">
             <dl>
-            {% set birthPlace = entity.birthPlaceInfo(app.request.locale) %}
-            {% if birthPlace is not empty or entity.birthDate is not empty %}
+            {% set birthPlace = entity.birthPlace %}
+            {% if birthPlace is not null or entity.birthDate is not empty %}
                 <dt>{{ 'Born'|trans }}:</dt>
                 <dd>
                     {{ entity.birthDate|dateincomplete -}}
-                    {% if birthPlace is not empty %}{% if entity.birthDate is not empty %}{{- ',' }}{% endif %}
+                    {% if birthPlace is not null %}{% if entity.birthDate is not empty %}{{- ',' }}{% endif %}
                         {% if birthPlace.id is not empty %}
                             <a href="{% if birthPlace.tgn is not empty %}{{ path('place-by-tgn', { 'tgn' : birthPlace.tgn }) }}{% else %}{{ path('place', { 'id' : birthPlace.id }) }}{% endif %}">
-                            {{ birthPlace['name'] }}
+                            {{ birthPlace.localizedName(app.request.locale, '_') }}
                             </a>
                         {% else %}
-                            {{ birthPlace['name'] }}
+                            {{ birthPlace.localizedName(app.request.locale, '_') }}
                         {% endif %}
                     {% endif %}
                 </dd>
             {% endif %}
-            {% set deathPlace = entity.deathPlaceInfo(app.request.locale) %}
-            {% if deathPlace is not empty or entity.deathDate is not empty %}
+            {% set deathPlace = entity.deathPlace() %}
+            {% if deathPlace is not null or entity.deathDate is not empty %}
                 <dt>{{ 'Died'|trans }}:</dt>
                 <dd>
                     {{ entity.deathDate|dateincomplete -}}
-                    {% if deathPlace is not empty %}{% if entity.deathDate is not empty %}{{- ',' }}{% endif %}
+                    {% if deathPlace is not null %}{% if entity.deathDate is not empty %}{{- ',' }}{% endif %}
                         {% if deathPlace.id is not empty %}
                             <a href="{% if deathPlace.tgn is not empty %}{{ path('place-by-tgn', { 'tgn' : deathPlace.tgn }) }}{% else %}{{ path('place', { 'id' : deathPlace.id }) }}{% endif %}">
-                            {{ deathPlace['name'] }}
+                            {{ deathPlace.localizedName(app.request.locale, '_') }}
                             </a>
                         {% else %}
-                            {{ deathPlace['name'] }}
+                            {{ deathPlace.localizedName(app.request.locale, '_') }}
                         {% endif %}
                     {% endif %}
                 </dd>

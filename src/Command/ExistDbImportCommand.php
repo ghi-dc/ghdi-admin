@@ -7,7 +7,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
@@ -40,7 +39,7 @@ extends ExistDbCommand
             ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $existDbClient = $this->getExistDbClient();
 
@@ -76,15 +75,15 @@ extends ExistDbCommand
 
         switch ($collection) {
             case 'volumes':
-                return $this->importVolume($output, $resource);
+                return (int) $this->importVolume($output, $resource);
                 break;
 
             case 'styles':
-                return $this->importStyles($output, $resource, $overwrite);
+                return (int) $this->importStyles($output, $resource, $overwrite);
                 break;
 
             case 'assets':
-                return $this->importAssets($output, $resource, $overwrite);
+                return (int) $this->importAssets($output, $resource, $overwrite);
                 break;
 
             case 'persons':
@@ -101,7 +100,7 @@ extends ExistDbCommand
                 return -1;
         }
 
-        $filenameFull = $this->getContainer()->get('kernel')->getProjectDir()
+        $filenameFull = $this->projectDir
             . '/data/authority/' . $collection . '/' . $filename;
         if ('' !== $filename && !file_exists($filenameFull)) {
             $output->writeln(sprintf('<error>File does not exist (%s)</error>',
@@ -110,7 +109,7 @@ extends ExistDbCommand
             return -3;
         }
 
-        return $this->checkCollectionAndStore($output, $existDbClient, $existDbBase . '/data/authority/' . $collection, $filename, $filenameFull, $overwrite);
+        return (int) $this->checkCollectionAndStore($output, $existDbClient, $existDbBase . '/data/authority/' . $collection, $filename, $filenameFull, $overwrite);
     }
 
     protected function checkCollectionAndStore(OutputInterface $output, $existDbClient, $subCollection,
@@ -171,7 +170,7 @@ extends ExistDbCommand
     {
         $collection = 'styles';
 
-        $inputDir = $this->getContainer()->get('kernel')->getProjectDir()
+        $inputDir = $this->projectDir
             . '/data/' . $collection;
 
         if (empty($resource)) {
@@ -218,7 +217,7 @@ extends ExistDbCommand
     {
         $collection = 'assets';
 
-        $inputDir = $this->getContainer()->get('kernel')->getProjectDir()
+        $inputDir = $this->projectDir
             . '/data/' . $collection;
 
         if (empty($resource)) {
@@ -253,7 +252,7 @@ extends ExistDbCommand
             return -3;
         }
 
-        $filenameFull = $this->getContainer()->get('kernel')->getProjectDir()
+        $filenameFull = $this->projectDir
             . '/data/tei/' . $resource;
         if (!file_exists($filenameFull)) {
             $output->writeln(sprintf('<error>File does not exist (%s)</error>',
