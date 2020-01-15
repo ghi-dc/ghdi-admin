@@ -4,7 +4,6 @@
             "php": "7.2.9"
         }
     },
-
     "repositories": [
         {
             "type": "package",
@@ -29,9 +28,12 @@
                     "reference": "master"
                 }
             }
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/burki/exist-db-rpc-client.git"
         }
     ],
-
     "require": {
         "php" : "^7.2.9",
 
@@ -112,10 +114,8 @@
         "easyrdf/easyrdf": "0.10.*@dev",
         "ml/json-ld": "1.1.*",
 
-        "lstrojny/fxmlrpc": "@stable",
-        "php-http/guzzle6-adapter": "^1.1",
-        "php-http/message": "^1.6",
-        "guzzlehttp/psr7": "^1.4",
+        "burki/exist-db-rpc-client": "dev-master",
+
         "cocur/slugify": "^3.1",
 
         "trisoftro/collective-access-client": "@dev",
@@ -129,12 +129,12 @@
 
         "symfony/polyfill-intl-normalizer": "*"
     },
-
     "autoload": {
         "psr-4": {
-            "App\\": "src/",
-            "LegacyAsseticBundle\\": "lib/LegacyAsseticBundle",
-            "ExistDbRpc\\": "lib/ExistDbRpc/"
+            "App\\": "src/"
         }
+    },
+    "require-dev": {
+        "rector/rector": "^0.6.9"
     }
 }
