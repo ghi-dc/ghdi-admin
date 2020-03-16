@@ -1,0 +1,60 @@
+xquery version "3.1";
+
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
+declare namespace json="http://www.json.org";
+
+declare namespace functx = "http://www.functx.com";
+declare function functx:if-absent
+  ( $arg as item()* ,
+    $value as item()* )  as item()* {
+
+    if (exists($arg))
+    then $arg
+    else $value
+};
+
+declare function functx:value-intersect
+  ( $arg1 as xs:anyAtomicType* ,
+    $arg2 as xs:anyAtomicType* )  as xs:anyAtomicType* {
+
+  distinct-values($arg1[.=$arg2])
+ } ;
+
+declare variable $locale external;
+declare variable $collection external;
+declare variable $ids external;
+
+declare function local:parentpath($term as element(*), $collection as xs:string)
+{
+    if(not($term/broader)) then (
+        ($term/@id)
+    )
+    else(
+        let $parent := for $broader in collection($collection)/CategoryCode[@id=$term/broader/@id][1]
+            return $broader
+
+        return if ($parent) then (
+            (local:parentpath($parent, $collection), $term/@id)
+        ) else (
+            ($term/broader/@id, $term/@id)
+        )
+
+    )
+};
+
+(: Switch to JSON serialization :)
+declare option output:method "json";
+declare option output:media-type "text/javascript";
+
+<json:value>
+{
+for $term in collection('/db/apps/ghis/data/authority/terms')/CategoryCode
+    let $name := functx:if-absent($term/name[@lang=$locale], $term/name[empty(@lang) or '_' = @lang])
+    where not(fn:empty(functx:value-intersect($term/identifier, $ids)))
+    order by $name
+    collation "http://www.w3.org/2013/collation/UCA"
+    return <data json:array="true" id="{$term/@id}" path="/{ string-join(local:parentpath($term, $collection), '/') }/" gnd="{ $term/identifier[@propertyID='gnd'] }" lcauth="{ $term/identifier[@propertyID='lcauth'] }" wikidata="{ $term/identifier[@propertyID='wikidata'] }">
+        <name>{$name/text()}</name>
+    </data>
+}
+</json:value>

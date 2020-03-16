@@ -7,6 +7,7 @@
 
     {{ helper.display_flashes() }}
     <form method="POST"><input name="q" value="{{ q }}" /><input type="submit" value="{{ 'Search'|trans }}" /></form>
+    {% if result is not null %}
     <ul>
         {% for resource in result.data %}
             <li>
@@ -23,4 +24,5 @@
             </li>
         {% endfor %}
     </ul>
+    {% endif %}
 {% endblock %}

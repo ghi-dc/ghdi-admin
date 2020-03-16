@@ -32,6 +32,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/burki/exist-db-rpc-client.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/boppy/SolrBundle.git"
         }
     ],
     "require": {
@@ -78,6 +82,7 @@
         "symfony/asset": "^4.4",
         "armin/scssphp-bundle": "@stable",
 
+        "symfony/mime": "^4.4",
         "symfony/dom-crawler": "^4.4",
         "symfony/css-selector": "^4.4",
 
@@ -102,7 +107,7 @@
         "brunty/relax-ng-domdocument": "^0.2",
 
         "masterminds/html5": "2.*",
-        "symfony/string": "v5.0.0-RC1",
+        "symfony/string": "^5.0",
 
         "hedii/zotero-api": "@stable",
 
@@ -116,7 +121,7 @@
 
         "burki/exist-db-rpc-client": "dev-master",
 
-        "cocur/slugify": "^3.1",
+        "cocur/slugify": "^4.0",
 
         "trisoftro/collective-access-client": "@dev",
         "ezyang/htmlpurifier": "^4.10",
@@ -127,7 +132,9 @@
 
         "nategood/httpful": "*",
 
-        "symfony/polyfill-intl-normalizer": "*"
+        "symfony/polyfill-intl-normalizer": "*",
+
+        "maxgr0/solr-bundle": "*"
     },
     "autoload": {
         "psr-4": {

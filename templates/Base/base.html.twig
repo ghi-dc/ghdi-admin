@@ -5,10 +5,9 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
-        {% if pageTitle is defined %}
-            {{ pageTitle }} |
-        {% endif %}
-        {{ siteName|trans({}, 'additional') }}
+        {% if pageMeta is defined and pageMeta.title is defined %}
+            {{  pageMeta.title }} |
+        {% endif %}  {{ siteName|trans({}, 'additional') }}
         </title>
 
         {% if pageMeta is defined %}
@@ -25,6 +24,8 @@
                 {% if pageMeta.og['og:url'] is defined %}
         <link rel="canonical" href="{{ pageMeta.og['og:url'] }}">
                 {% endif %}
+            {% elseif pageMeta.title is defined %}
+        <meta property="og:title" content="{{ pageMeta.title }}">
             {% endif %}
             {% if pageMeta.twitter is defined %}
                 {% for prop, val in pageMeta.twitter %}
@@ -42,8 +43,6 @@
             {{ pageMeta.jsonLd|json_encode|raw }}
         </script>
             {% endif %}
-        {% elseif pageTitle is defined %}
-        <meta property="og:title" content="{{ pageTitle }}">
         {% endif %}
 
         <script src="{{ app.request.basepath }}/js/jquery-3.4.1.min.js"></script>

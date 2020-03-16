@@ -35,12 +35,30 @@ return
         )
     }
     {
-        for $author in $teiHeader/fileDesc/titleStmt/author
-            return <dc:creator>{string($author)}</dc:creator>
+        for $creator in $teiHeader/fileDesc/titleStmt/author
+            return
+                if ($creator/orgName | $creator/persName) then (
+                    (: structured :)
+                    for $node in $creator/orgName | $creator/persName
+                        return <dc:creator>{string($node)}</dc:creator>
+                )
+                else (
+                    (: unstructured :)
+                    <dc:creator>{string($creator)}</dc:creator>
+                )
     }
     {
-        for $editor in $teiHeader/fileDesc/titleStmt/editor
-            return <dc:contributor>{string($editor)}</dc:contributor>
+        for $contributor in $teiHeader/fileDesc/titleStmt/editor
+            return
+                if ($contributor/orgName | $contributor/persName) then (
+                    (: structured :)
+                    for $node in $contributor/orgName | $contributor/persName
+                        return <dc:contributor>{string($node)}</dc:contributor>
+                )
+                else (
+                    (: unstructured :)
+                    <dc:contributor>{string($contributor)}</dc:contributor>
+                )
     }
     {
         if ($teiHeader/fileDesc/publicationStmt/publisher) then (

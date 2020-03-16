@@ -1,0 +1,18 @@
+{% extends 'Base/base.html.twig' %}
+
+{% import 'Base/helper.html.twig' as helper %}
+
+{% block body %}
+    <h2>{{ 'Create from Alternate Language'|trans }}</h2>
+
+    <p>This volume doesn't exist yet in the current language.</p>
+    <form action="{{ path('volume-create', { 'id': id }) }}" method="post">
+        Create from:
+        <select name="from-locale">
+        {% for value, label in createFrom %}
+            <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+        </select>
+        <input type="submit" value="{{ 'Create'|trans }}" />
+    </form>
+{% endblock %}

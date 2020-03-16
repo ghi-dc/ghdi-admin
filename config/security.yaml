@@ -11,7 +11,12 @@ security:
         dev:
             pattern:  ^/(_(profiler|wdt)|css|images|js)/
             security: false
-                        
+
+        api:
+            pattern: /api/dts
+            guard:
+                authenticators:
+                    - App\Security\BasicAuthAuthenticator
         main:
             anonymous: ~
             pattern: ^/

@@ -69,7 +69,7 @@ EOXQL;
         $resources = $res->getNextResult();
         $res->release();
 
-        return $resources['data'];
+        return !is_null($resources) ? $resources['data'] : null;
     }
 
     protected function buildParentPath($client, $resource, $lang)
@@ -412,26 +412,7 @@ EOXQL;
         if ($client->hasDocument($resourcePath)) {
             $content = $client->getDocument($resourcePath, [ 'omit-xml-declaration' => 'no' ]);
 
-            $teiHelper = new \App\Utils\TeiHelper();
-            $article = $teiHelper->analyzeHeaderString($content, true);
-
-            if (false === $article) {
-                return null;
-            }
-
-            // TODO: add additional properties
-            $entity = new \App\Entity\TeiHeader();
-            $entity->setId($article->uid);
-            $entity->setTitle($article->name);
-            $entity->setTranslator($article->translator);
-            if (!empty($article->slug)) {
-                $entity->setDtaDirName($article->slug);
-            }
-            $entity->setShelfmark($article->shelfmark);
-            $entity->setGenre($article->genre);
-            $entity->setTerms($article->terms);
-
-            return $entity;
+            return \App\Entity\TeiHeader::fromXmlString($content);
         }
 
         return null;
@@ -814,9 +795,10 @@ EOXQL;
                             $teiDtabfDoc->prettify();
 
                             // genre can be both document and image
-                            $teiHelper = new \App\Utils\TeiHelper();
-                            $article = $teiHelper->analyzeHeaderString((string)$teiDtabfDoc);
-                            $genre = $article->genre;
+                            $entity = \App\Entity\TeiHeader::fromXmlString((string)$teiDtabfDoc);
+                            if (!is_null($entity)) {
+                                $genre = $entity->getGenre();
+                            }
                         }
                     }
                     else {

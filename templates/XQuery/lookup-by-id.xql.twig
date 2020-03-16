@@ -15,8 +15,8 @@ declare function functx:replace-first
     } ;
 
 declare variable $collection external;
+declare variable $id external;
 declare variable $lang external;
-declare variable $q external;
 
 (: Switch to JSON serialization :)
 declare option output:method "json";
@@ -24,15 +24,18 @@ declare option output:media-type "text/javascript";
 
 <json:value>
 {
-for $tei in collection($collection)/TEI{% if q is defined and q is not empty %}[ft:query(.//titleStmt/*, $q) or ft:query(.//notesStmt/*, $q)]{% endif %}
-    where $tei/teiHeader/profileDesc/langUsage/language[@ident=$lang]
-        {% if q is not defined or q is empty %}and $tei/teiHeader/profileDesc/textClass/classCode = 'volume'{% else %}and $tei/teiHeader/profileDesc/textClass/classCode != 'document-collection' and $tei/teiHeader/profileDesc/textClass/classCode != 'image-collection'{% endif %}
+for $tei in collection($collection)/TEI
+    where $tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID' and . = $id]
+      and $tei/teiHeader/profileDesc/langUsage/language[@ident=$lang]
+
     let $name := fn:string($tei/teiHeader/fileDesc/titleStmt/title[@type="main"])
     let $shelfmark := $tei/teiHeader/fileDesc/publicationStmt/idno/idno[@type="shelfmark"]/text()
     order by $shelfmark
     return <data json:array="true" id="{functx:replace-first($tei/teiHeader/fileDesc/publicationStmt//idno[@type='DTAID'], '{{ prefix }}:', '')}">
         <name>{$name}</name>
+        <genre>{ $tei/teiHeader/profileDesc/textClass/classCode[@scheme='http://germanhistorydocs.org/docs/#genre']/text() }</genre>
         <shelfmark>{ $tei/teiHeader/fileDesc/publicationStmt//idno[@type='shelfmark']/text() }</shelfmark>
+        <publisher>{ string($tei/teiHeader/fileDesc/publicationStmt/publisher) }</publisher>
     </data>
 }
 </json:value>

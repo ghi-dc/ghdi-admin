@@ -13,9 +13,8 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-
 abstract class ExistDbCommand
-extends \Symfony\Component\Console\Command\Command
+extends Command
 {
     protected $siteKey = null;
     protected $projectDir;

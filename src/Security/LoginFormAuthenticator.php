@@ -1,6 +1,6 @@
 <?php
 
-// src/Security/ExistDbAuthenticator.php
+// src/Security/LoginFormAuthenticator.php
 namespace App\Security;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;

@@ -277,12 +277,11 @@ extends Controller
     {
         $ret = [];
 
-        // some metadata
-        $teiHelper = new \App\Utils\TeiHelper();
-        $article = $teiHelper->analyzeHeaderString($client->getDocument($resourcePath), true);
+        // access metadata
+        $entity = \App\Entity\TeiHeader::fromXmlString($client->getDocument($resourcePath));
 
-        // TODO: we want to move to $article->slug but this needs slug-rename logic
-        $uid = explode(':', $article->uid, 2);
+        // TODO: we want to move to $entity->getSlug() but this needs slug-rename logic
+        $uid = explode(':', $entity->getId(), 2);
         $ret['scalar:metadata:slug'] = $uid[1];
 
         $fieldDescr = [

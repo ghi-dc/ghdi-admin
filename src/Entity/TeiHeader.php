@@ -7,6 +7,8 @@ use \FluidXml\FluidNamespace;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
+use FS\SolrBundle\Doctrine\Annotation as Solr;
+
 /**
  * Entity to edit elements in teiHeader
  *
@@ -16,24 +18,138 @@ use Symfony\Component\Validator\Constraints as Assert;
 class TeiHeader
 implements \JsonSerializable
 {
+    /**
+     * @var string
+     *
+     * @Solr\Id
+     */
     protected $id;
+
+    /**
+     * @var string The title.
+     *
+     * @Solr\Field(type="string")
+     */
     protected $title;
+
     protected $authors = [];
+    protected $editors = [];
     protected $translator;
     protected $responsible = [];
     protected $licence;
     protected $licenceTarget;
+
+    /**
+     * @var string The source description
+     *
+     * @Solr\Field(type="text")
+     */
     protected $note;
+
     protected $sourceDescBibl;
+
+    /**
+     * @var string The language code (deu or eng).
+     *
+     * @Solr\Field(type="string")
+     */
     protected $language;
+
+    /**
+     * @var string The shelfmark.
+     *
+     * @Solr\Field(type="string")
+     */
     protected $shelfmark;
+
     protected $dateCreation;
     protected $idno = [];
     protected $classCodes = [];
 
+    /* we duplicate properties from $idno / $classCodes for Solr-annotation */
+
+    /**
+     * @var string The slug.
+     *
+     * @Solr\Field(type="string")
+     */
+    private $slug;
+
+    /**
+     * @var string The genre (introduction|document|image).
+     *
+     * @Solr\Field(type="string")
+     */
+    private $genre;
+
     protected static function normalizeWhitespace($tei)
     {
         return preg_replace('/\R+/', ' ', $tei); // get rid of newlines added e.g. through pretty-printing
+    }
+
+    public static function fromXml($fname, $propertiesAsXml = true)
+    {
+        $teiHelper = new \App\Utils\TeiHelper();
+        $article = $teiHelper->analyzeDocument($fname, $propertiesAsXml);
+
+        return self::entityFromObject($article);
+    }
+
+    public static function fromXmlString($content, $propertiesAsXml = true)
+    {
+        $teiHelper = new \App\Utils\TeiHelper();
+        $article = $teiHelper->analyzeDocumentString($content, $propertiesAsXml);
+
+        return self::entityFromObject($article);
+    }
+
+    private static function entityFromObject($article)
+    {
+        if (false === $article) {
+            return null;
+        }
+
+        $entity = new static(); // so we can override in TeiFull, see https://stackoverflow.com/a/10617254
+
+        return self::hydrateEntity($entity, $article);
+    }
+
+    protected static function hydrateEntity($entity, $article)
+    {
+        $entity->setId($article->uid);
+        $entity->setTitle($article->name);
+        $entity->setLanguage($article->language);
+
+        foreach ([ 'author', 'editor' ] as $key) {
+            if (!empty($article->$key)) {
+                $method = 'add' . ucfirst($key);
+
+                foreach ($article->$key as $related) {
+                    $entity->$method($related);
+                }
+            }
+        }
+
+        $entity->setTranslator($article->translator);
+
+        if (property_exists($article, 'slug')) {
+            $entity->setDtaDirName($article->slug);
+        }
+
+        $entity->setShelfmark($article->shelfmark);
+
+        if (property_exists($article, 'abstract')) {
+            $entity->setNote($article->abstract);
+        }
+
+        $entity->setGenre($article->genre);
+        $entity->setTerms($article->terms);
+
+        if (method_exists($entity, 'setBody')) {
+            $entity->setBody($article->articleBody);
+        }
+
+        return $entity;
     }
 
     /**
@@ -55,8 +171,14 @@ implements \JsonSerializable
      *
      * @return string
      */
-    public function getId()
+    public function getId($removePrefix = false)
     {
+        if ($removePrefix && !empty($this->id)) {
+            $parts = explode(':', $this->id, 2);
+
+            return count($parts) > 1 ? $parts[1] : $parts[0];
+        }
+
         return $this->id;
     }
 
@@ -100,6 +222,24 @@ implements \JsonSerializable
     public function getAuthors()
     {
         return $this->authors;
+    }
+
+    /**
+     * Adds editor
+     */
+    public function addEditor($editor)
+    {
+        $this->editors[] = $editor;
+
+        return $this;
+    }
+
+    /**
+     * Gets authors
+     */
+    public function getEditors()
+    {
+        return $this->editors;
     }
 
     /**
@@ -357,6 +497,9 @@ implements \JsonSerializable
     {
         $this->addClassCode('#genre', $genre);
 
+        // for solr-annotation
+        $this->genre = $this->getGenre();
+
         return $this;
     }
 
@@ -444,7 +587,10 @@ implements \JsonSerializable
 
     public function setDtaDirName($DTADirName)
     {
-        return $this->setIdno($DTADirName, 'DTADirName');
+        $ret = $this->setIdno($DTADirName, 'DTADirName');
+        $this->slug = $DTADirName;
+
+        return $ret;
     }
 
     public function getDtaDirName()

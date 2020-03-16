@@ -2,10 +2,7 @@
 /**
  * Methods to work with TEI / DTA-Basisformat DTABf
  *
- * Currently based on SimpleXml
- *
- * TODO: Finalize switch to FluentDOM
- * TODO: Integrate all methods into TeiDtabfDocument
+ * TODO: move analyzeHeader to \App\Entity\TeiHeader and only keep adjustHeader
  */
 
 namespace App\Utils;
@@ -18,7 +15,6 @@ class TeiHelper
     {
         return is_null($str) || '' === trim($str);
     }
-
 
     protected $errors = [];
     protected $schemePrefix = 'http://germanhistorydocs.org/docs/#';
@@ -36,6 +32,30 @@ class TeiHelper
             $person->setSlug((string)$element['corresp']);
         }
 
+        // unstructured
+        $person->setName((string)$element);
+
+        // see if there is further structure we can use
+        $result = $element('./tei:*');
+        if ($result->length > 0) {
+            // see http://www.deutschestextarchiv.de/doku/basisformat/mdPersName.html
+            $nodeMap = [ 'forename' => 'givenName', 'surname' => 'familyName' ];
+            $setStructured = false;
+
+            foreach ($result as $node) {
+                if (array_key_exists($node->localName, $nodeMap)) {
+                    $accessor = $nodeMap[$node->localName];
+                    $method = 'set' . ucfirst($accessor);
+                    $person->$method((string)$node);
+                    $setStructured = true;
+                }
+            }
+
+            if ($setStructured) {
+                $person->setName($person->getFullname(true));
+            }
+        }
+
         return $person;
     }
 
@@ -47,6 +67,12 @@ class TeiHelper
 
     protected function loadXml($fname)
     {
+        if (!is_readable($fname)) {
+            // currently \FluentDOM::load doesn't return an error if load fails due to
+            // an inexisting or inaccessible file https://github.com/ThomasWeinert/FluentDOM/issues/90
+            return false;
+        }
+
         $xml = \FluentDOM::load($fname, 'xml', [ \FluentDOM\Loader\Options::ALLOW_FILE => true ]);
 
         $this->registerNamespaces($xml);
@@ -63,50 +89,6 @@ class TeiHelper
         return $xml;
     }
 
-    /*
-
-    public function getFirstFigureFacs($fname)
-    {
-        $xml = $this->loadXml($fname);
-        if (false === $xml) {
-            return false;
-        }
-
-        $fnameFacs = '';
-
-        $result = $xml->xpath('/tei:TEI/tei:text//tei:figure');
-        foreach ($result as $element) {
-            $facs = $element['facs'];
-            if (!empty($facs)) {
-                $fnameFacs = (string)$facs;
-                break; // we only care about the first one
-            }
-        }
-
-        return $fnameFacs;
-    }
-
-    public function getFigureFacs($fname)
-    {
-        $xml = $this->loadXml($fname);
-        if (false === $xml) {
-            return false;
-        }
-
-        $fnameFacs = [];
-
-        $result = $xml->xpath('/tei:TEI/tei:text//tei:figure');
-        foreach ($result as $element) {
-            $facs = $element['facs'];
-            if (!empty($facs)) {
-                $fnameFacs[] = (string)$facs;
-            }
-        }
-
-        return $fnameFacs;
-    }
-    */
-
     public function analyzeHeader($fname, $asXml = false)
     {
         $xml = $this->loadXml($fname);
@@ -114,7 +96,7 @@ class TeiHelper
             return false;
         }
 
-        return $this->analyzeHeaderStructure($xml, $asXml);
+        return $this->analyzeTeiStructure($xml, $asXml, true);
     }
 
     public function analyzeHeaderString($content, $asXml = false)
@@ -124,10 +106,29 @@ class TeiHelper
             return false;
         }
 
-        return $this->analyzeHeaderStructure($xml, $asXml);
+        return $this->analyzeTeiStructure($xml, $asXml, true);
     }
 
-    protected function analyzeHeaderStructure($xml, $asXml = false)
+    public function analyzeDocument($fname, $asXml = false) {
+        $xml = $this->loadXml($fname);
+        if (false === $xml) {
+            return false;
+        }
+
+        return $this->analyzeTeiStructure($xml, $asXml);
+    }
+
+    public function analyzeDocumentString($content, $asXml = false)
+    {
+        $xml = $this->loadXmlString($content);
+        if (false === $xml) {
+            return false;
+        }
+
+        return $this->analyzeTeiStructure($xml, $asXml);
+    }
+
+    protected function analyzeTeiStructure($xml, $asXml = false, $headerOnly = false)
     {
         $result = $xml('/tei:TEI/tei:teiHeader');
         if (empty($result)) {
@@ -138,9 +139,9 @@ class TeiHelper
             return false;
         }
 
-        $header = $result[0];
-
         $article = new \stdClass(); // TODO: probably better to return TeiHeader entity directly
+
+        $header = $result[0];
 
         // name
         $result = $header('./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]');
@@ -150,15 +151,19 @@ class TeiHelper
                 : $this->extractTextContent($result[0]);
         }
 
-        // author
-        $result = $header('./tei:fileDesc/tei:titleStmt/tei:author/tei:persName');
-        foreach ($result as $element) {
-            $person = $this->buildPerson($element);
-            if (!is_null($person)) {
-                if (!isset($article->author)) {
-                    $article->author = [];
+        // author / editor
+        foreach ([ 'author', 'editor'] as $tagName) {
+            $result = $header('./tei:fileDesc/tei:titleStmt/tei:' . $tagName . '/tei:persName');
+            foreach ($result as $element) {
+                $person = $this->buildPerson($element);
+
+                if (!is_null($person)) {
+                    if (!isset($article->$tagName)) {
+                        $article->$tagName = [];
+                    }
+
+                    $article->$tagName[] = $person;
                 }
-                $article->author[] = $person;
             }
         }
 
@@ -199,7 +204,7 @@ class TeiHelper
 
         // license
         $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence');
-        if (!empty($result)) {
+        if ($result->length > 0) {
             $article->license = (string)$result[0]['target'];
             $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/tei:p');
             if (!empty($result)) {
@@ -287,6 +292,13 @@ class TeiHelper
         }
         */
 
+        $result = $header('(./tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"])[1]');
+        if ($result->length > 0) {
+            $article->abstract = $asXml
+                ? $this->extractInnerContent($result[0])
+                : $this->extractTextContent($result[0]);
+        }
+
         // url
         $result = $header('(./tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier/tei:idno/tei:idno[@type="URLImages"])[1]');
         if (!empty($result)) {
@@ -368,6 +380,21 @@ class TeiHelper
             }
         }
         $article->language = join(', ', $langIdents);
+
+        if (!$headerOnly) {
+            $result = $xml('/tei:TEI/tei:text/tei:body');
+            if ($result->length < 1) {
+                $this->errors = [
+                    (object) [ 'message' => 'No body found' ],
+                ];
+
+                return false;
+            }
+
+            $article->articleBody = $asXml
+                ? $this->extractInnerContent($result[0])
+                : $this->extractTextContent($result[0]);
+        }
 
         return $article;
     }

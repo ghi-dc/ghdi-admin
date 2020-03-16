@@ -61,6 +61,9 @@ extends Kernel
 
             // https://github.com/a-r-m-i-n/scssphp-bundle
             new \Armin\ScssphpBundle\ScssphpBundle(),
+
+            // solr
+            new \FS\SolrBundle\FSSolrBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

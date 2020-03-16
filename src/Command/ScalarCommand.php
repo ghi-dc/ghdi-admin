@@ -62,6 +62,17 @@ extends Command
     }
 
     /**
+     * Small helper for nice looking JSON content
+     */
+    protected function jsonPretty($res)
+    {
+        return json_encode($res,
+                           JSON_UNESCAPED_SLASHES
+                           | JSON_PRETTY_PRINT
+                           | JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
      * Fetch a JSON representation from our admin
      */
     protected function fetchJson($volumeId, $page = null, $locale = 'en')
@@ -613,23 +624,13 @@ extends Command
                     }
 
                     return 0;
-
                 }
+
                 $output->writeln(sprintf('<error>invalid action: %s</error>',
                                          $input->getArgument('action')));
                 return 1;
         }
-        return 0;
-    }
 
-    /**
-     * Small helper for nice looking JSON content
-     */
-    protected function jsonPretty($res)
-    {
-        return json_encode($res,
-                           JSON_UNESCAPED_SLASHES
-                           | JSON_PRETTY_PRINT
-                           | JSON_UNESCAPED_UNICODE);
+        return 0;
     }
 }

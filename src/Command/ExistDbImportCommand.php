@@ -100,8 +100,7 @@ extends ExistDbCommand
                 return -1;
         }
 
-        $filenameFull = $this->projectDir
-            . '/data/authority/' . $collection . '/' . $filename;
+        $filenameFull = $this->projectDir . '/data/authority/' . $collection . '/' . $filename;
         if ('' !== $filename && !file_exists($filenameFull)) {
             $output->writeln(sprintf('<error>File does not exist (%s)</error>',
                                      $filenameFull));
@@ -252,8 +251,7 @@ extends ExistDbCommand
             return -3;
         }
 
-        $filenameFull = $this->projectDir
-            . '/data/tei/' . $resource;
+        $filenameFull = $this->projectDir . '/data/tei/' . $resource;
         if (!file_exists($filenameFull)) {
             $output->writeln(sprintf('<error>File does not exist (%s)</error>',
                                      $filenameFull));
@@ -261,50 +259,43 @@ extends ExistDbCommand
             return -3;
         }
 
-        $teiHelper = new \App\Utils\TeiHelper();
+        $entity = \App\Entity\TeiHeader::fromXml($filenameFull);
 
-        $article = $teiHelper->analyzeHeader($filenameFull);
-
-        if (false === $article) {
+        if (is_null($entity)) {
             $output->writeln(sprintf('<error>%s could not be loaded</error>', $filenameFull));
-            foreach ($teiHelper->getErrors() as $error) {
-                $output->writeln(sprintf('<error>  %s</error>', trim($error->message)));
-            }
-
             return -2;
         }
 
-        if (empty($article->genre) || empty($article->uid)) {
+        if (empty($entity->getGenre()) || empty($entity->getId())) {
             $output->writeln(sprintf('<error>DTAID or classCode for genre missing (%s)</error>',
                                      $resource));
 
             return -1;
         }
 
-        if (empty($article->language) || !in_array($article->language, [ 'eng', 'deu' ])) {
+        if (empty($entity->getLanguage()) || !in_array($entity->getLanguage(), [ 'eng', 'deu' ])) {
             $output->writeln(sprintf('<error>Invalid language %s (%s)</error>',
                                      $resource));
 
             return -1;
         }
 
-        $dtaidStem = in_array($article->genre, [ 'document-collection', 'image-collection' ])
-            ? 'chapter' : $article->genre;
+        $dtaidStem = in_array($entity->getGenre(), [ 'document-collection', 'image-collection' ])
+            ? 'chapter' : $entity->getGenre();
 
-        $reDtaid = sprintf('/^%s:%s\-\d+$/',
-                           $this->siteKey, $dtaidStem);
-        if (!preg_match($reDtaid, $article->uid)) {
+        $reDtaid = sprintf('/^%s:%s\-\d+$/', $this->siteKey, $dtaidStem);
+        if (!preg_match($reDtaid, $entity->getId())) {
             $output->writeln(sprintf('<error>DTAID %s does not match the pattern %s</error>',
-                                     $article->uid, $reDtaid));
+                                     $entity->getId(), $reDtaid));
 
             return -1;
         }
 
-        $articleUidLocal = preg_replace(sprintf('/^%s:/', $this->siteKey), '', $article->uid);
+        $articleUidLocal = preg_replace(sprintf('/^%s:/', $this->siteKey), '', $entity->getId());
 
         $resourceNameExpected = sprintf('%s.%s.xml',
                                         $articleUidLocal,
-                                        $article->language);
+                                        $entity->getLanguage());
         if ($resourceNameExpected != $resource) {
             $output->writeln(sprintf('<error>resource %s does not match the expected value %s</error>',
                                      $resource, $resourceNameExpected));
@@ -317,7 +308,7 @@ extends ExistDbCommand
 
         $overwrite = false; // TODO: get from options
 
-        switch ($article->genre) {
+        switch ($entity->getGenre()) {
             case 'volume':
                 $collection = $articleUidLocal;
 
@@ -330,10 +321,10 @@ extends ExistDbCommand
             case 'document':
             case 'image':
             case 'map':
-                $parts = explode('/', $article->shelfmark);
+                $parts = explode('/', $entity->getShelfmark());
                 if ($this->siteKey != $parts[0] || !preg_match('/^\d+\:(volume\-\d+)$/', $parts[1], $matches)) {
                     $output->writeln(sprintf('<error>Could not determine volume from shelfmark %s/error>',
-                                             $article->shelfmark));
+                                             $entity->getShelfmark()));
                     return -1;
                 }
 
@@ -344,7 +335,7 @@ extends ExistDbCommand
 
             default:
                 $output->writeln(sprintf('<error>Not handling genre %s</error>',
-                                         $article->genre));
+                                         $entity->getGenre()));
 
                 return -1;
         }
