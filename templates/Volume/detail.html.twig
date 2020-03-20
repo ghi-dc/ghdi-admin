@@ -50,7 +50,8 @@
             {% set groups = [ "introduction", "documents", "images", "maps" ] %}
             <h3>{{ 'Resources'|trans }}</h3>
             <ul class="list-group">
-                {% for key in groups if resources_grouped[key] is defined %}
+                {% for key in groups %}
+                    {% if resources_grouped[key] is defined %}
                     {% set group = resources_grouped[key] %}
                 <li class="list-group-item">
                     <h4>
@@ -78,12 +79,14 @@
                                 </h5>
                                 <div id="{{ subkey }}" class="collapse">
                                     <ul class="list-group">
-                                    {% for subresource in resource.resources if subresource.id is not empty %}
-                                    <li class="list-group-item">
-                                        <a href="{{ path('resource-detail', { volume: id, id: subresource.id }) }}">
-                                        {{ subresource.name }}
-                                        </a>
-                                    </li>
+                                    {% for subresource in resource.resources %}
+                                        {% if subresource.id is not empty %}
+                                        <li class="list-group-item">
+                                            <a href="{{ path('resource-detail', { volume: id, id: subresource.id }) }}">
+                                            {{ subresource.name }}
+                                            </a>
+                                        </li>
+                                        {% endif %}
                                     {% endfor %}
                                     </ul>
                                 </div>
@@ -111,6 +114,7 @@
                         </script>
                     </div>
                 </li>
+                    {% endif %}
                 {% endfor %}
             </ul>
             {% endif %}
