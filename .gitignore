@@ -12,7 +12,7 @@
 !var/sessions/.gitkeep
 
 # Parameters
-/config/parameters.yml
+/config/parameters.yaml
 
 # Managed by Composer
 /var/bootstrap.php.cache
