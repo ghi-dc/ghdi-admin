@@ -51,7 +51,6 @@ implements UserProviderInterface
             throw new UsernameNotFoundException($e->getMessage());
         }
 
-
         // TODO: maybe check 'enabled'
         if (!empty($user)) {
             return new ExistDbUser($username, is_null($password) ? '' : $password, '', $user['groups']);

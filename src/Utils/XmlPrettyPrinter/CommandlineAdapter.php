@@ -50,9 +50,9 @@ class CommandlineAdapter
             'source' => $this->escapeFilename($srcFilename),
             'additional' => $this->buildAdditional($options),
         ]));
-        
-        $res = `$cmd`; 
-        
+
+        $res = `$cmd`;
+
         // TODO: implement some form of error-handling
         if (empty($res)) {
             return false;
@@ -73,9 +73,9 @@ class CommandlineAdapter
 
         return $ret;
     }
-    
+
     function prettyPrint($xml, $options = [])
     {
-        return $this->formatXML($xml, $options);    
+        return $this->formatXML($xml, $options);
     }
 }

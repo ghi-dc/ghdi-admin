@@ -16,7 +16,6 @@ extends \Mpdf\Mpdf
             ? array_merge($options['fontDir'], $fontDir)
             : $fontDir;
 
-
         $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
         $fontdata = $defaultFontConfig['fontdata'];
 

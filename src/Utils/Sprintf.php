@@ -4,13 +4,11 @@
  */
 namespace App\Utils;
 
-
 /**
  *
  */
 class Sprintf
 {
-
     private static $string;
 
     /** No instances */

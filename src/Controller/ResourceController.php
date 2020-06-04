@@ -466,7 +466,6 @@ EOXQL;
         return $this->updateTeiHeaderContent($client, $resourcePath, $content, $data, false);
     }
 
-
     protected function generateShelfmark($client, $volumeId, $lang, $id)
     {
         $prefix = preg_replace('/(\-)\d+$/', '\1', $id);
@@ -493,7 +492,6 @@ EOXQL;
         $query->bindVariable('volume', $volumeId);
         $query->bindVariable('prefix', $prefix);
         $res = $query->execute();
-
 
         $shelfmarkHighest = null;
         if ($res->valid()) {

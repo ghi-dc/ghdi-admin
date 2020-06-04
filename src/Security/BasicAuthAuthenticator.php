@@ -39,7 +39,7 @@ extends AbstractGuardAuthenticator
             'username' => $request->getUser(),
             'password' => $request->getPassword(),
         ];
-        
+
         return $credentials;
     }
 
@@ -73,7 +73,7 @@ extends AbstractGuardAuthenticator
         // on success, let the request continue
         return null;
     }
-    
+
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
         return $this->start($request, $exception);
@@ -88,12 +88,12 @@ extends AbstractGuardAuthenticator
         $response = new Response();
         $response->headers->set('WWW-Authenticate', sprintf('Basic realm="%s"', $this->realmName));
         $response->setStatusCode(401);
-        
+
         return $response;
     }
-    
+
     public function supportsRememberMe()
     {
         return false;
-    }    
+    }
 }

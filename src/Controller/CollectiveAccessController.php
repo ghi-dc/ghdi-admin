@@ -299,13 +299,13 @@ extends BaseController
                                             $method = 'setDateCreation';
                                             break;
                                     }
+
                                     break;
 
                                 case 'ca_objects.coverageDates':
                                     $teiHeader->setSettingDate($val);
                                     break;
                             }
-
 
                             if (!empty($method)) {
                                 $teiHeader->$method($val);

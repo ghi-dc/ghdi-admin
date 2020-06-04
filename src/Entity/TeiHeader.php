@@ -235,7 +235,7 @@ implements \JsonSerializable
     }
 
     /**
-     * Gets authors
+     * Gets editors
      */
     public function getEditors()
     {

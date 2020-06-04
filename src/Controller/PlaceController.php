@@ -221,7 +221,6 @@ EOXQL;
                             ])
                             ;
 
-
                             return $this->render('Place/edit.html.twig', [
                                 'form' => $form->createView(),
                                 'entity' => $place,

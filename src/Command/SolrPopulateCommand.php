@@ -41,7 +41,7 @@ extends ExistDbCommand
         $this->adminClient = $adminClient;
         $this->twig = $twig;
         $this->slugify = $slugify;
-        
+
         $this->frontendDataDir = realpath($this->params->get('app.frontend.data_dir'));
         if (empty($this->frontendDataDir)) {
             die(sprintf('app.frontend.data_dir (%s) does not exist',
@@ -136,11 +136,11 @@ extends ExistDbCommand
     protected function fetchDocument($urlDocument)
     {
         $apiResponse = $this->adminClient->request('GET', $urlDocument);
-        
+
         $xml = $apiResponse->getContent();
 
         $entity = \App\Entity\TeiFull::fromXmlString($xml, false);
-                        
+
         if (!is_null($entity)) {
             $fname = sprintf('%s.%s.xml', $entity->getId(true), $entity->getLanguage());
             $teiPath = join('/', [ $this->frontendDataDir, 'volumes', $entity->getVolumeId(), $fname ]);
@@ -151,24 +151,23 @@ extends ExistDbCommand
                 // TODO: compare publication date'
                 $reindex = false;
             }
-            
+
             if ($reindex) {
                 file_put_contents($teiPath, $xml);
-                
+
                 return $entity;
-            }                    
+            }
         }
     }
-    
+
     protected function fetchCollection($locale, $id = null)
     {
         $dtsBase = ('en' != $locale ? $locale . '/' : '')
             . 'api/dts/';
-        
 
         $urlDocument = $dtsBase . 'document';
         $urlCollections = $dtsBase . 'collections';
-        
+
         if (!empty($id)) {
             $urlCollections .= '?id=' . $id;
         }
@@ -177,17 +176,17 @@ extends ExistDbCommand
         $result = $response->toArray();
 
         $entities = [];
-        
+
         if (!empty($result['@id'])) {
             $entity = $this->fetchDocument($urlDocument . '?id=' . $result['@id']);
             if (!is_null($entity)) {
                 $entities[] = $entity;
             }
         }
-        
+
         if (!empty($result['member'])) {
-            foreach ($result['member'] as $info) {                
-                                
+            foreach ($result['member'] as $info) {
+
                 if ('Collection' == $info['@type']) {
                     $children = $this->fetchCollection($locale, $info['@id']);
                     foreach ($children as $child) {
@@ -202,7 +201,7 @@ extends ExistDbCommand
                 }
             }
         }
-        
+
         return $entities;
     }
 
@@ -214,14 +213,14 @@ extends ExistDbCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $locale = $input->getOption('locale');
-        
+
         $entities = $this->buildEntities($locale, 'ghis:volume-2');
 
         try {
             // $this->solr->synchronizeIndex($entities); would be more efficient but adds duplicates
             foreach ($entities as $entity) {
                 $this->prepareEntity($entity); // set tags for indexing
-                
+
                 $this->solr->updateDocument($entity);
             }
         } catch (\Exception $e) {

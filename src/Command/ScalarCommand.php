@@ -566,7 +566,6 @@ extends Command
                                        function ($part) use ($slugFrom) { return $part['scalar:metadata:slug'] === $slugFrom; })
                         : [];
 
-
                     foreach ($parts as $part) {
                         $pages = [];
 

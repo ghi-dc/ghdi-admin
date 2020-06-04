@@ -223,7 +223,6 @@ return
 EOXQL;
                 break;
 
-
             default:
                 // see https://exist-db.org/exist/apps/fundocs/view.html?uri=http://exist-db.org/xquery/system&location=java:org.exist.xquery.functions.system.SystemModule&details=true
                 $xql = 'system:get-version()';

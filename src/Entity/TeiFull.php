@@ -55,20 +55,6 @@ extends TeiHeader
     {
         return $this->body;
     }
-    
-    public function getVolumeId()
-    {
-        if ('volume' == $this->getGenre()) {
-            return $this->getId(true);
-        }
-        
-        $parts = explode('/', $this->getShelfmark());
-        if (count($parts) > 1) {
-            list($order, $volumId) = explode(':', $parts[1], 2);
-            
-            return $volumId;
-        }
-    }
 
     public function addTag(Tag $tag)
     {
@@ -84,6 +70,20 @@ extends TeiHeader
     {
         return array_filter($this->tags,
                             function ($tag) use ($type) { return $type == $tag->getType(); });
+    }
+
+    public function getVolumeId()
+    {
+        if ('volume' == $this->getGenre()) {
+            return $this->getId(true);
+        }
+
+        $parts = explode('/', $this->getShelfmark());
+        if (count($parts) > 1) {
+            list($order, $volumeId) = explode(':', $parts[1], 2);
+
+            return $volumeId;
+        }
     }
 
     public function jsonSerialize()

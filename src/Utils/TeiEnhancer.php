@@ -231,7 +231,6 @@ class TeiEnhancer
         {
             $query = $parentElementQuery . '//*[self::tei:persName or self::tei:orgName or self::tei:placeName]';
 
-
             $fluidXml->query($query)
                 ->each(function ($i, $domnode) use (&$result, $callback) {
                     switch ($domnode->tagName) {

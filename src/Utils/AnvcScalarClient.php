@@ -363,7 +363,6 @@ class AnvcScalarClient
                            $this->config['book'],
                            $instance);
 
-
         try {
             // to determine this url, use http://scalar.usc.edu/tools/apiexplorer/
             $response = $this->callGet($listUrl . '?rec=1&res=' . $type . '&ref=0&format=json');

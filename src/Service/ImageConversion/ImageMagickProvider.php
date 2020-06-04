@@ -83,7 +83,6 @@ class ImageMagickProvider
         $cmd = $this->buildConvertCommand()
              . (count($arguments) > 0 ? ' ' . implode(' ', $arguments) : '');
 
-
         $process = new \Symfony\Component\Process\Process($cmd);
         $process->run();
 

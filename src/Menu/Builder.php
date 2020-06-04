@@ -83,7 +83,6 @@ class Builder
             $menu->setChildrenAttributes([ 'id' => 'menu-main', 'class' => 'nav navbar-nav navbar-expand-sm' ]);
         }
 
-
         $menu->addChild('volume-list', [
             'label' => $this->translator->trans('Volumes', [], 'menu'),
             'route' => 'volume-list',

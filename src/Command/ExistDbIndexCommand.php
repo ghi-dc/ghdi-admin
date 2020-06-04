@@ -66,7 +66,6 @@ extends ExistDbCommand
             return -3;
         }
 
-
         $configCollection = '/db/system/config' . $subCollection;
         $configFull = $configCollection . '/collection.xconf';
 

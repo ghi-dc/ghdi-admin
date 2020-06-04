@@ -73,7 +73,6 @@ implements TermProvider
         throw new \Exception('No handler for rdf:type ' . join(', ', $types));
     }
 
-
     protected function setEntityValues($entity, $valueMap)
     {
         foreach ($valueMap as $property => $value) {

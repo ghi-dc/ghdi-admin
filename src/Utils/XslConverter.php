@@ -15,14 +15,14 @@ extends DocumentConverter
     {
         parent::__construct($options);
     }
-    
+
     protected function cleanUp($ret)
     {
         if (method_exists($ret, 'cleanUp')) {
             $ret->cleanUp();
         }
     }
-    
+
     /**
      * Convert documents between two formats
      *
@@ -33,13 +33,13 @@ extends DocumentConverter
     public function convert(Document $doc)
     {
         $res = null;
-                
+
         if (isset($this->options['adapter'])) {
             $adapter = $this->options['adapter'];
-            
+
             $fnameInput = $this->saveToTmp($doc);
             $res = $adapter->transformToXml($fnameInput, $this->getOption('xsl'), $this->getOption('params'));
-            
+
             unlink($fnameInput);
         }
         else {
@@ -53,11 +53,11 @@ extends DocumentConverter
                 libxml_use_internal_errors(false);
                 return false;
             }
-            
+
             // Create the XSLT processor
             $proc = new \XsltProcessor();
             $proc->importStylesheet($xsl);
-            
+
             // Transform
             $res = $proc->transformToDoc($dom);
             if (false === $newdom) {
@@ -65,9 +65,9 @@ extends DocumentConverter
                 libxml_use_internal_errors(false);
                 return false;
             }
-            
+
             libxml_use_internal_errors(false);
-            
+
             // to string conversion, maybe just set dom
             $res = $res instanceof HtmlDocument ? $res->saveHTML() : $res->saveXML();
         }
@@ -76,9 +76,9 @@ extends DocumentConverter
             ? $this->options['target']
             : new XmlDocument();
 
-        $ret->loadString($res);            
-        
-        $this->cleanUp($ret);       
+        $ret->loadString($res);
+
+        $this->cleanUp($ret);
 
         return $ret;
     }
