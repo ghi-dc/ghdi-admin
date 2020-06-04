@@ -54,7 +54,7 @@
         "symfony/event-dispatcher": "^4.4",
         "symfony/cache": "^4.4",
         "symfony/routing": "^4.4",
-        "jms/translation-bundle": "^1.4",
+        "jms/translation-bundle": "^1.5",
 
         "symfony/inflector": "^4.4",
         "symfony/property-access": "^4.4",
@@ -80,7 +80,7 @@
         "symfony/monolog-bridge": "^4.4",
 
         "symfony/asset": "^4.4",
-        "armin/scssphp-bundle": "@stable",
+        "armin/scssphp-bundle": "^1.1",
 
         "symfony/mime": "^4.4",
         "symfony/dom-crawler": "^4.4",
@@ -107,7 +107,7 @@
         "brunty/relax-ng-domdocument": "^0.2",
 
         "masterminds/html5": "2.*",
-        "symfony/string": "^5.0",
+        "symfony/string": "^5.1",
 
         "hedii/zotero-api": "@stable",
 
@@ -115,8 +115,7 @@
         "seboettg/citeproc-php": "^2.1",
         "fale/isbn": "3.*",
 
-        "semsol/arc2": "2.3.*",
-        "easyrdf/easyrdf": "0.10.*@dev",
+        "sweetyrdf/easyrdf": "1.0.0-RC1",
         "ml/json-ld": "1.1.*",
 
         "burki/exist-db-rpc-client": "dev-master",
@@ -140,8 +139,5 @@
         "psr-4": {
             "App\\": "src/"
         }
-    },
-    "require-dev": {
-        "rector/rector": "^0.6.9"
     }
 }
