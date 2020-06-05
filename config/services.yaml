@@ -25,12 +25,10 @@ services:
 
     # additional services
     App\Service\ExistDbClientService:
-        public: true    # we get this one in *Command
         arguments:
             $options: "%app.existdb.options%"
 
     App\Service\ZoteroApiService:
-        public: true    # we get this one in *Command
         arguments:
             $options: "%app.zotero.options%"
             
@@ -48,20 +46,16 @@ services:
             - { name: knp_menu.menu_builder, method: createFooterMainMenu, alias: footer-main }
 
     App\Utils\PandocProcessor:
-        public: true    # we get this one in *Controller, TODO: switch to typed argument
         arguments:  [ "%app.pandoc.processor.arguments%" ]
 
     App\Utils\PandocConverter:
-        public: true    # we get this one in *Controller, TODO: switch to typed argument
         arguments:  [ "%app.pandoc.processor.arguments%" ]
 
-    App\Utils\XslConverter:
-        public: true    # we get this one in *Controller, TODO: switch to typed argument
-        calls:
-            - [ setOption, [ 'adapter', '@app.xsl-converter-adapter' ]]
+    app.image-conversion-provider:
+        class: "%app.image-conversion-provider.class%"
+        arguments:  [ "%app.image-conversion-provider.arguments%" ]
 
     App\Service\ImageConversion\ConversionService:
-        public: true    # we get this one in *Controller, TODO: switch to typed argument
         calls:
             - [ addProvider, [ '@app.image-conversion-provider' ]]
 
@@ -75,17 +69,15 @@ services:
         class: "%app.xsl-converter-adapter.class%"
         arguments:  [ "%app.xsl-converter-adapter.arguments%" ]
 
-    app.image-conversion-provider:
-        class: "%app.image-conversion-provider.class%"
-        arguments:  [ "%app.image-conversion-provider.arguments%" ]
+    App\Utils\XslConverter:
+        calls:
+            - [ setOption, [ 'adapter', '@app.xsl-converter-adapter' ]]
 
     app.tei-prettyprinter-adapter:
         class: "%app.tei-prettyprinter-adapter.class%"
         arguments:  [ "%app.tei-prettyprinter-adapter.arguments%" ]
 
-    app.tei-prettyprinter:
-        public: true
-        class: App\Utils\XmlPrettyPrinter\XmlPrettyPrinter
+    App\Utils\XmlPrettyPrinter\XmlPrettyPrinter:
         calls:
             - [ setAdapter, [ '@app.tei-prettyprinter-adapter' ]]
     

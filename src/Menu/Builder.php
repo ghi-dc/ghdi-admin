@@ -10,8 +10,9 @@ use Knp\Menu\FactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Builder
 {
@@ -29,7 +30,7 @@ class Builder
      */
     public function __construct(FactoryInterface $factory,
                                 AuthorizationCheckerInterface $authorizationChecker,
-                                \Symfony\Contracts\Translation\TranslatorInterface $translator,
+                                TranslatorInterface $translator,
                                 RequestStack $requestStack,
                                 array $zoteroOptions)
     {
@@ -84,40 +85,41 @@ class Builder
         }
 
         $menu->addChild('volume-list', [
-            'label' => $this->translator->trans('Volumes', [], 'menu'),
+            'label' => 'Volumes',
             'route' => 'volume-list',
         ]);
 
-        $menu->addChild('Authority Control', [
-            'label' => $this->translator->trans('Authority Control', [], 'menu'),
+        $key = $this->translator->trans('Authority Control');
+        $menu->addChild($key, [
+            'label' => 'Authority Control',
             'route' => 'person-list',
         ]);
-        $menu['Authority Control']->addChild('person-list', [
-            'label' => $this->translator->trans('Persons', [], 'menu'),
+        $menu[$key]->addChild('person-list', [
+            'label' => 'Persons',
             'route' => 'person-list',
         ]);
-        $menu['Authority Control']->addChild('organization-list', [
-            'label' => $this->translator->trans('Organizations', [], 'menu'),
+        $menu[$key]->addChild('organization-list', [
+            'label' => 'Organizations',
             'route' => 'organization-list',
         ]);
-        $menu['Authority Control']->addChild('place-list', [
-            'label' => $this->translator->trans('Places', [], 'menu'),
+        $menu[$key]->addChild('place-list', [
+            'label' => 'Places',
             'route' => 'place-list',
         ]);
-        $menu['Authority Control']->addChild('term-list', [
-            'label' => $this->translator->trans('Subject Headings', [], 'menu'),
+        $menu[$key]->addChild('term-list', [
+            'label' => 'Subject Headings',
             'route' => 'term-list',
         ]);
 
         if ($this->showBibliography) {
             $menu->addChild('bibliography-list', [
-                'label' => $this->translator->trans('Bibliography', [], 'menu'),
+                'label' => 'Bibliography',
                 'route' => 'bibliography-list',
             ]);
         }
 
         $menu->addChild('ca-list', [
-            'label' => $this->translator->trans('Collective Access', [], 'menu'),
+            'label' => 'Collective Access',
             'route' => 'ca-list',
         ]);
 

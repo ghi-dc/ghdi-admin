@@ -32,8 +32,7 @@
         {{ 'No items found'|trans }}
     </div>
         {% else %}
-            {% set count = data.total %}
-            {% transchoice count %}{1} %count% entry|]1,Inf] %count% entries{% endtranschoice %}
+            {% trans with {'%count%': data.total }  %}%count% entries{% endtrans %}
             <ul>
             {% for item in data.results %}
                 <li><a href="{{ path('ca-detail', { 'id' : item.id }) }}">{{ item.display_label }}</a></li>

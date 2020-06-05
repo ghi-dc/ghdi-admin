@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /*
@@ -81,7 +82,7 @@ extends ResourceController
         $locale = $request->getLocale();
 
         if ($id == $this->siteKey) {
-            $title = $translator->trans($this->getParameter('app.site.name'), [], 'additional');
+            $title = /** @Ignore */$translator->trans($this->getParameter('app.site.name'), [], 'additional');
             $response = [
                 '@context' => $this->defaultContext + [
                     'dc' => 'http://purl.org/dc/terms/',

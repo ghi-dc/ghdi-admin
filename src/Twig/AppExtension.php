@@ -3,21 +3,12 @@
 
 /**
  * see http://symfony.com/doc/current/cookbook/templating/twig_extension.html
- *
- * register in
- *   app/config/services.yml
- * as
- *
- * services:
- *   app.twig_extension:
- *       class: App\Twig\AppExtension
- *       public: false
- *       tags:
- *           - { name: twig.extension }
- *
  */
 
 namespace App\Twig;
+
+use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AppExtension
 extends \Twig\Extension\AbstractExtension
@@ -26,8 +17,8 @@ extends \Twig\Extension\AbstractExtension
     private $translator;
     private $slugifyer;
 
-    public function __construct(\Symfony\Component\HttpKernel\KernelInterface $kernel = null,
-                                \Symfony\Contracts\Translation\TranslatorInterface $translator = null,
+    public function __construct(KernelInterface $kernel = null,
+                                TranslatorInterface $translator = null,
                                 $slugifyer = null)
     {
         $this->kernel = $kernel;

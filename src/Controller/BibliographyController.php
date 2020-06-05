@@ -42,7 +42,7 @@ extends BaseController
             $creativeWorks[] = \App\Entity\CreativeWork::fromTei($elem->asXML());
         }
 
-        $path = $this->get('kernel')->getProjectDir()
+        $path = $this->getProjectDir()
             . '/data/styles/apa.csl';
         $citeProc = new \Seboettg\CiteProc\CiteProc(file_get_contents($path), $locale = 'en-US');
 

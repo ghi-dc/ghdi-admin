@@ -59,7 +59,7 @@ extends AbstractController
                     $teiSimpleDoc = $pandocConverter->convert($officeDoc);
 
                     $conversionOptions = [
-                        'prettyPrinter' => $this->get('app.tei-prettyprinter'),
+                        'prettyPrinter' => $this->getTeiPrettyPrinter(),
                         'language' => \App\Utils\Iso639::code1to3($request->getLocale()),
                         'genre' => 'document', // todo: make configurable
                     ];

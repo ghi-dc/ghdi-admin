@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 /**
  *
  */
@@ -170,12 +172,19 @@ EOXQL;
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
      */
     public function detailAction(Request $request,
+                                 TranslatorInterface $translator,
                                  \App\Utils\MpdfConverter $pdfConverter,
                                  $volume, $id)
     {
-        $textRazorApiKey = $this->container->hasParameter('app.textrazor')
-            ? $this->getParameter('app.textrazor')['api_key']
-            : null;
+        $textRazorApiKey = null;
+
+        try {
+            $textRazorApiKey = $this->getParameter('app.textrazor')['api_key'];
+        }
+        catch (\Exception $e) {
+            // ignore if app.textrazor is not set
+        }
+
         $showAddEntities = !empty($textRazorApiKey) ? 1 : 0;
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -268,7 +277,7 @@ EOXQL;
         $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resource['data']['fname'];
 
         if ('resource-detail-dc' == $request->get('_route')) {
-            return $this->teiToDublinCore($client, $resourcePath);
+            return $this->teiToDublinCore($translator, $client, $resourcePath);
         }
 
         if (in_array($request->get('_route'), [ 'resource-detail-scalar', 'resource-embedded-media-scalar' ])) {
@@ -716,7 +725,7 @@ EOXQL;
         $teiSimpleDoc = $pandocConverter->convert($officeDoc);
 
         $conversionOptions = [
-            'prettyPrinter' => $this->get('app.tei-prettyprinter'),
+            'prettyPrinter' => $this->getTeiPrettyPrinter(),
             'language' => \App\Utils\Iso639::code1to3($locale),
             'genre' => 'document', // todo: make configurable
         ];
@@ -779,7 +788,7 @@ EOXQL;
 
                     if ('text/xml' == $mime) {
                         $teiDtabfDoc = new \App\Utils\TeiDocument([
-                            'prettyPrinter' => $this->get('app.tei-prettyprinter'),
+                            'prettyPrinter' => $this->getTeiPrettyPrinter(),
                         ]);
                         $success = $teiDtabfDoc->load($file->getRealPath());
                         if (!$success) {
@@ -814,7 +823,7 @@ EOXQL;
                     }
 
                     if (false !== $teiDtabfDoc) {
-                        $valid = $teiDtabfDoc->validate($this->get('kernel')->getProjectDir() . '/data/schema/basisformat.rng');
+                        $valid = $teiDtabfDoc->validate($this->getProjectDir() . '/data/schema/basisformat.rng');
 
                         if (!$valid) {
                             $request->getSession()

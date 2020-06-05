@@ -58,7 +58,7 @@ trait RenderTeiTrait
 
         if (!array_key_exists('logo_top', $imageVars)) {
             // fall-back to file system
-            $imageVars['logo_top'] = file_get_contents($this->get('kernel')->getProjectDir() . '/public/img/logo-print.' . $locale . '.jpg');
+            $imageVars['logo_top'] = file_get_contents($this->getProjectDir() . '/public/img/logo-print.' . $locale . '.jpg');
         }
 
         if (!empty($imageVars)) {

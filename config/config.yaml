@@ -18,6 +18,8 @@ framework:
     # knp_paginator needs translate bundle
     translator: { fallbacks: ['%default_locale%'], logging: false }
     profiler: { only_exceptions: false }
+    router:
+        utf8: true
     http_client:
         scoped_clients:
             # see: https://symfony.com/doc/current/reference/configuration/framework.html#reference-http-client-scoped-clients

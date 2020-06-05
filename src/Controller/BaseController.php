@@ -5,18 +5,26 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
+use App\Service\ExistDbClientService;
+use App\Utils\XmlPrettyPrinter\XmlPrettyPrinter;
 
 /**
  *
  */
 abstract class BaseController
-extends Controller
+extends AbstractController
 {
-    protected $existDbClientService = null;
-    protected $siteKey = null;
+    protected $existDbClientService;
+    private $kernel;
+    private $teiPrettyPrinter;
+    protected $siteKey;
     protected $authorityPaths = [
         'persons' => '/data/authority/persons',
         'organizations' => '/data/authority/organizations',
@@ -24,9 +32,14 @@ extends Controller
         'terms' => '/data/authority/terms',
     ];
 
-    public function __construct(\App\Service\ExistDbClientService $existDbClientService, string $siteKey)
+    public function __construct(ExistDbClientService $existDbClientService,
+                                KernelInterface $kernel,
+                                XmlPrettyPrinter $teiPrettyPrinter,
+                                string $siteKey)
     {
         $this->existDbClientService = $existDbClientService;
+        $this->kernel = $kernel;
+        $this->teiPrettyPrinter = $teiPrettyPrinter;
         $this->siteKey = $siteKey;
     }
 
@@ -40,9 +53,20 @@ extends Controller
         if (!empty($subCollection)) {
             $collection .= $subCollection;
         }
+
         $existDbClient->setCollection($collection);
 
         return $existDbClient;
+    }
+
+    protected function getProjectDir()
+    {
+        return $this->kernel->getProjectDir();
+    }
+
+    protected function getTeiPrettyPrinter()
+    {
+        return $this->teiPrettyPrinter;
     }
 
     protected function getStylesPath()
@@ -82,9 +106,12 @@ extends Controller
 
     protected function buildWebDavBaseUrl($client)
     {
-        if ($this->container->hasParameter('app.existdb.webdav')) {
+        try {
             return $this->getParameter('app.existdb.webdav')
                 . $client->getCollection();
+        }
+        catch (\Exception $e) {
+            // ignore, we build it below if the parameter isn't set
         }
 
         $parts = parse_url($client->getUri());
@@ -144,16 +171,15 @@ extends Controller
     protected function getTeiSkeleton()
     {
         // TODO: maybe get from exist instead of filesystem, so it can differ among projects
-        $fnameSkeleton =   $this->container->get('kernel')->getProjectDir()
+        $fnameSkeleton =   $this->getProjectDir()
             . '/data/tei/skeleton.tei.xml';
 
         return file_get_contents($fnameSkeleton);
     }
 
-    protected function teiToDublinCore($client, $resourcePath)
+    protected function teiToDublinCore(TranslatorInterface $translator,
+                                       $client, $resourcePath)
     {
-        $translator = $this->get('translator');
-
         $xql = $this->renderView('XQuery/tei2dc.xql.twig', []);
 
         $query = $client->prepareQuery($xql);
@@ -177,7 +203,7 @@ extends Controller
     protected function prettyPrintTei($tei)
     {
         $teiDtabfDoc = new \App\Utils\TeiDocument([
-            'prettyPrinter' => $this->get('app.tei-prettyprinter'),
+            'prettyPrinter' => $this->getTeiPrettyPrinter(),
         ]);
 
         if (!$teiDtabfDoc->loadString($tei)) {

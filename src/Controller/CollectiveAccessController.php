@@ -5,8 +5,14 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 use Symfony\Component\Routing\Annotation\Route;
+
+use App\Service\CollectiveAccessService;
+use App\Service\ExistDbClientService;
+use App\Utils\PandocProcessor;
+use App\Utils\XmlPrettyPrinter\XmlPrettyPrinter;
 
 /**
  *
@@ -19,11 +25,24 @@ extends BaseController
         'en' => 'en_US',
     ];
 
+    protected $pandocProcessor;
+
+    public function __construct(ExistDbClientService $existDbClientService,
+                                KernelInterface $kernel,
+                                XmlPrettyPrinter $teiPrettyPrinter,
+                                string $siteKey,
+                                PandocProcessor $pandocProcessor)
+    {
+        parent::__construct($existDbClientService, $kernel, $teiPrettyPrinter, $siteKey);
+
+        $this->pandocProcessor = $pandocProcessor;
+    }
+
     /**
      * @Route("/collective-access", name="ca-list")
      */
     public function homeAction(Request $request,
-                               \App\Service\CollectiveAccessService $caService)
+                               CollectiveAccessService $caService)
     {
         $collections = $caService->getCollections();
 
@@ -84,15 +103,13 @@ extends BaseController
     }
 
     /**
-     * TODO: Switch to Pandoc Converter
      */
     protected function htmlFragmentToTei($htmlFragment, $omitPara = false)
     {
         $xhtml = $this->htmlFragmentToXhtml($htmlFragment, $omitPara);
 
-        $pandocProcessor = $this->container->get(\App\Utils\PandocProcessor::class);
-
-        $tei = $pandocProcessor->convertHtmlFragmentToTeiSimple($xhtml);
+        // TODO: Switch to Pandoc Converter
+        $tei = $this->pandocProcessor->convertHtmlFragmentToTeiSimple($xhtml);
         if ($omitPara) {
             $tei = preg_replace('#^<p>(.*?)</p>$#s', '\1', $tei);
         }
@@ -166,7 +183,8 @@ extends BaseController
         return $target;
     }
 
-    protected function buildTeiHeader($data, $locale, \App\Service\CollectiveAccessService $caService)
+    protected function buildTeiHeader($data, $locale,
+                                      CollectiveAccessService $caService)
     {
         $languages = [];
         foreach (self::$LOCALE_MAP as $aLocale => $lang) {

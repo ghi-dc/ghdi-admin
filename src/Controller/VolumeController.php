@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 use function Symfony\Component\String\u;
 
 /**
@@ -154,7 +156,9 @@ extends ResourceController
      * @Route("/volume/{id}", name="volume-detail", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}/create", name="volume-create", requirements={"id" = "volume\-\d+"})
      */
-    public function volumeDetailAction(Request $request, $id)
+    public function volumeDetailAction(Request $request,
+                                       TranslatorInterface $translator,
+                                       $id)
     {
         $client = $this->getExistDbClient($this->subCollection);
 
@@ -303,7 +307,7 @@ extends ResourceController
 
         $volumepath = $client->getCollection() . '/' . $id . '/' . $volume['data']['fname'];
         if ('volume-detail-dc' == $request->get('_route')) {
-            return $this->teiToDublinCore($client, $volumepath);
+            return $this->teiToDublinCore($translator, $client, $volumepath);
         }
 
         if ('volume-detail-scalar' == $request->get('_route')) {
