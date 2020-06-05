@@ -35,64 +35,64 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/boppy/SolrBundle.git"
+            "url": "https://github.com/burki/SolrBundle.git"
         }
     ],
     "require": {
         "php" : "^7.2.9",
 
-        "symfony/config": "^4.4",
-        "symfony/finder": "^4.4",
-        "symfony/filesystem": "^4.4",
-        "symfony/yaml": "^4.4",
-        "symfony/expression-language": "^4.4",
-        "symfony/console": "^4.4",
-        "symfony/process": "^4.4",
-        "symfony/framework-bundle": "^4.4",
+        "symfony/config": "^5.1",
+        "symfony/finder": "^5.1",
+        "symfony/filesystem": "^5.1",
+        "symfony/yaml": "^5.1",
+        "symfony/expression-language": "^5.1",
+        "symfony/console": "^5.1",
+        "symfony/process": "^5.1",
+        "symfony/framework-bundle": "^5.1",
 
-        "symfony/http-foundation": "^4.4",
-        "symfony/event-dispatcher": "^4.4",
-        "symfony/cache": "^4.4",
-        "symfony/routing": "^4.4",
+        "symfony/http-foundation": "^5.1",
+        "symfony/event-dispatcher": "^5.1",
+        "symfony/cache": "^5.1",
+        "symfony/routing": "^5.1",
         "jms/translation-bundle": "^1.5",
 
-        "symfony/inflector": "^4.4",
-        "symfony/property-access": "^4.4",
-        "symfony/options-resolver": "^4.4",
+        "symfony/inflector": "^5.1",
+        "symfony/property-access": "^5.1",
+        "symfony/options-resolver": "^5.1",
 
-        "symfony/translation": "^4.4",
+        "symfony/translation": "^5.1",
         "twig/twig": "@stable",
         "jasny/twig-extensions": "^1.3",
-        "symfony/twig-bridge": "^4.4",
-        "symfony/twig-bundle": "^4.4",
+        "symfony/twig-bridge": "^5.1",
+        "symfony/twig-bundle": "^5.1",
 
-        "symfony/security-core": "^4.4",
-        "symfony/security-http": "^4.4",
-        "symfony/security-csrf": "^4.4",
-        "symfony/security-guard": "^4.4",
-        "symfony/security-bundle": "^4.4",
-        "symfony/intl": "^4.4",
-        "symfony/form": "^4.4",
-        "symfony/validator": "^4.4",
+        "symfony/security-core": "^5.1",
+        "symfony/security-http": "^5.1",
+        "symfony/security-csrf": "^5.1",
+        "symfony/security-guard": "^5.1",
+        "symfony/security-bundle": "^5.1",
+        "symfony/intl": "^5.1",
+        "symfony/form": "^5.1",
+        "symfony/validator": "^5.1",
         "ninsuo/symfony-collection": "^2.1",
 
         "symfony/monolog-bundle": "@stable",
-        "symfony/monolog-bridge": "^4.4",
+        "symfony/monolog-bridge": "^5.1",
 
-        "symfony/asset": "^4.4",
+        "symfony/asset": "^5.1",
         "armin/scssphp-bundle": "^1.1",
 
-        "symfony/mime": "^4.4",
-        "symfony/dom-crawler": "^4.4",
-        "symfony/css-selector": "^4.4",
+        "symfony/mime": "^5.1",
+        "symfony/dom-crawler": "^5.1",
+        "symfony/css-selector": "^5.1",
 
-        "symfony/http-client": "^4.4",
+        "symfony/http-client": "^5.1",
 
         "knplabs/knp-menu-bundle": "^3.0",
 
-        "symfony/web-profiler-bundle": "^4.4",
-        "symfony/debug-bundle": "^4.4",
-        "symfony/var-dumper": "^4.4",
+        "symfony/web-profiler-bundle": "^5.1",
+        "symfony/debug-bundle": "^5.1",
+        "symfony/var-dumper": "^5.1",
 
         "jms/serializer": "^1.14",
 
@@ -113,7 +113,7 @@
 
         "citation-style-language/locales":"@dev",
         "seboettg/citeproc-php": "^2.1",
-        "fale/isbn": "3.*",
+        "fale/isbn": "^3.1",
 
         "sweetyrdf/easyrdf": "1.0.0-RC1",
         "ml/json-ld": "1.1.*",
@@ -133,7 +133,7 @@
 
         "symfony/polyfill-intl-normalizer": "*",
 
-        "maxgr0/solr-bundle": "*"
+        "maxgr0/solr-bundle": "dev-master"
     },
     "autoload": {
         "psr-4": {

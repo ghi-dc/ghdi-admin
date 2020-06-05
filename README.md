@@ -146,4 +146,4 @@ Development Notes
 
 Translate routes
 
-    ./bin/console translation:extract de --dir=./src/ --dir=./templates/ --output-dir=./translations --enable-extractor=jms_i18n_routing
+    ./bin/console translation:extract de --dir=./src/ --dir=./templates/ --output-dir=./translations
