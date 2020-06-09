@@ -54,6 +54,24 @@
       </xsl:if>
       <xsl:apply-templates select='//tei:fw[@place="bottom" and (text() or *)]' mode="signatures"/>
 
+      <xsl:choose>
+        <xsl:when test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence">
+          <div id="license">
+            <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target">
+              <xsl:attribute name="data-target"><xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target" /></xsl:attribute>
+            </xsl:if>
+            <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence" />
+          </div>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability">
+            <div id="license">
+              <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability" />
+            </div>
+          </xsl:if>
+        </xsl:otherwise>
+      </xsl:choose>
+
       <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
         <div class="source-citation">
           <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl/node()"/>
@@ -67,24 +85,6 @@
         </div>
       </xsl:if>
     </div>
-
-    <xsl:choose>
-      <xsl:when test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence">
-        <div id="license">
-          <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target">
-            <xsl:attribute name="data-target"><xsl:value-of select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/@target" /></xsl:attribute>
-          </xsl:if>
-          <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence" />
-        </div>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability">
-          <div id="license">
-            <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability" />
-          </div>
-        </xsl:if>
-      </xsl:otherwise>
-    </xsl:choose>
   </xsl:template>
 
   <!-- put expansions in brackets for print -->

@@ -382,21 +382,6 @@ nav.navbar {
         }
 }
 
-.source-description, .source-link, .source-citation {
-    @include dta-styles;
-    .editorial.foot {
-        display: none;
-    }
-}
-
-.source-description {
-    margin-bottom: 1em;
-}
-
-.source-citation {
-    margin-top: 1em;
-}
-
 /* inline content transformed from TEI with possible style markup */
 .richtext {
     @include dta-styles;
@@ -412,8 +397,28 @@ nav.navbar {
 
     @include dta-styles;
 
+    #license {
+        p.dta-p {
+            margin-bottom: 0rem;
+        }
+    }
+
     .source-description-head, .source-description, .source-citation {
         color: gray;
+    }
+
+    .source-description, .source-link, .source-citation {
+        .editorial.foot {
+            display: none;
+        }
+    }
+
+    .source-description {
+        margin-bottom: 1em;
+    }
+
+    .source-citation {
+        margin-top: 1em;
     }
 
     .dta-p, span.dta-opener, div.dta-closer,
