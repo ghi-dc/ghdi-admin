@@ -790,6 +790,7 @@ EOXQL;
                         $teiDtabfDoc = new \App\Utils\TeiDocument([
                             'prettyPrinter' => $this->getTeiPrettyPrinter(),
                         ]);
+
                         $success = $teiDtabfDoc->load($file->getRealPath());
                         if (!$success) {
                             $request->getSession()
@@ -802,9 +803,9 @@ EOXQL;
                             $teiDtabfDoc->prettify();
 
                             // genre can be both document and image
-                            $entity = \App\Entity\TeiHeader::fromXmlString((string)$teiDtabfDoc);
-                            if (!is_null($entity)) {
-                                $genre = $entity->getGenre();
+                            $newEntity = \App\Entity\TeiHeader::fromXmlString((string)$teiDtabfDoc);
+                            if (!is_null($newEntity)) {
+                                $genre = $newEntity->getGenre();
                             }
                         }
                     }
