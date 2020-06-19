@@ -163,7 +163,9 @@ class Builder
 
         // additional routes
         if (preg_match('/^(person|organization|place)\-(list|detail|edit)/', $currentRoute, $matches)) {
-            $item = $menu['Authority Control'];
+            $key = $this->translator->trans('Authority Control');
+
+            $item = $menu[$key];
             $item->setUri(null);
 
             $item = $item->addChild($currentRoute, [

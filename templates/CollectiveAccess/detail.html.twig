@@ -17,51 +17,68 @@
     <h3>{{ item.title|raw }}</h3>
     <dl class="row">
     {% if item.authors is not empty %}
-      <dt class="col-sm-3 col-md-2">{{ 'Creator(s)'|trans }}</dt>
-      <dd class="col-sm-9 col-md-10">{{ item.authors|join('; ')|raw }}</dd>
+        <dt class="col-sm-3 col-md-2">{{ 'Creator(s)'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.authors|join('; ')|raw }}</dd>
     {% endif %}
     {% if item.dateCreation is not empty %}
-      <dt class="col-sm-3 col-md-2">{{ 'Date of Creation'|trans }}</dt>
-      <dd class="col-sm-9 col-md-10">{{ item.dateCreation|raw }}</dd>
+        <dt class="col-sm-3 col-md-2">{{ 'Date of Creation'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.dateCreation|raw }}</dd>
     {% endif %}
     {% if item.note is not empty %}
-      <dt class="col-sm-3 col-md-2">{{ 'Source Description'|trans }}</dt>
-      <dd class="col-sm-9 col-md-10">{{ item.note|raw }}</dd>
+        <dt class="col-sm-3 col-md-2">{{ 'Source Description'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.note|raw }}</dd>
     {% endif %}
     {% if item.licence is not empty %}
-      <dt class="col-sm-3 col-md-2">{{ 'Source'|trans }}</dt>
-      <dd class="col-sm-9 col-md-10">{{ item.licence|raw }}</dd>
+        <dt class="col-sm-3 col-md-2">{{ 'Rights'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.licence|raw }}</dd>
     {% endif %}
     {% if item.licenceTarget is not empty %}
-      <dt class="col-sm-3 col-md-2">{{ 'License'|trans }}</dt>
-      <dd class="col-sm-9 col-md-10"><a href="{{ item.licenceTarget }}" target="_blank">{{ item.licenceTarget|prettifyurl }}</a></dd>
+        <dt class="col-sm-3 col-md-2">{{ 'License'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10"><a href="{{ item.licenceTarget }}" target="_blank">{{ item.licenceTarget|prettifyurl }}</a></dd>
+    {% endif %}
+    {% if item.sourceDescBibl is not empty %}
+        <dt class="col-sm-3 col-md-2">{{ 'Source'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.sourceDescBibl|raw }}</a></dd>
     {% endif %}
 
     {% if figures is not empty %}
-      <dt class="col-sm-3 col-md-2">{{ 'Figure'|trans }}</dt>
-      <dd class="col-sm-9 col-md-10">
+        <dt class="col-sm-3 col-md-2">{{ 'Figure'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">
        {% for figure in figures %}
            <div>
             {{ figure['tags']['preview170']|raw }}
             <a href="{{ figure['urls']['original'] }}" target="_blank">{{ figure['original_filename'] }}</a>
             </div>
         {% endfor %}
-     </dd>
-      {% endif %}
+        </dd>
+    {% endif %}
 
     {% if item.genre is not empty %}
-      <dt class="col-sm-3 col-md-2">Genre</dt>
-      <dd class="col-sm-9 col-md-10">{{ item.genre }}</dd>
+        <dt class="col-sm-3 col-md-2">{{ 'Genre'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.genre }}</dd>
+    {% endif %}
+
+    {% if item.terms is not empty %}
+        <dt class="col-sm-3 col-md-2">{{ 'Subject Headings'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">
+            {% for term in item.terms %}
+                {% if termChoices[term] is defined %}
+                    <span class="badge badge-secondary">{{ termChoices[term] }}</span>
+                {% else %}
+                    <span class="badge badge-warning">{{ term }}</span>
+                {% endif %}
+            {% endfor %}
+        </dd>
     {% endif %}
 
     {% if item.getClassCodes('#lcsh') is not empty %}
-      <dt class="col-sm-3 col-md-2">LCSH</dt>
-      <dd class="col-sm-9 col-md-10">{{ item.getClassCodes('#lcsh')|join('<br />')|raw }}</dd>
+        <dt class="col-sm-3 col-md-2">LCSH</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.getClassCodes('#lcsh')|join('<br />')|raw }}</dd>
     {% endif %}
 
     {% if item.settingDate is not empty %}
-      <dt class="col-sm-3 col-md-2">{{ 'Coverage Date'|trans }}</dt>
-      <dd class="col-sm-9 col-md-10">{{ item.settingDate|raw }}</dd>
+        <dt class="col-sm-3 col-md-2">{{ 'Coverage Date'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.settingDate|raw }}</dd>
     {% endif %}
     </dl>
 

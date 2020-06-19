@@ -647,6 +647,7 @@ implements \JsonSerializable
             'shelfmark' => $this->getShelfmark(),
             'licence' => $this->getLicence(),
             'licenceTarget' => $this->getLicenceTarget(),
+            'terms' => $this->getTerms(),
             'lcsh' => $this->getClassCodes('#lcsh'),
         ];
     }

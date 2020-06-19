@@ -84,7 +84,7 @@
                                         <li class="list-group-item">
                                             <a href="{{ path('resource-detail', { volume: id, id: subresource.id }) }}">
                                             {{ subresource.name }}
-                                            </a>
+                                            </a> {{ helper.icon_genre(subresource) }}
                                         </li>
                                         {% endif %}
                                     {% endfor %}

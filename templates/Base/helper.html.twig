@@ -52,6 +52,13 @@
     </nav>
 {% endmacro %}
 
+{% macro icon_genre(resource) %}
+    {% set genre_to_icon = { 'document' : 'file', 'image' : 'image' } %}
+    {% if genre_to_icon[resource.genre] is defined %}
+    <i class="fa fa-{{ genre_to_icon[resource.genre] }}" style="color: #aaa"></i>
+    {% endif %}
+{% endmacro%}
+
 {% macro dropzone_fileinput() %}
     {# see https://stackoverflow.com/a/12713396, TODO: make name/id configurable and support multiple elements in form #}
     <div id="drop-zone">

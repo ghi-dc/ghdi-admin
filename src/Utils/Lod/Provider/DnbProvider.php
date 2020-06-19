@@ -66,6 +66,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
                 break;
 
             case 'https://d-nb.info/standards/elementset/gnd#SubjectHeadingSensoStricto':
+            case 'https://d-nb.info/standards/elementset/gnd#NomenclatureInBiologyOrChemistry':
                 return $this->instantiateTermFromResource($resource);
                 break;
 

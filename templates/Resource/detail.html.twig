@@ -84,6 +84,7 @@
                 {% for child in hasPart %}
                 <li class="list-group-item" data-id="{{ child['id'] }}">
                     <a href="{{ path('resource-detail', { 'volume' : volume.data.id, 'id' : child['id'] }) }}">{{ child['name'] }}</a>
+                    {{ helper.icon_genre(child) }}
                 </li>
                 {% endfor %}
             </ul>

@@ -223,7 +223,7 @@ EOXQL;
                                 ->add('info', 'Please review and enhance before pressing [Save]')
                             ;
 
-                        $termChoices = $this->buildTermChoices($request->getLocale(), $entity);
+                        $termChoices = $this->buildTermChoicesById($request->getLocale(), $entity);
                         $form = $this->createForm(\App\Form\Type\TermType::class, $entity, [
                             'action' => $this->generateUrl('term-add'),
                             'choices' => [
@@ -259,7 +259,7 @@ EOXQL;
         ]);
     }
 
-    protected function buildTermChoices($locale, $entity = null)
+    protected function buildTermChoicesById($locale, $entity = null)
     {
         $client = $this->getExistDbClient($this->authorityPaths['terms']);
 
@@ -316,7 +316,7 @@ EOXQL;
             }
         }
 
-        $termChoices = $this->buildTermChoices($request->getLocale(), $entity);
+        $termChoices = $this->buildTermChoicesById($request->getLocale(), $entity);
         $form = $this->createForm(\App\Form\Type\TermType::class, $entity, [
             'choices' => [
                 'terms' => array_flip($termChoices),

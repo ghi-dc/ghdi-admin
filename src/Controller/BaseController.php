@@ -163,6 +163,68 @@ extends AbstractController
         return $resource;
     }
 
+    protected function buildTermChoices($locale, $entity = null)
+    {
+        $client = $this->getExistDbClient($this->authorityPaths['terms']);
+
+        $xql = $this->renderView('Term/list-choices-json.xql.twig', [
+        ]);
+
+        $query = $client->prepareQuery($xql);
+        $query->setJSONReturnType();
+        $query->bindVariable('collection', $client->getCollection());
+        $query->bindVariable('locale', $locale);
+        $query->bindVariable('q', '');
+        $res = $query->execute();
+        $terms = $res->getNextResult();
+        $res->release();
+
+        $choices = [];
+
+        foreach ($terms['data'] as $term) {
+            $name = $term['name'];
+            $value = null;
+
+            foreach ([ 'gnd', 'lcauth', 'wikidata' ] as $vocabulary) {
+                $identifier = null;
+
+                if (!empty($term[$vocabulary])) {
+                    switch ($vocabulary) {
+                        case 'gnd':
+                            $identifier = new \App\Utils\Lod\Identifier\GndIdentifier();
+                            break;
+
+                        case 'lcauth':
+                            $identifier = new \App\Utils\Lod\Identifier\LocLdsSubjectsIdentifier();
+                            break;
+
+                        case 'wikidata':
+                            $identifier = new \App\Utils\Lod\Identifier\WikidataIdentifier();
+                            break;
+                    }
+
+                    if (!is_null($identifier)) {
+                        $identifier->setValue($term[$vocabulary]);
+                        if (is_null($value)) {
+                            $value = $identifier->toUri();
+                        }
+                        else {
+                            // TODO: check $entity->getTerms()
+                        }
+                    }
+                }
+            }
+
+            if (is_null($value)) {
+                $value = $name;
+            }
+
+            $choices[$value] = $name;
+        }
+
+        return $choices;
+    }
+
     protected function xmlSpecialchars($txt)
     {
         return htmlspecialchars($txt, ENT_XML1, 'UTF-8');;
