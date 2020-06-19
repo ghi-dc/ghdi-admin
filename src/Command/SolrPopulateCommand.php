@@ -148,8 +148,10 @@ extends ExistDbCommand
             $reindex = true;
             // compare with filesystem and check if we reindex
             if (file_exists($teiPath)) {
+                $hash = md5(file_get_contents($teiPath));
+
                 // TODO: compare publication date'
-                $reindex = false;
+                $reindex = $hash != md5($xml);
             }
 
             if ($reindex) {
@@ -186,7 +188,6 @@ extends ExistDbCommand
 
         if (!empty($result['member'])) {
             foreach ($result['member'] as $info) {
-
                 if ('Collection' == $info['@type']) {
                     $children = $this->fetchCollection($locale, $info['@id']);
                     foreach ($children as $child) {
