@@ -7,18 +7,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
 /**
  *
  */
 class WordToTeiController
-extends AbstractController
+extends BaseController
 {
     /**
      * @Route("/upload", name="upload")
      */
-    public function uploadAction(Request $request)
+    public function uploadAction(Request $request,
+                                 \App\Utils\PandocConverter $pandocConverter)
     {
         if ($request->isMethod('post')) {
             $file = $request->files->get('file');
@@ -44,8 +43,6 @@ extends AbstractController
                 else {
                     $officeDoc = new \App\Utils\BinaryDocument();
                     $officeDoc->load($file->getRealPath());
-
-                    $pandocConverter = $this->get(\App\Utils\PandocConverter::class);
 
                     // inject TeiFromWordCleaner
                     $myTarget = new class()

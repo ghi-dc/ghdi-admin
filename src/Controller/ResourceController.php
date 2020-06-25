@@ -644,12 +644,10 @@ EOXQL;
         ]);
     }
 
-    private function word2doc($fname, $locale)
+    private function word2doc(\App\Utils\PandocConverter $pandocConverter, $fname, $locale)
     {
         $officeDoc = new \App\Utils\BinaryDocument();
         $officeDoc->load($fname);
-
-        $pandocConverter = $this->get(\App\Utils\PandocConverter::class);
 
         // inject TeiFromWordCleaner
         $myTarget = new class()
@@ -680,7 +678,9 @@ EOXQL;
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image)\-\d+"})
      */
-    public function uploadAction(Request $request, $volume, $id)
+    public function uploadAction(Request $request,
+                                 \App\Utils\PandocConverter $pandocConverter,
+                                 $volume, $id)
     {
         $update = 'resource-upload' == $request->get('_route');
 
@@ -757,7 +757,8 @@ EOXQL;
                         }
                     }
                     else {
-                        $teiDtabfDoc = $this->word2doc($file->getRealPath(), $request->getLocale());
+                        $teiDtabfDoc = $this->word2doc($pandocConverter, $file->getRealPath(), $request->getLocale());
+
                         if (false === $teiDtabfDoc) {
                             $request->getSession()
                                     ->getFlashBag()
