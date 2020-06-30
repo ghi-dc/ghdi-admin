@@ -43,6 +43,18 @@ extends DocumentConverter
         }
     }
 
+    private function cleanXmlId($xml)
+    {
+        return preg_replace_callback(
+            '|(<[^>]*)(xml\:id=(["\']))(.*?)(\3)|',
+            function ($matches) {
+                $id = preg_replace('/[^a-z0-9\-_:\.]/', '', $matches[4]);
+                return $matches[1] . $matches[2] . $id . $matches[5];
+            },
+            $xml
+        );
+    }
+
     /**
      * Convert documents between two formats
      *
@@ -89,8 +101,12 @@ extends DocumentConverter
 
         @unlink($tempFileIn);
 
-        $ret->load($tempFileOut);
+        // special characters in <head> may mess up xml:id
+        $xml = $this->cleanXmlId(file_get_contents($tempFileOut));
+
         @unlink($tempFileOut);
+
+        $ret->loadString($xml);
 
         $this->cleanUp($ret);
 
