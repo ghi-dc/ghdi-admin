@@ -54,6 +54,11 @@ extends ExistDbCommand
         $this
             ->setName('solr:populate')
             ->setDescription('Populate Solr Index')
+            ->addArgument(
+                'volume',
+                InputArgument::REQUIRED,
+                'Which volume do you want to index'
+            )
             ->addOption(
                 'locale',
                 null,
@@ -213,9 +218,16 @@ extends ExistDbCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $volume = $input->getArgument('volume');;
+        if (empty($volume)) {
+            $output->writeln(sprintf('<error>missing volume</error>'));
+
+            return -1;
+        }
+
         $locale = $input->getOption('locale');
 
-        $entities = $this->buildEntities($locale, 'ghis:volume-2');
+        $entities = $this->buildEntities($locale, join(':', [ $this->siteKey, $volume ]));
 
         try {
             // $this->solr->synchronizeIndex($entities); would be more efficient but adds duplicates
@@ -224,7 +236,8 @@ extends ExistDbCommand
 
                 $this->solr->updateDocument($entity);
             }
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $output->writeln(sprintf('A error occurs: %s', $e->getMessage()));
 
             return -1;
