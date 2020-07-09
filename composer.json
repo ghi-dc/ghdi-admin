@@ -106,7 +106,7 @@
         "fluentdom/fluentdom": "^7.0",
         "brunty/relax-ng-domdocument": "^0.2",
 
-        "masterminds/html5": "2.*",
+        "masterminds/html5": "^2.7",
         "symfony/string": "^5.1",
 
         "hedii/zotero-api": "@stable",
@@ -115,7 +115,7 @@
         "seboettg/citeproc-php": "^2.1",
         "fale/isbn": "^3.1",
 
-        "sweetyrdf/easyrdf": "1.0.0-RC1",
+        "sweetyrdf/easyrdf": "^1.1",
         "ml/json-ld": "1.1.*",
 
         "burki/exist-db-rpc-client": "dev-master",
