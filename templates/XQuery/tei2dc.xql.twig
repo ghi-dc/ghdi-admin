@@ -91,5 +91,9 @@ return
         )
         else ()
     }
+    {
+        for $subject in $teiHeader/profileDesc/textClass/classCode[@scheme='http://germanhistorydocs.org/docs/#term']
+            return <dc:subject>{string($subject)}</dc:subject>
+    }
     <dc:modified>{ xmldb:last-modified($path, $basename) }</dc:modified>
 </oai_dc:dc>
