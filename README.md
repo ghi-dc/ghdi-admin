@@ -66,8 +66,12 @@ Located in /db/apps/ghdi/data/volumes/
     ./bin/console existdb:import organizations
     ./bin/console existdb:import places
 
+## Add to Frontend (Solr and TEI files)
 
-## Scalar
+    ./bin/console solr:populate --locale=en
+    ./bin/console solr:populate --locale=de
+
+## Scalar (Legacy)
 
 ### Setup of the Scalar instance
 
