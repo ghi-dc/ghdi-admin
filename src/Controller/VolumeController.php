@@ -8,6 +8,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use Box\Spout\Writer\Common\Creator\WriterEntityFactory;
+use Box\Spout\Writer\Common\Creator\Style\StyleBuilder;
+use Box\Spout\Common\Entity\Row;
+
 use function Symfony\Component\String\u;
 
 /**
@@ -57,7 +61,7 @@ extends ResourceController
         ]);
     }
 
-    protected function buildResources($client, $id, $lang)
+    protected function buildResources($client, $id, $lang, $getTerms = false)
     {
         $xql = $this->renderView('Volume/list-resources-json.xql.twig', [
             'prefix' => $this->siteKey,
@@ -67,6 +71,7 @@ extends ResourceController
         $query->setJSONReturnType();
         $query->bindVariable('collection', $client->getCollection() . '/' . $id);
         $query->bindVariable('lang', $lang);
+        $query->bindVariable('getTerms', $getTerms);
         $res = $query->execute();
         $resources = $res->getNextResult();
         $res->release();
@@ -74,9 +79,9 @@ extends ResourceController
         return $resources;
     }
 
-    protected function buildResourcesGrouped($client, $id, $lang)
+    protected function buildResourcesGrouped($client, $id, $lang, $getTerms = false)
     {
-        $resources = $this->buildResources($client, $id, $lang);
+        $resources = $this->buildResources($client, $id, $lang, $getTerms);
 
         // get outline from site settings
         $ret = array_map(function ($section) {
@@ -149,12 +154,31 @@ extends ResourceController
         return $ret;
     }
 
+    private function exportResource($writer, &$terms, $resource, $style = null)
+    {
+        $row = [
+            array_key_exists('genre', $resource) ? $resource['genre'] : '',
+            $resource['name'],
+            join('; ', array_map(function ($uri) use ($terms) {
+                    if (array_key_exists($uri, $terms)) {
+                        return $terms[$uri];
+                    }
+
+                    return $uri;
+                },
+                array_key_exists('terms', $resource) ? $resource['terms'] : [])),
+        ];
+
+        $writer->addRow(WriterEntityFactory::createRowFromArray($row, $style));
+    }
+
     /**
      * @Route("/volume/{id}.dc.xml", name="volume-detail-dc", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}.scalar.json", name="volume-detail-scalar", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}.tei.xml", name="volume-detail-tei", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}", name="volume-detail", requirements={"id" = "volume\-\d+"})
      * @Route("/volume/{id}/create", name="volume-create", requirements={"id" = "volume\-\d+"})
+     * @Route("/volume/{id}/export", name="volume-export", requirements={"id" = "volume\-\d+"})
      */
     public function volumeDetailAction(Request $request,
                                        TranslatorInterface $translator,
@@ -323,6 +347,69 @@ extends ResourceController
             $response->headers->set('Content-Type', 'xml');
 
             return $response;
+        }
+
+        if ('volume-export' == $request->get('_route')) {
+            $resourcesGrouped = $this->buildResourcesGrouped($client, $id, $lang, true);
+            $terms = $this->buildTermChoices($request->getLocale());
+
+            $fileName = sprintf('%s-%s.xlsx',
+                                $volume['data']['id'], $lang);
+
+            // Create styles with the StyleBuilder
+            $titleStyle = (new StyleBuilder())
+                       ->setFontBold()
+                       ->setFontSize(20)
+                       // ->setShouldWrapText()
+                       ->build();
+
+            $sectionStyle = (new StyleBuilder())
+                       ->setFontBold()
+                       ->setFontSize(18)
+                       // ->setShouldWrapText()
+                       ->build();
+
+            $chapterStyle = (new StyleBuilder())
+                       ->setFontBold()
+                       // ->setShouldWrapText()
+                       ->build();
+
+            $writer = WriterEntityFactory::createXLSXWriter();
+            $writer->openToBrowser($fileName);
+
+            // Create a row with cells and apply the style to all cells
+            $row = WriterEntityFactory::createRowFromArray([ $volume['data']['name'] ], $titleStyle);
+            $writer->addRow($row);
+
+            foreach ($resourcesGrouped as $key => $section) {
+                $this->exportResource($writer, $terms, [
+                        'name'  => $translator->trans($section['name'], [], 'additional'),
+                    ], $sectionStyle);
+
+                foreach ($section['resources'] as $chapterKey => $chapter) {
+                    $hasResources = array_key_exists('resources', $chapter);
+
+                    $this->exportResource($writer, $terms, $chapter, $hasResources ? $chapterStyle : null);
+
+                    if (!$hasResources) {
+                        // empty row
+                        $writer->addRow(WriterEntityFactory::createRowFromArray([]));
+
+                        continue;
+                    }
+
+                    foreach ($chapter['resources'] as $resource) {
+                        $this->exportResource($writer, $terms, $resource);
+                    }
+
+                    // empty row
+                    $writer->addRow(WriterEntityFactory::createRowFromArray([]));
+                }
+            }
+
+            $writer->close();
+
+            exit;
         }
 
         return $this->render('Volume/detail.html.twig', [

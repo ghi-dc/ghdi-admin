@@ -15,6 +15,7 @@ declare function functx:replace-first
     } ;
 
 declare variable $collection external;
+declare variable $getTerms external;
 
 (: Switch to JSON serialization :)
 declare option output:method "json";
@@ -40,6 +41,12 @@ for $tei in collection($collection)/TEI{% if q is defined and q is not empty %}[
         <name>{string($name)}</name>
         <genre>{$genre}</genre>
         <shelfmark>{$shelfmark}</shelfmark>
+        {
+            if ($getTerms) then (
+                for $term in $tei/teiHeader/profileDesc/textClass/classCode[@scheme='http://germanhistorydocs.org/docs/#term']
+                    return <terms json:array="true">{string($term)}</terms>
+            ) else ()
+        }
     </data>
 }
 </json:value>

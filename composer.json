@@ -103,7 +103,7 @@
 
         "sabre/xml": "^1.5",
         "servo/fluidxml": "@stable",
-        "fluentdom/fluentdom": "^7.0",
+        "fluentdom/fluentdom": "^7.4",
         "brunty/relax-ng-domdocument": "^0.2",
 
         "masterminds/html5": "^2.7",
@@ -130,6 +130,7 @@
         "textrazor/textrazor-php": "*@dev",
 
         "nategood/httpful": "*",
+        "box/spout": "^3.1",
 
         "symfony/polyfill-intl-normalizer": "*",
 
