@@ -124,7 +124,7 @@ trait TeiFromWordCleaner
                                     }
                                 }
 
-                                // check if last paragraph starts with {Quelle|Source}: or Translation :
+                                // check if last paragraph starts with {Quelle|Source}..: or Translation :
                                 do {
                                     $found = false;
 
@@ -133,7 +133,7 @@ trait TeiFromWordCleaner
                                     if (1 == $pLast->length) {
                                         $pLast = $pLast->item(0);
 
-                                        if (preg_match('/^(Quelle|Source):/', $pLast->textContent)) {
+                                        if (preg_match('/^(Quelle|Source).*:/', $pLast->textContent)) {
                                             $this->moveCitationToSourceDesc($pLast);
                                             $found = true;
                                         }
@@ -240,7 +240,14 @@ trait TeiFromWordCleaner
            $bibl->appendChild($pNode->firstChild);
         }
 
-        $sourceDesc->appendChild($bibl);
+        // since we chop of multiple Source: ...from bottom to top, we must prepend if there is already a bibl
+        $sourceDescBibl = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl');
+        if ($sourceDescBibl->length > 0) {
+            $sourceDesc->insertBefore($bibl, $sourceDescBibl->item(0));
+        }
+        else {
+            $sourceDesc->appendChild($bibl);
+        }
 
         // if there is a <p>Produced by pandoc.</p> in sourceDesc, then remove
         $sourceDescP = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:p');
