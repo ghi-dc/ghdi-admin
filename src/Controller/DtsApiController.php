@@ -59,6 +59,7 @@ extends ResourceController
         $query->setJSONReturnType();
         $query->bindVariable('collection', $client->getCollection() . '/' . str_replace($this->siteKey . ':', '', $id));
         $query->bindVariable('lang', $lang);
+        $query->bindVariable('getTerms', false);
         $res = $query->execute();
         $resources = $res->getNextResult();
         $res->release();
