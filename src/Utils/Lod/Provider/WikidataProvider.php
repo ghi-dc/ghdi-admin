@@ -38,6 +38,15 @@ extends AbstractProvider
         \App\Utils\Lod\Identifier\Factory::register(WikidataIdentifier::class);
     }
 
+    protected function executeSparqlQuery($query, $sparqlClient = null)
+    {
+        if (is_null($sparqlClient)) {
+            $sparqlClient = self::getSparqlClient();
+        }
+
+        return $sparqlClient->query($query);
+    }
+
     public function lookup(Identifier $identifier)
     {
         throw new \Exception('No implemented yet');
@@ -126,14 +135,5 @@ extends AbstractProvider
 
             return $identifiers;
         }
-    }
-
-    protected function executeSparqlQuery($query, $sparqlClient = null)
-    {
-        if (is_null($sparqlClient)) {
-            $sparqlClient = self::getSparqlClient();
-        }
-
-        return $sparqlClient->query($query);
     }
 }

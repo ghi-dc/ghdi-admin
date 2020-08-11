@@ -59,6 +59,11 @@ class CollectiveAccessService
             die('TODO: some pagination needed');
         }
 
+        // reduce to collections with idno
+        $collections = array_filter($collections, function ($collection) {
+            return array_key_exists('idno', $collection);
+        });
+
         if (!empty($this->options['root-collection'])) {
             $skipIdno = $this->options['root-collection'];
             // filter out $skipIdno

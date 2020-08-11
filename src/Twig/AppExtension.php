@@ -2,7 +2,7 @@
 // src/Twig/AppExtension.php
 
 /**
- * see http://symfony.com/doc/current/cookbook/templating/twig_extension.html
+ * see https://symfony.com/doc/current/templating/twig_extension.html
  */
 
 namespace App\Twig;

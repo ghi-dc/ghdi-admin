@@ -44,6 +44,8 @@ extends Kernel
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
 
             new \Symfony\Bundle\TwigBundle\TwigBundle(),
+            new \Twig\Extra\TwigExtraBundle\TwigExtraBundle(),
+
             new \Symfony\Bundle\MonologBundle\MonologBundle(),
 
             // not required, but recommended for better extraction

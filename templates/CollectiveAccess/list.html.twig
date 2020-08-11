@@ -35,7 +35,7 @@
             {% trans with {'%count%': data.total }  %}%count% entries{% endtrans %}
             <ul>
             {% for item in data.results %}
-                <li><a href="{{ path('ca-detail', { 'id' : item.id }) }}">{{ item.display_label }}</a></li>
+                <li><a href="{{ path('ca-detail', { 'id' : item.id }) }}">{{ item.display_label|markdown_to_html|striptags }}</a></li>
             {% endfor %}
             </ul>
         {% endif %}

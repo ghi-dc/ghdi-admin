@@ -14,7 +14,7 @@
     <h2>{{ 'Collective Access'|trans }}</h2>
     {{ helper.display_flashes() }}
 
-    <h3>{{ item.title|raw }}</h3>
+    <h3>{{ item.title|markdown_to_html }}</h3>
     <dl class="row">
     {% if item.authors is not empty %}
         <dt class="col-sm-3 col-md-2">{{ 'Creator(s)'|trans }}</dt>

@@ -245,12 +245,16 @@ extends BaseController
         $teiHeader->setGenre('image'); // TODO: maybe look at format
         $teiHeader->setLanguage(\App\Utils\Iso639::code1To3($locale));
 
+
+        $parsedown = new \Parsedown();
+
         foreach ([ 'preferred_labels' => 'title' ] as $src => $dst) {
             if (array_key_exists($src, $data)) {
                 $struct = & $data[$src];
                 foreach ($languages as $lang) {
                     if (array_key_exists($lang, $struct)) {
-                        $val = $this->buildTeiValue($struct[$lang][0]['name'], true);
+                        $valueHtml = $parsedown->line($struct[$lang][0]['name']);
+                        $val = $this->buildTeiValue($valueHtml, true);
                         $method = 'set' . ucfirst($dst);
                         $teiHeader->$method($val);
 
