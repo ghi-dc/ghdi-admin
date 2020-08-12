@@ -54,6 +54,21 @@
       </xsl:if>
       <xsl:apply-templates select='//tei:fw[@place="bottom" and (text() or *)]' mode="signatures"/>
 
+      <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
+        <div class="source-citation">
+        <xsl:for-each select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
+          <xsl:apply-templates select="./node()"/>
+        </xsl:for-each>
+        </div>
+      </xsl:if>
+      <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:editor[@role='translator']">
+        <div class="source-citation">
+          <xsl:call-template name="translate">
+            <xsl:with-param name="label" select="'Übersetzung'" />
+          </xsl:call-template>: <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:editor[@role='translator']/node()"/>.
+        </div>
+      </xsl:if>
+
       <xsl:choose>
         <xsl:when test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence">
           <div id="license">
@@ -72,20 +87,6 @@
         </xsl:otherwise>
       </xsl:choose>
 
-      <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
-        <div class="source-citation">
-        <xsl:for-each select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
-          <p><xsl:apply-templates select="./node()"/></p>
-        </xsl:for-each>
-        </div>
-      </xsl:if>
-      <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:editor[@role='translator']">
-        <div class="source-citation">
-          <xsl:call-template name="translate">
-            <xsl:with-param name="label" select="'Übersetzung'" />
-          </xsl:call-template>: <xsl:apply-templates select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:editor[@role='translator']/node()"/>.
-        </div>
-      </xsl:if>
     </div>
   </xsl:template>
 

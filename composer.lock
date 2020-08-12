@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0b1ae7a09c31069b744ad0829fc6e7b0",
+    "content-hash": "f67e423f31f463c4bdb99bbefc6d4c2b",
     "packages": [
         {
             "name": "armin/scssphp-bundle",
@@ -52,6 +52,54 @@
             ],
             "description": "Symfony bundle to parse scss sources at runtime.",
             "time": "2019-12-09T21:12:36+00:00"
+        },
+        {
+            "name": "asika/autolink",
+            "version": "1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/asika32764/php-autolink.git",
+                "reference": "c9af15c6ce7f191734c2d77f46358910489f2dc7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/asika32764/php-autolink/zipball/c9af15c6ce7f191734c2d77f46358910489f2dc7",
+                "reference": "c9af15c6ce7f191734c2d77f46358910489f2dc7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3",
+                "windwalker/dom": "~2.0||~3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7.0||^8.0||^9.0",
+                "windwalker/test": "~2.0||~3.0",
+                "windwalker/utilities": "~2.0||~3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Asika\\Autolink\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Simon Asika",
+                    "email": "asika32764@gmail.com"
+                }
+            ],
+            "description": "Auto convert url to link anchor.",
+            "homepage": "https://github.com/asika32764/php-autolink",
+            "keywords": [
+                "Linkify",
+                "autolink",
+                "link"
+            ],
+            "time": "2020-08-09T16:54:27+00:00"
         },
         {
             "name": "box/spout",
@@ -1838,20 +1886,20 @@
         },
         {
             "name": "knplabs/knp-menu",
-            "version": "v3.1.1",
+            "version": "v3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/KnpMenu.git",
-                "reference": "254fb64d545f087451cc197a7fa5d47e03ffb038"
+                "reference": "9996764bc4bdc4381ecdc4617817de23948f0cdb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/KnpMenu/zipball/254fb64d545f087451cc197a7fa5d47e03ffb038",
-                "reference": "254fb64d545f087451cc197a7fa5d47e03ffb038",
+                "url": "https://api.github.com/repos/KnpLabs/KnpMenu/zipball/9996764bc4bdc4381ecdc4617817de23948f0cdb",
+                "reference": "9996764bc4bdc4381ecdc4617817de23948f0cdb",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2"
+                "php": "^7.2 || ^8.0"
             },
             "conflict": {
                 "twig/twig": "<1.40 || >=2,<2.9"
@@ -1902,7 +1950,7 @@
                 "menu",
                 "tree"
             ],
-            "time": "2020-04-22T14:37:23+00:00"
+            "time": "2020-08-15T08:01:46+00:00"
         },
         {
             "name": "knplabs/knp-menu-bundle",
@@ -2678,16 +2726,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v4.8.0",
+            "version": "v4.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "8c58eb4cd4f3883f82611abeac2efbc3dbed787e"
+                "reference": "aaee038b912e567780949787d5fe1977be11a778"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/8c58eb4cd4f3883f82611abeac2efbc3dbed787e",
-                "reference": "8c58eb4cd4f3883f82611abeac2efbc3dbed787e",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/aaee038b912e567780949787d5fe1977be11a778",
+                "reference": "aaee038b912e567780949787d5fe1977be11a778",
                 "shasum": ""
             },
             "require": {
@@ -2695,7 +2743,7 @@
                 "php": ">=7.0"
             },
             "require-dev": {
-                "ircmaxell/php-yacc": "^0.0.6",
+                "ircmaxell/php-yacc": "^0.0.7",
                 "phpunit/phpunit": "^6.5 || ^7.0 || ^8.0 || ^9.0"
             },
             "bin": [
@@ -2704,7 +2752,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.8-dev"
+                    "dev-master": "4.9-dev"
                 }
             },
             "autoload": {
@@ -2726,7 +2774,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2020-08-09T10:23:20+00:00"
+            "time": "2020-08-18T19:48:01+00:00"
         },
         {
             "name": "ninsuo/symfony-collection",
@@ -9407,22 +9455,22 @@
         },
         {
             "name": "voku/html-min",
-            "version": "4.4.7",
+            "version": "4.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/voku/HtmlMin.git",
-                "reference": "fa7e00ef19751c83de46fa9fd128da947c097c4e"
+                "reference": "4f700584abd70b308b7d06b8e4cfcc31711faaf9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/voku/HtmlMin/zipball/fa7e00ef19751c83de46fa9fd128da947c097c4e",
-                "reference": "fa7e00ef19751c83de46fa9fd128da947c097c4e",
+                "url": "https://api.github.com/repos/voku/HtmlMin/zipball/4f700584abd70b308b7d06b8e4cfcc31711faaf9",
+                "reference": "4f700584abd70b308b7d06b8e4cfcc31711faaf9",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "php": ">=7.0.0",
-                "voku/simple_html_dom": "~4.7.21"
+                "voku/simple_html_dom": "~4.7.23"
             },
             "require-dev": {
                 "phpunit/phpunit": "~6.0 || ~7.0"
@@ -9466,20 +9514,20 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2020-08-10T22:54:32+00:00"
+            "time": "2020-08-11T22:13:23+00:00"
         },
         {
             "name": "voku/simple_html_dom",
-            "version": "4.7.21",
+            "version": "4.7.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/voku/simple_html_dom.git",
-                "reference": "61238777af241bbe64f933eef349cd407a0ff12d"
+                "reference": "b71ea1a739a0b8d7708ce397744c48b5b4331618"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/voku/simple_html_dom/zipball/61238777af241bbe64f933eef349cd407a0ff12d",
-                "reference": "61238777af241bbe64f933eef349cd407a0ff12d",
+                "url": "https://api.github.com/repos/voku/simple_html_dom/zipball/b71ea1a739a0b8d7708ce397744c48b5b4331618",
+                "reference": "b71ea1a739a0b8d7708ce397744c48b5b4331618",
                 "shasum": ""
             },
             "require": {
@@ -9543,7 +9591,103 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-08-10T22:26:31+00:00"
+            "time": "2020-08-11T22:08:03+00:00"
+        },
+        {
+            "name": "windwalker/dom",
+            "version": "3.5.21",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ventoviro/windwalker-dom.git",
+                "reference": "6f3e8000400480b8ce1b443c4621dc7f2b14e50c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ventoviro/windwalker-dom/zipball/6f3e8000400480b8ce1b443c4621dc7f2b14e50c",
+                "reference": "6f3e8000400480b8ce1b443c4621dc7f2b14e50c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.3",
+                "windwalker/string": "~3.0"
+            },
+            "require-dev": {
+                "windwalker/test": "~3.0"
+            },
+            "type": "windwalker-package",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Windwalker\\Dom\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.0-or-later"
+            ],
+            "description": "Windwalker Dom package",
+            "homepage": "https://github.com/ventoviro/windwalker-dom",
+            "keywords": [
+                "filesystem",
+                "framework",
+                "windwalker"
+            ],
+            "time": "2019-10-26T15:42:26+00:00"
+        },
+        {
+            "name": "windwalker/string",
+            "version": "3.5.21",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ventoviro/windwalker-string.git",
+                "reference": "1db8752153d18a5f250bdb92f210b5475287a1d8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ventoviro/windwalker-string/zipball/1db8752153d18a5f250bdb92f210b5475287a1d8",
+                "reference": "1db8752153d18a5f250bdb92f210b5475287a1d8",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1.3"
+            },
+            "require-dev": {
+                "windwalker/test": "~3.0",
+                "windwalker/utilities": "dev-master"
+            },
+            "suggest": {
+                "windwalker/utilities": "Install ~3.0 if you require SimpleTemplate template engine."
+            },
+            "type": "windwalker-package",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Windwalker\\String\\": ""
+                },
+                "files": [
+                    "functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.0-or-later"
+            ],
+            "description": "Windwalker String package",
+            "homepage": "https://github.com/ventoviro/windwalker-string",
+            "keywords": [
+                "framework",
+                "string",
+                "windwalker"
+            ],
+            "time": "2020-08-07T03:24:32+00:00"
         }
     ],
     "packages-dev": [],

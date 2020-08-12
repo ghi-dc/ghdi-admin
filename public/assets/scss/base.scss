@@ -397,13 +397,7 @@ nav.navbar {
 
     @include dta-styles;
 
-    #license {
-        p.dta-p {
-            margin-bottom: 0rem;
-        }
-    }
-
-    .source-description-head, .source-description, .source-citation {
+    .source-description-head, .source-description, .source-citation, #license {
         color: gray;
     }
 
@@ -418,8 +412,17 @@ nav.navbar {
     }
 
     .source-citation {
-        margin-top: 1em;
+        margin-bottom: 0rem;
     }
+
+    #license {
+        margin-top: 0;
+
+        p.dta-p {
+            margin-top: 1em;
+        }
+    }
+
 
     .dta-p, span.dta-opener, div.dta-closer,
     div.dta-bibl {

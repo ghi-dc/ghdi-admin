@@ -10,6 +10,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use Asika\Autolink\Linker;
+
+use Cocur\Slugify\SlugifyInterface;
+
 use App\Service\CollectiveAccessService;
 use App\Service\ExistDbClientService;
 use App\Utils\PandocProcessor;
@@ -83,8 +87,21 @@ extends BaseController
         ]);
     }
 
-    protected function htmlFragmentToXhtml($htmlFragment, $omitPara = false)
+    protected function htmlFragmentToXhtml($htmlFragment, $omitPara = false, $autolink = false)
     {
+        if (!$omitPara && preg_match('#(?:<br\s*/?>\s*?){2,}#', $htmlFragment)) {
+            if (!preg_match('#^<p>(.*?)</p>$#s', $htmlFragment)) {
+                $htmlFragment = '<p>' . $htmlFragment . '</p>';
+            }
+
+            // convert double br to <p>
+            $htmlFragment = preg_replace('#(?:<br\s*/?>\s*?){2,}#', '</p><p>', $htmlFragment);
+        }
+
+        if ($autolink) {
+            $htmlFragment = $this->autolink($htmlFragment);
+        }
+
         $config = \HTMLPurifier_Config::createDefault();
         $config->set('AutoFormat.RemoveSpansWithoutAttributes', true);
         $config->set('CSS.AllowedProperties', []);
@@ -115,9 +132,9 @@ extends BaseController
 
     /**
      */
-    protected function htmlFragmentToTei($htmlFragment, $omitPara = false)
+    protected function htmlFragmentToTei($htmlFragment, $omitPara = false, $autolink = false)
     {
-        $xhtml = $this->htmlFragmentToXhtml($htmlFragment, $omitPara);
+        $xhtml = $this->htmlFragmentToXhtml($htmlFragment, $omitPara, $autolink);
 
         // TODO: Switch to Pandoc Converter
         $tei = $this->pandocProcessor->convertHtmlFragmentToTeiSimple($xhtml);
@@ -146,14 +163,39 @@ extends BaseController
         return html_entity_decode($val, ENT_QUOTES, 'utf-8');
     }
 
-    protected function buildTeiValue($raw, $omitPara = false)
+    protected function autolink($markup, $mode = 'html')
+    {
+        $tag = 'a'; $attribute = 'href';
+        if ('tei' == $mode) {
+            $tag = 'ref';
+            $attribute = 'target';
+        }
+        $autolinker = new \Asika\Autolink\Autolink;
+
+        // see https://github.com/asika32764/php-autolink/#link-builder
+        $autolinker->setLinkBuilder(function($url, $attribs) use ($tag, $attribute) {
+            $attribs = [ $attribute => $url ];
+
+            return (string) new \Windwalker\Dom\HtmlElement($tag, $url, $attribs);
+        });
+
+        return $autolinker->convert($markup);
+    }
+
+    protected function buildTeiValue($raw, $omitPara = false, $autolink = false)
     {
         // check if it is html or plain text
         if (!$this->hasHtmlTag($raw)) {
-            return $this->xmlSpecialchars($this->decodeHtmlEntity(trim($raw)));
+            $tei = $this->xmlSpecialchars($this->decodeHtmlEntity(trim($raw)));
+
+            if ($autolink) {
+                $tei = $this->autolink($tei, 'tei');
+            }
+
+            return $tei;
         }
 
-        return $this->htmlFragmentToTei($raw, $omitPara);
+        return $this->htmlFragmentToTei($raw, $omitPara, $autolink);
     }
 
     protected function buildLicenceTarget($raw)
@@ -225,11 +267,11 @@ extends BaseController
         return $target;
     }
 
-    protected function buildTeiHeader($data,
-                                      TranslatorInterface $translator,
-                                      CollectiveAccessService $caService,
-                                      $locale,
-                                      $addMissingTerm = false)
+    protected function buildTei($data,
+                                TranslatorInterface $translator,
+                                CollectiveAccessService $caService,
+                                $locale,
+                                $addMissingTerm = false)
     {
         $languages = [];
         foreach (self::$LOCALE_MAP as $aLocale => $lang) {
@@ -241,10 +283,9 @@ extends BaseController
             }
         }
 
-        $teiHeader = new \App\Entity\TeiHeader();
+        $teiHeader = new \App\Entity\TeiFull();
         $teiHeader->setGenre('image'); // TODO: maybe look at format
         $teiHeader->setLanguage(\App\Utils\Iso639::code1To3($locale));
-
 
         $parsedown = new \Parsedown();
 
@@ -264,16 +305,21 @@ extends BaseController
             }
         }
 
-        foreach ([ 'ca_objects.description' => 'note' ] as $src => $dst) {
+        foreach ([
+                'ca_objects.description' => 'note',
+                'ca_objects.description_source' => 'body',
+            ] as $src => $dst)
+        {
             if (array_key_exists($src, $data)) {
                 foreach ($languages as $lang) {
                     foreach ($data[$src] as $struct) {
                         if (array_key_exists($lang, $struct) && !empty($struct[$lang])) {
-                            $val = $this->buildTeiValue($struct[$lang]['description'], false);
+                            $keyParts = explode('.', $src, 2);
+                            $val = $this->buildTeiValue($struct[$lang][$keyParts[1]], false, 'body' == $dst);
                             $method = 'set' . ucfirst($dst);
                             $teiHeader->$method($val);
 
-                            break 3;
+                            break 2;
                         }
                     }
                 }
@@ -324,6 +370,7 @@ extends BaseController
                                     $name = $this->buildTeiValue($entity['displayname'], true);
                                     $teiHeader->addResponsible($name, 'Contributor', 'name');
                                 }
+
                                 break;
 
                             case 'depicts':
@@ -373,6 +420,14 @@ extends BaseController
                                     $val = sprintf('%04d-%02d-%02d',
                                                    $dateInfo['year'], $dateInfo['month'], $dateInfo['day']);
                                 }
+                                else {
+                                    // catch things like 18th century
+                                    if (preg_match('/^(\d+)th century$/i', $val, $matches)) {
+                                        $val = $translator->trans('%century%th century', [
+                                            '%century%' => $matches[1],
+                                        ]);
+                                    }
+                                }
                             }
 
                             $method = null;
@@ -412,7 +467,12 @@ extends BaseController
                 foreach ($languages as $lang) {
                     foreach ($data[$src] as $struct) {
                         if (array_key_exists($lang, $struct) && !empty($struct[$lang])) {
-                            $val = $this->buildTeiValue($struct[$lang][$dst], false);
+                            $raw = $struct[$lang][$dst];
+
+                            /* we prefix Source: */
+                            $raw = $translator->trans('Source') . ': ' . $raw;
+
+                            $val = $this->buildTeiValue($raw, false, true);
                             if (!empty($val)) {
                                 $teiHeader->setSourceDescBibl($val);
                             }
@@ -465,37 +525,35 @@ extends BaseController
             }
         }
 
-        /*
-        // we now use keywords
-        foreach ([
-                  'ca_objects.lcsh_terms' => 'lcsh_terms',
-            ] as $src => $dst)
-        {
-            if (array_key_exists($src, $data)) {
-                foreach ($data[$src] as $struct) {
-                    foreach ($languages as $lang) {
-                        if (array_key_exists($lang, $struct) && !empty($struct[$lang])) {
-                            $val = $this->buildTeiValue($struct[$lang][$dst], false);
-                            switch ($dst) {
-                                case 'lcsh_terms':
-                                    $scheme = '#term';
-                                    // TODO: resolve $val with something like [info:lc/authorities/names/n80076591]
-                                    break;
-                            }
-
-                            $teiHeader->addClassCode($scheme, $val);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        */
-
         return $teiHeader;
     }
 
-    protected function buildFigures($data, $locale)
+    protected function lookupFigureCaption(CollectiveAccessService $caService, $representation, $locale)
+    {
+        $caItemService = $caService->getItemService($representation['representation_id'], 'ca_object_representations');
+
+        // get specific properties as by https://docs.collectiveaccess.org/wiki/Label_Bundles
+        $caItemService->setRequestBody([
+            "bundles" => [
+                "ca_object_representations.representation_id" => [],
+                "ca_object_representations.description" => [],
+            ],
+        ]);
+
+        // get the localized value
+        if (array_key_exists($locale, self::$LOCALE_MAP)) {
+            $caItemService->setLang(self::$LOCALE_MAP[$locale]);
+        }
+
+        $result = $caItemService->request();
+        $data = $result->getRawData();
+
+        if (!empty($data['ca_object_representations.description'])) {
+            return $this->htmlFragmentToTei($data['ca_object_representations.description']);
+        }
+    }
+
+    protected function buildFigures(CollectiveAccessService $caService, $data, $locale, $primaryOnly = false)
     {
         $figures = [];
 
@@ -504,14 +562,19 @@ extends BaseController
         }
 
         foreach ($data['representations'] as $representation) {
-            /*
-            // if we only want first one
-            if (!$representation['is_primary']) {
+            // if we only want primary one
+            if ($primaryOnly && !$representation['is_primary']) {
                 continue;
             }
-            */
 
-            $figures[] = $representation;
+            // skip newly created access: 'internal archiv only': 10
+            if (array_key_exists('access', $representation) && 10 == $representation['access']) {
+                continue;
+            }
+
+            $figureCaption = $this->lookupFigureCaption($caService, $representation, $locale);
+
+            $figures[] = $representation + [ 'caption' => $figureCaption ];
         }
 
         return $figures;
@@ -589,6 +652,7 @@ extends BaseController
     public function detailAction(Request $request,
                                  TranslatorInterface $translator,
                                  CollectiveAccessService $caService,
+                                 SlugifyInterface $slugify,
                                  $id)
     {
         $caItemService = $caService->getItemService($id);
@@ -598,34 +662,57 @@ extends BaseController
             return $this->redirect($this->generateUrl('ca-list'));
         }
 
-        $teiHeader = $this->buildTeiHeader($result->getRawData(),
-                                           $translator,
-                                           $caService,
-                                           $request->getLocale(),
-                                           'ca-detail' == $request->get('_route'));
+        $teiFull = $this->buildTei($result->getRawData(),
+                                   $translator,
+                                   $caService,
+                                   $request->getLocale(),
+                                   'ca-detail' == $request->get('_route'));
 
-        $figures = $this->buildFigures($result->getRawData(), $request->getLocale());
+        $figures = $this->buildFigures($caService, $result->getRawData(), $request->getLocale());
 
         if ('ca-detail-tei' == $request->get('_route')) {
             $content = $this->getTeiSkeleton();
 
             if (false !== $content) {
-                $data = $teiHeader->jsonSerialize();
+                $data = $teiFull->jsonSerialize();
 
                 $teiHelper = new \App\Utils\TeiHelper();
                 $tei = $teiHelper->adjustHeaderString($content, $data);
 
-                if (!empty($figures)) {
-                    $body = $tei('//tei:body')[0];
+                $body = $teiFull->getBody();
+
+                if (!empty($figures) || !empty($body)) {
+                    $bodyNode = $tei('//tei:body')[0];
                     $fragment = $tei->createDocumentFragment();
-                    foreach ($figures as $figure) {
-                        $facsInfo = $this->buildFigureFacs($figure);
-                        $fragment->appendXML(sprintf('<p><figure facs="%s" corresp="%s"></figure></p>',
-                                                     htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
-                                                     htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8')));
+
+                    if (!empty($figures)) {
+                        $figureTags = [];
+
+                        foreach ($figures as $figure) {
+                            $facsInfo = $this->buildFigureFacs($figure);
+                            $figureTags[] = sprintf('<figure facs="%s" corresp="%s">%s</figure>',
+                                                    htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
+                                                    htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8'),
+                                                    !empty($figure['caption']) ? $figure['caption'] : '');
+                        }
+
+                        $fragment->appendXML('<p' . (count($figureTags) > 1 ? ' class="gallery"' : '') . '>'
+                                             . join($figureTags, "\n")
+                                             . '</p>');
                     }
 
-                    (new \FluentDOM\Nodes\Modifier($body))
+                    if (!empty($body)) {
+                        // further reading
+                        $fragment->appendXML(sprintf('<div xml:id="%s" n="2">' . "\n"
+                                                     . '<head>%s</head>' . "\n"
+                                                     . '%s'
+                                                     . "\n" . '</div>',
+                                                     $slugify->slugify($translator->trans('Further Reading')),
+                                                     $translator->trans('Further Reading'),
+                                                     $body));
+                    }
+
+                    (new \FluentDOM\Nodes\Modifier($bodyNode))
                         ->replaceChildren($fragment);
                 }
 
@@ -637,7 +724,7 @@ extends BaseController
         }
 
         return $this->render('CollectiveAccess/detail.html.twig', [
-            'item' => $teiHeader,
+            'item' => $teiFull,
             'figures' => $figures,
             'termChoices' => $this->getTermChoicesByUri($request->getLocale()),
             'raw' => $result->getRawData(),

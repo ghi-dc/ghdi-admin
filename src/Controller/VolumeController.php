@@ -383,7 +383,7 @@ extends ResourceController
 
             foreach ($resourcesGrouped as $key => $section) {
                 $this->exportResource($writer, $terms, [
-                        'name'  => $translator->trans($section['name'], [], 'additional'),
+                        'name'  => /** @Ignore */$translator->trans($section['name'], [], 'additional'),
                     ], $sectionStyle);
 
                 foreach ($section['resources'] as $chapterKey => $chapter) {

@@ -10,6 +10,12 @@
         hi[rendition='#b'] {
             font-weight: bold;
         }
+        ref {
+            text-decoration: underline;
+        }
+        lb {
+            display: block;
+        }
     </style>
     <h2>{{ 'Collective Access'|trans }}</h2>
     {{ helper.display_flashes() }}
@@ -28,6 +34,10 @@
         <dt class="col-sm-3 col-md-2">{{ 'Source Description'|trans }}</dt>
         <dd class="col-sm-9 col-md-10">{{ item.note|raw }}</dd>
     {% endif %}
+    {% if item.sourceDescBibl is not empty %}
+        <dt class="col-sm-3 col-md-2">{{ 'Source'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.sourceDescBibl|raw }}</a></dd>
+    {% endif %}
     {% if item.licence is not empty %}
         <dt class="col-sm-3 col-md-2">{{ 'Rights'|trans }}</dt>
         <dd class="col-sm-9 col-md-10">{{ item.licence|raw }}</dd>
@@ -36,21 +46,27 @@
         <dt class="col-sm-3 col-md-2">{{ 'License'|trans }}</dt>
         <dd class="col-sm-9 col-md-10"><a href="{{ item.licenceTarget }}" target="_blank">{{ item.licenceTarget|prettifyurl }}</a></dd>
     {% endif %}
-    {% if item.sourceDescBibl is not empty %}
-        <dt class="col-sm-3 col-md-2">{{ 'Source'|trans }}</dt>
-        <dd class="col-sm-9 col-md-10">{{ item.sourceDescBibl|raw }}</a></dd>
-    {% endif %}
 
     {% if figures is not empty %}
         <dt class="col-sm-3 col-md-2">{{ 'Figure'|trans }}</dt>
         <dd class="col-sm-9 col-md-10">
        {% for figure in figures %}
            <div>
-            {{ figure['tags']['preview170']|raw }}
-            <a href="{{ figure['urls']['original'] }}" target="_blank">{{ figure['original_filename'] }}</a>
+                {{ figure['tags']['preview170']|raw }}
+                <a href="{{ figure['urls']['original'] }}" target="_blank">{{ figure['original_filename'] }}</a>
+                {% if figure['caption'] is not null %}
+                <div>
+                    {{ figure['caption']|raw }}
+                </div>
+                {% endif %}
             </div>
         {% endfor %}
         </dd>
+    {% endif %}
+
+    {% if item.body is not empty %}
+        <dt class="col-sm-3 col-md-2">{{ 'Further Reading'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.body|raw }}</a></dd>
     {% endif %}
 
     {% if item.genre is not empty %}
