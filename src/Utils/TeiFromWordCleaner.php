@@ -15,8 +15,16 @@ trait TeiFromWordCleaner
             return;
         }
 
-        // pandoc doesn't convert underline to tei, so we use strikethrough instead to mark letterspace
+        /*
+        // older versions pandoc didn't convert underline to tei, so we used strikethrough instead to mark letterspace
         $this->evaluateXpath('(//tei:body//tei:hi[@rendition="simple:strikethrough"])', function ($nodes) {
+            foreach ($nodes as $node) {
+                $node->setAttribute('rendition', 'simple:letterspace');
+            }
+        });
+        */
+
+        $this->evaluateXpath('(//tei:body//tei:hi[@rendition="simple:underline"])', function ($nodes) {
             foreach ($nodes as $node) {
                 $node->setAttribute('rendition', 'simple:letterspace');
             }
