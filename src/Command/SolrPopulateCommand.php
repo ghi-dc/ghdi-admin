@@ -138,7 +138,7 @@ extends ExistDbCommand
         }
     }
 
-    protected function fetchDocument($urlDocument)
+    protected function fetchDocument($urlDocument, $forceReindex = false)
     {
         $apiResponse = $this->adminClient->request('GET', $urlDocument);
 
@@ -162,6 +162,10 @@ extends ExistDbCommand
             if ($reindex) {
                 file_put_contents($teiPath, $xml);
 
+                return $entity;
+            }
+
+            if ($forceReindex) {
                 return $entity;
             }
         }
