@@ -152,8 +152,8 @@ class TeiHelper
         }
 
         // author / editor
-        foreach ([ 'author', 'editor'] as $tagName) {
-            $result = $header('./tei:fileDesc/tei:titleStmt/tei:' . $tagName . '/tei:persName');
+        foreach ([ 'author' => 'tei:author', 'editor' => 'tei:editor[not(@role="translator")]' ] as $tagName => $tagExpression) {
+            $result = $header('./tei:fileDesc/tei:titleStmt/' . $tagExpression . '/tei:persName');
             foreach ($result as $element) {
                 $person = $this->buildPerson($element);
 
@@ -320,6 +320,7 @@ class TeiHelper
                         case 'document':
                         case 'image-collection':
                         case 'image':
+                        case 'video':
                         case 'map':
                             $article->genre = $text;
                             break;
