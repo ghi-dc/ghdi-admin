@@ -1,0 +1,129 @@
+    /* bubble menu on selection */
+    .pm-selectionmenu
+    {
+        background-color: white;
+        border: 1px solid black;
+    }
+
+    /* custom elements */
+    .ProseMirror.ProseMirror-example-setup-style hi[rendition='#b']
+    {
+        font-weight: bold;
+    }
+    .ProseMirror.ProseMirror-example-setup-style hi[rendition='#i']
+    {
+        font-style: italic;
+    }
+    .ProseMirror.ProseMirror-example-setup-style hi[rendition='#u']
+    {
+        text-decoration: underline;
+    }
+    .ProseMirror.ProseMirror-example-setup-style ref
+    {
+        color: blue;
+        text-decoration: underline;
+    }
+    .ProseMirror.ProseMirror-example-setup-style persName
+    {
+        color: red;
+        text-decoration: underline;
+    }
+    .ProseMirror.ProseMirror-example-setup-style orgName
+    {
+        color: brown;
+        text-decoration: underline;
+    }
+
+    .ProseMirror.ProseMirror-example-setup-style lb:before {
+        content: "\A";
+
+    }
+    .ProseMirror.ProseMirror-example-setup-style lb {
+        text-space-trim: discard-after;
+    }
+
+    .ProseMirror.ProseMirror-example-setup-style > div {
+        border: 1px solid #e0e0e0;
+        padding: 0.2em;
+        margin-bottom: 1em;
+    }
+
+    .ProseMirror.ProseMirror-example-setup-style > div > div {
+        border: 1px solid #f0f0f0;
+        margin: 1em;
+    }
+
+    .ProseMirror.ProseMirror-example-setup-style > div > div div {
+        border: 1px solid #f0f0f0;
+        margin: 1em;
+    }
+
+    .ProseMirror.ProseMirror-example-setup-style head
+    {
+        display: block;
+        font-weight: bold;
+    }
+
+    .ProseMirror.ProseMirror-example-setup-style > head
+    {
+        font-size: x-large;
+        margin-bottom: 0.2em;
+    }
+
+    .ProseMirror.ProseMirror-example-setup-style > div > head
+    {
+        font-size: large;
+    }
+
+
+    .ProseMirror.ProseMirror-example-setup-style > div > div head
+    {
+        font-size: medium;
+    }
+
+    /* flip the SVG icon */
+    .ProseMirror-icon[title="Wrap in sub-section"] {
+        transform: scale(-1, 1);
+    }
+
+    /* footnote support */
+  .ProseMirror {
+    counter-reset: prosemirror-footnote;
+  }
+  footnote {
+    font-weight: normal;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+  }
+  footnote::after {
+    content: counter(prosemirror-footnote);
+    vertical-align: super;
+    font-size: 75%;
+    counter-increment: prosemirror-footnote;
+  }
+  .ProseMirror-hideselection .footnote-tooltip *::selection { background-color: transparent; }
+  .ProseMirror-hideselection .footnote-tooltip *::-moz-selection { background-color: transparent; }
+  .footnote-tooltip {
+    cursor: auto;
+    position: absolute;
+    left: -30px;
+    top: calc(100% + 10px);
+    background: silver;
+    padding: 3px;
+    border-radius: 2px;
+    width: 500px;
+    min-height: 1.4em; /* add this if you use const footnoteSpec = {  content: "paragraph+" } instead of "text*" */
+  }
+  .footnote-tooltip::before {
+    border: 5px solid silver;
+    border-top-width: 0px;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    position: absolute;
+    top: -5px;
+    left: 27px;
+    content: " ";
+    height: 0;
+    width: 0;
+  }
