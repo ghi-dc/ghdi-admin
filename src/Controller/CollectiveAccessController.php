@@ -284,7 +284,20 @@ extends BaseController
         }
 
         $teiHeader = new \App\Entity\TeiFull();
-        $teiHeader->setGenre('image'); // TODO: maybe look at format
+
+        $genre = 'image';
+        if (array_key_exists('type_id', $data)
+            && array_key_exists('display_text', $data['type_id'])
+            && array_key_exists('en_US', $data['type_id']['display_text']))
+        {
+            switch ($data['type_id']['display_text']['en_US']) {
+                case 'Moving Image':
+                    $genre = 'video';
+                    break;
+            }
+        }
+
+        $teiHeader->setGenre($genre);
         $teiHeader->setLanguage(\App\Utils\Iso639::code1To3($locale));
 
         $parsedown = new \Parsedown();
@@ -491,7 +504,8 @@ extends BaseController
                                     $license = $teiHeader->getLicence();
                                     if (empty($license)) {
                                         switch ($target) {
-                                            case 'https://creativecommons.org/publicdomain/zero/1.0/':
+                                            // case 'https://creativecommons.org/publicdomain/zero/1.0/':
+                                            case 'https://creativecommons.org/publicdomain/mark/1.0/':
                                                 $teiHeader->setLicence($translator->trans('This work has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.'));
                                                 break;
 

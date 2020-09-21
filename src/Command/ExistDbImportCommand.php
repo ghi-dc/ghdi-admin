@@ -320,6 +320,7 @@ extends ExistDbCommand
             case 'introduction':
             case 'document':
             case 'image':
+            case 'video':
             case 'map':
                 $parts = explode('/', $entity->getShelfmark());
                 if ($this->siteKey != $parts[0] || !preg_match('/^\d+\:(volume\-\d+)$/', $parts[1], $matches)) {

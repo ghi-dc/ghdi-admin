@@ -16,6 +16,9 @@
         lb {
             display: block;
         }
+        video {
+            max-width: 100%;
+        }
     </style>
     <h2>{{ 'Collective Access'|trans }}</h2>
     {{ helper.display_flashes() }}
@@ -52,7 +55,11 @@
         <dd class="col-sm-9 col-md-10">
        {% for figure in figures %}
            <div>
+            {% if 'video/mp4' == figure['mimetype'] %}
+                {{ figure['tags']['original']|raw }}
+            {% else %}
                 {{ figure['tags']['preview170']|raw }}
+            {% endif %}
                 <a href="{{ figure['urls']['original'] }}" target="_blank">{{ figure['original_filename'] }}</a>
                 {% if figure['caption'] is not null %}
                 <div>

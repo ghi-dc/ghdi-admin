@@ -30,6 +30,7 @@ for $tei in collection($collection)/TEI{% if q is defined and q is not empty %}[
             or $tei/teiHeader/profileDesc/textClass/classCode = 'document'
             or $tei/teiHeader/profileDesc/textClass/classCode = 'image-collection'
             or $tei/teiHeader/profileDesc/textClass/classCode = 'image'
+            or $tei/teiHeader/profileDesc/textClass/classCode = 'video'
             or $tei/teiHeader/profileDesc/textClass/classCode = 'map')
     let $name := $tei/teiHeader/fileDesc/titleStmt/title[@type="main"]
     let $shelfmark := $tei/teiHeader/fileDesc/publicationStmt/idno/idno[@type="shelfmark"]/text()

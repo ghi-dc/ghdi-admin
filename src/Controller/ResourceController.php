@@ -155,21 +155,21 @@ EOXQL;
 
     /**
      * @Route("/resource/{volume}/{id}.dc.xml", name="resource-detail-dc",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map|)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|video|map|)\-\d+"})
      * @Route("/resource/{volume}/{id}.scalar.json", name="resource-detail-scalar",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|video|map)\-\d+"})
      * @Route("/resource/{volume}/{id}/media.scalar.json", name="resource-embedded-media-scalar",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|video|map)\-\d+"})
      * @Route("/resource/{volume}/{id}.tei.xml", name="resource-detail-tei",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|video|map)\-\d+"})
      * @Route("/resource/{volume}/{id}.pdf", name="resource-detail-pdf",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|video|map)\-\d+"})
      * @Route("/resource/{volume}/{id}.html", name="resource-detail-html",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|video|map)\-\d+"})
      * @Route("/resource/{volume}/{id}", name="resource-detail",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|video|map)\-\d+"})
      * @Route("/resource/{volume}/{id}", name="resource-create",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|video|map)\-\d+"})
      */
     public function detailAction(Request $request,
                                  TranslatorInterface $translator,
@@ -542,7 +542,7 @@ EOXQL;
 
     /**
      * @Route("/resource/{volume}/{id}/edit", name="resource-edit",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|map)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|chapter|document|image|video|map)\-\d+"})
      * @Route("/resource/{volume}/add/{genre}", name="collection-add",
      *          requirements={"volume" = "volume\-\d+", "genre" = "(document-collection|image-collection)"})
      */
