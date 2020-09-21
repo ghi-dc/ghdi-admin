@@ -676,7 +676,7 @@ EOXQL;
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload-child",
      *        requirements={"volume" = "volume\-\d+", "id" = "(chapter)\-\d+"})
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|video)\-\d+"})
      */
     public function uploadAction(Request $request,
                                  \App\Utils\PandocConverter $pandocConverter,

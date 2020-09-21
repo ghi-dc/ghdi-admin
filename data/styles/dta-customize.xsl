@@ -359,6 +359,7 @@
       </video>
       </div>
       <xsl:if test="tei:figDesc"><xsl:text> </xsl:text><xsl:apply-templates select="tei:figDesc" mode="figdesc"/></xsl:if>
+      <xsl:apply-templates/>
     </xsl:when>
     <xsl:when test="tei:media/@mimeType='text/html'">
       <!-- custom code for iframe -->

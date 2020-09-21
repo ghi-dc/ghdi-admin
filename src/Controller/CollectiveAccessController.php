@@ -575,6 +575,8 @@ extends BaseController
             return $figures;
         }
 
+        $idxVideo = -1;
+
         foreach ($data['representations'] as $representation) {
             // if we only want primary one
             if ($primaryOnly && !$representation['is_primary']) {
@@ -588,7 +590,32 @@ extends BaseController
 
             $figureCaption = $this->lookupFigureCaption($caService, $representation, $locale);
 
+            if ('video/mp4' == $representation['mimetype']) {
+                // set $idxVideo if there is exactly one video so we might merge possible poster-figure into single figure
+                if (-1 == $idxVideo) {
+                    $idxVideo = count($figures);
+                }
+                else {
+                    // set back if there is more than one video, so $idxVideo has already been set
+                    $idxVideo = -1;
+                }
+            }
+
             $figures[] = $representation + [ 'caption' => $figureCaption ];
+        }
+
+        // if there is exactly one video and one image, assign image to video as poster
+        if ($idxVideo != -1 && count($figures) == 2) {
+            $video = $figures[$idxVideo];
+
+            $idxFigure = 0 == $idxVideo ? 1 : 0; // it is the other one
+            $figure = $figures[$idxFigure];
+            if (!empty($figure['caption'])) {
+                $video['caption'] = (empty($video['caption']) ? '' : $video['caption'])
+                    . $figure['caption'];
+            }
+
+            $figures = [ $video +  [ 'poster' => $figure ] ];
         }
 
         return $figures;
@@ -704,11 +731,34 @@ extends BaseController
 
                         foreach ($figures as $figure) {
                             $facsInfo = $this->buildFigureFacs($figure);
-                            $figureTags[] = sprintf('<figure facs="%s" corresp="%s">%s</figure>',
-                                                    htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
-                                                    htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8'),
-                                                    !empty($figure['caption']) ? $figure['caption'] : '');
+
+                            if ('video/mp4' == $figure['mimetype']) {
+                                $attrFigure = '';
+
+                                if (!empty($figure['poster'])) {
+                                    $posterInfo = $this->buildFigureFacs($figure['poster']);
+                                    $attrFigure = sprintf(' facs="%s" corresp="%s"',
+                                                        htmlspecialchars($posterInfo['facs'], ENT_XML1, 'utf-8'),
+                                                        htmlspecialchars($posterInfo['corresp'], ENT_XML1, 'utf-8'));
+                                }
+
+                                $figureTags[] = sprintf('<figure%s><media mimeType="%s" url="%s" corresp="%s" />%s</figure>',
+                                                        $attrFigure,
+                                                        htmlspecialchars($figure['mimetype'], ENT_XML1, 'utf-8'),
+                                                        htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
+                                                        htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8'),
+                                                        !empty($figure['caption']) ? $figure['caption'] : '');
+                            }
+                            else {
+                                $figureTags[] = sprintf('<figure facs="%s" corresp="%s">%s</figure>',
+                                                        htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
+                                                        htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8'),
+                                                        !empty($figure['caption']) ? $figure['caption'] : '');
+
+                            }
                         }
+
+                        // dd($figureTags);
 
                         $fragment->appendXML('<p' . (count($figureTags) > 1 ? ' class="gallery"' : '') . '>'
                                              . join($figureTags, "\n")
