@@ -66,6 +66,12 @@ extends ExistDbCommand
                 'what locale (en or de)',
                 'de'
             )
+            ->addOption(
+                'force-reindex',
+                null,
+                InputOption::VALUE_NONE,
+                'Specify to force reindexing existing resources'
+            )
             ;
     }
 
@@ -171,7 +177,7 @@ extends ExistDbCommand
         }
     }
 
-    protected function fetchCollection($locale, $id = null)
+    protected function fetchCollection($locale, $id = null, $forceReindex = false)
     {
         $dtsBase = ('en' != $locale ? $locale . '/' : '')
             . 'api/dts/';
@@ -189,7 +195,7 @@ extends ExistDbCommand
         $entities = [];
 
         if (!empty($result['@id'])) {
-            $entity = $this->fetchDocument($urlDocument . '?id=' . $result['@id']);
+            $entity = $this->fetchDocument($urlDocument . '?id=' . $result['@id'], $forceReindex);
             if (!is_null($entity)) {
                 $entities[] = $entity;
             }
@@ -198,13 +204,13 @@ extends ExistDbCommand
         if (!empty($result['member'])) {
             foreach ($result['member'] as $info) {
                 if ('Collection' == $info['@type']) {
-                    $children = $this->fetchCollection($locale, $info['@id']);
+                    $children = $this->fetchCollection($locale, $info['@id'], $forceReindex);
                     foreach ($children as $child) {
                         $entities[] = $child;
                     }
                 }
                 else {
-                    $entity = $this->fetchDocument($urlDocument . '?id=' . $info['@id']);
+                    $entity = $this->fetchDocument($urlDocument . '?id=' . $info['@id'], $forceReindex);
                     if (!is_null($entity)) {
                         $entities[] = $entity;
                     }
@@ -215,9 +221,9 @@ extends ExistDbCommand
         return $entities;
     }
 
-    protected function buildEntities($locale, $id = null)
+    protected function buildEntities($locale, $id = null, $forceReindex = false)
     {
-        return $this->fetchCollection($locale, $id);
+        return $this->fetchCollection($locale, $id, $forceReindex);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -230,8 +236,9 @@ extends ExistDbCommand
         }
 
         $locale = $input->getOption('locale');
+        $forceReindex = $input->getOption('force-reindex');
 
-        $entities = $this->buildEntities($locale, join(':', [ $this->siteKey, $volume ]));
+        $entities = $this->buildEntities($locale, join(':', [ $this->siteKey, $volume ]), $forceReindex);
 
         try {
             // $this->solr->synchronizeIndex($entities); would be more efficient but adds duplicates
