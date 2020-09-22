@@ -53,7 +53,7 @@
 {% endmacro %}
 
 {% macro icon_genre(resource) %}
-    {% set genre_to_icon = { 'document' : 'file', 'image' : 'image', 'video' : 'video-camera' } %}
+    {% set genre_to_icon = { 'document' : 'file', 'image' : 'image', 'audio' : 'volume-down', 'video' : 'video-camera' } %}
     {% if genre_to_icon[resource.genre] is defined %}
     <i class="fa fa-{{ genre_to_icon[resource.genre] }}" style="color: #aaa"></i>
     {% endif %}

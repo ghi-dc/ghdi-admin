@@ -291,6 +291,10 @@ extends BaseController
             && array_key_exists('en_US', $data['type_id']['display_text']))
         {
             switch ($data['type_id']['display_text']['en_US']) {
+                case 'Sound':
+                    $genre = 'audio';
+                    break;
+
                 case 'Moving Image':
                     $genre = 'video';
                     break;
@@ -575,7 +579,7 @@ extends BaseController
             return $figures;
         }
 
-        $idxVideo = -1;
+        $idxAV = -1;
 
         foreach ($data['representations'] as $representation) {
             // if we only want primary one
@@ -590,32 +594,32 @@ extends BaseController
 
             $figureCaption = $this->lookupFigureCaption($caService, $representation, $locale);
 
-            if ('video/mp4' == $representation['mimetype']) {
-                // set $idxVideo if there is exactly one video so we might merge possible poster-figure into single figure
-                if (-1 == $idxVideo) {
-                    $idxVideo = count($figures);
+            if (in_array($representation['mimetype'], [ 'audio/mpeg', 'video/mp4' ])) {
+                // set $idxAV if there is exactly one AV so we might merge possible poster-figure into single figure
+                if (-1 == $idxAV) {
+                    $idxAV = count($figures);
                 }
                 else {
-                    // set back if there is more than one video, so $idxVideo has already been set
-                    $idxVideo = -1;
+                    // set back if there is more than one AV, so $idxAV has already been set
+                    $idxAV = -1;
                 }
             }
 
             $figures[] = $representation + [ 'caption' => $figureCaption ];
         }
 
-        // if there is exactly one video and one image, assign image to video as poster
-        if ($idxVideo != -1 && count($figures) == 2) {
-            $video = $figures[$idxVideo];
+        // if there is exactly one AV and one image, assign image to AV as poster
+        if ($idxAV != -1 && count($figures) == 2) {
+            $av = $figures[$idxAV];
 
-            $idxFigure = 0 == $idxVideo ? 1 : 0; // it is the other one
+            $idxFigure = 0 == $idxAV ? 1 : 0; // it is the other one
             $figure = $figures[$idxFigure];
             if (!empty($figure['caption'])) {
-                $video['caption'] = (empty($video['caption']) ? '' : $video['caption'])
+                $av['caption'] = (empty($av['caption']) ? '' : $av['caption'])
                     . $figure['caption'];
             }
 
-            $figures = [ $video +  [ 'poster' => $figure ] ];
+            $figures = [ $av +  [ 'poster' => $figure ] ];
         }
 
         return $figures;
@@ -732,7 +736,7 @@ extends BaseController
                         foreach ($figures as $figure) {
                             $facsInfo = $this->buildFigureFacs($figure);
 
-                            if ('video/mp4' == $figure['mimetype']) {
+                            if (in_array($figure['mimetype'], [ 'audio/mpeg', 'video/mp4' ])) {
                                 $attrFigure = '';
 
                                 if (!empty($figure['poster'])) {

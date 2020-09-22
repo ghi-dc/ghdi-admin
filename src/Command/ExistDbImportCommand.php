@@ -320,6 +320,7 @@ extends ExistDbCommand
             case 'introduction':
             case 'document':
             case 'image':
+            case 'audio':
             case 'video':
             case 'map':
                 $parts = explode('/', $entity->getShelfmark());

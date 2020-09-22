@@ -320,6 +320,7 @@ class TeiHelper
                         case 'document':
                         case 'image-collection':
                         case 'image':
+                        case 'audio':
                         case 'video':
                         case 'map':
                             $article->genre = $text;

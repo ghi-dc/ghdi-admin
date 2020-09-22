@@ -121,9 +121,10 @@ extends ResourceController
 
                 case 'document':
                 case 'image':
+                case 'audio':
                 case 'video':
                     $key = $info['genre'] . 's';
-                    if (in_array($key, [ 'images', 'videos' ])  && !array_key_exists($key, $ret)) {
+                    if (in_array($key, [ 'images', 'audios', 'videos' ])  && !array_key_exists($key, $ret)) {
                         // GHIS doesn't separate between documents and images
                         $key = 'documents';
                     }

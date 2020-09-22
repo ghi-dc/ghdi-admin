@@ -55,7 +55,14 @@
         <dd class="col-sm-9 col-md-10">
        {% for figure in figures %}
            <div>
-            {% if 'video/mp4' == figure['mimetype'] %}
+            {% if 'audio/mpeg' == figure['mimetype'] %}
+                <audio
+                    controls
+                    src="{{ figure['urls']['original'] }}">
+                        Your browser does not support the
+                        <code>audio</code> element.
+                </audio>
+            {% elseif 'video/mp4' == figure['mimetype'] %}
                 {{ figure['tags']['original']|raw }}
             {% else %}
                 {{ figure['tags']['preview170']|raw }}
