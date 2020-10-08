@@ -821,7 +821,8 @@ EOXQL;
                         if ($res) {
                             $request->getSession()
                                     ->getFlashBag()
-                                    ->add('info', 'The Entry has been created')
+                                    ->add('info',
+                                          $update ? 'The Entry has been updated' : 'The Entry has been created')
                                 ;
 
                             return $this->redirect($this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $resourceId ]));

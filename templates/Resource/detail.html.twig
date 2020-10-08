@@ -52,7 +52,7 @@
         {% if showAddEntities == 1 %}
             <br /><a class="post" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({'action': 'link-entities'})) }}">Link Named Entities</a>
         {% endif %}
-        {% if 'document' == resource.data.genre %}
+        {% if 'document' == resource.data.genre or 'image' == resource.data.genre %}
            <br /><a href="{{ path('resource-upload', { volume: volume.data.id, id: id }) }}" class="fa fa-upload" aria-hidden="true" title="{{ 'Replace Content'|trans }}"> </a>
         {% endif %}
     </div>

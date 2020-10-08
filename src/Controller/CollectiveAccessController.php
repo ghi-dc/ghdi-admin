@@ -508,7 +508,10 @@ extends BaseController
                                     $license = $teiHeader->getLicence();
                                     if (empty($license)) {
                                         switch ($target) {
-                                            // case 'https://creativecommons.org/publicdomain/zero/1.0/':
+                                            case 'https://creativecommons.org/publicdomain/zero/1.0/':
+                                                $teiHeader->setLicence($translator->trans('The work has been dedicated to the public domain by waiving all rights under copyright law, including all related and neighboring rights, to the extent allowed by law.'));
+                                                break;
+
                                             case 'https://creativecommons.org/publicdomain/mark/1.0/':
                                                 $teiHeader->setLicence($translator->trans('This work has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.'));
                                                 break;
