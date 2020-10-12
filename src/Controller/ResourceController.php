@@ -675,6 +675,8 @@ EOXQL;
     /**
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload-child",
      *        requirements={"volume" = "volume\-\d+", "id" = "(chapter)\-\d+"})
+     * @Route("/resource/{volume}/add/{id}", name="resource-add-introduction",
+     *        requirements={"volume" = "volume\-\d+", "id" = "(introduction)"})
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|audio|video)\-\d+"})
      */
@@ -687,13 +689,20 @@ EOXQL;
         $client = $this->getExistDbClient($this->subCollection);
 
         $lang = \App\Utils\Iso639::code1To3($request->getLocale());
-        $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
+        $resourceId = $id;
+        if ('introduction' == $id) {
+            // TODO: check if there is already an introduction for $volume
+            // if yes, redirect
+            $resourceId = $volume;
+        }
+
+        $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resourceId . '.' . $lang . '.xml';
 
         $entity = $this->fetchTeiHeader($client, $resourcePath);
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No item found for id: ' . $id)
+                    ->add('warning', 'No item found for id: ' . $resourceId)
                 ;
 
             return $this->redirect($this->generateUrl('volume-detail', [ 'id' => $volume ]));
@@ -842,7 +851,7 @@ EOXQL;
             'name' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
             'volume' => $volume,
             'id' => $id,
-            'parentPath' => $this->buildParentPath($client,  $this->fetchResource($client, $id, $lang), $lang),
+            'parentPath' => $this->buildParentPath($client,  $this->fetchResource($client, $resourceId, $lang), $lang),
         ]);
     }
 
