@@ -14,7 +14,7 @@ class WordToTeiController
 extends BaseController
 {
     /**
-     * @Route("/upload", name="upload")
+     * @Route("/convert", name="convert")
      */
     public function uploadAction(Request $request,
                                  \App\Utils\PandocConverter $pandocConverter)
@@ -72,7 +72,6 @@ extends BaseController
         }
 
         // render upload form
-        return $this->render('Upload/index.html.twig', [
-        ]);
+        return $this->render('Upload/index.html.twig', []);
     }
 }
