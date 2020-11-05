@@ -483,7 +483,7 @@ extends BaseController
             if (array_key_exists($src, $data)) {
                 foreach ($languages as $lang) {
                     foreach ($data[$src] as $struct) {
-                        if (array_key_exists($lang, $struct) && !empty($struct[$lang])) {
+                        if (array_key_exists($lang, $struct) && !empty($struct[$lang]) && array_key_exists($dst, $struct[$lang])) {
                             $raw = $struct[$lang][$dst];
 
                             /* we prefix Source: */
