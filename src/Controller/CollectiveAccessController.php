@@ -170,6 +170,7 @@ extends BaseController
             $tag = 'ref';
             $attribute = 'target';
         }
+
         $autolinker = new \Asika\Autolink\Autolink;
 
         // see https://github.com/asika32764/php-autolink/#link-builder
@@ -178,6 +179,46 @@ extends BaseController
 
             return (string) new \Windwalker\Dom\HtmlElement($tag, $url, $attribs);
         });
+
+        // Collective Acess replaces url encoded characters with diacritics
+        // $autolinker->convert() doesn't pick these up, so call rawurlencode() before
+        $schemeRegex = sprintf("(%s)\:\/\/", $autolinker->getSchemes(true));
+        $reRegular = "[\/a-zA-Z0-9\-._~:?#\[\]@!$&'()*+,;=%\">]";
+        $reDiacritic = '[\x{00c0}-\x{00ff}]';
+        $reRegularOrDiacritic = "[\/a-zA-Z0-9\-._~:?#\[\]@!$&'()*+,;=%\">\x{00c0}-\x{00ff}]";
+
+        $regex = '/(([a-zA-Z]*=")*' . $schemeRegex . "[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}({$reRegularOrDiacritic}*)?)/u";
+
+        $markup = preg_replace_callback($regex, function ($matches) use ($reDiacritic) {
+                $url = $matches[0];
+
+                if (preg_match('/' . $reDiacritic . '/u', $url)) {
+                    $parts = parse_url($url);
+
+                    $parts['path'] = implode('/', array_map(function ($v) {
+                        return rawurlencode($v);
+                    }, explode('/', $parts['path'])));
+
+                    // reverse parse_url: https://gist.github.com/Ellrion/f51ba0d40ae1d62eeae44fd1adf7b704
+                    $scheme   = isset($parts['scheme']) ? ($parts['scheme'] . '://') : '';
+
+                    $host     = ($parts['host'] ?? '');
+                    $port     = isset($parts['port']) ? (':' . $parts['port']) : '';
+
+                    $user     = ($parts['user'] ?? '');
+
+                    $pass     = isset($parts['pass']) ? (':' . $parts['pass'])  : '';
+                    $pass     = ($user || $pass) ? "$pass@" : '';
+
+                    $path     = ($parts['path'] ?? '');
+                    $query    = isset($parts['query']) ? ('?' . $parts['query']) : '';
+                    $fragment = isset($parts['fragment']) ? ('#' . $parts['fragment']) : '';
+
+                    return implode('', [$scheme, $user, $pass, $host, $port, $path, $query, $fragment]);
+                }
+
+                return $url;
+            }, $markup);
 
         return $autolinker->convert($markup);
     }
