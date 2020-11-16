@@ -307,6 +307,8 @@ class TeiHelper
 
         // classification
         $terms = [];
+        $meta = [];
+
         $result = $header('./tei:profileDesc/tei:textClass/tei:classCode');
         foreach ($result as $element) {
             $text = (string)$element;
@@ -340,10 +342,15 @@ class TeiHelper
                 case $this->schemePrefix . 'term':
                     $terms[] = $text;
                     break;
+
+                case $this->schemePrefix . 'meta':
+                    $meta[] = $text;
+                    break;
             }
         }
 
         $article->terms = $terms;
+        $article->meta = $meta;
 
         // isPartOf
         if (isset($article->genre) && 'source' == $article->genre) {

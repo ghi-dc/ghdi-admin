@@ -225,6 +225,11 @@ extends AbstractController
         return $choices;
     }
 
+    protected function buildMetaChoices($locale, $entity = null)
+    {
+        return [ 'robots:noindex' => 'Exclude from Search Engines' ];
+    }
+
     protected function xmlSpecialchars($txt)
     {
         return htmlspecialchars($txt, ENT_XML1, 'UTF-8');;

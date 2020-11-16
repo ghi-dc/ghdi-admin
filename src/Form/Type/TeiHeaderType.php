@@ -55,6 +55,18 @@ extends AbstractType
                 ;
         }
 
+        if (!empty($options['choices']['meta'])) {
+            $builder
+                ->add('meta', ChoiceType::class, [
+                    'choices'  => $options['choices']['meta'],
+                    'label' => 'Meta Tags',
+                    'required' => false,
+                    'multiple' => true,
+                    'expanded' => true, // checkbox
+                ])
+                ;
+        }
+
         $builder->add('save', SubmitType::class, [
             'label' => 'Save',
         ]);
