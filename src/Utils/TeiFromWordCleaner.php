@@ -146,7 +146,7 @@ trait TeiFromWordCleaner
                                             $found = true;
                                         }
 
-                                        if (preg_match('/^(Translation):/', $pLast->textContent)) {
+                                        if (preg_match('/^(Übersetzung|Translation):/', $pLast->textContent)) {
                                             $this->moveTranslationToHeader($pLast);
                                             $found = true;
                                         }
@@ -215,7 +215,7 @@ trait TeiFromWordCleaner
 
     protected function moveTranslationToHeader($pNode)
     {
-        if (preg_match('/^(Translation):\s*(.*?)\s*$/', $pNode->textContent, $matches)) {
+        if (preg_match('/^(Übersetzung|Translation):\s*(.*?)\s*$/', preg_replace('/[\r\n]+/', ' ', $pNode->textContent), $matches)) {
             $xpath = $this->getXPath();
             $titleStmt = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:titleStmt');
             if (0 == $titleStmt->length) {
