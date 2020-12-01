@@ -374,6 +374,11 @@ extends BaseController
                         if (array_key_exists($lang, $struct) && !empty($struct[$lang])) {
                             $keyParts = explode('.', $src, 2);
                             $val = $this->buildTeiValue($struct[$lang][$keyParts[1]], false, 'body' == $dst);
+
+                            if ('note' == $dst && !preg_match('#^<p>(.*?)</p>$#s', $val)) {
+                                $val = '<p>' . $val . '</p>';
+                            }
+
                             $method = 'set' . ucfirst($dst);
                             $teiHeader->$method($val);
 
@@ -809,7 +814,7 @@ extends BaseController
                         // dd($figureTags);
 
                         $fragment->appendXML('<p' . (count($figureTags) > 1 ? ' class="gallery"' : '') . '>'
-                                             . join($figureTags, "\n")
+                                             . implode("\n", $figureTags)
                                              . '</p>');
                     }
 
