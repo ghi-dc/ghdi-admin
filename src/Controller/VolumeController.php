@@ -467,7 +467,7 @@ extends ResourceController
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$update) {
                 die('TODO: handle');
-                $id = $this->nextInSequence($client, $client->getCollection());
+                $id = $this->nextInSequence($client, $client->getCollection(), 'volume-');
                 $entity->setId($id);
                 // TODO: createTeiHeader
             }

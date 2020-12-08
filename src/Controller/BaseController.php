@@ -21,6 +21,10 @@ use App\Utils\XmlPrettyPrinter\XmlPrettyPrinter;
 abstract class BaseController
 extends AbstractController
 {
+    use \App\Utils\RenderTeiTrait;
+
+    protected $subCollection = '/data/volumes';
+
     protected $existDbClientService;
     private $kernel;
     private $teiPrettyPrinter;

@@ -191,11 +191,16 @@ extends ResourceController
                 $resources = $this->buildResources($client, $volumeId, $lang);
                 if (!is_null($resources)) {
                     foreach ($resources['data'] as $resource) {
+                        $type = preg_match('/\-collection$/', $resource['genre'])
+                                ? 'Collection' : 'Resource';
+
                         $parts = explode('/', $resource['shelfmark']);
                         if (count($parts) != count($path) + 1) {
-                            // not a direct child
-                            // TODO: count so we can set member-count
-                            continue;
+                            if ('Collection' == $type || count($parts) != count($path) + 2) {
+                                // neither a direct child nor an attachment
+                                // TODO: count so we can set member-count
+                                continue;
+                            }
                         }
 
                         for ($i = 0; $i < count($path); $i++) {
@@ -208,8 +213,7 @@ extends ResourceController
                         $response['member'][] = [
                             '@id' => join(':', [ $this->siteKey, $resource['id'] ]),
                             'title' => $resource['name'],
-                            '@type' => preg_match('/\-collection$/', $resource['genre'])
-                                ? 'Collection' : 'Resource',
+                            '@type' => $type,
                             // TODO: description
                             // TODO: count children
                             'dts:totalParents' => 1, // tree with single parent

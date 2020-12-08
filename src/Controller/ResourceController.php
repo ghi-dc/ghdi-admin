@@ -14,10 +14,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ResourceController
 extends BaseController
 {
-    use \App\Utils\RenderTeiTrait;
-
-    protected $subCollection = '/data/volumes';
-
     /**
      * Make unique across language so we can line-up different languages under same id
      */
@@ -56,6 +52,51 @@ EOXQL;
         return $nextId;
     }
 
+    protected function buildPathFromShelfmark($shelfmark)
+    {
+        $parts = explode('/', $shelfmark);
+        array_shift($parts); // pop site prefix
+
+        // split of order within
+        $parts = array_map(function ($orderId) {
+            list($order, $id) = explode(':', $orderId, 2);
+
+            return $id;
+        }, $parts);
+
+        return $parts;
+    }
+
+    private function setHasPart($data)
+    {
+        if (empty($data)) {
+            return $data;
+        }
+
+        $resourcesById = [];
+        $ret = [];
+
+        foreach ($data as $resource) {
+            $resourcesById[$resource['id']] = & $resource;
+
+            $parts = $this->buildPathFromShelfmark($resource['shelfmark']);
+            $parentId = $parts[count($parts) - 2];
+            if (array_key_exists($parentId, $resourcesById)) {
+                $parentResource = & $resourcesById[$parentId];
+                if (!array_key_exists('hasPart', $parentResource)) {
+                    $parentResource['hasPart'] = [];
+                }
+                $parentResource['hasPart'][] = $resource;
+
+                continue;
+            }
+
+            $ret[] = $resource;
+        }
+
+        return $ret;
+    }
+
     protected function buildChildResources($client, $volumeId, $id, $lang)
     {
         $xql = $this->renderView('Resource/list-child-resources-json.xql.twig', [
@@ -71,20 +112,14 @@ EOXQL;
         $resources = $res->getNextResult();
         $res->release();
 
-        return !is_null($resources) ? $resources['data'] : null;
+        $data = !is_null($resources) ? $resources['data'] : null;
+
+        return $this->setHasPart($data);
     }
 
     protected function buildParentPath($client, $resource, $lang)
     {
-        $parts = explode('/', $resource['data']['shelfmark']);
-        array_shift($parts); // pop site prefix
-
-        // split of order within
-        $parts = array_map(function ($orderId) {
-            list($order, $id) = explode(':', $orderId, 2);
-
-            return $id;
-        }, $parts);
+        $parts = $this->buildPathFromShelfmark($resource['data']['shelfmark']);
 
         $names = [];
         $volume = $parts[0];
@@ -359,7 +394,7 @@ EOXQL;
             // simple html for scalar export
             return $this->render('Resource/detail-no-chrome.html.twig', [
                 'pageTitle' => $resource['data']['name'],
-                'volume' => $this->fetchVolume($client, $volume, $id, $lang),
+                'volume' => $this->fetchVolume($client, $volume, $lang),
                 'resource' => $resource,
                 'html' => $html,
             ]);
@@ -451,6 +486,7 @@ EOXQL;
                 'translator' => $entity->getTranslator(),
                 'slug' => $entity->getDtaDirName(),
                 'terms' => $entity->getTerms(),
+                'meta' => $entity->getMeta(),
             ];
 
             return $this->updateTeiHeaderContent($client, $resourcePath, $content, $data);
@@ -584,7 +620,8 @@ EOXQL;
         // no terms for collections
         if ('collection-add' != $request->get('_route')) {
             $formOptions['choices'] = [
-                'terms' => array_flip($this->buildTermChoices($request->getLocale(), $entity))
+                'terms' => array_flip($this->buildTermChoices($request->getLocale(), $entity)),
+                'meta' => array_flip($this->buildMetaChoices($request->getLocale(), $entity)),
             ];
         }
 
@@ -673,8 +710,8 @@ EOXQL;
     }
 
     /**
-     * @Route("/resource/{volume}/{id}/upload", name="resource-upload-child",
-     *        requirements={"volume" = "volume\-\d+", "id" = "(chapter)\-\d+"})
+     * @Route("/resource/{volume}/{id}/add", name="resource-upload-child",
+     *        requirements={"volume" = "volume\-\d+", "id" = "(chapter|document)\-\d+"})
      * @Route("/resource/{volume}/add/{id}", name="resource-add-introduction",
      *        requirements={"volume" = "volume\-\d+", "id" = "(introduction)"})
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload",
@@ -731,7 +768,16 @@ EOXQL;
                 }
                 else {
                     $genre = 'document';
-                    $terms = []; // for word-upload, we want to carry the existing ones over
+
+                    // we want to carry over some of the existing metadata
+                    // TODO: we need to switch to the opposite logic
+                    // as in edit-mode where we start with the original
+                    // and update certain properties from upload
+                    // in order to keep additional metadata by default
+                    $terms = [];
+                    $meta = [];
+                    $authors = [];
+                    $dtaDirname = null;
 
                     if ('text/xml' == $mime) {
                         $teiDtabfDoc = new \App\Utils\TeiDocument([
@@ -776,7 +822,9 @@ EOXQL;
                         }
 
                         if ($update) {
+                            $authors = $entity->getAuthors();
                             $terms = $entity->getTerms();
+                            $genre = $entity->getGenre();
                         }
                     }
 
@@ -790,9 +838,14 @@ EOXQL;
                                 ;
                         }
 
+                        $meta = [];
+                        $slug = null;
+
                         if ($update) {
                             $resourceId = $id;
                             $shelfmark = $entity->getShelfmark();
+                            $meta = $entity->getMeta();
+                            $slug = $entity->getDtaDirName();
                         }
                         else {
                             $resourceId = $this->nextInSequence($client, $client->getCollection(), $prefix = $genre . '-');
@@ -816,11 +869,21 @@ EOXQL;
                             ]);
                         }
 
+                        /*
+                         * TODO: bring update logic
+                         * in line with edit-method
+                         * where we update the existing entity
+                         * instead of trying to carry everything over
+                         */
                         $teiHelper = new \App\Utils\TeiHelper();
                         $teiHelper->adjustHeaderStructure($teiDtabfDoc->getDom(), [
                             'id' => $this->siteKey . ':' . $resourceId,
+                            'authors' => $authors,
                             'shelfmark' => $shelfmark,
+                            'slug' => $slug,
+                            'genre' => $genre,
                             'terms' => $terms,
+                            'meta' => $meta,
                         ]);
 
                         $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resourceId . '.' . $lang . '.xml';
