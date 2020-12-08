@@ -20,18 +20,21 @@ extends Command
 {
     protected $adminClient;
     protected $scalarClient;
+    protected $conversionService;
     protected $projectDir;
     protected $config = [];
 
     public function __construct(KernelInterface $kernel,
                                 \Symfony\Contracts\HttpClient\HttpClientInterface $adminClient,
-                                \App\Utils\AnvcScalarClient $scalarClient)
+                                \App\Utils\AnvcScalarClient $scalarClient,
+                                \App\Service\ImageConversion\ConversionService $conversionService)
     {
         // you *must* call the parent constructor
         parent::__construct();
 
         $this->adminClient = $adminClient;
         $this->scalarClient = $scalarClient;
+        $this->conversionService = $conversionService;
         $this->projectDir = $kernel->getProjectDir();
     }
 
