@@ -244,20 +244,19 @@ class TeiHelper
             }
         }
 
-        // uid, slug and shelfmark
-        $result = $header('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTAID"])[1]');
-        if (!empty($result)) {
-            $article->uid = (string)$result[0];
-        }
+        // uid, slug, shelfmark and doi
+        foreach ([
+                'DTAID' => 'uid',
+                'DTADirName' => 'slug',
+                'shelfmark' => 'shelfmark',
+                'doi' => 'doi',
+            ] as $type => $target)
+        {
+            $result = $header('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="' . $type . '"])[1]');
+            if (!empty($result)) {
+                $article->$target = (string)$result[0];
+            }
 
-        $result = $header('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="DTADirName"])[1]');
-        if (!empty($result)) {
-            $article->slug = (string)$result[0];
-        }
-
-        $result = $header('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="shelfmark"])[1]');
-        if (!empty($result)) {
-            $article->shelfmark = (string)$result[0];
         }
 
         /*
@@ -732,7 +731,9 @@ class TeiHelper
         foreach ([
                 'id' => 'DTAID',
                 'shelfmark' => 'shelfmark',
-                'slug' => 'DTADirName' ]
+                'slug' => 'DTADirName',
+                'doi' => 'doi',
+            ]
             as $key => $type)
         {
             if (array_key_exists($key, $data)) {

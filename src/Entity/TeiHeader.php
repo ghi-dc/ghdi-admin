@@ -137,6 +137,7 @@ implements \JsonSerializable
         }
 
         $entity->setShelfmark($article->shelfmark);
+        $entity->setDoi($article->doi);
 
         if (property_exists($article, 'abstract')) {
             $entity->setNote($article->abstract);
@@ -145,6 +146,8 @@ implements \JsonSerializable
         $entity->setGenre($article->genre);
         $entity->setTerms($article->terms);
         $entity->setMeta($article->meta);
+        $entity->setLicenceTarget($article->license);
+        $entity->setLicence($article->rights);
 
         if (method_exists($entity, 'setBody')) {
             $entity->setBody($article->articleBody);
@@ -709,8 +712,10 @@ implements \JsonSerializable
             'language' => $this->getLanguage(),
             'genre' => $this->getGenre(),
             'shelfmark' => $this->getShelfmark(),
-            'licence' => $this->getLicence(),
-            'licenceTarget' => $this->getLicenceTarget(),
+            'slug' => $this->getDtaDirName(),
+            'license' => $this->getLicenceTarget(),
+            'rights' => $this->getLicence(),
+            'doi' => $this->getDoi(),
             'terms' => $this->getTerms(),
             'meta' => $this->getMeta(),
             'lcsh' => $this->getClassCodes('#lcsh'),
