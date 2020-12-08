@@ -24,12 +24,37 @@ class TeiHelper
         return $this->errors;
     }
 
+    /* TODO: share with ResourceController, either through trait or class */
+    protected function findIdentifierByUri($uri)
+    {
+        static $registered = false;
+
+        if (!$registered) {
+            \App\Utils\Lod\Identifier\Factory::register(\App\Utils\Lod\Identifier\GndIdentifier::class);
+            \App\Utils\Lod\Identifier\Factory::register(\App\Utils\Lod\Identifier\WikidataIdentifier::class);
+
+            $registered = true;
+        }
+
+        return \App\Utils\Lod\Identifier\Factory::fromUri($uri);
+    }
+
     public function buildPerson($element)
     {
         $person = new \App\Entity\Person();
 
         if (!empty($element['corresp'])) {
             $person->setSlug((string)$element['corresp']);
+        }
+
+        if (!empty($element['ref'])) {
+            $refs = explode('/\s+/', $element['ref']);
+            foreach ($refs as $ref) {
+                $identifier = $this->findIdentifierByUri($ref);
+                if (!is_null($identifier)) {
+                    $person->setIdentifier($identifier->getName(), $identifier->getValue());
+                }
+            }
         }
 
         // unstructured
@@ -334,9 +359,7 @@ class TeiHelper
                     break;
 
                 case $this->schemePrefix . 'translated-from':
-                    if (!empty($label)) {
-                        $article->translatedFrom = $text;
-                    }
+                    $article->translatedFrom = $text;
                     break;
 
                 case $this->schemePrefix . 'term':
@@ -352,6 +375,7 @@ class TeiHelper
         $article->terms = $terms;
         $article->meta = $meta;
 
+        /*
         // isPartOf
         if (isset($article->genre) && 'source' == $article->genre) {
             $result = $header->xpath('./tei:fileDesc/tei:seriesStmt/tei:idno[@type="DTAID"]');
@@ -365,20 +389,8 @@ class TeiHelper
                     }
                 }
             }
-
-            // legacy
-            $result = $header('./tei:fileDesc/tei:seriesStmt/tei:title[@type="main"]');
-            foreach ($result as $element) {
-                if (!empty($element['corresp'])) {
-                    $corresp = (string)$element['corresp'];
-                    if (preg_match('/^\#?(jgo\:(article|source)-\d+)$/', $corresp, $matches)) {
-                        $isPartOf = new \App\Entity\Article();
-                        $isPartOf->setUid($matches[1]);
-                        $article->isPartOf = $isPartOf;
-                    }
-                }
-            }
         }
+        */
 
         // language
         $langIdents = [];
@@ -594,6 +606,29 @@ class TeiHelper
                             }
 
                             $fragment = $self->ownerDocument->createDocumentFragment();
+
+                            if ($author instanceof \App\Entity\Person) {
+                                // build fragment string from Entity
+                                $ref = [];
+
+                                foreach ($author->getIdentifiers() as $name => $value) {
+                                    $identifier = \App\Utils\Lod\Identifier\Factory::byName($name);
+                                    if (!is_null($identifier) && !empty($value)) {
+                                        $identifier->setValue($value);
+                                        $ref[] = (string)$identifier;
+                                    }
+                                }
+
+                                $attributes = '';
+                                if (!empty($ref)) {
+                                    $attributes = sprintf (' ref="%s"', join(' ', $ref));
+                                }
+
+                                $author = sprintf('<persName%s>%s</persName>',
+                                                  $attributes,
+                                                  \App\Entity\Person::xmlSpecialchars($author->getName()));
+                            }
+
                             $fragment->appendXML($author);
 
                             (new \FluentDOM\Nodes\Modifier($self))
@@ -836,28 +871,30 @@ class TeiHelper
             ], true);
         }
 
-        if (array_key_exists('terms', $data)) {
-            $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "term")]';
-            // since there can be multiple, first clear and then add
-            \FluentDom($header)->find($xpath)->remove();
+        foreach ([ 'terms', 'meta' ] as $key) {
+            if (array_key_exists($key, $data)) {
+                $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "' . $key .'")]';
+                // since there can be multiple, first clear and then add
+                \FluentDom($header)->find($xpath)->remove();
 
-            if (!is_null($data['terms'])) {
-                foreach ($data['terms'] as $code) {
-                    $this->addDescendants($header, $xpath, [
-                        'tei:classCode[contains(@scheme, "term")]' => function ($parentOrSelf, $name, $updateExisting) use ($code) {
-                            if (!$updateExisting) {
-                                $self = $parentOrSelf->appendChild($parentOrSelf->ownerDocument->createElement('classCode', $code));
-                            }
-                            else {
-                                $self = $parentOrSelf;
-                                $self->nodeValue = $code;
-                            }
+                if (!is_null($data[$key])) {
+                    foreach ($data[$key] as $code) {
+                        $this->addDescendants($header, $xpath, [
+                            'tei:classCode[contains(@scheme, "' . $key . '")]' => function ($parentOrSelf, $name, $updateExisting) use ($code, $key) {
+                                if (!$updateExisting) {
+                                    $self = $parentOrSelf->appendChild($parentOrSelf->ownerDocument->createElement('classCode', $code));
+                                }
+                                else {
+                                    $self = $parentOrSelf;
+                                    $self->nodeValue = $code;
+                                }
 
-                            $self->setAttribute('scheme', $this->schemePrefix . 'term');
+                                $self->setAttribute('scheme', $this->schemePrefix . $key);
 
-                            return $self;
-                        },
-                    ], false);
+                                return $self;
+                            },
+                        ], false);
+                    }
                 }
             }
         }
@@ -1062,7 +1099,7 @@ class TeiHelper
                 }
                 $key = trim($item['attributes']['corresp']);
                 if (!is_null($slugify)) {
-                    $key = \App\Entity\Bibitem::slugifyCorresp($slugify, $key);
+                    $key = \App\Entity\CreativeWork::slugifyCorresp($slugify, $key);
                 }
 
                 if (!empty($key)) {
@@ -1108,22 +1145,14 @@ class TeiHelper
 class CollectingReader
 extends \Sabre\Xml\Reader
 {
-    function xml($source, $encoding = null, $options = 0)
-    {
-        // hack for <?xml-model href="http://www.deutschestextarchiv.de/basisformat_ohne_header.rng"
-        // type="application/xml"
-        // schematypens="http://relaxng.org/ns/structure/1.0"?\>
-        $source = preg_replace('/<\?xml\-model [\s\S\n]*?\?>/', '', $source);
-
-        parent::xml($source, $encoding, $options);
-    }
+    protected $collected;
 
     function collect($output)
     {
         $this->collected[] = $output;
     }
 
-    function parse()
+    function parse() : array
     {
         $this->collected = [];
         parent::parse();
@@ -1131,7 +1160,7 @@ extends \Sabre\Xml\Reader
         return $this->collected;
     }
 
-    static function collectElement(\Sabre\Xml\Reader $reader)
+    static function collectElement(CollectingReader $reader)
     {
         $name = $reader->getClark();
         // var_dump($name);

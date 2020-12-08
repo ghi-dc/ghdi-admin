@@ -58,9 +58,12 @@ extends DocumentConverter
             $proc = new \XsltProcessor();
             $proc->importStylesheet($xsl);
 
+            $dom = new \DomDocument('1.0', 'UTF-8');
+            $success = $dom->load($doc->saveString());
+
             // Transform
             $res = $proc->transformToDoc($dom);
-            if (false === $newdom) {
+            if (false === $res) {
                 $this->errors = libxml_get_errors();
                 libxml_use_internal_errors(false);
                 return false;
@@ -69,7 +72,7 @@ extends DocumentConverter
             libxml_use_internal_errors(false);
 
             // to string conversion, maybe just set dom
-            $res = $res instanceof HtmlDocument ? $res->saveHTML() : $res->saveXML();
+            $res = $res->saveXML();
         }
 
         $ret = array_key_exists('target', $this->options)

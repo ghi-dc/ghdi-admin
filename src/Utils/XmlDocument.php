@@ -94,31 +94,6 @@ extends Document
         $parent->removeChild($node);
     }
 
-    protected function addDescendants($parent, $path, $callbacks)
-    {
-        $pathParts = explode('/', $path);
-        // if missing, we need to iteratively add
-        for ($depth = 0; $depth < count($pathParts); $depth++) {
-            $name = $pathParts[$depth];
-            $subPath = './' . $name;
-            $this->registerXpathNamespaces($parent);
-            $result = $parent->xpath($subPath);
-            if (!empty($result)) {
-                $parent = $result[0];
-                continue;
-            }
-
-            if (array_key_exists($name, $callbacks)) {
-                // custom call
-                $parent = $callbacks[$name]($parent, $name);
-            }
-            else {
-                // default is an element without attributes
-                $parent = $parent->addChild($name);
-            }
-        }
-    }
-
     public function addChildStructure($parent, $structure, $prefix = '')
     {
         foreach ($structure as $tagName => $content) {
@@ -135,6 +110,7 @@ extends Document
                     else {
                         $self = $parent->addChild($prefix . $tagName);
                     }
+
                     foreach ($atKeys as $key) {
                         if ('@value' == $key) {
                             continue;
