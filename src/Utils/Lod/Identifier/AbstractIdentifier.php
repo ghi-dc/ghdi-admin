@@ -49,4 +49,9 @@ implements Identifier
 
         return $this;
     }
+
+    public function __toString()
+    {
+        return join(':', [ $this->name, $this->value ]);
+    }
 }

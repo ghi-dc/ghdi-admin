@@ -18,6 +18,9 @@ class Factory
 
         if ($instance instanceof UriIdentifier) {
             self::$classByBaseUri[$instance->getBaseUri()] = $class;
+            foreach ($instance->getBaseUriVariants() as $baseUriVariant) {
+                self::$classByBaseUri[$baseUriVariant] = $class;
+            }
         }
     }
 
