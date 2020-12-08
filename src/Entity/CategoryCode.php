@@ -28,11 +28,11 @@ extends SchemaOrg
 
     public function setCodeSet($codeSet)
     {
-        $this->codeSet = $codeSet;
+        $this->inCodeSet = $codeSet;
     }
 
     public function getCodeSet()
     {
-        return $this->codeSet;
+        return $this->inCodeSet;
     }
 }

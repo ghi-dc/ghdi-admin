@@ -263,11 +263,6 @@ extends SchemaOrg
         return $creativeWork;
     }
 
-    protected static function xmlSpecialchars($txt)
-    {
-        return htmlspecialchars($txt, ENT_XML1, 'UTF-8');
-    }
-
     /**
      * Build a list of normalized ISBNs of the book.
      *
@@ -502,7 +497,7 @@ extends SchemaOrg
     /**
      * Gets creators.
      *
-     * @return string
+     * @return array
      */
     public function getCreators()
     {
@@ -526,7 +521,7 @@ extends SchemaOrg
     /**
      * Gets series.
      *
-     * @return string
+     * @return string|null
      */
     public function getSeries()
     {
@@ -550,7 +545,7 @@ extends SchemaOrg
     /**
      * Gets series number.
      *
-     * @return string
+     * @return string|null
      */
     public function getSeriesNumber()
     {
@@ -574,7 +569,7 @@ extends SchemaOrg
     /**
      * Gets volume.
      *
-     * @return string
+     * @return string|null
      */
     public function getVolume()
     {
@@ -598,7 +593,7 @@ extends SchemaOrg
     /**
      * Gets number of volumes.
      *
-     * @return string
+     * @return string|null
      */
     public function getNumberOfVolumes()
     {
@@ -622,7 +617,7 @@ extends SchemaOrg
     /**
      * Gets issue.
      *
-     * @return string
+     * @return string|null
      */
     public function getIssue()
     {
@@ -646,7 +641,7 @@ extends SchemaOrg
     /**
      * Gets book edition.
      *
-     * @return string
+     * @return string|null
      */
     public function getBookEdition()
     {
@@ -670,7 +665,7 @@ extends SchemaOrg
     /**
      * Gets publication location.
      *
-     * @return string
+     * @return string|null
      */
     public function getPublicationLocation()
     {
@@ -694,7 +689,7 @@ extends SchemaOrg
     /**
      * Gets publisher.
      *
-     * @return string
+     * @return string|null
      */
     public function getPublisher()
     {
@@ -718,7 +713,7 @@ extends SchemaOrg
     /**
      * Gets datePublished.
      *
-     * @return string
+     * @return string|null
      */
     public function getDatePublished()
     {
@@ -742,7 +737,7 @@ extends SchemaOrg
     /**
      * Gets pagination.
      *
-     * @return string
+     * @return string|null
      */
     public function getPagination()
     {
@@ -766,7 +761,7 @@ extends SchemaOrg
     /**
      * Gets number of pages.
      *
-     * @return string
+     * @return string|null
      */
     public function getNumberOfPages()
     {
@@ -790,7 +785,7 @@ extends SchemaOrg
     /**
      * Gets the DOI of the publication.
      *
-     * @return string
+     * @return string|null
      */
     public function getDoi()
     {
@@ -814,7 +809,7 @@ extends SchemaOrg
     /**
      * Gets ISBN of the book.
      *
-     * @return string
+     * @return string|null
      */
     public function getIsbn()
     {
@@ -829,30 +824,6 @@ extends SchemaOrg
     public function getIsbnListNormalized($hyphens = true)
     {
         return self::buildIsbnListNormalized($this->isbn, $hyphens);
-    }
-
-    /**
-     * Sets dateModified.
-     *
-     * @param \DateTime $dateModified
-     *
-     * @return $this
-     */
-    public function setDateModified(\DateTime $dateModified = null)
-    {
-        $this->dateModified = $dateModified;
-
-        return $this;
-    }
-
-    /**
-     * Gets dateModified.
-     *
-     * @return \DateTime
-     */
-    public function getDateModified()
-    {
-        return $this->dateModified;
     }
 
     /**
@@ -904,54 +875,6 @@ extends SchemaOrg
     }
 
     /**
-     * Sets license.
-     *
-     * @param string $license
-     *
-     * @return $this
-     */
-    public function setLicense($license)
-    {
-        $this->license = $license;
-
-        return $this;
-    }
-
-    /**
-     * Gets license.
-     *
-     * @return string
-     */
-    public function getLicense()
-    {
-        return $this->license;
-    }
-
-    /**
-     * Sets rights.
-     *
-     * @param string $rights
-     *
-     * @return $this
-     */
-    public function setRights($rights)
-    {
-        $this->rights = $rights;
-
-        return $this;
-    }
-
-    /**
-     * Gets rights.
-     *
-     * @return string
-     */
-    public function getRights()
-    {
-        return $this->rights;
-    }
-
-    /**
      * Sets container name.
      *
      * @param string $containerName
@@ -971,7 +894,7 @@ extends SchemaOrg
     /**
      * Gets container name.
      *
-     * @return string
+     * @return string|null
      */
     public function getContainerName()
     {
@@ -1001,7 +924,7 @@ extends SchemaOrg
     /**
      * Gets issn.
      *
-     * @return string
+     * @return string|null
      */
     public function getIssn()
     {
@@ -1079,10 +1002,6 @@ extends SchemaOrg
      */
     public function getSlug($fallback = false)
     {
-        if (empty($this->slug) && $fallback) {
-            return $this->getUid();
-        }
-
         return $this->slug;
     }
 
@@ -1560,7 +1479,7 @@ extends SchemaOrg
         if (!is_null($this->datePublished)
             && !in_array($type, [ 'ScholarlyArticle', 'Chapter', 'Periodical' ]))
         {
-            $ret['datePublished'] = \AppBundle\Utils\JsonLd::formatDate8601($this->datePublished);
+            $ret['datePublished'] = \App\Utils\JsonLd::formatDate8601($this->datePublished);
         }
 
         return $ret;

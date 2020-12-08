@@ -37,7 +37,7 @@ extends SchemaOrg
     protected $additionalType;
 
     /**
-     * @var string The geo coordinates of the place.
+     * @var GeoCoordinates The geo coordinates of the place.
      *
      * @Serializer\Type("App\Entity\GeoCoordinates")
      */
@@ -139,7 +139,7 @@ extends SchemaOrg
     /**
      * Gets Getty Thesaurus of Geographic Names.
      *
-     * @return string
+     * @return string|null
      */
     public function getTgn()
     {
@@ -161,7 +161,7 @@ extends SchemaOrg
     /**
      * Gets geonames.
      *
-     * @return string
+     * @return string|null
      */
     public function getGeonames()
     {
