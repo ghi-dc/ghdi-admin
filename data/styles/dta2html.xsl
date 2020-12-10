@@ -57,7 +57,7 @@
       <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
         <div class="source-citation">
         <xsl:for-each select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
-          <xsl:apply-templates select="./node()"/>
+          <div><xsl:apply-templates select="./node()"/></div>
         </xsl:for-each>
         </div>
       </xsl:if>
