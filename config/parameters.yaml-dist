@@ -44,7 +44,8 @@ parameters:
         group-id:   ~
 
     app.collective-access.options:
-        url: https://ghdi-ca.ghi-dc.org/
+        url: https://ghdi-ca.ghi-dc.org
+        # currently the user seems to need an Administrator role
         api-user: "api"
         api-key: ~
         root-collection: ghdi

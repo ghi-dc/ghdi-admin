@@ -23,6 +23,15 @@ services:
         exclude: '../src/{Entity,Migrations,Tests}'
 
     # additional services
+    App\Menu\Builder:
+        arguments: [ "@knp_menu.factory", "@security.authorization_checker", "@translator", "@request_stack", "%app.zotero.options%" ]
+        tags:
+            # The alias is what is used to retrieve the menu in twig
+            - { name: knp_menu.menu_builder, method: createTopMenu, alias: top }
+            - { name: knp_menu.menu_builder, method: createMainMenu, alias: main }
+            - { name: knp_menu.menu_builder, method: createBreadcrumbMenu, alias: breadcrumb }
+            - { name: knp_menu.menu_builder, method: createFooterMainMenu, alias: footer-main }
+
     App\Service\ExistDbClientService:
         arguments:
             $options: "%app.existdb.options%"
@@ -35,15 +44,6 @@ services:
         arguments:
             $options: "%app.collective-access.options%"
             
-    App\Menu\Builder:
-        arguments: [ "@knp_menu.factory", "@security.authorization_checker", "@translator", "@request_stack", "%app.zotero.options%" ]
-        tags:
-            # The alias is what is used to retrieve the menu in twig
-            - { name: knp_menu.menu_builder, method: createTopMenu, alias: top } 
-            - { name: knp_menu.menu_builder, method: createMainMenu, alias: main }
-            - { name: knp_menu.menu_builder, method: createBreadcrumbMenu, alias: breadcrumb }
-            - { name: knp_menu.menu_builder, method: createFooterMainMenu, alias: footer-main }
-
     App\Utils\PandocProcessor:
         arguments:  [ "%app.pandoc.processor.arguments%" ]
 
