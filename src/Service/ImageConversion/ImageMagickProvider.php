@@ -45,12 +45,16 @@ class ImageMagickProvider
 
         if (!empty($options['geometry'])) {
             if (preg_match('/((.*)\^)\!$/', $options['geometry'], $matches)) {
-                $arguments[] = '-geometry ' . $matches[1];
-                $arguments[] = '-gravity center';
-                $arguments[] = '-extent ' . $matches[2];
+                $arguments[] = '-geometry';
+                $arguments[] = $matches[1];
+                $arguments[] = '-gravity';
+                $arguments[] = 'center';
+                $arguments[] = '-extent';
+                $arguments[] = $matches[2];
             }
             else {
-                $arguments[] = '-geometry ' . $options['geometry'];
+                $arguments[] = '-geometry';
+                $arguments[] = $options['geometry'];
             }
         }
 
@@ -58,32 +62,14 @@ class ImageMagickProvider
             $arguments[] = '-flatten';
         }
 
-        /* doesn't work on windows ?!
-        $builder = new \Symfony\Component\Process\ProcessBuilder();
-        $builder->setPrefix($this->buildConvertCommand());
-
-        $cmd = $builder
-            ->setArguments($arguments +
-                           array($fname_src,
-                                 $fname_dst))
-            ->getProcess()
-            ->getCommandLine();
-        */
         $arguments[] = $fname_src;
         $arguments[] = $fname_dst;
-        for ($i = 0; $i < count($arguments); $i++) {
-            if (preg_match('/^(\-\S+)\s+(.*)$/', $arguments[$i], $matches)) {
-                $arguments[$i] = $matches[1] . ' ' . escapeshellarg($matches[2]);
-            }
-            else {
-                $arguments[$i] = escapeshellarg($arguments[$i]);
-            }
-        }
 
-        $cmd = $this->buildConvertCommand()
-             . (count($arguments) > 0 ? ' ' . implode(' ', $arguments) : '');
+        // prepend command
+        array_unshift($arguments, $this->buildConvertCommand());
 
-        $process = new \Symfony\Component\Process\Process($cmd);
+        $process = new \Symfony\Component\Process\Process($arguments);
+        $process->setTimeout(3600); // 60 seconds default might be too short for large images
         $process->run();
 
         // executes after the command finishes
