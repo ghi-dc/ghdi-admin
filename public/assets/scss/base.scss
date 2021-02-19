@@ -432,6 +432,16 @@ nav.navbar {
     h3.dta-head {
     }
 
+    .dta-list-item {
+        display: list-item;          /* This has to be "list-item"                                               */
+        list-style-type: disc;       /* See https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type     */
+        list-style-position: inside; /* See https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-position */
+
+        & > .dta-p {
+            display: inline;
+        }
+    }
+
     div.dta-endnote {
         a.dta-fn-sign {
             display: inline-block;
