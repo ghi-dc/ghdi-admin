@@ -117,7 +117,11 @@ implements \JsonSerializable
     protected static function hydrateEntity($entity, $article)
     {
         $entity->setId($article->uid);
-        $entity->setTitle($article->name);
+
+        if (isset($article->name)) {
+            $entity->setTitle($article->name);
+        }
+
         $entity->setLanguage($article->language);
 
         foreach ([ 'author', 'editor' ] as $key) {
