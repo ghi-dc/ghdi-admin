@@ -231,7 +231,10 @@ extends AbstractController
 
     protected function buildMetaChoices($locale, $entity = null)
     {
-        return [ 'robots:noindex' => 'Exclude from Search Engines' ];
+        return [
+            'robots:noindex' => 'Exclude from Search Engines',
+            'DC.Relation.isReferencedBy:parent' => 'Use as Section Symbol',
+        ];
     }
 
     protected function xmlSpecialchars($txt)
