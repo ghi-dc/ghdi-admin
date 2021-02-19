@@ -69,6 +69,9 @@ implements TermProvider
         if (in_array('http://www.loc.gov/mads/rdf/v1#Topic', $types)) {
             return $this->instantiateTermFromResource($resource);
         }
+        if (in_array('http://www.loc.gov/mads/rdf/v1#ComplexSubject', $types)) {
+            return $this->instantiateTermFromResource($resource);
+        }
 
         throw new \Exception('No handler for rdf:type ' . join(', ', $types));
     }
