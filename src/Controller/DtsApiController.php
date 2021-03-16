@@ -49,7 +49,7 @@ extends ResourceController
     }
 
     /* TODO: share with VolumeController */
-    protected function buildResources($client, $id, $lang)
+    protected function buildResources(\ExistDbRpc\Client $client, $id, $lang)
     {
         $xql = $this->renderView('Volume/list-resources-json.xql.twig', [
             'prefix' => $this->siteKey,
@@ -157,7 +157,8 @@ extends ResourceController
 
         if (!is_null($result) && count($result['data']) > 0) {
             $resource = $result['data'][0];
-            if ('volume' == $resource['genre'] || preg_match('/\-collection$/', $resource['genre'])) {
+            $genre = $resource['genre'];
+            if ('volume' ==  $genre || preg_match('/\-collection$/', $genre)) {
                 $response = [
                     '@context' => $this->defaultContext + [
                         'dc' => 'http://purl.org/dc/terms/',
@@ -191,12 +192,9 @@ extends ResourceController
                 $resources = $this->buildResources($client, $volumeId, $lang);
                 if (!is_null($resources)) {
                     foreach ($resources['data'] as $resource) {
-                        $type = preg_match('/\-collection$/', $resource['genre'])
-                                ? 'Collection' : 'Resource';
-
                         $parts = explode('/', $resource['shelfmark']);
                         if (count($parts) != count($path) + 1) {
-                            if ('Collection' == $type || count($parts) != count($path) + 2) {
+                            if ('volume' == $genre || count($parts) != count($path) + 2) {
                                 // neither a direct child nor an attachment
                                 // TODO: count so we can set member-count
                                 continue;
@@ -213,7 +211,8 @@ extends ResourceController
                         $response['member'][] = [
                             '@id' => join(':', [ $this->siteKey, $resource['id'] ]),
                             'title' => $resource['name'],
-                            '@type' => $type,
+                            '@type' => preg_match('/\-collection$/', $resource['genre'])
+                                ? 'Collection' : 'Resource',
                             // TODO: description
                             // TODO: count children
                             'dts:totalParents' => 1, // tree with single parent
