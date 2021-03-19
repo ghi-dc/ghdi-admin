@@ -40,7 +40,7 @@ extends Command
         $this->params = $params;
     }
 
-    protected function getExistDbClient()
+    protected function getExistDbClient() : \ExistDbRpc\Client
     {
         $existDbClientService = $this->existDbClientService;
         $existDbOptions = $this->params->get('app.existdb.console.options');
