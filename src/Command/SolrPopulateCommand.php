@@ -161,8 +161,10 @@ extends ExistDbCommand
         $teiHelper = new \App\Utils\TeiHelper();
 
         return $teiHelper->adjustMediaUrlString($content, function ($url) {
-            if (strpos($url, 'https://ghdi-ca.ghi-dc.org') === 0) {
-                // it is a collective access link
+            if (strpos($url, 'https://ghdi-ca.ghi-dc.org') === 0
+                || strpos($url, 'https://germanhistorydocs.ghi-dc.org/images/') === 0)
+            {
+                // it is a Collective Access or a GHDI legacy link
                 $path = parse_url($url, PHP_URL_PATH);
                 $fname = basename($path);
                 if (preg_match('/_original\./', $fname)) {
@@ -181,6 +183,11 @@ extends ExistDbCommand
      */
     protected function fetchRemoteImage($url, $mediaPath, $fname)
     {
+        if (preg_match('~(^.+/)([^/]+)$~', $url, $matches)) {
+            // handles spaces and umlauts e.g. http://germanhistorydocs.ghi-dc.org/images/00004711_Stand auf dem Blutgerüste.jpg
+            $url = $matches[1] . rawurlencode($matches[2]);
+        }
+
         // TODO: don't look at extension but look at mime-type instead
         $parts = parse_url($url);
         $path = parse_url($url, PHP_URL_PATH);
