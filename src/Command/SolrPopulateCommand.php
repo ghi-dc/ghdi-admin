@@ -13,6 +13,8 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
 class SolrPopulateCommand
 extends ExistDbCommand
 {
@@ -21,24 +23,28 @@ extends ExistDbCommand
      */
     private $solr;
     private $adminClient;
+    protected $conversionService;
     private $twig;
     private $slugify;
     private $frontendDataDir;
+    private $frontendMediaDir;
 
     public function __construct(string $siteKey,
                                 \App\Service\ExistDbClientService $existDbClientService,
                                 ParameterBagInterface $params,
                                 KernelInterface $kernel,
-                                \Symfony\Contracts\HttpClient\HttpClientInterface $adminClient,
+                                HttpClientInterface $adminClient,
                                 \FS\SolrBundle\SolrInterface $solr,
+                                \App\Service\ImageConversion\ConversionService $conversionService,
                                 \Twig\Environment $twig,
                                 \Cocur\Slugify\SlugifyInterface $slugify)
     {
         // you *must* call the parent constructor
         parent::__construct($siteKey, $existDbClientService, $params, $kernel);
 
-        $this->solr = $solr;
         $this->adminClient = $adminClient;
+        $this->solr = $solr;
+        $this->conversionService = $conversionService;
         $this->twig = $twig;
         $this->slugify = $slugify;
 
@@ -46,6 +52,12 @@ extends ExistDbCommand
         if (empty($this->frontendDataDir)) {
             die(sprintf('app.frontend.data_dir (%s) does not exist',
                         $this->params->get('app.frontend.data_dir')));
+        }
+
+        $this->frontendMediaDir = realpath($this->params->get('app.frontend.media_dir'));
+        if (empty($this->frontendMediaDir)) {
+            die(sprintf('app.frontend.media_dir (%s) does not exist',
+                        $this->params->get('app.frontend.media_dir')));
         }
     }
 
@@ -144,6 +156,70 @@ extends ExistDbCommand
         }
     }
 
+    protected function adjustMediaUrl($content)
+    {
+        $teiHelper = new \App\Utils\TeiHelper();
+
+        return $teiHelper->adjustMediaUrlString($content, function ($url) {
+            if (strpos($url, 'https://ghdi-ca.ghi-dc.org') === 0) {
+                // it is a collective access link
+                $path = parse_url($url, PHP_URL_PATH);
+                $fname = basename($path);
+                if (preg_match('/_original\./', $fname)) {
+                    $fname = preg_replace('/_original\./', '_frontend.', $fname);
+                }
+
+                return $fname;
+            }
+
+            return $url;
+        });
+    }
+
+    /**
+     * Fetches an image stores it into $imagePath
+     */
+    protected function fetchRemoteImage($url, $mediaPath, $fname)
+    {
+        // TODO: don't look at extension but look at mime-type instead
+        $parts = parse_url($url);
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if (!preg_match('/(\.jpg)$/i', $path, $matches)) {
+            die('TODO: handle extension for ' . $url);
+        }
+
+        $mimeType = 'image/jpeg';
+
+        if (!file_exists($mediaPath . '/' . $fname)) {
+            file_put_contents($mediaPath . '/' . $fname, fopen($url, 'r'));
+        }
+
+        if (file_exists($mediaPath . '/' . $fname)) {
+            $maxDimension = 1200;
+
+            // check if we need to convert (either resize or change format)
+            $imageConversion = $this->conversionService;
+
+            $file = new \Symfony\Component\HttpFoundation\File\File($mediaPath . '/' . $fname);
+            $imageName = $file->getFileName();
+
+            $info = $imageConversion->identify($file);
+            if ((!empty($info['width']) && $info['width'] > $maxDimension)
+                || (!empty($info['height']) && $info['height'] > $maxDimension))
+            {
+                $converted = $imageConversion->convert($file, [
+                    'geometry' => $maxDimension . 'x' . $maxDimension,
+                    'target_type' => $mimeType,
+                ]);
+
+                $imageName = $converted->getFileName();
+            }
+        }
+
+        return $imageName;
+    }
+
     protected function fetchDocument($urlDocument, $forceReindex = false)
     {
         $apiResponse = $this->adminClient->request('GET', $urlDocument);
@@ -156,14 +232,38 @@ extends ExistDbCommand
             $fname = sprintf('%s.%s.xml', $entity->getId(true), $entity->getLanguage());
             $teiPath = join('/', [ $this->frontendDataDir, 'volumes', $entity->getVolumeId(), $fname ]);
 
+            $res = $this->adjustMediaUrl($xml);
+            $mediaUrls = [];
+            if (is_array($res) && !empty($res['urls'])) {
+                $xml = (string)($res['document']); // since urls have changed
+                $mediaUrls = $res['urls'];
+            }
+
             $reindex = true;
             // compare with filesystem and check if we reindex
             if (file_exists($teiPath)) {
                 $hash = md5(file_get_contents($teiPath));
 
-                // TODO: compare publication date'
+                // TODO: compare publication date
                 $reindex = $hash != md5($xml);
             }
+
+            if ($reindex || $forceReindex) {
+                $mediaPath = join('/', [ $this->frontendMediaDir, $entity->getVolumeId(), $entity->getId(true) ]);
+
+                foreach ($mediaUrls as $url => $fname) {
+                    if (!file_exists($mediaPath)) {
+                        mkdir($mediaPath);
+                    }
+
+                    if (!file_exists($mediaPath) || !is_writable($mediaPath)) {
+                        die($mediaPath . ' does not exist or is not writable');
+                    }
+
+                    $imageName = $this->fetchRemoteImage($url, $mediaPath, $fname);
+                }
+            }
+
 
             if ($reindex) {
                 file_put_contents($teiPath, $xml);
