@@ -8,6 +8,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use App\Service\CollectiveAccessService;
+use App\Utils\MpdfConverter;
+
 /**
  *
  */
@@ -17,7 +20,7 @@ extends BaseController
     /**
      * Make unique across language so we can line-up different languages under same id
      */
-    protected function nextInSequence($client, $collection, $prefix)
+    protected function nextInSequence(\ExistDbRpc\Client $client, $collection, $prefix)
     {
         // see https://stackoverflow.com/a/48901690
         $xql = <<<EOXQL
@@ -97,7 +100,7 @@ EOXQL;
         return $ret;
     }
 
-    protected function buildChildResources($client, $volumeId, $id, $lang)
+    protected function listChildResources(\ExistDbRpc\Client $client, $volumeId, $id, $lang)
     {
         $xql = $this->renderView('Resource/list-child-resources-json.xql.twig', [
             'prefix' => $this->siteKey,
@@ -112,12 +115,17 @@ EOXQL;
         $resources = $res->getNextResult();
         $res->release();
 
-        $data = !is_null($resources) ? $resources['data'] : null;
+        return !is_null($resources) ? $resources['data'] : null;
+    }
+
+    protected function buildChildResources(\ExistDbRpc\Client $client, $volumeId, $id, $lang)
+    {
+        $data = $this->listChildResources($client, $volumeId, $id, $lang);
 
         return $this->setHasPart($data);
     }
 
-    protected function buildParentPath($client, $resource, $lang)
+    protected function buildParentPath(\ExistDbRpc\Client $client, $resource, $lang)
     {
         $parts = $this->buildPathFromShelfmark($resource['data']['shelfmark']);
 
@@ -136,21 +144,39 @@ EOXQL;
         return $names;
     }
 
-    protected function updateDocumentShelfmark($client, $resource, $shelfmark)
+    protected function updateDocumentShelfmark(\ExistDbRpc\Client $client, $volume, $id, $lang, $shelfmark, $oldShelfmark = null)
     {
+        $updates = [
+            $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml'
+                => $shelfmark,
+        ];
+
+        $children = $this->listChildResources($client, $volume, $id, $lang);
+        if (!empty($children)) {
+            foreach ($children as $child) {
+                $newShelfmark = str_replace($oldShelfmark, $shelfmark, $child['shelfmark']);
+                if ($child['shelfmark'] !== $newShelfmark) {
+                    $resource = $client->getCollection() . '/' . $volume . '/' . $child['id'] . '.' . $lang . '.xml';
+                    $updates[$resource] = $newShelfmark;
+                }
+            }
+        }
+
         $xql = $this->renderView('Resource/update-shelfmark.xql.twig', [
         ]);
 
-        $query = $client->prepareQuery($xql);
-        $query->bindVariable('resource', $resource);
-        $query->bindVariable('shelfmark', $shelfmark);
-        $res = $query->execute();
-        $res->release();
+        foreach ($updates as $resource => $shelfmark) {
+            $query = $client->prepareQuery($xql);
+            $query->bindVariable('resource', $resource);
+            $query->bindVariable('shelfmark', $shelfmark);
+            $res = $query->execute();
+            $res->release();
+        }
 
         return true;
     }
 
-    protected function reorderChildResources($client, $volume, $lang, $hasPart, $postData)
+    protected function reorderChildResources(\ExistDbRpc\Client $client, $volume, $lang, $hasPart, $postData)
     {
         $order = json_decode($postData, true);
 
@@ -165,7 +191,7 @@ EOXQL;
             foreach ($hasPart as $child) {
                 $childId = $child['id'];
                 if (array_key_exists($childId, $newOrder)) {
-                    $parts = explode('/', $child['shelfmark']);
+                    $parts = explode('/', $shelfmark = $child['shelfmark']);
                     list($order, $ignore) = explode(':', end($parts), 2);
                     if ($order != $newOrder) {
                         $newOrderAndId = sprintf('%03d:%s',
@@ -175,8 +201,8 @@ EOXQL;
 
                         if ($child['shelfmark'] != $newShelfmark) {
                             $this->updateDocumentShelfmark($client,
-                                                           $client->getCollection() . '/' . $volume . '/' . $childId . '.' . $lang . '.xml',
-                                                           $newShelfmark);
+                                                           $volume, $childId, $lang,
+                                                           $newShelfmark, $shelfmark);
 
                             $updated = true;
                         }
@@ -186,6 +212,73 @@ EOXQL;
         }
 
         return $updated;
+    }
+
+    private function checkUpdateFromCollectiveAccess(CollectiveAccessService $caService, $html)
+    {
+        $mediaSrc = [];
+
+        $crawler = new \Symfony\Component\DomCrawler\Crawler();
+        $crawler->addHtmlContent($html);
+
+        $crawler->filter('audio > source')->each(function ($node, $i) use (&$mediaSrc) {
+            $mediaSrc[] = $node->attr('src');
+        });
+
+        $crawler->filter('video > source')->each(function ($node, $i) use (&$mediaSrc) {
+            $mediaSrc[] = $node->attr('src');
+        });
+
+        $crawler->filter('img')->each(function ($node, $i) use (&$mediaSrc) {
+            $mediaSrc[] = $node->attr('src');
+        });
+
+        if (empty($mediaSrc)) {
+            return null;
+        }
+
+        $representationIdsByItemId = [];
+
+        $representation = null;
+        foreach ($mediaSrc as $src) {
+            if (preg_match('/\d+_ca_object_representations_media_(\d+)_[a-z]+\./', $src, $matches)) {
+                $representationId = $matches[1];
+                if (is_null($representation)) {
+                    $representation = $caService->getObjectRepresentation($representationId);
+                    if (is_null($representation) || empty($representation['related']) || empty($representation['related']['ca_objects'])) {
+                        // could not be found
+                        return null;
+                    }
+
+                    foreach ($representation['related']['ca_objects'] as $object) {
+                        $representationIdsByItemId[$object['object_id']] = array_keys($object['representations']);
+                    }
+                }
+
+                // now unset all object-ids which don't have a matching representation
+                // we are fine if every representation is found a single $objectId remains
+                $found = false;
+                foreach ($representationIdsByItemId as $objectId => $representationIds) {
+                    if (!in_array($representationId, $representationIds)) {
+                        unset($representationIdsByItemId[$objectId]);
+                    }
+                    else {
+                        $found = true;
+                    }
+                }
+
+                if (!$found) {
+                    return null;
+                }
+            }
+        }
+
+        $candidates = array_keys($representationIdsByItemId);
+        if (!empty($candidates) && 1 == count($candidates)) {
+            return $candidates[0];
+        }
+
+        return null;
     }
 
     /**
@@ -208,9 +301,11 @@ EOXQL;
      */
     public function detailAction(Request $request,
                                  TranslatorInterface $translator,
-                                 \App\Utils\MpdfConverter $pdfConverter,
+                                 MpdfConverter $pdfConverter,
+                                 CollectiveAccessService $caService,
                                  $volume, $id)
     {
+        // TODO: Move to generic EntityLinking Service
         $textRazorApiKey = null;
 
         try {
@@ -377,6 +472,33 @@ EOXQL;
             $html = $this->teiToHtml($client, $resourcePath, $lang);
         }
 
+        // check whether TEI can be regenerated from CollectiveAccess
+        $updateFromCollectiveAccess = $this->checkUpdateFromCollectiveAccess($caService, $html);
+        if (!is_null($updateFromCollectiveAccess) && isset($action) && in_array($action, [ 'overwrite' ])) {
+            $teiResponse = $this->forward('App\Controller\CollectiveAccessController::detailAction', [
+                'id'  => $updateFromCollectiveAccess,
+                '_route' => 'ca-detail-tei', // so we get TEI and not HTML
+            ]);
+
+            if ($teiResponse->isOk()) {
+                $content = $teiResponse->getContent();
+
+                $entity = $this->fetchTeiHeader($client, $resourcePath);
+
+                $data = [
+                    'id' => $entity->getId(),
+                    'shelfmark' => $entity->getShelfmark(),
+                    'slug' => $entity->getDtaDirName(),
+                    'meta' => $entity->getMeta(),
+                ];
+
+                $this->updateTeiHeaderContent($client, $resourcePath, $content, $data);
+
+                // refresh $html after update
+                $html = $this->teiToHtml($client, $resourcePath, $lang);
+            }
+        }
+
         $html = $this->adjustHtml($html, $this->buildBaseUriMedia($volume, $id));
 
         if ('resource-detail-pdf' == $request->get('_route')) {
@@ -448,10 +570,11 @@ EOXQL;
             'terms' => $terms,
             'entity_lookup' => $entityLookup,
             'showAddEntities' => $showAddEntities,
+            'updateFromCollectiveAccess' => $updateFromCollectiveAccess,
         ]);
     }
 
-    protected function fetchTeiHeader($client, $resourcePath)
+    protected function fetchTeiHeader(\ExistDbRpc\Client $client, $resourcePath)
     {
         if ($client->hasDocument($resourcePath)) {
             $content = $client->getDocument($resourcePath, [ 'omit-xml-declaration' => 'no' ]);
@@ -462,12 +585,12 @@ EOXQL;
         return null;
     }
 
-    protected function updateTeiHeaderContent($client, $resourcePath, $content, $data, $update = true)
+    protected function updateTeiHeaderContent(\ExistDbRpc\Client $client, $resourcePath, $content, $data, $update = true)
     {
         $teiHelper = new \App\Utils\TeiHelper();
-        $content = $teiHelper->adjustHeaderString($content, $data);
+        $tei = $teiHelper->patchHeaderString($content, $data);
 
-        $xml = $this->prettyPrintTei($content->saveXML());
+        $xml = $this->prettyPrintTei($tei->saveXML());
 
         return $client->parse((string)$xml, $resourcePath, $update);
     }
@@ -476,7 +599,9 @@ EOXQL;
      * Naive implementation - fetches XML and updates it
      * Goal would be to use https://exist-db.org/exist/apps/doc/update_ext.xml instead
      */
-    protected function updateTeiHeader($entity, $client, $resourcePath)
+    protected function updateTeiHeader(\ExistDbRpc\Client $client,
+                                       $resourcePath,
+                                       \App\Entity\TeiHeader $entity)
     {
         if ($client->hasDocument($resourcePath)) {
             $content = $client->getDocument($resourcePath, [ 'omit-xml-declaration' => 'no' ]);
@@ -498,7 +623,7 @@ EOXQL;
     /**
      * Naive implementation - takes XML skeleton and updates it
      */
-    protected function createTeiHeader($entity, $client, $resourcePath)
+    protected function createTeiHeader(\ExistDbRpc\Client $client, $resourcePath, \App\Entity\TeiHeader $entity)
     {
         $content = $this->getTeiSkeleton();
 
@@ -506,12 +631,10 @@ EOXQL;
             return false;
         }
 
-        $data = $entity->jsonSerialize();
-
-        return $this->updateTeiHeaderContent($client, $resourcePath, $content, $data, false);
+        return $this->updateTeiHeaderContent($client, $resourcePath, $content, $entity->jsonSerialize(), false);
     }
 
-    protected function generateShelfmark($client, $volumeId, $lang, $id)
+    protected function generateShelfmark(\ExistDbRpc\Client $client, $volumeId, $lang, $id)
     {
         $prefix = preg_replace('/(\-)\d+$/', '\1', $id);
         $collection = $client->getCollection();
@@ -643,10 +766,10 @@ EOXQL;
                 $shelfmark = $this->generateShelfmark($client, $volume, $lang, $id);
                 $entity->setShelfmark($shelfmark);
 
-                $res = $this->createTeiHeader($entity, $client, $resourcePath);
+                $res = $this->createTeiHeader($client, $resourcePath, $entity);
             }
             else {
-                $res = $this->updateTeiHeader($entity, $client, $resourcePath);
+                $res = $this->updateTeiHeader($client, $resourcePath, $entity);
             }
 
             $redirectUrl = $this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]);
@@ -872,11 +995,11 @@ EOXQL;
                         /*
                          * TODO: bring update logic
                          * in line with edit-method
-                         * where we update the existing entity
+                         * where we call updateTeiHeader()
                          * instead of trying to carry everything over
                          */
                         $teiHelper = new \App\Utils\TeiHelper();
-                        $teiHelper->adjustHeaderStructure($teiDtabfDoc->getDom(), [
+                        $teiHelper->patchHeaderStructure($teiDtabfDoc->getDom(), [
                             'id' => $this->siteKey . ':' . $resourceId,
                             'authors' => $authors,
                             'shelfmark' => $shelfmark,
@@ -915,22 +1038,6 @@ EOXQL;
             'volume' => $volume,
             'id' => $id,
             'parentPath' => $this->buildParentPath($client,  $this->fetchResource($client, $resourceId, $lang), $lang),
-        ]);
-    }
-
-    /**
-     * @Route("/test/cetei")
-     *
-     * Simple test for https://github.com/TEIC/CETEIcean
-     *
-     * Grab CETEI.js from https://github.com/TEIC/CETEIcean/releases
-     *
-     */
-    public function testCeteiAction(Request $request)
-    {
-        return $this->render('Resource/cetei.html.twig', [
-            'volume' => 'volume-2',
-            'id' => 'document-5',
         ]);
     }
 }

@@ -3,16 +3,29 @@
 // src/Service/ExistDbClientService.php
 namespace App\Service;
 
+/**
+ * Wrapper around \ExistDbRpc\Client
+ */
 class ExistDbClientService
 {
     protected $options;
 
+    /**
+     * @param array $options Client settings
+     */
     public function __construct($options)
     {
         $this->options = $options;
     }
 
-    public function getClient($user = null, $password = null)
+    /**
+     * Instantiate a client
+     *
+     * @param string user
+     * @param string password
+     * @return \ExistDbRpc\Client
+     */
+    public function getClient($user = null, $password = null) : \ExistDbRpc\Client
     {
         $options = $this->options;
         if (!is_null($user)) {

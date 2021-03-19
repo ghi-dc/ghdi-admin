@@ -293,6 +293,23 @@ extends BaseController
                     }
                 }
             }
+            else if (preg_match('/^by/i', $additional)) {
+                // start with generic by 4.0
+                $target = 'https://creativecommons.org/licenses/by/4.0/';
+                $rest = trim(preg_replace('/^by/i', '', $additional));
+                if (!empty($rest)) {
+                    if (preg_match('/^4/', $rest)) {
+                        // we are done
+                    }
+                    else if (preg_match('/^3/', $rest)) {
+                        $target = 'https://creativecommons.org/licenses/by/3.0/';
+                    }
+                    else {
+                        // TODO: handle variantes
+                        var_dump($rest);
+                    }
+                }
+            }
             else {
                 var_dump($matches);
                 exit;
@@ -551,8 +568,8 @@ extends BaseController
                                 $target = $this->buildLicenceTarget($struct[$lang]['copyrightStatement']);
                                 if (!empty($target)) {
                                     $teiHeader->setLicenceTarget($target);
-                                    $license = $teiHeader->getLicence();
-                                    if (empty($license)) {
+                                    $licence = $teiHeader->getLicence();
+                                    if (empty($licence)) {
                                         switch ($target) {
                                             case 'https://creativecommons.org/publicdomain/zero/1.0/':
                                                 $teiHeader->setLicence($translator->trans('The work has been dedicated to the public domain by waiving all rights under copyright law, including all related and neighboring rights, to the extent allowed by law.'));
@@ -560,6 +577,14 @@ extends BaseController
 
                                             case 'https://creativecommons.org/publicdomain/mark/1.0/':
                                                 $teiHeader->setLicence($translator->trans('This work has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.'));
+                                                break;
+
+                                            case 'https://creativecommons.org/licenses/by/3.0/';
+                                                $teiHeader->setLicence($translator->trans('This work is licensed under the Creative Commons Attribution 3.0 License.'));
+                                                break;
+
+                                            case 'https://creativecommons.org/licenses/by/4.0/';
+                                                $teiHeader->setLicence($translator->trans('This work is licensed under the Creative Commons Attribution 4.0 License.'));
                                                 break;
 
                                             case 'https://creativecommons.org/licenses/by-sa/3.0/';
@@ -765,13 +790,11 @@ extends BaseController
         $figures = $this->buildFigures($caService, $result->getRawData(), $request->getLocale());
 
         if ('ca-detail-tei' == $request->get('_route')) {
-            $content = $this->getTeiSkeleton();
+            $skeleton = $this->getTeiSkeleton();
 
-            if (false !== $content) {
-                $data = $teiFull->jsonSerialize();
-
+            if (false !== $skeleton) {
                 $teiHelper = new \App\Utils\TeiHelper();
-                $tei = $teiHelper->adjustHeaderString($content, $data);
+                $tei = $teiHelper->patchHeaderString($skeleton, $teiFull->jsonSerialize());
 
                 $body = $teiFull->getBody();
 

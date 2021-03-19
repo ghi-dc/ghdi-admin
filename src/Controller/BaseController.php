@@ -108,7 +108,7 @@ extends AbstractController
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
 
-    protected function buildWebDavBaseUrl($client)
+    protected function buildWebDavBaseUrl(\ExistDbRpc\Client $client)
     {
         try {
             return $this->getParameter('app.existdb.webdav')
@@ -131,7 +131,7 @@ extends AbstractController
         return $this->unparse_url($parts);
     }
 
-    protected function fetchVolume($client, $id, $lang)
+    protected function fetchVolume(\ExistDbRpc\Client $client, $id, $lang)
     {
         $xql = $this->renderView('Volume/detail-json.xql.twig', [
             'prefix' => $this->siteKey,
@@ -149,7 +149,7 @@ extends AbstractController
         return $volume;
     }
 
-    protected function fetchResource($client, $id, $lang)
+    protected function fetchResource(\ExistDbRpc\Client $client, $id, $lang)
     {
         $xql = $this->renderView('Resource/detail-json.xql.twig', [
             'prefix' => $this->siteKey,
@@ -274,7 +274,13 @@ extends AbstractController
         return $response;
     }
 
-    protected function prettyPrintTei($tei)
+    /**
+     * Takes a TEI string and tries to adjust indenting
+     *
+     * @param string $tei
+     * @return string|\App\Utils\TeiDocument
+     */
+    protected function prettyPrintTei(string $tei)
     {
         $teiDtabfDoc = new \App\Utils\TeiDocument([
             'prettyPrinter' => $this->getTeiPrettyPrinter(),
@@ -290,7 +296,9 @@ extends AbstractController
         return $teiDtabfDoc;
     }
 
-    protected function teiToHtml($client, $resourcePath, $lang, $path = null, $unwrapArticleDiv = false)
+    protected function teiToHtml(\ExistDbRpc\Client $client,
+                                 $resourcePath, $lang,
+                                 $path = null, $unwrapArticleDiv = false)
     {
         $xql = $this->renderView('Resource/tei2html.xql.twig', [
             'path' => $path,
@@ -551,7 +559,7 @@ extends AbstractController
         return $entitiesByType;
     }
 
-    public function normalizeEntityUri($client, $uri, $type)
+    public function normalizeEntityUri(\ExistDbRpc\Client $client, $uri, $type)
     {
         static $normalized = [];
 
@@ -665,7 +673,7 @@ extends AbstractController
         return $uri;
     }
 
-    protected function fetchEntity($client, $id, $class)
+    protected function fetchEntity(\ExistDbRpc\Client $client, $id, $class)
     {
         if ($client->hasDocument($name = $id . '.xml')) {
             $content = $client->getDocument($name);

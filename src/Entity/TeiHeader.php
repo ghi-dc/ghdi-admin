@@ -2,9 +2,6 @@
 
 namespace App\Entity;
 
-use \FluidXml\FluidXml;
-use \FluidXml\FluidNamespace;
-
 use Symfony\Component\Validator\Constraints as Assert;
 
 use FS\SolrBundle\Doctrine\Annotation as Solr;
@@ -150,7 +147,7 @@ implements \JsonSerializable
         $entity->setGenre($article->genre);
         $entity->setTerms($article->terms);
         $entity->setMeta($article->meta);
-        $entity->setLicenceTarget($article->license);
+        $entity->setLicenceTarget($article->licence);
         $entity->setLicence($article->rights);
 
         if (method_exists($entity, 'setBody')) {
@@ -717,7 +714,7 @@ implements \JsonSerializable
             'genre' => $this->getGenre(),
             'shelfmark' => $this->getShelfmark(),
             'slug' => $this->getDtaDirName(),
-            'license' => $this->getLicenceTarget(),
+            'licence' => $this->getLicenceTarget(),
             'rights' => $this->getLicence(),
             'doi' => $this->getDoi(),
             'terms' => $this->getTerms(),

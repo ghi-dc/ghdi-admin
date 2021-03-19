@@ -94,7 +94,7 @@ extends Document
         $parent->removeChild($node);
     }
 
-    public function addChildStructure($parent, $structure, $prefix = '')
+    protected function addChildStructure($parent, $structure, $prefix = '')
     {
         foreach ($structure as $tagName => $content) {
             if (is_scalar($content)) {

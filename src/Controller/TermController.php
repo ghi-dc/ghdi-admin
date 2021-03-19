@@ -89,7 +89,7 @@ extends BaseController
         ]);
     }
 
-    protected function nextInSequence($client, $collection)
+    protected function nextInSequence(\ExistDbRpc\Client $client, $collection)
     {
         // see https://stackoverflow.com/a/48901690
         $xql = <<<EOXQL
@@ -113,7 +113,7 @@ EOXQL;
         return $nextId;
     }
 
-    protected function persist($client, $term, $update = false)
+    protected function persist(\ExistDbRpc\Client $client, $term, $update = false)
     {
         if (!$update) {
             $id = $this->nextInSequence($client, $client->getCollection());

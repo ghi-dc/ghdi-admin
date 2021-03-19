@@ -61,7 +61,7 @@ extends ResourceController
         ]);
     }
 
-    protected function buildResources($client, $id, $lang, $getTerms = false)
+    protected function buildResources(\ExistDbRpc\Client $client, $id, $lang, $getTerms = false)
     {
         $xql = $this->renderView('Volume/list-resources-json.xql.twig', [
             'prefix' => $this->siteKey,
@@ -79,7 +79,7 @@ extends ResourceController
         return $resources;
     }
 
-    protected function buildResourcesGrouped($client, $id, $lang, $getTerms = false)
+    protected function buildResourcesGrouped(\ExistDbRpc\Client $client, $id, $lang, $getTerms = false)
     {
         $resources = $this->buildResources($client, $id, $lang, $getTerms);
 
@@ -472,7 +472,7 @@ extends ResourceController
                 // TODO: createTeiHeader
             }
             else {
-                $res = $this->updateTeiHeader($entity, $client, $resourcePath);
+                $res = $this->updateTeiHeader($client, $resourcePath, $entity);
             }
 
             if (!$res) {

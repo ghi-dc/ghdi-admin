@@ -3,11 +3,24 @@
 // src/Service/CollectiveAccessService.php
 namespace App\Service;
 
+/**
+ * Access the JSON-based REST web service API of CollectiveAccess
+ *
+ * The API is documented on
+ *  https://docs.collectiveaccess.org/wiki/Web_Service_API
+ *
+ * The service uses https://github.com/trisoftro/ca-service-wrapper
+ * as REST client
+ *
+ */
 class CollectiveAccessService
 {
     protected $options;
 
-    public function __construct($options)
+    /**
+     * @param array $options Pass url, api-user, api-key and possibly root-collection
+     */
+    public function __construct(array $options)
     {
         $this->options = $options;
 
@@ -21,24 +34,65 @@ class CollectiveAccessService
         }
     }
 
-    public function getSearchService($query, $table = 'ca_objects')
+    /**
+     * Return a \CA\SearchService instance
+     * to the REST-URL with the proper
+     * $query and $table set
+     *
+     * You can then cann
+     *  $result = $caSearchService->request();
+     *
+     * Refer to the Search_Syntax article
+     *  https://docs.collectiveaccess.org/wiki/Search_Syntax
+     * to learn how to build queries
+     *
+     * @see https://docs.collectiveaccess.org/wiki/Web_Service_API#Searching
+     *
+     * @param string $query REST query string
+     * @param string $table
+     * @return \CA\SearchService
+     */
+    public function getSearchService($query = '', $table = 'ca_objects') : \CA\SearchService
     {
-        // https://docs.collectiveaccess.org/wiki/Web_Service_API#Searching
         $client = new \CA\SearchService($this->options['url'], $table, $query);
+        // since we define __CA_SERVICE_API_USER__ and __CA_SERVICE_API_KEY__
+        // in the constructor, we don't need to set:
         // $client->setCredentials(__CA_SERVICE_API_USER__, __CA_SERVICE_API_KEY__); // not needed if we use these specific constants
 
         return $client;
     }
 
-    public function getItemService($id, $table = 'ca_objects')
+    /**
+     * Return a \CA\ItemService instance
+     * to the REST-URL with the proper
+     * $id and $table set
+     *
+     * You can then cann
+     *  $result = $caItemService->request();
+     *
+     * @see https://docs.collectiveaccess.org/wiki/Web_Service_API#Getting_item-level_data
+     *
+     * @param string $id Item identifier
+     * @param string $table
+     * @return \CA\ItemService
+     */
+    public function getItemService($id, $table = 'ca_objects') : \CA\ItemService
     {
-        // https://docs.collectiveaccess.org/wiki/Web_Service_API#Getting_item-level_data
         $client = new \CA\ItemService($this->options['url'], $table, 'GET', $id);
+        // since we define __CA_SERVICE_API_USER__ and __CA_SERVICE_API_KEY__
+        // in the constructor, we don't need to set:
         // $client->setCredentials(__CA_SERVICE_API_USER__, __CA_SERVICE_API_KEY__); // not needed if we use these specific constants
 
         return $client;
     }
 
+    /**
+     * Get the list of collections
+     *
+     * If root-collection is set in the options
+     * the result will be filtered accordingly
+     *
+     */
     public function getCollections()
     {
         $filter = !empty($this->options['root-collection'])
@@ -73,5 +127,23 @@ class CollectiveAccessService
         }
 
         return $collections;
+    }
+
+    /**
+     * Make use of getItemService to request an bject-representation
+     *
+     * @param string $id Object-representation identifier
+     * @return array|null
+     */
+    public function getObjectRepresentation($id)
+    {
+        $caItemService = $this->getItemService($id, 'ca_object_representations');
+
+        $result = $caItemService->request();
+        if (!$result->isOk()) {
+            return null;
+        }
+
+        return $result->getRawData();
     }
 }
