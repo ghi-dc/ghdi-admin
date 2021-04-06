@@ -245,7 +245,7 @@ trait TeiFromWordCleaner
         $bibl = $this->dom->createElementNS('http://www.tei-c.org/ns/1.0', 'bibl');
         // foreach doesn't work - https://dzone.com/articles/renaming-domnode-php
         while ($pNode->firstChild) {
-           $bibl->appendChild($pNode->firstChild);
+            $bibl->appendChild($pNode->firstChild);
         }
 
         // since we chop of multiple Source: ...from bottom to top, we must prepend if there is already a bibl
