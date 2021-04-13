@@ -84,6 +84,12 @@ extends ExistDbCommand
                 InputOption::VALUE_NONE,
                 'Specify to force reindexing existing resources'
             )
+            ->addOption(
+                'id',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Specify a specific resource'
+            )
             ;
     }
 
@@ -284,13 +290,25 @@ extends ExistDbCommand
         }
     }
 
+    private function buildDtsUrlBase($locale)
+    {
+        return ('en' != $locale ? $locale . '/' : '')
+            . 'api/dts/';
+    }
+
+    protected function buildDtsUrlCollections($locale)
+    {
+        return  $this->buildDtsUrlBase($locale) . 'collections';
+    }
+
+    protected function buildDtsUrlDocument($locale)
+    {
+        return  $this->buildDtsUrlBase($locale) . 'document';
+    }
+
     protected function fetchCollection($locale, $id = null, $forceReindex = false)
     {
-        $dtsBase = ('en' != $locale ? $locale . '/' : '')
-            . 'api/dts/';
-
-        $urlDocument = $dtsBase . 'document';
-        $urlCollections = $dtsBase . 'collections';
+        $urlCollections = $this->buildDtsUrlCollections($locale);
 
         if (!empty($id)) {
             $urlCollections .= '?id=' . $id;
@@ -300,6 +318,7 @@ extends ExistDbCommand
         $result = $response->toArray();
 
         $entities = [];
+        $urlDocument = $this->buildDtsUrlDocument($locale);
 
         if (!empty($result['@id'])) {
             $entity = $this->fetchDocument($urlDocument . '?id=' . $result['@id'], $forceReindex);
@@ -345,7 +364,19 @@ extends ExistDbCommand
         $locale = $input->getOption('locale');
         $forceReindex = $input->getOption('force-reindex');
 
-        $entities = $this->buildEntities($locale, join(':', [ $this->siteKey, $volume ]), $forceReindex);
+        $id = $input->getOption('id');
+        if (!empty($id)) {
+            $entities = [];
+            $urlDocument = $this->buildDtsUrlDocument($locale);
+            $entity = $this->fetchDocument($urlDocument . '?id=' . $id, $forceReindex);
+            if (!is_null($entity) && $entity->getVolumeId() == $volume) {
+                $entities[] = $entity;
+            }
+
+        }
+        else {
+            $entities = $this->buildEntities($locale, join(':', [ $this->siteKey, $volume ]), $forceReindex);
+        }
 
         try {
             // $this->solr->synchronizeIndex($entities); would be more efficient but adds duplicates
