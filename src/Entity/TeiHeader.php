@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 use FS\SolrBundle\Doctrine\Annotation as Solr;
 
 /**
@@ -29,11 +31,29 @@ implements \JsonSerializable
      */
     protected $title;
 
-    protected $authors = [];
+    /**
+     * @var ArrayCollection<int, Person> The author of this content.
+     *
+     * @Solr\Field(type="strings", getter="getFullname")
+     */
+    protected $authors;
+
     protected $editors = [];
     protected $translator;
     protected $responsible = [];
+
+    /**
+     * @var string The licence text.
+     *
+     * @Solr\Field(type="string")
+     */
     protected $licence;
+
+    /**
+     * @var string The licence URL.
+     *
+     * @Solr\Field(type="string")
+     */
     protected $licenceTarget;
 
     /**
@@ -216,6 +236,10 @@ implements \JsonSerializable
      */
     public function addAuthor($author)
     {
+        if (is_null($this->authors)) {
+            $this->authors = new ArrayCollection();
+        }
+
         $this->authors[] = $author;
 
         return $this;

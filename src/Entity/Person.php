@@ -297,7 +297,11 @@ extends SchemaOrg
      */
     public function onPreSerialize()
     {
-        // set language independent default
-        $this->setName($this->getFullName());
+        $name = $this->getName();
+
+        if (empty($name)) {
+            // set language independent default
+            $this->setName($this->getFullName());
+        }
     }
 }

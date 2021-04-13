@@ -420,7 +420,8 @@ extends BaseController
                                     foreach ([ 'forename', 'surname' ] as $key) {
                                         if (!empty($entity[$key])) {
                                             $val = $this->buildTeiValue($entity[$key], true);
-                                            $nameParts[] = $val; // if you want to wrap into extra tags: sprintf('<%s>%s</%s>', $key, $val, $key);
+                                            $nameParts[] = sprintf('<%s>%s</%s>',
+                                                                   $key, $val, $key);
                                         }
                                     }
 

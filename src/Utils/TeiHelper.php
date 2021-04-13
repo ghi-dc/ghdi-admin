@@ -33,7 +33,7 @@ class TeiHelper
         return \App\Utils\Lod\Identifier\Factory::fromUri($uri);
     }
 
-    private function buildPerson($element)
+    private function buildPerson($element, $givenNameFirst = false)
     {
         $person = new \App\Entity\Person();
 
@@ -71,7 +71,7 @@ class TeiHelper
             }
 
             if ($setStructured) {
-                $person->setName($person->getFullname(true));
+                $person->setName($person->getFullname($givenNameFirst));
             }
         }
 
@@ -172,7 +172,7 @@ class TeiHelper
     protected function analyzeTeiStructure(FluentDOMDocument $dom, bool $asXml = false, bool $headerOnly = false)
     {
         $result = $dom('/tei:TEI/tei:teiHeader');
-        if (empty($result)) {
+        if (0 == $result->length) {
             $this->errors = [
                 (object) [ 'message' => 'No teiHeader found' ],
             ];
