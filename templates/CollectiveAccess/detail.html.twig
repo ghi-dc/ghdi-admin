@@ -29,9 +29,9 @@
         <dt class="col-sm-3 col-md-2">{{ 'Creator(s)'|trans }}</dt>
         <dd class="col-sm-9 col-md-10">{{ item.authors|join('; ')|raw }}</dd>
     {% endif %}
-    {% if item.dateCreation is not empty %}
+    {% if item.dateCreated is not empty %}
         <dt class="col-sm-3 col-md-2">{{ 'Date of Creation'|trans }}</dt>
-        <dd class="col-sm-9 col-md-10">{{ item.dateCreation|raw }}</dd>
+        <dd class="col-sm-9 col-md-10">{{ item.dateCreated|raw }}</dd>
     {% endif %}
     {% if item.note is not empty %}
         <dt class="col-sm-3 col-md-2">{{ 'Source Description'|trans }}</dt>
@@ -106,9 +106,9 @@
         <dd class="col-sm-9 col-md-10">{{ item.getClassCodes('#lcsh')|join('<br />')|raw }}</dd>
     {% endif %}
 
-    {% if item.settingDate is not empty %}
-        <dt class="col-sm-3 col-md-2">{{ 'Coverage Date'|trans }}</dt>
-        <dd class="col-sm-9 col-md-10">{{ item.settingDate|raw }}</dd>
+    {% if item.temporalCoverage is not empty %}
+        <dt class="col-sm-3 col-md-2">{{ 'Temporal Coverage'|trans }}</dt>
+        <dd class="col-sm-9 col-md-10">{{ item.temporalCoverage|raw }}</dd>
     {% endif %}
     </dl>
 
