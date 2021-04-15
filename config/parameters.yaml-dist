@@ -8,7 +8,7 @@ parameters:
 
     app.existdb.console.options:
         # this user will be used for console-commands
-        # it mus have enough privileges to create collections below app.existdb.base
+        # it must have enough privileges to create collections below app.existdb.base
         user:       admin
         password:   admin
 
