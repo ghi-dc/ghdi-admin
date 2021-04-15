@@ -777,7 +777,7 @@ implements \JsonSerializable
             'translator' => $this->getTranslator(),
             'responsible' => $this->getResponsible(),
             'dateCreated' => $this->getDateCreated(),
-            'temporalCoverage' => $this->geTemporalCoverage(),
+            'temporalCoverage' => $this->getTemporalCoverage(),
             'note' => $this->getNote(),
             'sourceDescBibl' => $this->getSourceDescBibl(),
             'language' => $this->getLanguage(),
