@@ -288,6 +288,15 @@ class TeiHelper
             $article->url = (string)$result[0];
         }
 
+        // dateCreated
+        $result = $header('./tei:fileDesc/tei:sourceDesc/tei:biblFull/tei:publicationStmt/tei:date[@type="creation"]');
+        if ($result->length > 0) {
+            $dateString = trim($result[0]);
+            if (!empty($dateString)) {
+                $article->dateCreated = $dateString;
+            }
+        }
+
         // classification
         $terms = [];
         $meta = [];
@@ -750,8 +759,8 @@ class TeiHelper
             }
         }
 
-        if (array_key_exists('dateCreation', $data)) {
-            if (!empty($data['dateCreation'])) {
+        if (array_key_exists('dateCreated', $data)) {
+            if (!empty($data['dateCreated'])) {
                 $this->addDescendants($header, 'tei:fileDesc/tei:sourceDesc/tei:biblFull/tei:publicationStmt/tei:date', [
                     'tei:biblFull' => function ($parent, $name, $updateExisting) use ($dom, $data) {
                         if (!$updateExisting) {
@@ -773,18 +782,18 @@ class TeiHelper
                     },
                     'tei:date' => function ($parent, $name, $updateExisting) use ($data) {
                         if (!$updateExisting) {
-                            $self = $parent->appendChild($this->createElement($parent->ownerDocument, $name, $data['dateCreation']));
+                            $self = $parent->appendChild($this->createElement($parent->ownerDocument, $name, $data['dateCreated']));
                         }
                         else {
                             $self = $parent;
-                            $self->nodeValue = $data['dateCreation'];
+                            $self->nodeValue = $data['dateCreated'];
                         }
 
                         $self->setAttribute('type', 'creation');
 
                         // TODO: maybe add support for things like circa
-                        if (preg_match('/^\d+$/', $data['dateCreation'])) {
-                            $self->setAttribute('when', $data['dateCreation']);
+                        if (preg_match('/^\d+$/', $data['dateCreated'])) {
+                            $self->setAttribute('when', $data['dateCreated']);
                         }
 
                         return $self;
@@ -891,15 +900,15 @@ class TeiHelper
             }
         }
 
-        if (!empty($data['settingDate'])) {
+        if (!empty($data['temporalCoverage'])) {
             $this->addDescendants($header, 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "coverage")]', [
                 'tei:classCode[contains(@scheme, "coverage")]' => function ($parent, $name, $updateExisting) use ($data) {
                     if (!$updateExisting) {
-                        $self = $parent->appendChild($parent->ownerDocument->createElement('classCode', $data['settingDate']));
+                        $self = $parent->appendChild($parent->ownerDocument->createElement('classCode', $data['temporalCoverage']));
                     }
                     else {
                         $self = $parent;
-                        $self->nodeValue = $data['settingDate'];
+                        $self->nodeValue = $data['temporalCoverage'];
                     }
 
                     $self->setAttribute('scheme', 'http://purl.org/dc/elements/1.1/coverage');

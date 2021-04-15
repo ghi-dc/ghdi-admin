@@ -79,7 +79,20 @@ implements \JsonSerializable
      */
     protected $shelfmark;
 
-    protected $dateCreation;
+    /**
+     * @var string The indexing date.
+     *
+     * @Solr\Field(type="date")
+     */
+    protected $dateIndexed = null;
+
+    /**
+     * @var string The creation date.
+     *
+     * @Solr\Field(type="string")
+     */
+    protected $dateCreated;
+
     protected $idno = [];
     protected $classCodes = [];
 
@@ -162,6 +175,10 @@ implements \JsonSerializable
 
         if (property_exists($article, 'abstract')) {
             $entity->setNote($article->abstract);
+        }
+
+        if (property_exists($article, 'dateCreated')) {
+            $entity->setDateCreated($article->dateCreated);
         }
 
         $entity->setGenre($article->genre);
@@ -434,15 +451,44 @@ implements \JsonSerializable
     }
 
     /**
-     * Sets creation date.
+     * Sets indexing date.
      *
-     * @param string $dateCreation
+     * @param string $dateIndexed
      *
      * @return $this
      */
-    public function setDateCreation($date)
+    private function setDateIndexed($dateIndexed)
     {
-        $this->dateCreation = $date;
+        /*
+         * This following assignment only works if
+         * date_indexed_dt is defined as solr.DateRangeField
+         *
+         *   <fieldType name="pdaterange" class="solr.DateRangeField" />
+         *   <field name="date_indexed_dt" type="pdaterange" indexed="true" stored="true" multiValued="false"/>
+         *
+         * By default, the _dt suffix generates a solr.DatePointField which
+         * requires YYYY-MM-DDTHH:mm:ssZ and therefore leads to errors like
+         *
+         * Error adding field 'date_indexed_dt'='1800'
+         *  msg=Invalid Date String:'1800'"
+         */
+        $this->dateIndexed = $dateIndexed;
+
+        return $this;
+    }
+
+    /**
+     * Sets creation date.
+     *
+     * @param string $dateCreated
+     *
+     * @return $this
+     */
+    public function setDateCreated($dateCreated)
+    {
+        $this->dateCreated = $dateCreated;
+
+        $this->setDateIndexed($dateCreated);
 
         return $this;
     }
@@ -452,9 +498,9 @@ implements \JsonSerializable
      *
      * @return string
      */
-    public function getDateCreation()
+    public function getDateCreated()
     {
-        return $this->dateCreation;
+        return $this->dateCreated;
     }
 
     /**
@@ -691,19 +737,19 @@ implements \JsonSerializable
     }
 
     /**
-     * Sets setting.
+     * Sets temporal coverage.
      *
      * In TEI-Simpleprint, this might go into
      *   https://tei-c.org/release/doc/tei-p5-exemplars/html/tei_simplePrint.doc.html#settingDesc
-     * Since this is lacking in DTAbf, we use
+     * Since this is lacking in DTAbf, we use a class code
      *
-     * @param string $setting
+     * @param string $temporalCoverage
      *
      * @return $this
      */
-    public function setSettingDate($settingDate)
+    public function setTemporalCoverage($temporalCoverage)
     {
-        $this->addClassCode('http://purl.org/dc/elements/1.1/coverage', $settingDate);
+        $this->addClassCode('http://purl.org/dc/elements/1.1/coverage', $temporalCoverage);
 
         return $this;
     }
@@ -713,7 +759,7 @@ implements \JsonSerializable
      *
      * @return string
      */
-    public function getSettingDate()
+    public function getTemporalCoverage()
     {
         $codes = $this->getClassCodes('http://purl.org/dc/elements/1.1/coverage');
 
@@ -730,8 +776,8 @@ implements \JsonSerializable
             'authors' => $this->getAuthors(),
             'translator' => $this->getTranslator(),
             'responsible' => $this->getResponsible(),
-            'dateCreation' => $this->getDateCreation(),
-            'settingDate' => $this->getSettingDate(),
+            'dateCreated' => $this->getDateCreated(),
+            'temporalCoverage' => $this->geTemporalCoverage(),
             'note' => $this->getNote(),
             'sourceDescBibl' => $this->getSourceDescBibl(),
             'language' => $this->getLanguage(),

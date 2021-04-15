@@ -521,14 +521,14 @@ extends BaseController
 
                                     switch ($dcDatesType) {
                                         case 'Date created':
-                                            $method = 'setDateCreation';
+                                            $method = 'setDateCreated';
                                             break;
                                     }
 
                                     break;
 
                                 case 'ca_objects.coverageDates':
-                                    $teiHeader->setSettingDate($val);
+                                    $teiHeader->setTemporalCoverage($val);
                                     break;
                             }
 
