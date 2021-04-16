@@ -472,6 +472,23 @@ implements \JsonSerializable
          * Error adding field 'date_indexed_dt'='1800'
          *  msg=Invalid Date String:'1800'"
          */
+
+        // remove circa
+        $dateIndexed = preg_replace('/(circa|before|after) /', '', $dateIndexed);
+
+        // centuries to range
+        if (preg_match('/^(\d+)th century$/', $dateIndexed, $matches)) {
+            $dateIndexed = sprintf('[%d01 TO %d00]',
+                                   intval($matches[1]) - 1, intval($matches[1]));
+        }
+
+        // year range like 1754 – 1761 to range [1754 TO 1761]
+        if (preg_match('/^(\d{4}) – (\d{4})$/', $dateIndexed, $matches)) {
+            $dateIndexed = sprintf('[%d TO %d]',
+                                   intval($matches[1]),
+                                   intval($matches[2]));
+        }
+
         $this->dateIndexed = $dateIndexed;
 
         return $this;
