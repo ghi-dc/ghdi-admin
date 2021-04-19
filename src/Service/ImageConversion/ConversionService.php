@@ -967,10 +967,10 @@ class ConversionService
         $fname_target = $this->buildFnameTarget($file, $target_type, $options);
 
         // check if we need to create target-directory
-        $dirname_target = pathinfo($fname_target, PATHINFO_DIRNAME);
-        if (!file_exists($dirname_target)) {
+        $dirnameTarget = pathinfo($fname_target, PATHINFO_DIRNAME);
+        if (!file_exists($dirnameTarget)) {
             // TODO: use bitmask of parent directory
-            mkdir($dirname_target, 0777, true);
+            mkdir($dirnameTarget, 0777, true);
         }
 
         $success = $provider->convert($file->getRealpath(), $fname_target, $options);

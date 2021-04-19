@@ -262,7 +262,8 @@ extends ExistDbCommand
         $entity = \App\Entity\TeiHeader::fromXml($filenameFull);
 
         if (is_null($entity)) {
-            $output->writeln(sprintf('<error>%s could not be loaded</error>', $filenameFull));
+            $output->writeln(sprintf('<error>%s could not be loaded</error>',
+                                     $filenameFull));
             return -2;
         }
 

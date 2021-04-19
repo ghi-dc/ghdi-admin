@@ -64,6 +64,7 @@ extends Command
         $pdfDoc = $this->pdfConverter->convert($htmlDoc);
 
         echo (string)$pdfDoc;
+
         return 0;
     }
 }
