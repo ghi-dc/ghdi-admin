@@ -10,6 +10,8 @@
 
 namespace App\Utils;
 
+use FluentDOM\Exceptions\LoadingError\FileNotLoaded;
+
 class XmlDocument
 extends Document
 {
@@ -29,12 +31,23 @@ extends Document
         parent::__construct($options);
     }
 
+    /**
+     * Load string or file into \FluentDOM\DOM\Document
+     *
+     * @param string $source
+     * @return \FluentDOM\DOM\Document|false
+     */
     private function loadXml($source, $fromFile = false)
     {
-        return \FluentDOM::load($source, 'xml', [
-            \FluentDOM\Loader\Options::ALLOW_FILE => $fromFile,
-            \FluentDOM\Loader\Options::PRESERVE_WHITESPACE => true,
-        ]);
+        try {
+            return \FluentDOM::load($source, 'xml', [
+                \FluentDOM\Loader\Options::ALLOW_FILE => $fromFile,
+                \FluentDOM\Loader\Options::PRESERVE_WHITESPACE => true,
+            ]);
+        }
+        catch (FileNotLoaded $e) {
+            return false;
+        }
     }
 
     protected function getXPath()

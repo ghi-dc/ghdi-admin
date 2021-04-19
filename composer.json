@@ -106,7 +106,7 @@
 
         "sabre/xml": "^1.5",
         "servo/fluidxml": "@stable",
-        "fluentdom/fluentdom": "^7.4",
+        "fluentdom/fluentdom": "^8.0",
         "brunty/relax-ng-domdocument": "^0.2",
 
         "masterminds/html5": "^2.7",

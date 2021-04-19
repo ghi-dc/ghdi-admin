@@ -6,6 +6,7 @@
 namespace App\Utils;
 
 use FluentDOM\DOM\Document as FluentDOMDocument;
+use FluentDOM\Exceptions\LoadingError\FileNotLoaded;
 
 class TeiHelper
 {
@@ -95,16 +96,15 @@ class TeiHelper
      */
     protected function loadXml(string $fname)
     {
-        if (!is_readable($fname)) {
-            // currently \FluentDOM::load doesn't return an error if load fails due to
-            // an inexisting or inaccessible file https://github.com/ThomasWeinert/FluentDOM/issues/90
+        try {
+            $dom = \FluentDOM::load($fname, 'xml', [
+                \FluentDOM\Loader\Options::ALLOW_FILE => true,
+                \FluentDOM\Loader\Options::PRESERVE_WHITESPACE => true,
+            ]);
+        }
+        catch (FileNotLoaded $e) {
             return false;
         }
-
-        $dom = \FluentDOM::load($fname, 'xml', [
-            \FluentDOM\Loader\Options::ALLOW_FILE => true,
-            \FluentDOM\Loader\Options::PRESERVE_WHITESPACE => true,
-        ]);
 
         $this->registerNamespaces($dom);
 

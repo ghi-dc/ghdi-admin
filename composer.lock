@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "45f27c4db2b0140668a89b4a6ba5d3b5",
+    "content-hash": "49c17f5ec55114458b37ad6b2829650a",
     "packages": [
         {
             "name": "armin/scssphp-bundle",
@@ -1154,22 +1154,22 @@
         },
         {
             "name": "fluentdom/fluentdom",
-            "version": "7.4.0",
+            "version": "8.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ThomasWeinert/FluentDOM.git",
-                "reference": "bb9f9eed9965cb407ec74a441d3ca77d5ae53ef5"
+                "reference": "22ee56352bb5fd0bc41ccf7906780aabc2bccf33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ThomasWeinert/FluentDOM/zipball/bb9f9eed9965cb407ec74a441d3ca77d5ae53ef5",
-                "reference": "bb9f9eed9965cb407ec74a441d3ca77d5ae53ef5",
+                "url": "https://api.github.com/repos/ThomasWeinert/FluentDOM/zipball/22ee56352bb5fd0bc41ccf7906780aabc2bccf33",
+                "reference": "22ee56352bb5fd0bc41ccf7906780aabc2bccf33",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
-                "php": ">=7.0"
+                "php": "~7.2 || ~8.0"
             },
             "require-dev": {
                 "ext-simplexml": "*",
@@ -1213,9 +1213,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ThomasWeinert/FluentDOM/issues",
-                "source": "https://github.com/ThomasWeinert/FluentDOM/tree/7.4.0"
+                "source": "https://github.com/ThomasWeinert/FluentDOM/tree/8.0.0"
             },
-            "time": "2019-08-18T14:30:38+00:00"
+            "time": "2021-04-18T18:12:11+00:00"
         },
         {
             "name": "gmo/iso-639",
