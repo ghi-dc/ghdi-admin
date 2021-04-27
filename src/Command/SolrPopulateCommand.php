@@ -24,6 +24,7 @@ extends ExistDbCommand
     private $solr;
     private $adminClient;
     protected $conversionService;
+    protected $imageHeaderService;
     private $twig;
     private $slugify;
     private $frontendDataDir;
@@ -36,6 +37,7 @@ extends ExistDbCommand
                                 HttpClientInterface $adminClient,
                                 \FS\SolrBundle\SolrInterface $solr,
                                 \App\Service\ImageConversion\ConversionService $conversionService,
+                                \App\Service\ImageHeader\ImageHeaderService $imageHeaderService,
                                 \Twig\Environment $twig,
                                 \Cocur\Slugify\SlugifyInterface $slugify)
     {
@@ -45,6 +47,7 @@ extends ExistDbCommand
         $this->adminClient = $adminClient;
         $this->solr = $solr;
         $this->conversionService = $conversionService;
+        $this->imageHeaderService = $imageHeaderService;
         $this->twig = $twig;
         $this->slugify = $slugify;
 
@@ -210,6 +213,7 @@ extends ExistDbCommand
 
         if (file_exists($mediaPath . '/' . $fname)) {
             $maxDimension = 1200;
+            $maxResolution = 72;
 
             // check if we need to convert (either resize or change format)
             $imageConversion = $this->conversionService;
@@ -227,6 +231,12 @@ extends ExistDbCommand
                 ]);
 
                 $imageName = $converted->getFileName();
+            }
+
+            $info = $this->imageHeaderService->getResolution($file = new \Symfony\Component\HttpFoundation\File\File($mediaPath . '/' . $imageName));
+
+            if (!empty($info) && ($info['xresolution'] > $maxResolution || $info['yresolution'] > $maxResolution)) {
+                $res = $this->imageHeaderService->setResolution($file, [ 'xresolution' => $maxResolution, 'yresolution' => $maxResolution ]);
             }
         }
 

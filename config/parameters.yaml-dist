@@ -89,5 +89,13 @@ parameters:
         #   imagick, gmagick or gd (auto-detected if left empty)
         # driver: ~      # set this if you are using App\Service\ImageConversion\ImagineProvider and want to set imagick, gmagick or gd explicitely
 
+    app.image-header-provider.class:
+        # the following works only if you can execute command line programs
+        # and have exiftool installed:
+        #   sudo apt-get install libimage-exiftool-perl
+        App\Service\ImageHeader\ExiftoolProvider
+    app.image-header-provider.arguments:
+        # binary_path: ~ # set this if you are using App\Service\ImageHeader\ExiftoolProvider and exiftool is not in PATH
+
     #app.textrazor:
     #    api_key: 'YOUR-KEY'

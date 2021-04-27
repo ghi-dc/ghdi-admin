@@ -58,6 +58,14 @@ services:
         calls:
             - [ addProvider, [ '@app.image-conversion-provider' ]]
 
+    app.image-header-provider:
+        class: "%app.image-header-provider.class%"
+        arguments:  [ "%app.image-header-provider.arguments%" ]
+
+    App\Service\ImageHeader\ImageHeaderService:
+        calls:
+            - [ addProvider, [ '@app.image-header-provider' ]]
+
     App\Utils\AnvcScalarClient:
         arguments: [ "%app.scalar_client.options%" ]
 
