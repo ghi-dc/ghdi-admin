@@ -9,7 +9,7 @@
             "type": "package",
             "package": {
                 "name": "citation-style-language/locales",
-                "version":"1.0.0",
+                "version": "1.0.0",
                 "source": {
                     "type": "git",
                     "url": "https://github.com/citation-style-language/locales.git",
@@ -21,7 +21,7 @@
             "type": "package",
             "package": {
                 "name": "citation-style-language/styles-distribution",
-                "version":"1.0.0",
+                "version": "1.0.0",
                 "source": {
                     "type": "git",
                     "url": "https://github.com/citation-style-language/styles-distribution.git",
@@ -114,7 +114,7 @@
 
         "hedii/zotero-api": "@stable",
 
-        "citation-style-language/locales":"@dev",
+        "citation-style-language/locales": "@dev",
         "seboettg/citeproc-php": "^2.1",
         "fale/isbn": "^3.1",
 
@@ -135,6 +135,7 @@
 
         "nategood/httpful": "*",
         "box/spout": "^3.1",
+        "phpoffice/phpword": "^0.18",
 
         "symfony/polyfill-intl-normalizer": "*",
 

@@ -62,6 +62,11 @@ extends Document
     {
     }
 
+    protected function xmlSpecialchars($txt)
+    {
+        return htmlspecialchars($txt, ENT_XML1, 'UTF-8');
+    }
+
     public function loadString($xml)
     {
         $dom = $this->loadXml($xml);

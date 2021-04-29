@@ -59,15 +59,15 @@ use XML::LibXML::PrettyPrint;
 
 # elements within <teiHeader>
 my $element_header = {
-    inline   => [qw(abbr address bibl biblScope country date docDate edition email gap idno language orgName pubPlace publisher ref title)],
+    inline   => [qw(choice abbr expan address bibl biblScope country date docDate edition email forename foreign gap idno language orgName persName pubPlace publisher surname ref title)],
     block    => [qw()],
-    compact  => [qw(addName classCode forename measure rendition surname head)],
+    compact  => [qw(addName classCode measure rendition head)],
     preserves_whitespace => [qw()],
 };
 
 # (additional) elements within <text>
 my $element_text = {
-    inline   => [qw(abbr expan hi orgName persName placeName)],
+    inline   => [qw(hi placeName roleName)],
     block    => [qw()],
     compact  => [qw()],
     preserves_whitespace => [qw()],

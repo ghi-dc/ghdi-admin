@@ -59,6 +59,12 @@ extends Command
                 InputOption::VALUE_OPTIONAL,
                 'what genre (introduction or document)'
             )
+            ->addOption(
+                'use-metadata',
+                null,
+                InputOption::VALUE_NONE,
+                'Specify to force reindexing existing resources'
+            )
             ->setDescription('Convert Word-File (docx or odt) to TEI')
             ;
 
@@ -122,8 +128,38 @@ extends Command
         if (!empty($input->getOption('locale'))) {
             $conversionOptions['language'] = \App\Utils\Iso639::code1to3($input->getOption('locale'));
         }
+
         if (!empty($input->getOption('genre'))) {
             $conversionOptions['genre'] = $input->getOption('genre');
+        }
+
+        $useMetadata = $input->getOption('use-metadata');
+
+        if ($useMetadata) {
+            $phpWord = \PhpOffice\PhpWord\IOFactory::load($file);
+            $metadata = $phpWord->getDocInfo();
+            if (!empty($metadata->getCreator())) {
+                $names = preg_split('/s*;*s/', $metadata->getCreator());
+                $authors = [];
+                foreach ($names as $name) {
+                    $person = new \App\Entity\Person();
+                    $parts = explode(', ', $metadata->getCreator(), 2);
+                    if (2 == count($parts)) {
+                        // Family Name, Given Name
+                        $person->setFamilyName($parts[0]);
+                        $person->setGivenName($parts[1]);
+                    }
+                    else {
+                        $person->setName($metadata->getCreator());
+                    }
+
+                    $authors[] = $person;
+                }
+
+                if (!empty($authors)) {
+                    $conversionOptions['authors'] = $authors;
+                }
+            }
         }
 
         $converter = new \App\Utils\TeiSimplePrintToDtabfConverter($conversionOptions);
@@ -148,6 +184,7 @@ extends Command
         }
 
         echo $teiDtabfDoc->saveString();
+
         return 0;
     }
 }

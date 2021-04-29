@@ -239,7 +239,7 @@ extends AbstractController
 
     protected function xmlSpecialchars($txt)
     {
-        return htmlspecialchars($txt, ENT_XML1, 'UTF-8');;
+        return htmlspecialchars($txt, ENT_XML1, 'UTF-8');
     }
 
     protected function getTeiSkeleton()

@@ -110,6 +110,12 @@ extends DocumentConverter
                 ->setAttribute('scheme', 'http://germanhistorydocs.org/docs/#genre');
         }
 
+        if (!empty($this->options['authors'])) {
+            foreach ($this->options['authors'] as $person) {
+                $teiDocument->addAuthor($person);
+            }
+        }
+
         // set place="foot" as default in body notes
         foreach ($xml('/tei:TEI/tei:text//tei:note') as $note) {
             if (empty($note->getAttributeNode('place'))) {
