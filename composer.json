@@ -118,7 +118,7 @@
         "seboettg/citeproc-php": "^2.1",
         "fale/isbn": "^3.1",
 
-        "sweetyrdf/easyrdf": "^1.1",
+        "easyrdf/easyrdf": "^1.1",
         "ml/json-ld": "1.1.*",
 
         "burki/exist-db-rpc-client": "dev-master",
