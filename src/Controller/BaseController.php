@@ -229,11 +229,11 @@ extends AbstractController
         return $choices;
     }
 
-    protected function buildMetaChoices($locale, $entity = null)
+    protected function buildMetaChoices(TranslatorInterface $translator, $entity = null)
     {
         return [
-            'robots:noindex' => 'Exclude from Search Engines',
-            'DC.Relation.isReferencedBy:parent' => 'Use as Section Symbol',
+            'robots:noindex' => $translator->trans('Exclude from Search Engines'),
+            'DC.Relation.isReferencedBy:parent' => $translator->trans('Use as Section Symbol'),
         ];
     }
 

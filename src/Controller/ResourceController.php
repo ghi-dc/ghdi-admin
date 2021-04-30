@@ -706,6 +706,7 @@ EOXQL;
      *          requirements={"volume" = "volume\-\d+", "genre" = "(document-collection|image-collection)"})
      */
     public function editAction(Request $request,
+                               TranslatorInterface $translator,
                                $volume, $id = null, $genre = null)
     {
         $update = 'resource-edit' == $request->get('_route');
@@ -744,7 +745,7 @@ EOXQL;
         if ('collection-add' != $request->get('_route')) {
             $formOptions['choices'] = [
                 'terms' => array_flip($this->buildTermChoices($request->getLocale(), $entity)),
-                'meta' => array_flip($this->buildMetaChoices($request->getLocale(), $entity)),
+                'meta' => array_flip($this->buildMetaChoices($translator, $entity)),
             ];
         }
 

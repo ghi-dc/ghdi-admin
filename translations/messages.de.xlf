@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2021-03-01T06:19:07Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2021-04-30T15:33:51Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -9,7 +9,7 @@
       <trans-unit id="c123f9d694a6182207c6a06ca009ada10a49c1a7" resname="%century%th century">
         <source>%century%th century</source>
         <target>%century%th century</target>
-        <jms:reference-file line="506">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="507">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="f62d0fc1b7307f4891aa36565d16190b5c44c048" resname="%count% entries">
         <source>%count% entries</source>
@@ -164,11 +164,6 @@
         <jms:reference-file line="51">\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
         <jms:reference-file line="26">\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
       </trans-unit>
-      <trans-unit id="304f6c7b36b71c5c14698cc572b4669a5be4832a" resname="Coverage Date">
-        <source>Coverage Date</source>
-        <target>Zeitliche Abdeckung</target>
-        <jms:reference-file line="110">\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
-      </trans-unit>
       <trans-unit id="6e157c5da4410b7e9de85f5c93026b9176e69064" resname="Create">
         <source>Create</source>
         <target>Create</target>
@@ -253,6 +248,11 @@
         <jms:reference-file line="32">\..\..\..\..\..\./src\Form\Type\TermType.php\</jms:reference-file>
         <jms:reference-file line="52">\..\..\..\..\..\./src\Form\Type\TermType.php\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="a2b4b09c1fc4120843f1212eeb3d0e4e8ae4f664" resname="Exclude from Search Engines">
+        <source>Exclude from Search Engines</source>
+        <target>Von Suchmaschinen ausschließen</target>
+        <jms:reference-file line="235">\..\..\..\..\..\./src\Controller\BaseController.php\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="2e477efc2296f4f9dc72d2defd4214b918e39b91" resname="Family Name">
         <source>Family Name</source>
         <target>Nachname</target>
@@ -281,8 +281,8 @@
       <trans-unit id="bafd4b54282745a2bed1442852b73f4b3189a77a" resname="Further Reading">
         <source>Further Reading</source>
         <target>Weiterführende Inhalte</target>
-        <jms:reference-file line="850">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
         <jms:reference-file line="851">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="852">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
         <jms:reference-file line="82">\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="904e2710786395c68f3992cd52a092b41e4beb2a" resname="GND">
@@ -300,7 +300,7 @@
       </trans-unit>
       <trans-unit id="150deee5e93fc5a034adc4fc99010ad0e32edbe2" resname="Generate from Title">
         <source>Generate from Title</source>
-        <target>Generate from Title</target>
+        <target>Aus Titel generieren</target>
         <jms:reference-file line="5">\..\..\..\..\..\./templates\form\fields.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="2aa31fca5e4f84ebdfaab36c9a6da36cf8d36509" resname="Genre">
@@ -378,6 +378,11 @@
         <source>License</source>
         <target>Lizenz</target>
         <jms:reference-file line="49">\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="846c245ca504ff34aec373c2f03537489e115033" resname="Link Named Entities">
+        <source>Link Named Entities</source>
+        <target>Named Entities verknüpfen</target>
+        <jms:reference-file line="53">\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="a1fffaaafb7cc996685bceb829c053cc4f7de43d" resname="List">
         <source>List</source>
@@ -462,6 +467,11 @@
         <jms:reference-file line="102">\..\..\..\..\..\./src\Menu\Builder.php\</jms:reference-file>
         <jms:reference-file line="6">\..\..\..\..\..\./templates\Organization\list.html.twig\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="86e13538704acef155e329bde439997d9ef52f4c" resname="Overwrite from Collective Access">
+        <source>Overwrite from Collective Access</source>
+        <target>Überschreiben aus Collective Access</target>
+        <jms:reference-file line="56">\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="f3cf96e919766ef2354bbbddd56e9cbb5f2792e8" resname="Persons">
         <source>Persons</source>
         <target>Personen</target>
@@ -518,6 +528,11 @@
         <jms:reference-file line="71">\..\..\..\..\..\./src\Form\Type\TeiHeaderType.php\</jms:reference-file>
         <jms:reference-file line="88">\..\..\..\..\..\./src\Form\Type\TermType.php\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="299b85935b9023a462e0c790d197fdba3fc6979a" resname="Save Named Entities">
+        <source>Save Named Entities</source>
+        <target>Named Entities speichern</target>
+        <jms:reference-file line="44">\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="bce06414177f72ab70e6387b6af9f8ceef0d6049" resname="Search">
         <source>Search</source>
         <target>Suche</target>
@@ -542,7 +557,7 @@
       <trans-unit id="6da13addb000b67d42a6d66391713819e634149f" resname="Source">
         <source>Source</source>
         <target>Quelle</target>
-        <jms:reference-file line="553">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="554">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
         <jms:reference-file line="41">\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="366ea33cb40167102931845e9d1d9d1fcf384c6a" resname="Source Description">
@@ -574,10 +589,15 @@
         <target>TGN</target>
         <jms:reference-file line="47">\..\..\..\..\..\./src\Form\Type\PlaceType.php\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="4e53496f59196ec7736bb730a0f6f3d4192f7920" resname="Temporal Coverage">
+        <source>Temporal Coverage</source>
+        <target>Zeitliche Abdeckung</target>
+        <jms:reference-file line="110">\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="74ca2052f0baedc5be5fc834419a1f6c81784b31" resname="The work has been dedicated to the public domain by waiving all rights under copyright law, including all related and neighboring rights, to the extent allowed by law.">
         <source>The work has been dedicated to the public domain by waiving all rights under copyright law, including all related and neighboring rights, to the extent allowed by law.</source>
         <target>Dieses Werk wurde in die Gemeinfreiheit entlassen, indem auf alle urheberrechtlichen und verwandten Schutzrechte verzichtet wurde, soweit das gesetzlich möglich ist.</target>
-        <jms:reference-file line="575">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="576">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="f652fe616e4b3b31da52e8c890154de7584f087a" resname="There was an error querying the items">
         <source>There was an error querying the items</source>
@@ -587,37 +607,37 @@
       <trans-unit id="02454c473924ace69d622a394928b9985b01d59f" resname="This work has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.">
         <source>This work has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.</source>
         <target>Dieses Werk wurde als frei von bekannten urheberrechtlichen Einschränkungen identifiziert, einschließlich aller verwandten Schutzrechte.</target>
-        <jms:reference-file line="579">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="580">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="17e07ec4028f7960d1bb2a236e7f082f85218873" resname="This work is licensed under the Creative Commons Attribution 3.0 License.">
         <source>This work is licensed under the Creative Commons Attribution 3.0 License.</source>
         <target>Dieses Werk steht unter der Creative Commons Namensnennung 3.0 Lizenz.</target>
-        <jms:reference-file line="583">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="584">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="eab1d62119b54a4bd9797dcfc19b9ec7cc732065" resname="This work is licensed under the Creative Commons Attribution 4.0 License.">
         <source>This work is licensed under the Creative Commons Attribution 4.0 License.</source>
-        <target state="new">Dieses Werk steht unter der Creative Commons Namensnennung 4.0 Lizenz.</target>
-        <jms:reference-file line="587">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <target>Dieses Werk steht unter der Creative Commons Namensnennung 4.0 Lizenz.</target>
+        <jms:reference-file line="588">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="5f7d1f95ade2e05b6fb9475bab078a66cbcec24e" resname="This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 License. Only noncommercial uses of the work are permitted. You may not distribute modified versions.">
         <source>This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 License. Only noncommercial uses of the work are permitted. You may not distribute modified versions.</source>
         <target>Dieses Werk steht unter der Creative Commons Namensnennung - Nicht-kommerziell - Keine Bearbeitungen 4.0 Lizenz. Nur nicht-kommerzielle Nutzungen des Werkes sind erlaubt. Sie dürfen keine modifizierten Versionen verbreiten.</target>
-        <jms:reference-file line="603">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="604">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="12e6c6e72948b615b6e8ab3e38d7efce22c9ab6e" resname="This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 License. Only noncommercial uses of the work are permitted.">
         <source>This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 License. Only noncommercial uses of the work are permitted.</source>
         <target>Dieses Werk steht unter der Creative Commons Namensnennung - Nicht-kommerziell - Weitergabe unter gleichen Bedingungen 4.0 Lizenz. Nur nicht-kommerzielle Nutzungen des Werkes sind erlaubt.</target>
-        <jms:reference-file line="599">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="600">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="28f836972458b23261ad8ad95b6b277a312465e3" resname="This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 License.">
         <source>This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 License.</source>
         <target>Dieses Werk steht unter der Creative Commons Namensnennung - Weitergabe unter gleichen Bedingungen 3.0 Lizenz.</target>
-        <jms:reference-file line="591">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="592">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="8d0b402887d254b549138ac074c94c4cd15763c9" resname="This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 License.">
         <source>This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 License.</source>
         <target>Dieses Werk steht unter der Creative Commons Namensnennung - Weitergabe unter gleichen Bedingungen 4.0 Lizenz.</target>
-        <jms:reference-file line="595">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="596">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="768e0c1c69573fb588f61f1308a015c11468e05f" resname="Title">
         <source>Title</source>
@@ -626,7 +646,7 @@
       </trans-unit>
       <trans-unit id="ac26a7a94ea2e66490f932b6415a09ef6f2a913c" resname="Translation">
         <source>Translation</source>
-        <target>Translation</target>
+        <target>Übersetzung</target>
         <jms:reference-file line="36">\..\..\..\..\..\./src\Form\Type\TeiHeaderType.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="3deb7456519697ecf4eefc455516c969a3681bae" resname="Type">
@@ -654,6 +674,11 @@
         <source>Upload Word-File</source>
         <target>Word-Datei hochladen</target>
         <jms:reference-file line="11">\..\..\..\..\..\./templates\Upload\index.html.twig\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="035feb42119007667421d3c09479e05637fa6d6f" resname="Use as Section Symbol">
+        <source>Use as Section Symbol</source>
+        <target>Als Symbolbild für das Kapitel verwenden</target>
+        <jms:reference-file line="236">\..\..\..\..\..\./src\Controller\BaseController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="9146f284195f8fb1a99406688466ccd6aae724a1" resname="VIAF">
         <source>VIAF</source>
