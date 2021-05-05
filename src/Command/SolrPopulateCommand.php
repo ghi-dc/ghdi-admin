@@ -201,11 +201,23 @@ extends ExistDbCommand
         $parts = parse_url($url);
         $path = parse_url($url, PHP_URL_PATH);
 
-        if (!preg_match('/(\.jpg)$/i', $path, $matches)) {
-            die('TODO: handle extension for ' . $url);
-        }
+        $targetType = 'image/jpeg';
+        if (!preg_match('/\.(jpg)$/i', $path, $matches)) {
+            if (preg_match('/\.([a-z0-9]+)$/i', $path, $matches)) {
+                switch (strtolower($matches[1])) {
+                    case 'png':
+                        $targetType = 'image/png';
+                        break;
 
-        $mimeType = 'image/jpeg';
+                    default:
+                        die('TODO: handle extension for ' . $url);
+
+                }
+            }
+            else {
+                die('TODO: handle extension for ' . $url);
+            }
+        }
 
         if (!file_exists($mediaPath . '/' . $fname)) {
             file_put_contents($mediaPath . '/' . $fname, fopen($url, 'r'));
@@ -227,7 +239,7 @@ extends ExistDbCommand
             {
                 $converted = $imageConversion->convert($file, [
                     'geometry' => $maxDimension . 'x' . $maxDimension,
-                    'target_type' => $mimeType,
+                    'target_type' => $targetType,
                 ]);
 
                 $imageName = $converted->getFileName();
