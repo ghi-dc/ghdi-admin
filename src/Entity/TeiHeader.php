@@ -146,7 +146,9 @@ implements \JsonSerializable
 
     protected static function hydrateEntity($entity, $article)
     {
-        $entity->setId($article->uid);
+        if (property_exists($article, 'uid')) {
+            $entity->setId($article->uid);
+        }
 
         if (isset($article->name)) {
             $entity->setTitle($article->name);
@@ -170,8 +172,13 @@ implements \JsonSerializable
             $entity->setDtaDirName($article->slug);
         }
 
-        $entity->setShelfmark($article->shelfmark);
-        $entity->setDoi($article->doi);
+        if (property_exists($article, 'shelfmark')) {
+            $entity->setShelfmark($article->shelfmark);
+        }
+
+        if (property_exists($article, 'doi')) {
+            $entity->setDoi($article->doi);
+        }
 
         if (property_exists($article, 'abstract')) {
             $entity->setNote($article->abstract);

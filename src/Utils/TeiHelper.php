@@ -226,6 +226,39 @@ class TeiHelper
             $article->translator = null;
         }
 
+        // responsible
+        $result = $header('./tei:fileDesc/tei:titleStmt/tei:respStmt');
+        foreach ($result as $element) {
+            $responsible = [
+                'role' => '',
+            ];
+
+            foreach ($element->childNodes as $childNode) {
+                switch ($childNode->nodeName) {
+                    case 'resp':
+                        $responsible['role'] = $this->extractTextContent($childNode);
+                        break;
+
+                    case '#text';
+                        $responsible['role'] .= $this->extractTextContent($childNode);
+                        break;
+
+                    case 'name':
+                    case 'persName':
+                        $responsible['nameType'] = $childNode->nodeName;
+                        $responsible['name'] = $this->extractTextContent($childNode);
+                }
+            }
+
+            if (!empty($responsible['name'])) {
+                if (empty($article->responsible)) {
+                    $article->responsible = [];
+                }
+
+                $article->responsible[] = $responsible;
+            }
+        }
+
         // datePublication
         $result = $header('./tei:fileDesc/tei:publicationStmt/tei:date');
         foreach ($result as $element) {
@@ -251,6 +284,7 @@ class TeiHelper
         }
 
         // licence
+        $article->rights = null;
         $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence');
         if ($result->length > 0) {
             $article->licence = (string)$result[0]['target'];
@@ -262,7 +296,7 @@ class TeiHelper
         else {
             $article->licence = null;
             $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:p');
-            if (!empty($result)) {
+            if ($result->length > 0) {
                 $article->rights = (string)$result[0];
             }
         }
@@ -276,10 +310,9 @@ class TeiHelper
             ] as $type => $target)
         {
             $result = $header('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="' . $type . '"])[1]');
-            if (!empty($result)) {
+            if ($result->length > 0) {
                 $article->$target = (string)$result[0];
             }
-
         }
 
         $result = $header('(./tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"])[1]');
