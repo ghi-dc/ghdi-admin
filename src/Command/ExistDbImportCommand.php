@@ -243,6 +243,49 @@ extends ExistDbCommand
                                               $resource, $filenameFull, $overwrite, true, $isBinary = true);
     }
 
+    /**
+     * Returns whether a path is absolute.
+     *
+     * @param string $path A path string.
+     *
+     * @return bool Returns true if the path is absolute, false if it is
+     *              relative or empty.
+     *
+     * @since 1.0 Added method.
+     * @since 2.0 Method now fails if $path is not a string.
+     */
+    protected function isAbsolutePath(string $path)
+    {
+        if ('' === $path) {
+            return false;
+        }
+
+        // Strip scheme
+        if (false !== ($pos = strpos($path, '://'))) {
+            $path = substr($path, $pos + 3);
+        }
+
+        // UNIX root "/" or "\" (Windows style)
+        if ('/' === $path[0] || '\\' === $path[0]) {
+            return true;
+        }
+
+        // Windows root
+        if (strlen($path) > 1 && ctype_alpha($path[0]) && ':' === $path[1]) {
+            // Special case: "C:"
+            if (2 === strlen($path)) {
+                return true;
+            }
+
+            // Normal case: "C:/ or "C:\"
+            if ('/' === $path[2] || '\\' === $path[2]) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected function importVolume(OutputInterface $output, $resource)
     {
         if (empty($resource)) {
@@ -251,7 +294,14 @@ extends ExistDbCommand
             return -3;
         }
 
-        $filenameFull = $this->projectDir . '/data/tei/' . $resource;
+        if ($this->isAbsolutePath($resource)) {
+            $filenameFull = $resource;
+            $resource = basename($resource);
+        }
+        else {
+            $filenameFull = $this->projectDir . '/data/tei/' . $resource;
+        }
+
         if (!file_exists($filenameFull)) {
             $output->writeln(sprintf('<error>File does not exist (%s)</error>',
                                      $filenameFull));
@@ -274,7 +324,9 @@ extends ExistDbCommand
             return -1;
         }
 
-        if (empty($entity->getLanguage()) || !in_array($entity->getLanguage(), [ 'eng', 'deu' ])) {
+        if (empty($entity->getLanguage())
+            || !in_array($entity->getLanguage(), [ 'eng', 'deu' ]))
+        {
             $output->writeln(sprintf('<error>Invalid language %s (%s)</error>',
                                      $resource));
 
@@ -297,6 +349,7 @@ extends ExistDbCommand
         $resourceNameExpected = sprintf('%s.%s.xml',
                                         $articleUidLocal,
                                         $entity->getLanguage());
+
         if ($resourceNameExpected != $resource) {
             $output->writeln(sprintf('<error>resource %s does not match the expected value %s</error>',
                                      $resource, $resourceNameExpected));
@@ -335,12 +388,11 @@ extends ExistDbCommand
 
                 return $this->checkCollectionAndStore($output, $existDbClient, $subCollection = $existDbBase . '/data/volumes/' . $collection, $resource, $filenameFull, $overwrite);
                 break;
-
-            default:
-                $output->writeln(sprintf('<error>Not handling genre %s</error>',
-                                         $entity->getGenre()));
-
-                return -1;
         }
+
+        $output->writeln(sprintf('<error>Not handling genre %s</error>',
+                                 $entity->getGenre()));
+
+        return -1;
     }
 }
