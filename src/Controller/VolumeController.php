@@ -299,8 +299,8 @@ extends ResourceController
 
                                 if ($child['shelfmark'] != $newShelfmark) {
                                     $this->updateDocumentShelfmark($client,
-                                                                   $client->getCollection() . '/' . $id . '/' . $childId . '.' . $lang . '.xml',
-                                                                   $newShelfmark);
+                                                                   $id, $childId, $lang,
+                                                                   $newShelfmark, $child['shelfmark']);
 
                                     $updated = true;
 
@@ -313,8 +313,8 @@ extends ResourceController
                                                                          $grandChild['shelfmark']);
                                             if ($subShelfmark != $grandChild['shelfmark']) {
                                                 $this->updateDocumentShelfmark($client,
-                                                                               $client->getCollection() . '/' . $id . '/' . $grandChild['id'] . '.' . $lang . '.xml',
-                                                                               $subShelfmark);
+                                                                               $id, $grandChild['id'], $lang,
+                                                                               $subShelfmark, $grandChild['shelfmark']);
 
                                             }
                                         }
