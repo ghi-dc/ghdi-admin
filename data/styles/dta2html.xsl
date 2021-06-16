@@ -55,11 +55,9 @@
       <xsl:apply-templates select='//tei:fw[@place="bottom" and (text() or *)]' mode="signatures"/>
 
       <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
-        <div class="source-citation">
         <xsl:for-each select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl">
-          <div><xsl:apply-templates select="./node()"/></div>
+          <div class="source-citation"><xsl:apply-templates select="./node()"/></div>
         </xsl:for-each>
-        </div>
       </xsl:if>
       <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:editor[@role='translator']">
         <div class="source-citation">
