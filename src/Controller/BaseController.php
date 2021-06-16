@@ -47,7 +47,7 @@ extends AbstractController
         $this->siteKey = $siteKey;
     }
 
-    protected function getExistDbClient($subCollection = null)
+    protected function getExistDbClient($subCollection = null) : \ExistDbRpc\Client
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 

@@ -805,29 +805,32 @@ EOXQL;
         ]);
     }
 
-    private function word2doc(\App\Utils\PandocConverter $pandocConverter, $fname, $locale)
+    private function word2doc(\App\Utils\PandocConverter $pandocConverter,
+                              \ExistDbRpc\Client $client,
+                              $fname,
+                              $volume, $locale)
     {
-        $officeDoc = new \App\Utils\BinaryDocument();
-        $officeDoc->load($fname);
-
-        // inject TeiFromWordCleaner
         $myTarget = new class()
         extends \App\Utils\TeiSimplePrintDocument
         {
+            // inject TeiFromWordCleaner
             use \App\Utils\TeiFromWordCleaner;
         };
 
         $pandocConverter->setOption('target', $myTarget);
 
+        $officeDoc = new \App\Utils\BinaryDocument();
+        $officeDoc->load($fname);
+
         $teiSimpleDoc = $pandocConverter->convert($officeDoc);
 
-        $conversionOptions = [
+        // TeiSimple to TeiDtabf
+        $converter = new \App\Utils\TeiSimplePrintToDtabfConverter([
             'prettyPrinter' => $this->getTeiPrettyPrinter(),
             'language' => \App\Utils\Iso639::code1to3($locale),
-            'genre' => 'document', // todo: make configurable
-        ];
-
-        $converter = new \App\Utils\TeiSimplePrintToDtabfConverter($conversionOptions);
+            'genre' => 'document', // TODO: make configurable for introduction
+            'postprocessor' => new \App\Utils\TeiRefProcessor($client, $volume, $locale),
+        ]);
         $teiDtabfDoc = $converter->convert($teiSimpleDoc);
 
         return $teiDtabfDoc;
@@ -936,7 +939,10 @@ EOXQL;
                         }
                     }
                     else {
-                        $teiDtabfDoc = $this->word2doc($pandocConverter, $file->getRealPath(), $request->getLocale());
+                        $teiDtabfDoc = $this->word2doc($pandocConverter,
+                                                       $client,
+                                                       $file->getRealPath(),
+                                                       $volume, $request->getLocale());
 
                         if (false === $teiDtabfDoc) {
                             $request->getSession()

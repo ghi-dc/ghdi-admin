@@ -60,6 +60,7 @@ extends BaseController
                         'prettyPrinter' => $this->getTeiPrettyPrinter(),
                         'language' => \App\Utils\Iso639::code1to3($request->getLocale()),
                         'genre' => 'document', // TODO: make configurable for introduction
+                        // 'postprocessor' => new \App\Utils\TeiRefProcessor(), // we lack volume info for building proper links
                     ]);
                     $teiDtabfDoc = $converter->convert($teiSimpleDoc);
 
