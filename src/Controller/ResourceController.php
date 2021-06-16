@@ -902,9 +902,11 @@ EOXQL;
                     // and update certain properties from upload
                     // in order to keep additional metadata by default
                     $terms = [];
+                    $translatedFrom = null;
                     $meta = [];
                     $authors = [];
                     $dtaDirname = null;
+                    $dateCreated = null;
 
                     if ('text/xml' == $mime) {
                         $teiDtabfDoc = new \App\Utils\TeiDocument([
@@ -955,6 +957,8 @@ EOXQL;
                             $authors = $entity->getAuthors();
                             $terms = $entity->getTerms();
                             $genre = $entity->getGenre();
+                            $translatedFrom = $entity->getTranslatedFrom();
+                            $dateCreated = $entity->getDateCreated();
                         }
                     }
 
@@ -1005,16 +1009,22 @@ EOXQL;
                          * where we call updateTeiHeader()
                          * instead of trying to carry everything over
                          */
-                        $teiHelper = new \App\Utils\TeiHelper();
-                        $teiHelper->patchHeaderStructure($teiDtabfDoc->getDom(), [
+                        $values = [
                             'id' => $this->siteKey . ':' . $resourceId,
                             'authors' => $authors,
+                            'dateCreated' => $dateCreated,
                             'shelfmark' => $shelfmark,
                             'slug' => $slug,
                             'genre' => $genre,
                             'terms' => $terms,
                             'meta' => $meta,
-                        ]);
+                        ];
+                        if (!is_null($translatedFrom)) {
+                            $values['translatedFrom'] = $translatedFrom;
+
+                        }
+                        $teiHelper = new \App\Utils\TeiHelper();
+                        $teiHelper->patchHeaderStructure($teiDtabfDoc->getDom(), $values);
 
                         $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resourceId . '.' . $lang . '.xml';
 

@@ -73,6 +73,11 @@ implements \JsonSerializable
     protected $language;
 
     /**
+     * @var string The language code of the original.
+     */
+    private $translatedFrom;
+
+    /**
      * @var string The shelfmark.
      *
      * @Solr\Field(type="string")
@@ -167,6 +172,10 @@ implements \JsonSerializable
         }
 
         $entity->setTranslator($article->translator);
+
+        if (property_exists($article, 'translatedFrom')) {
+            $entity->setTranslatedFrom($article->translatedFrom);
+        }
 
         if (property_exists($article, 'slug')) {
             $entity->setDtaDirName($article->slug);
@@ -455,6 +464,38 @@ implements \JsonSerializable
     public function getLanguage()
     {
         return $this->language;
+    }
+
+    /**
+     * Sets translated from.
+     *
+     * @param string $language
+     *
+     * @return $this
+     */
+    public function setTranslatedFrom($language)
+    {
+        if (!empty($language)) {
+            $this->addClassCode('#translated-from', $language);
+        }
+
+        // for solr-annotation
+        $this->translatedFrom = $this->getTranslatedFrom();
+
+        return $this;
+    }
+
+    /**
+     * Gets translated from.
+     *
+     * @return string
+     */
+    public function getTranslatedFrom()
+    {
+        $codes = $this->getClassCodes('#translated-from');
+        if (!empty($codes)) {
+            return $codes[0];
+        }
     }
 
     /**

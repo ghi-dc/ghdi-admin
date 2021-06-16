@@ -573,7 +573,6 @@ class TeiHelper
         }
         */
 
-
         // if we have only <title> and not <title type="main">, add this attribute
         $hasTitleAttrMain = $header('count(./tei:fileDesc/tei:titleStmt/tei:title[@type="main"]) > 0');
         if (!$hasTitleAttrMain) {
@@ -642,9 +641,34 @@ class TeiHelper
                                     $attributes = sprintf (' ref="%s"', join(' ', $ref));
                                 }
 
+                                $nameParts = [];
+                                foreach ([ 'givenName' => 'forename', 'familyName' => 'surname' ] as $property => $tag) {
+                                    $method = 'get' . ucfirst($property);
+                                    $val = $author->$method();
+                                    if (!empty($val)) {
+                                        $nameParts[$tag] = $val;
+                                    }
+                                }
+                                if (!empty($nameParts)) {
+                                    // structured
+                                    $tags = [];
+                                    foreach ($nameParts as $tag => $val) {
+                                        $tags[] = sprintf('<%s>%s</%s>',
+                                                        $tag,
+                                                        \App\Entity\Person::xmlSpecialchars($val),
+                                                        $tag);
+                                    }
+
+                                    $name = implode(' ', $tags);
+                                }
+                                else {
+                                    $name = \App\Entity\Person::xmlSpecialchars($author->getName());
+                                }
+
+
                                 $author = sprintf('<persName%s>%s</persName>',
                                                   $attributes,
-                                                  \App\Entity\Person::xmlSpecialchars($author->getName()));
+                                                  $name);
                             }
 
                             $fragment->appendXML($author);
@@ -873,27 +897,31 @@ class TeiHelper
             ], true);
         }
 
-        if (!empty($data['genre'])) {
-            $this->addDescendants($header, 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "genre")]', [
-                'tei:classCode[contains(@scheme, "genre")]' => function ($parent, $name, $updateExisting) use ($data) {
-                    if (!$updateExisting) {
-                        $self = $parent->appendChild($parent->ownerDocument->createElement('classCode', $data['genre']));
-                    }
-                    else {
-                        $self = $parent;
-                        $self->nodeValue = $data['genre'];
-                    }
 
-                    $self->setAttribute('scheme', $this->schemePrefix . 'genre');
+        foreach ([ 'genre' => 'genre', 'translatedFrom' => 'translated-from' ] as $key => $scheme) {
+            if (array_key_exists($key, $data)) {
+                $code = $data[$key];
+                $this->addDescendants($header, 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "' . $scheme . '")]', [
+                    'tei:classCode[contains(@scheme, "' . $scheme . '")]' => function ($parent, $name, $updateExisting) use ($code, $scheme) {
+                        if (!$updateExisting) {
+                            $self = $parent->appendChild($parent->ownerDocument->createElement('classCode', $code));
+                        }
+                        else {
+                            $self = $parent;
+                            $self->nodeValue = $code;
+                        }
 
-                    return $self;
-                },
-            ], true);
+                        $self->setAttribute('scheme', $this->schemePrefix . $scheme);
+
+                        return $self;
+                    },
+                ], true);
+            }
         }
 
-        foreach ([ 'terms' => 'term', 'meta' => 'meta' ] as $key => $scheme) {
+        foreach ([ 'terms' => 'term', 'meta' => 'meta', 'lcsh' => 'lcsh' ] as $key => $scheme) {
             if (array_key_exists($key, $data)) {
-                $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "' . $scheme .'")]';
+                $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "' . $scheme . '")]';
                 // since there can be multiple, first clear and then add
                 \FluentDom($header)->find($xpath)->remove();
 
@@ -915,32 +943,6 @@ class TeiHelper
                             },
                         ], false);
                     }
-                }
-            }
-        }
-
-        if (array_key_exists('lcsh', $data)) {
-            $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "lcsh")]';
-            // since there can be multiple, first clear and then add
-            \FluentDom($header)->find($xpath)->remove();
-
-            if (!is_null($data['lcsh'])) {
-                foreach ($data['lcsh'] as $code) {
-                    $this->addDescendants($header, $xpath, [
-                        'tei:classCode[contains(@scheme, "lcsh")]' => function ($parentOrSelf, $name, $updateExisting) use ($code) {
-                            if (!$updateExisting) {
-                                $self = $parentOrSelf->appendChild($parentOrSelf->ownerDocument->createElement('classCode', $code));
-                            }
-                            else {
-                                $self = $parentOrSelf;
-                                $self->nodeValue = $code;
-                            }
-
-                            $self->setAttribute('scheme', $this->schemePrefix . 'lcsh');
-
-                            return $self;
-                        },
-                    ], false);
                 }
             }
         }
