@@ -41,27 +41,26 @@ extends BaseController
                         ;
                 }
                 else {
-                    $officeDoc = new \App\Utils\BinaryDocument();
-                    $officeDoc->load($file->getRealPath());
-
-                    // inject TeiFromWordCleaner
                     $myTarget = new class()
                     extends \App\Utils\TeiSimplePrintDocument
                     {
+                        // inject TeiFromWordCleaner
                         use \App\Utils\TeiFromWordCleaner;
                     };
 
                     $pandocConverter->setOption('target', $myTarget);
 
+                    $officeDoc = new \App\Utils\BinaryDocument();
+                    $officeDoc->load($file->getRealPath());
+
                     $teiSimpleDoc = $pandocConverter->convert($officeDoc);
 
-                    $conversionOptions = [
+                    // TeiSimple to TeiDtabf
+                    $converter = new \App\Utils\TeiSimplePrintToDtabfConverter([
                         'prettyPrinter' => $this->getTeiPrettyPrinter(),
                         'language' => \App\Utils\Iso639::code1to3($request->getLocale()),
-                        'genre' => 'document', // todo: make configurable
-                    ];
-
-                    $converter = new \App\Utils\TeiSimplePrintToDtabfConverter($conversionOptions);
+                        'genre' => 'document', // TODO: make configurable for introduction
+                    ]);
                     $teiDtabfDoc = $converter->convert($teiSimpleDoc);
 
                     return new Response((string)$teiDtabfDoc, Response::HTTP_OK, [
