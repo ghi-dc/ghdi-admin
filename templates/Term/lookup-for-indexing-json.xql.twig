@@ -48,7 +48,7 @@ declare option output:media-type "text/javascript";
 
 <json:value>
 {
-for $term in collection('/db/apps/ghis/data/authority/terms')/CategoryCode
+for $term in collection($collection)/CategoryCode
     let $name := functx:if-absent($term/name[@lang=$locale], $term/name[empty(@lang) or '_' = @lang])
     where not(fn:empty(functx:value-intersect($term/identifier, $ids)))
     order by $name
