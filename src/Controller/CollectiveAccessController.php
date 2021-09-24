@@ -325,6 +325,9 @@ extends BaseController
         return $target;
     }
 
+    /**
+     * Build a TEI representation from the Collective Access Entry
+     */
     protected function buildTei($data,
                                 TranslatorInterface $translator,
                                 CollectiveAccessService $caService,
@@ -414,6 +417,8 @@ extends BaseController
                         // "locale_id" => "1" / "4" comes without a clear structure
                         switch ($entity['relationship_typename']) {
                             case 'creator':
+                                $person = $this->lookupPerson($caService, $entity, $locale);
+                                /*
                                 if (array_key_exists('forename', $entity)) {
                                     // assume a structured name
                                     $nameParts = [];
@@ -430,12 +435,17 @@ extends BaseController
                                 else {
                                     $name = $this->buildTeiValue($entity['displayname'], true);
                                 }
+                                */
 
-                                $teiHeader->addAuthor($name);
+                                $persName = $person->teiSerializePersName();
+                                if (!empty($persName)) {
+                                    $teiHeader->addAuthor($persName);
+                                }
+
                                 break;
 
                             case 'contributor':
-                                if (array_key_exists('forename', $entity)) {
+                                if (array_key_exists('forename', $entity) || array_key_exists('surname', $entity)) {
                                     // assume a structured name
                                     $nameParts = [];
                                     foreach ([ 'forename', 'surname' ] as $key) {
@@ -547,15 +557,20 @@ extends BaseController
             if (array_key_exists($src, $data)) {
                 foreach ($languages as $lang) {
                     foreach ($data[$src] as $struct) {
-                        if (array_key_exists($lang, $struct) && !empty($struct[$lang]) && array_key_exists($dst, $struct[$lang])) {
-                            $raw = $struct[$lang][$dst];
+                        if (array_key_exists($lang, $struct) &&
+                            !empty($struct[$lang])
+                            && (array_key_exists($dst, $struct[$lang]) || array_key_exists('rightsHolder', $struct[$lang])))
+                        {
+                            if (!empty($struct[$lang][$dst])) {
+                                $raw = $struct[$lang][$dst];
 
-                            /* we prefix Source: */
-                            $raw = $translator->trans('Source') . ': ' . $raw;
+                                /* we prefix Source: */
+                                $raw = $translator->trans('Source') . ': ' . $raw;
 
-                            $val = $this->buildTeiValue($raw, false, true);
-                            if (!empty($val)) {
-                                $teiHeader->setSourceDescBibl($val);
+                                $val = $this->buildTeiValue($raw, false, true);
+                                if (!empty($val)) {
+                                    $teiHeader->setSourceDescBibl($val);
+                                }
                             }
 
                             if (!empty($struct[$lang]['rightsHolder'])) {
@@ -627,9 +642,9 @@ extends BaseController
 
         // get specific properties as by https://docs.collectiveaccess.org/wiki/Label_Bundles
         $caItemService->setRequestBody([
-            "bundles" => [
-                "ca_object_representations.representation_id" => [],
-                "ca_object_representations.description" => [],
+            'bundles' => [
+                'ca_object_representations.representation_id' => [],
+                'ca_object_representations.description' => [],
             ],
         ]);
 
@@ -717,19 +732,25 @@ extends BaseController
         ];
     }
 
-    protected function lookupTerm(CollectiveAccessService $caService,
-                                  $entity, $locale)
+    /**
+     *
+     */
+    protected function lookupPerson(CollectiveAccessService $caService,
+                                    $entity, $locale)
     {
         // TODO: add some caching
-        $caItemService = $caService->getItemService($entity['item_id'], 'ca_list_items');
+        $caItemService = $caService->getItemService($entity['entity_id'], 'ca_entities');
 
         // get specific properties as by https://docs.collectiveaccess.org/wiki/Label_Bundles
         $caItemService->setRequestBody([
-            "bundles" => [
-                "ca_list_items.item_id" => [],
-                "ca_list_items.preferred_labels.name_singular" => [],
-                "ca_list_items.preferred_labels.name_plural" => [],
-                "ca_lists.list_code" => [],
+            'bundles' => [
+                'ca_entities.preferred_labels.displayname' => [],
+                'ca_entities.preferred_labels.forename' => [],
+                'ca_entities.preferred_labels.surname' => [],
+                'ca_entities.preferred_labels.other_forenames' => [],
+                'ca_entities.preferred_labels.middlename' => [],
+                'ca_entities.preferred_labels.prefix' => [],
+                'ca_entities.preferred_labels.suffix' => [],
             ],
         ]);
 
@@ -741,7 +762,67 @@ extends BaseController
         $result = $caItemService->request();
         $data = $result->getRawData();
 
-        if ($data['ca_lists.list_code'] == 'is-knowledge-sections') {
+        $givenNameParts = [];
+        $familyNameParts = [];
+        foreach ([ 'prefix', 'forename', 'other_forname', 'middlename', 'surname', 'suffix' ] as $lookup) {
+            $key = 'ca_entities.preferred_labels.' . $lookup;
+            if (!empty($data[$key])) {
+                if (in_array($lookup, [ 'surname', 'suffix' ])) {
+                    $familyNameParts[] = $data[$key];
+                }
+                else {
+                    $givenNameParts[] = $data[$key];
+                }
+            }
+        }
+
+        $person = new \App\Entity\Person();
+        if (!empty($givenNameParts)) {
+            $person->setGivenName(join(' ', $givenNameParts));
+            if (!empty($familyNameParts)) {
+                $person->setFamilyName(join(' ', $familyNameParts));
+            }
+        }
+        else {
+            // unstructured
+            $person->setName(array_key_exists('ca_entities.preferred_labels.displayname', $data)
+                             ? $data['ca_entities.preferred_labels.displayname']
+                             : $entity['displayname']);
+        }
+
+        return $person;
+    }
+
+    /**
+     *
+     */
+    protected function lookupTerm(CollectiveAccessService $caService,
+                                  $entity, $locale)
+    {
+        // TODO: add some caching
+        $caItemService = $caService->getItemService($entity['item_id'], 'ca_list_items');
+
+        // get specific properties as by https://docs.collectiveaccess.org/wiki/Label_Bundles
+        $caItemService->setRequestBody([
+            'bundles' => [
+                'ca_list_items.item_id' => [],
+                'ca_list_items.preferred_labels.name_singular' => [],
+                'ca_list_items.preferred_labels.name_plural' => [],
+                'ca_lists.list_code' => [],
+            ],
+        ]);
+
+        // get the localized value
+        if (array_key_exists($locale, self::$LOCALE_MAP)) {
+            $caItemService->setLang(self::$LOCALE_MAP[$locale]);
+        }
+
+        $result = $caItemService->request();
+        $data = $result->getRawData();
+
+        if (array_key_exists('ca_lists.list_code', $data)
+            && $data['ca_lists.list_code'] == 'is-knowledge-sections')
+        {
             return;
         }
 

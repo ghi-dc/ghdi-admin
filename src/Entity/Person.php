@@ -293,6 +293,50 @@ extends SchemaOrg
     }
 
     /**
+     * build <persName>
+     */
+    public function teiSerializePersName()
+    {
+        $tag = '';
+
+        $givenName = $this->getGivenName();
+        if (!empty($givenName)) {
+            // assume a structured name
+            $nameParts = [
+                sprintf('<%s>%s</%s>',
+                        'forename',
+                        self::xmlSpecialchars($givenName),
+                        'forename'),
+            ];
+
+            $familyName = $this->getFamilyName();
+            if (!empty($familyName)) {
+                $nameParts[] = sprintf('<%s>%s</%s>',
+                                       'surname',
+                                       self::xmlSpecialchars($familyName),
+                                       'surname');
+            }
+
+            $tag = sprintf('<persName>%s</persName>',
+                           join(' ', $nameParts));
+        }
+        else {
+            $fullname = $this->getFullname();
+            if (!empty($fullname)) {
+                $tag = sprintf('<persName>%s</persName>', $fullname);
+            }
+            else {
+                $fullname = $this->getName();
+                if (!empty($fullname)) {
+                    $tag = sprintf('<persName>%s</persName>', $fullname);
+                }
+            }
+        }
+
+        return $tag;
+    }
+
+    /**
      * @Serializer\PreSerialize
      */
     public function onPreSerialize()
