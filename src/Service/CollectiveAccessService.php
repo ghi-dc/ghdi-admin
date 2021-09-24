@@ -130,7 +130,7 @@ class CollectiveAccessService
     }
 
     /**
-     * Make use of getItemService to request an bject-representation
+     * Make use of getItemService to request an object-representation
      *
      * @param string $id Object-representation identifier
      * @return array|null
@@ -145,5 +145,34 @@ class CollectiveAccessService
         }
 
         return $result->getRawData();
+    }
+
+    /**
+     * Images imported from legacy GHDI have their ca_objects.idno_ghdi set
+     */
+    public function lookupByIdno($resourceId)
+    {
+        if (empty($this->options['root-collection'])
+            || 'ghdi' != $this->options['root-collection']) {
+            return;
+        }
+
+        if (!preg_match('/^image\-(\d+)$/', $resourceId, $matches)) {
+            return;
+        }
+
+        $filter = sprintf('ca_objects.idno_ghdi:%d', $matches[1]);
+
+        $caSearchService = $this->getSearchService($filter, 'ca_objects');
+
+        $result = $caSearchService->request();
+        if (!$result->isOk()) {
+            return null;
+        }
+
+        $data = $result->getRawData();
+        if (1 == $data['total']) {
+            return $data['results'][0];
+        }
     }
 }
