@@ -6,7 +6,6 @@ use Symfony\Component\HttpFoundation\Request;
 $loader = require __DIR__.'/../config/autoload.php';
 
 $kernel = \App\MicroKernel::fromEnvironment();
-// $kernel->loadClassCache();
 
 $request = Request::createFromGlobals();
 $response = $kernel->handle($request);
