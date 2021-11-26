@@ -18,7 +18,7 @@ extends Kernel
      * Set an Environment Variable in Apache Configuration
      *   SetEnv APP_ENVIRONMENT prod
      * for production setting instead of having www/app.php and www/app_dev.php
-     * This approach is described int
+     * This approach is described in
      *   https://www.pmg.com/blog/symfony-no-app-dev/
      */
     public static function fromEnvironment()
