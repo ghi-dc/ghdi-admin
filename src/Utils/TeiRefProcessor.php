@@ -179,7 +179,9 @@ EOXQL;
             $components = parse_url($target);
             if ((array_key_exists('scheme', $components) && 'javascript' == $components['scheme'])
                 || (array_key_exists('host', $components)
-                    && strpos($components['host'], 'germanhistorydocs') !== false))
+                    && (strpos($components['host'], 'germanhistorydocs') !== false
+                        || strpos($components['host'], 'ghdi.ghi-dc.org') !== false)
+                ))
             {
                 list($route, $routeParameters) = $this->buildRouteVariables($components);
                 if (!empty($route)) {
