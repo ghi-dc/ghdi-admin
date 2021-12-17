@@ -14,9 +14,17 @@
 
   <!-- main match including source description -->
   <xsl:template match="/">
-    <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:author/*">
+    <xsl:if test="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:author/* or /tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:respStmt/*">
     <ul id="authors">
       <xsl:for-each select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:author/tei:persName">
+        <li>
+          <xsl:if test="@corresp">
+            <xsl:attribute name="data-author-slug"><xsl:value-of select="@corresp" /></xsl:attribute>
+          </xsl:if>
+          <xsl:apply-templates/>
+        </li>
+      </xsl:for-each>
+      <xsl:for-each select="/tei:TEI/tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:respStmt/tei:persName">
         <li>
           <xsl:if test="@corresp">
             <xsl:attribute name="data-author-slug"><xsl:value-of select="@corresp" /></xsl:attribute>
