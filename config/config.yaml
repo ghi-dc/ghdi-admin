@@ -42,10 +42,6 @@ scssphp:
         "css/base.css":
             src: "public/assets/scss/base.scss"
             sourceMap: true
-#            importPaths:
-#                - "vendor/twbs/bootstrap/scss"
-#            variables:
-#                primary: '#ff0066'
 
 knp_menu:
     # use "twig: false" to disable the Twig extension and the TwigRenderer
