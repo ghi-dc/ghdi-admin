@@ -20,7 +20,7 @@ extends BaseController
     /**
      * Make unique across language so we can line-up different languages under same id
      */
-    protected function nextInSequence(\ExistDbRpc\Client $client, $collection, $prefix)
+    protected function nextInSequence(\ExistDbRpc\Client $client, $collection, $prefix, $start = 1)
     {
         // see https://stackoverflow.com/a/48901690
         $xql = <<<EOXQL
@@ -34,7 +34,7 @@ extends BaseController
         where fn:starts-with(util:document-name(\$resource), \$prefix)
         return fn:head(fn:tokenize(util:document-name(\$resource), '\.'))
 
-    return (for \$key in (1 to 9999)!format-number(., '0')
+    return (for \$key in (\$start to 9999)!format-number(., '0')
         where not(\$prefix||\$key = \$resources)
         return \$prefix || \$key)[1]
 
@@ -43,24 +43,30 @@ EOXQL;
         $query = $client->prepareQuery($xql);
         $query->bindVariable('collection', $collection);
         $query->bindVariable('prefix', $prefix);
+        $query->bindVariable('start', $start);
         $res = $query->execute();
         $nextId = $res->getNextResult();
 
         $res->release();
 
         if (empty($nextId)) {
-            throw new \Exception('Could not generated next id in sequence');
+            throw new \Exception('Could not generate next id in sequence');
         }
 
         return $nextId;
     }
 
+    /**
+     * $shelfmark contains both path and order
+     *
+     * Split into components and chop off order
+     */
     protected function buildPathFromShelfmark($shelfmark)
     {
         $parts = explode('/', $shelfmark);
         array_shift($parts); // pop site prefix
 
-        // split of order within
+        // chop order within each path component
         $parts = array_map(function ($orderId) {
             list($order, $id) = explode(':', $orderId, 2);
 
@@ -89,6 +95,7 @@ EOXQL;
                 if (!array_key_exists('hasPart', $parentResource)) {
                     $parentResource['hasPart'] = [];
                 }
+
                 $parentResource['hasPart'][] = $resource;
 
                 continue;
@@ -176,10 +183,11 @@ EOXQL;
         return true;
     }
 
-    protected function reorderChildResources(\ExistDbRpc\Client $client, $volume, $lang, $hasPart, $postData)
+    /**
+     * Reorder child resources according to $order
+     */
+    protected function reorderChildResources(\ExistDbRpc\Client $client, $volume, $lang, $hasPart, $order)
     {
-        $order = json_decode($postData, true);
-
         $updated = false;
         if (false !== $order) {
             $newOrder = [];
@@ -214,8 +222,19 @@ EOXQL;
         return $updated;
     }
 
-    private function checkUpdateFromCollectiveAccess(CollectiveAccessService $caService, $html)
+    /**
+     * Check if current resource can be regenerated from CollectiveAccess
+     */
+    private function checkUpdateFromCollectiveAccess(CollectiveAccessService $caService,
+                                                     $html, $resourceId = null)
     {
+        if (!empty($resourceId)) {
+            $caObject = $caService->lookupByIdno($resourceId);
+            if (!empty($caObject)) {
+                return $caObject['object_id'];
+            }
+        }
+
         $mediaSrc = [];
 
         $crawler = new \Symfony\Component\DomCrawler\Crawler();
@@ -473,7 +492,7 @@ EOXQL;
         }
 
         // check whether TEI can be regenerated from CollectiveAccess
-        $updateFromCollectiveAccess = $this->checkUpdateFromCollectiveAccess($caService, $html);
+        $updateFromCollectiveAccess = $this->checkUpdateFromCollectiveAccess($caService, $html, $id);
         if (!is_null($updateFromCollectiveAccess) && isset($action) && in_array($action, [ 'overwrite' ])) {
             $teiResponse = $this->forward('App\Controller\CollectiveAccessController::detailAction', [
                 'id'  => $updateFromCollectiveAccess,
@@ -493,9 +512,13 @@ EOXQL;
                 ];
 
                 $this->updateTeiHeaderContent($client, $resourcePath, $content, $data);
+                $this->addFlash('info', 'The resource has been updated');
 
                 // refresh $html after update
                 $html = $this->teiToHtml($client, $resourcePath, $lang);
+            }
+            else {
+                $this->addFlash('warning', 'The import from Collective Access failed');
             }
         }
 
@@ -530,11 +553,34 @@ EOXQL;
 
         // child resources
         $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
-        if (!empty($hasPart) && $request->isMethod('post')) {
-            // check for updated order
-            $postData = $request->request->get('order');
-            if (!empty($postData)) {
-                $updated = $this->reorderChildResources($client, $volume, $lang, $hasPart, $postData);
+        if (!empty($hasPart)) {
+            $newOrder = null;
+
+            if ($request->isMethod('post')) {
+                // look for updated order in post request
+                $postData = $request->request->get('order');
+                if (!empty($postData)) {
+                    $newOrder = json_decode($postData, true);
+                }
+            }
+            else if (!empty($request->get('reorder-from'))) {
+                // sync order with order from alternate locale
+                $alternateLocale = $request->get('reorder-from');
+
+                if (in_array($alternateLocale, $this->getParameter('locales'))
+                    && $alternateLocale != $request->getLocale())
+                {
+                    $alternateCode3 = \App\Utils\Iso639::code1To3($alternateLocale);
+                    $hasPartAlternate = $this->buildChildResources($client, $volume, $id, $alternateCode3);
+                    if (!empty($hasPartAlternate)) {
+                        $newOrder = array_map(function($resource) { return $resource['id']; }, $hasPartAlternate);
+                    }
+                }
+            }
+
+            if (!empty($newOrder)) {
+                $updated = $this->reorderChildResources($client, $volume, $lang, $hasPart, $newOrder);
+
                 if ($updated) {
                     $this->addFlash('info', 'The order has been updated');
 
@@ -756,7 +802,7 @@ EOXQL;
             if (!$update) {
                 $lang = \App\Utils\Iso639::code1To3($request->getLocale());
 
-                $id = $this->nextInSequence($client, $client->getCollection(), $prefix = 'chapter-');
+                $id = $this->nextInSequence($client, $client->getCollection(), $prefix = 'chapter-', $this->sequenceStart);
 
                 $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
 
@@ -805,6 +851,9 @@ EOXQL;
         ]);
     }
 
+    /**
+     * Use $pandocConverter to convert Word file into TeiDtabfDocument
+     */
     private function word2doc(\App\Utils\PandocConverter $pandocConverter,
                               \ExistDbRpc\Client $client,
                               $fname,
@@ -982,7 +1031,7 @@ EOXQL;
                             $slug = $entity->getDtaDirName();
                         }
                         else {
-                            $resourceId = $this->nextInSequence($client, $client->getCollection(), $prefix = $genre . '-');
+                            $resourceId = $this->nextInSequence($client, $client->getCollection(), $prefix = $genre . '-', $this->sequenceStart);
 
                             // shelf-mark - append at the end
                             $counter = 1;

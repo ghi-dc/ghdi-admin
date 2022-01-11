@@ -10,12 +10,11 @@ services:
         autoconfigure: true
         public: false
         bind:
-            $siteKey: '%app.site.key%' # so we can inject this one, https://symfony.com/blog/new-in-symfony-3-4-local-service-binding
+            # inject the following,
+            # see https://symfony.com/blog/new-in-symfony-3-4-local-service-binding
+            $siteKey: '%app.site.key%'
+            $sequenceStart: '%app.site.sequence_start%'
             
-    Jasny\Twig\PcreExtension:
-        tags:
-          - { name: twig.extension }
-
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -88,6 +87,10 @@ services:
         calls:
             - [ setAdapter, [ '@app.tei-prettyprinter-adapter' ]]
     
+    Jasny\Twig\PcreExtension:
+        tags:
+          - { name: twig.extension }
+
     # So we can inject @solr.client, see https://github.com/floriansemm/SolrBundle/issues/191#issuecomment-466101623
     FS\SolrBundle\SolrInterface: '@solr.client'
     

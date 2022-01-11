@@ -27,9 +27,13 @@ parameters:
     app.site.name: German History in Documents and Images
     app.site.structure:
         introduction: { 'name': 'Introduction' }
-        documents: { 'name': 'Documents' }
-        images: { 'name': 'Images' }
+        documents: { 'name': 'Sources' }
+        # images are merged with documents in new structure
+        # images: { 'name': 'Images' }
         maps: { 'name': 'Maps' }
+    app.site.sequence_start: 1
+    app.frontend.data_dir: "%kernel.project_dir%/../ghdi-frontend/data"
+    app.frontend.media_dir: "%kernel.project_dir%/../ghdi-frontend/public/media"
 
     app.scalar_client.options:
         baseurl: http://localhost/ghdi/
@@ -44,7 +48,7 @@ parameters:
         group-id:   ~
 
     app.collective-access.options:
-        url: https://ghdi-ca.ghi-dc.org
+        url: https://ghdi-ca.ghi-dc.org/
         # currently the user seems to need an Administrator role
         api-user: "api"
         api-key: ~

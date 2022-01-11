@@ -36,10 +36,11 @@ extends BaseController
     public function __construct(ExistDbClientService $existDbClientService,
                                 KernelInterface $kernel,
                                 XmlPrettyPrinter $teiPrettyPrinter,
-                                string $siteKey,
+                                string $siteKey, string $sequenceStart,
                                 PandocProcessor $pandocProcessor)
     {
-        parent::__construct($existDbClientService, $kernel, $teiPrettyPrinter, $siteKey);
+        parent::__construct($existDbClientService, $kernel, $teiPrettyPrinter,
+                            $siteKey, $sequenceStart);
 
         $this->pandocProcessor = $pandocProcessor;
     }

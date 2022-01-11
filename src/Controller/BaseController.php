@@ -29,6 +29,7 @@ extends AbstractController
     private $kernel;
     private $teiPrettyPrinter;
     protected $siteKey;
+    protected $sequenceStart = 1;
     protected $authorityPaths = [
         'persons' => '/data/authority/persons',
         'organizations' => '/data/authority/organizations',
@@ -39,12 +40,14 @@ extends AbstractController
     public function __construct(ExistDbClientService $existDbClientService,
                                 KernelInterface $kernel,
                                 XmlPrettyPrinter $teiPrettyPrinter,
-                                string $siteKey)
+                                string $siteKey,
+                                string $sequenceStart)
     {
         $this->existDbClientService = $existDbClientService;
         $this->kernel = $kernel;
         $this->teiPrettyPrinter = $teiPrettyPrinter;
         $this->siteKey = $siteKey;
+        $this->sequenceStart = $sequenceStart;
     }
 
     protected function getExistDbClient($subCollection = null) : \ExistDbRpc\Client
