@@ -604,6 +604,15 @@ EOXQL;
             }
         }
 
+        $caUrl = $caService->getUrl();
+        if (!empty($caUrl) && preg_match($reCaSvgUrl = '/src="([^"]*' . preg_quote($caUrl, '/') . '[^"]*\.xml)"/', $html, $matches)) {
+            // we need to proxy url to svg files from collective access for correct mime type
+            $svgProxy = $this->generateUrl('svgproxy');
+            $html = preg_replace($reCaSvgUrl,
+                                 'src="' . $svgProxy . '?url=\1' . '"',
+                                 $html);
+        }
+
         return $this->render('Resource/detail.html.twig', [
             'id' => $id,
             'volume' => $this->fetchVolume($client, $volume, $lang),
@@ -891,7 +900,7 @@ EOXQL;
      * @Route("/resource/{volume}/add/{id}", name="resource-add-introduction",
      *        requirements={"volume" = "volume\-\d+", "id" = "(introduction)"})
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload",
-     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|audio|video)\-\d+"})
+     *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|audio|video|map)\-\d+"})
      */
     public function uploadAction(Request $request,
                                  \App\Utils\PandocConverter $pandocConverter,

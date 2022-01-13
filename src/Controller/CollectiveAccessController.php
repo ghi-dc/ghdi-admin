@@ -695,6 +695,14 @@ extends BaseController
                     $idxAV = -1;
                 }
             }
+            else if (in_array($representation['mimetype'], [ 'text/xml' ])) {
+                // Map SVG can be localized
+                if (preg_match('/\.([a-z]+)\.svg$/', $representation['original_filename'], $matches)) {
+                    if ($matches[1] != \App\Utils\Iso639::code1To3($locale)) {
+                        continue;
+                    }
+                }
+            }
 
             $figures[] = $representation + [ 'caption' => $figureCaption ];
         }

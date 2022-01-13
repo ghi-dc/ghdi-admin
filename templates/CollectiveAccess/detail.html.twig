@@ -2,7 +2,7 @@
 
 {% import 'Base/helper.html.twig' as helper %}
 
-{% block body %}
+{% block head %}
     <style>
         hi[rendition='#i'] {
             font-style: italic;
@@ -20,6 +20,9 @@
             max-width: 100%;
         }
     </style>
+{% endblock %}
+
+{% block body %}
     <h2>{{ 'Collective Access'|trans }}</h2>
     {{ helper.display_flashes() }}
 
@@ -62,6 +65,8 @@
                         Your browser does not support the
                         <code>audio</code> element.
                 </audio>
+            {% elseif 'text/xml' == figure['mimetype'] and figure['original_filename'] ends with '.svg' %}
+                <img src="{{ path('svgproxy') }}?url={{ figure['urls']['original']|url_encode }}" style="max-width: 60%; height: auto" />
             {% elseif 'video/mp4' == figure['mimetype'] %}
                 {{ figure['tags']['original']|raw }}
             {% else %}

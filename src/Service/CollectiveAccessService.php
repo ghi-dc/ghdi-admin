@@ -34,6 +34,15 @@ class CollectiveAccessService
         }
     }
 
+    public function getUrl()
+    {
+        if (!array_key_exists('url', $this->options)) {
+            return;
+        }
+
+        return $this->options['url'];
+    }
+
     /**
      * Return a \CA\SearchService instance
      * to the REST-URL with the proper

@@ -177,7 +177,13 @@ extends ExistDbCommand
                 $path = parse_url($url, PHP_URL_PATH);
                 $fname = basename($path);
                 if (preg_match('/_original\./', $fname)) {
-                    $fname = preg_replace('/_original\./', '_frontend.', $fname);
+                    if (preg_match('/\.xml$/', $fname)) {
+                        // SVG
+                        $fname = preg_replace('/\.xml$/', '.svg', $fname);
+                    }
+                    else {
+                        $fname = preg_replace('/_original\./', '_frontend.', $fname);
+                    }
                 }
 
                 return $fname;
@@ -209,6 +215,11 @@ extends ExistDbCommand
                         $targetType = 'image/png';
                         break;
 
+                    case 'xml':
+                        $targetType = 'image/svg+xml';
+                        $fname = preg_replace('/\.xml$/', '.svg', $fname);
+                        break;
+
                     default:
                         die('TODO: handle extension for ' . $url);
 
@@ -224,31 +235,37 @@ extends ExistDbCommand
         }
 
         if (file_exists($mediaPath . '/' . $fname)) {
-            $maxDimension = 1200;
-            $maxResolution = 72;
-
-            // check if we need to convert (either resize or change format)
-            $imageConversion = $this->conversionService;
-
             $file = new \Symfony\Component\HttpFoundation\File\File($mediaPath . '/' . $fname);
             $imageName = $file->getFileName();
 
-            $info = $imageConversion->identify($file);
-            if ((!empty($info['width']) && $info['width'] > $maxDimension)
-                || (!empty($info['height']) && $info['height'] > $maxDimension))
-            {
-                $converted = $imageConversion->convert($file, [
-                    'geometry' => $maxDimension . 'x' . $maxDimension,
-                    'target_type' => $targetType,
-                ]);
-
-                $imageName = $converted->getFileName();
+            if ('image/svg+xml' == $targetType) {
+                // no conversion needed
+                // TODO: maybe render bitmap for PDF
             }
+            else {
+                $maxDimension = 1200;
+                $maxResolution = 72;
 
-            $info = $this->imageHeaderService->getResolution($file = new \Symfony\Component\HttpFoundation\File\File($mediaPath . '/' . $imageName));
+                // check if we need to convert (either resize or change format)
+                $imageConversion = $this->conversionService;
 
-            if (!empty($info) && ($info['xresolution'] > $maxResolution || $info['yresolution'] > $maxResolution)) {
-                $res = $this->imageHeaderService->setResolution($file, [ 'xresolution' => $maxResolution, 'yresolution' => $maxResolution ]);
+                $info = $imageConversion->identify($file);
+                if ((!empty($info['width']) && $info['width'] > $maxDimension)
+                    || (!empty($info['height']) && $info['height'] > $maxDimension))
+                {
+                    $converted = $imageConversion->convert($file, [
+                        'geometry' => $maxDimension . 'x' . $maxDimension,
+                        'target_type' => $targetType,
+                    ]);
+
+                    $imageName = $converted->getFileName();
+                }
+
+                $info = $this->imageHeaderService->getResolution($file = new \Symfony\Component\HttpFoundation\File\File($mediaPath . '/' . $imageName));
+
+                if (!empty($info) && ($info['xresolution'] > $maxResolution || $info['yresolution'] > $maxResolution)) {
+                    $res = $this->imageHeaderService->setResolution($file, [ 'xresolution' => $maxResolution, 'yresolution' => $maxResolution ]);
+                }
             }
         }
 
