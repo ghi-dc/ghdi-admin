@@ -20,7 +20,7 @@ extends BaseController
     /**
      * Make unique across language so we can line-up different languages under same id
      */
-    protected function nextInSequence(\ExistDbRpc\Client $client, $collection, $prefix, $start = 1)
+    protected function nextInSequence(\ExistDbRpc\Client $client, $collection, $prefix, int $start = 1)
     {
         // see https://stackoverflow.com/a/48901690
         $xql = <<<EOXQL
@@ -897,8 +897,8 @@ EOXQL;
     /**
      * @Route("/resource/{volume}/{id}/add", name="resource-upload-child",
      *        requirements={"volume" = "volume\-\d+", "id" = "(chapter|document)\-\d+"})
-     * @Route("/resource/{volume}/add/{id}", name="resource-add-introduction",
-     *        requirements={"volume" = "volume\-\d+", "id" = "(introduction)"})
+     * @Route("/resource/{volume}/add/{id}", name="resource-add-introduction-or-map",
+     *        requirements={"volume" = "volume\-\d+", "id" = "(introduction|map)"})
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload",
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|audio|video|map)\-\d+"})
      */
@@ -915,6 +915,10 @@ EOXQL;
         if ('introduction' == $id) {
             // TODO: check if there is already an introduction for $volume
             // if yes, redirect
+            $resourceId = $volume;
+        }
+        else if ('map' == $id) {
+            // there can be an unlimited number of maps per volume
             $resourceId = $volume;
         }
 
@@ -986,7 +990,7 @@ EOXQL;
                                 $terms = $entity->getTerms();
                             }
 
-                            // genre can be both document and image
+                            // genre can be document, image or map
                             $newEntity = \App\Entity\TeiHeader::fromXmlString((string)$teiDtabfDoc);
                             if (!is_null($newEntity)) {
                                 $genre = $newEntity->getGenre();
