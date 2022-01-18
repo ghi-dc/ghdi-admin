@@ -41,7 +41,7 @@ extends AbstractController
                                 KernelInterface $kernel,
                                 XmlPrettyPrinter $teiPrettyPrinter,
                                 string $siteKey,
-                                string $sequenceStart)
+                                int $sequenceStart)
     {
         $this->existDbClientService = $existDbClientService;
         $this->kernel = $kernel;
