@@ -503,7 +503,7 @@ extends BaseController
             if (array_key_exists($src, $data)) {
                 foreach ($languages as $lang) {
                     foreach ($data[$src] as $struct) {
-                        if (array_key_exists($lang, $struct) && !empty($struct[$lang])) {
+                        if (array_key_exists($lang, $struct) && array_key_exists($dst, $struct[$lang])) {
                             $val = $this->buildTeiValue($struct[$lang][$dst], false);
                             if (!empty($val)) {
                                 // let's see if it is a date string like February 23 1893
