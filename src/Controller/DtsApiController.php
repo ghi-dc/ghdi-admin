@@ -29,12 +29,12 @@ extends ResourceController
     public function entryPointAction(Request $request)
     {
         return new JsonResponse([
-            "@context" => $this->generateUrl('dts-entry-point-context'),
-            "@id" => $this->generateUrl($request->get('_route')),
-            "@type" => "EntryPoint",
-            "collections" => $this->generateUrl('dts-collections'),
-            "documents"=> $this->generateUrl('dts-document'),
-            // "navigation" => "/api/dts/navigation",
+            '@context' => $this->generateUrl('dts-entry-point-context'),
+            '@id' => $this->generateUrl($request->get('_route')),
+            '@type' => 'EntryPoint',
+            'collections' => $this->generateUrl('dts-collections'),
+            'documents' => $this->generateUrl('dts-document'),
+            // 'navigation' => '/api/dts/navigation',
         ]);
     }
 
