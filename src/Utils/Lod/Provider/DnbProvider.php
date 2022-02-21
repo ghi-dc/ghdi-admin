@@ -69,6 +69,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
             case 'https://d-nb.info/standards/elementset/gnd#SubjectHeadingSensoStricto':
             case 'https://d-nb.info/standards/elementset/gnd#HistoricSingleEventOrEra';
             case 'https://d-nb.info/standards/elementset/gnd#EthnographicName':
+            case 'https://d-nb.info/standards/elementset/gnd#GroupOfPersons':
             case 'https://d-nb.info/standards/elementset/gnd#NomenclatureInBiologyOrChemistry':
                 return $this->instantiateTermFromResource($resource);
                 break;
