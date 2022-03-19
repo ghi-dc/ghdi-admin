@@ -141,7 +141,7 @@ trait TeiFromWordCleaner
                                     if (1 == $pLast->length) {
                                         $pLast = $pLast->item(0);
 
-                                        if (preg_match('/^(Quelle|Source).*:/', $pLast->textContent)) {
+                                        if (preg_match('/^(Quelle|Source).*:/s', $pLast->textContent)) {
                                             $this->moveCitationToSourceDesc($pLast);
                                             $found = true;
                                         }
