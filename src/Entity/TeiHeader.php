@@ -181,6 +181,7 @@ implements \JsonSerializable
             $entity->setDtaDirName($article->slug);
         }
 
+        $entity->setGenre($article->genre);
         if (property_exists($article, 'shelfmark')) {
             $entity->setShelfmark($article->shelfmark);
         }
@@ -197,7 +198,6 @@ implements \JsonSerializable
             $entity->setDateCreated($article->dateCreated);
         }
 
-        $entity->setGenre($article->genre);
         $entity->setTerms($article->terms);
         $entity->setMeta($article->meta);
         $entity->setLicenceTarget($article->licence);
