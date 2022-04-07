@@ -33,6 +33,13 @@ extends TeiHeader
     protected $tags = [];
 
     /**
+     * @var string The Volume id for facetting.
+     *
+     * @Solr\Field(type="string")
+     */
+    private $volumeId;
+
+    /**
      * Sets body.
      *
      * @param string $body
@@ -75,15 +82,24 @@ extends TeiHeader
     public function getVolumeId()
     {
         if ('volume' == $this->getGenre()) {
-            return $this->getId(true);
+            return $this->volumeId = $this->getId(true);
         }
 
         $parts = explode('/', $this->getShelfmark());
         if (count($parts) > 1) {
             list($order, $volumeId) = explode(':', $parts[1], 2);
 
-            return $volumeId;
+            return $this->volumeId = $volumeId;
         }
+    }
+
+    public function setShelfmark($shelfmark)
+    {
+        $ret = parent::setShelfmark($shelfmark);
+
+        $this->getVolumeId(); // in order to set $this->volumeId for solr
+
+        return $ret;
     }
 
     public function jsonSerialize()
