@@ -514,6 +514,9 @@ EOXQL;
                 $this->updateTeiHeaderContent($client, $resourcePath, $content, $data);
                 $this->addFlash('info', 'The resource has been updated');
 
+                // refetch $resource for updated terms
+                $resource = $this->fetchResource($client, $id, $lang);
+
                 // refresh $html after update
                 $html = $this->teiToHtml($client, $resourcePath, $lang);
             }
