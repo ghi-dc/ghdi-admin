@@ -154,6 +154,9 @@ extends BaseController
         return trim($teiDtabf);
     }
 
+    /**
+     * Try to guess if a string is plain text or HTML
+     */
     protected function hasHtmlTag($val)
     {
         return strip_tags($val) !== $val;
@@ -164,6 +167,9 @@ extends BaseController
         return html_entity_decode($val, ENT_QUOTES, 'utf-8');
     }
 
+    /**
+     * Add <a> or <ref> around plain-text URLs
+     */
     protected function autolink($markup, $mode = 'html')
     {
         $tag = 'a'; $attribute = 'href';
