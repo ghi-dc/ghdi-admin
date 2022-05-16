@@ -1,7 +1,7 @@
 {
     "config": {
         "platform": {
-            "php": "7.2.9"
+            "php": "7.3.0"
         }
     },
     "repositories": [
@@ -39,7 +39,7 @@
         }
     ],
     "require": {
-        "php" : "^7.2.9",
+        "php" : "^7.3.0",
 
         "symfony/config": "^5.4",
         "symfony/finder": "^5.4",
