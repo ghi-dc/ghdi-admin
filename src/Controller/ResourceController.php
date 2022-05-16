@@ -508,6 +508,7 @@ EOXQL;
                     'id' => $entity->getId(),
                     'shelfmark' => $entity->getShelfmark(),
                     'slug' => $entity->getDtaDirName(),
+                    'genre' => $entity->getGenre(), // so map doesn't get turned into image
                     'meta' => $entity->getMeta(),
                 ];
 
