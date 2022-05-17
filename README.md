@@ -68,8 +68,12 @@ Located in /db/apps/ghdi/data/volumes/
 
 ## Add to Frontend (Solr and TEI files)
 
-    ./bin/console solr:populate --locale=en
-    ./bin/console solr:populate --locale=de
+    ./bin/console solr:populate --locale=en volume-XX
+    ./bin/console solr:populate --locale=de volume-XX
+
+## Fetch Frontend Bibliography
+
+    ./bin/console zotero:fetch-collection volume-3 4CXHVSIY
 
 ## Scalar (Legacy)
 
