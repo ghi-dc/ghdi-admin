@@ -188,6 +188,10 @@ extends AbstractController
 
         $choices = [];
 
+        if (is_null($terms)) {
+            return $choices;
+        }
+
         foreach ($terms['data'] as $term) {
             $name = $term['name'];
             $value = null;

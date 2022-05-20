@@ -277,6 +277,10 @@ EOXQL;
 
         $choices = [];
 
+        if (is_null($terms)) {
+            return $choices;
+        }
+
         foreach ($terms['data'] as $term) {
             $name = $term['name'];
             $choices[$term['id']] = $name;
