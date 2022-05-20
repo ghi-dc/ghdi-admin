@@ -87,6 +87,10 @@ services:
         calls:
             - [ setAdapter, [ '@app.tei-prettyprinter-adapter' ]]
     
+    App\Service\SanitizationService:
+        arguments:
+            $cacheDirectory: '%kernel.project_dir%/var/cache/html-purifier'
+
     Jasny\Twig\PcreExtension:
         tags:
           - { name: twig.extension }

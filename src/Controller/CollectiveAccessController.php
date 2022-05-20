@@ -16,6 +16,7 @@ use Cocur\Slugify\SlugifyInterface;
 
 use App\Service\CollectiveAccessService;
 use App\Service\ExistDbClientService;
+use App\Service\SanitizationService;
 use App\Utils\PandocProcessor;
 use App\Utils\XmlPrettyPrinter\XmlPrettyPrinter;
 
@@ -31,18 +32,21 @@ extends BaseController
     ];
 
     protected $pandocProcessor;
+    protected $sanitizationService;
     protected $termChoicesByUri = [];
 
     public function __construct(ExistDbClientService $existDbClientService,
                                 KernelInterface $kernel,
                                 XmlPrettyPrinter $teiPrettyPrinter,
                                 string $siteKey, string $sequenceStart,
-                                PandocProcessor $pandocProcessor)
+                                PandocProcessor $pandocProcessor,
+                                SanitizationService $sanitizationService)
     {
         parent::__construct($existDbClientService, $kernel, $teiPrettyPrinter,
                             $siteKey, $sequenceStart);
 
         $this->pandocProcessor = $pandocProcessor;
+        $this->sanitizationService = $sanitizationService;
     }
 
     protected function getTermChoicesByUri($locale)
@@ -103,12 +107,7 @@ extends BaseController
             $htmlFragment = $this->autolink($htmlFragment);
         }
 
-        $config = \HTMLPurifier_Config::createDefault();
-        $config->set('AutoFormat.RemoveSpansWithoutAttributes', true);
-        $config->set('CSS.AllowedProperties', []);
-
-        $purifier = new \HTMLPurifier($config);
-        $xhtml = $purifier->purify($htmlFragment);
+        $xhtml = $this->sanitizationService->sanitizeHtml($htmlFragment);
 
         if (function_exists('tidy_parse_string')) {
             $tidyConfig = [
