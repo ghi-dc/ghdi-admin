@@ -112,7 +112,7 @@
                         {% for item in breadcrumbs_array %}
                             {%- if loop.last == false -%}
                                 <li class="list-inline-item">{%- if item.uri -%}<a
-                                    href="{{ item.uri }}">{{ item.label|trans({}, 'messages') }}</a>{%- else -%}{{ item.label|trans({}, 'menu') }}{%- endif -%}
+                                    href="{{ item.uri }}">{{ item.label|trans({}, 'messages') }}</a>{%- else -%}{{ item.label|trans({}, 'messages') }}{%- endif -%}
                                     &nbsp; &nbsp;<span class="divider">/</span></li>
                             {% else %}
                                 <li class="list-inline-item active">{{ item.label|trans({}, 'messages') }}</li>
