@@ -1029,6 +1029,16 @@ extends SchemaOrg
         return $this->version;
     }
 
+    /**
+     * Gets cover URL.
+     *
+     * @return string
+     */
+    public function getCoverUrl()
+    {
+        return null; // not implemented yet
+    }
+
     public function renderCitationAsHtml($citeProc, $locale, $purgeSeparator = false)
     {
         $ret = @$citeProc->render([ json_decode(json_encode($this->jsonSerialize($locale))) ]);
@@ -1560,8 +1570,10 @@ extends SchemaOrg
         $analytic = null;
         switch ($this->itemType) {
             case 'book':
+            case 'thesis':
             case 'webpage':
             case 'blogPost':
+            case 'document':
                 $titleMonogr = $this->getName();
                 break;
 

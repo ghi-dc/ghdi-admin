@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 /**
  *
  */
@@ -57,7 +59,10 @@ extends BaseController
      * @Route("/bibliography/{id}.tei.xml", name="bibliography-detail-tei", requirements={"id" = "[0-9A-Z]+"})
      * @Route("/bibliography/{id}", name="bibliography-detail", requirements={"id" = "[0-9A-Z]+"})
      */
-    public function detailAction(Request $request, $id)
+    public function detailAction(Request $request,
+                                 TranslatorInterface $translator,
+                                 \App\Service\ZoteroApiService $zoteroApiService,
+                                 $id)
     {
         $client = $this->getExistDbClient($this->subCollection);
 
@@ -77,10 +82,11 @@ extends BaseController
         if (0 == count($simplexml)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No item found for id: ' . $id)
+                    ->add('warning', sprintf($translator->trans('No item found for id: %s'),
+                                             $id))
                 ;
 
-            return $this->redirect($this->generateUrl('organization-list'));
+            return $this->redirect($this->generateUrl('bibliography-list'));
         }
 
         foreach ($simplexml as $elem) {
@@ -102,11 +108,9 @@ extends BaseController
 
         $creativeWork = \App\Entity\CreativeWork::fromTei($elem->asXML());
 
-        $path = $this->get('kernel')->getProjectDir()
+        $path = $this->getProjectDir()
             . '/data/styles/apa.csl';
         $citeProc = new \Seboettg\CiteProc\CiteProc(file_get_contents($path), $locale = 'en-US');
-
-        $zoteroApiService = $this->get(\App\Service\ZoteroApiService::class);
 
         return $this->render('Bibliography/detail.html.twig', [
             'creativeWork' => $creativeWork,
@@ -118,10 +122,10 @@ extends BaseController
     /**
      * @Route("/bibliography/sync", name="bibliography-sync")
      */
-    public function syncAction(Request $request)
+    public function syncAction(Request $request,
+                               TranslatorInterface $translator,
+                               \App\Service\ZoteroApiService $zoteroApiService)
     {
-        $zoteroApiService = $this->get(\App\Service\ZoteroApiService::class);
-
         // TODO: get maxModified as by
         // https://hcmc.uvic.ca/blogs/index.php?blog=11&p=8947
         $maxModified = null;
@@ -154,8 +158,8 @@ extends BaseController
             catch (\GuzzleHttp\Exception\ClientException $e) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('error', sprintf('Error requesting items %s (%s)',
-                                               $start, $e->getResponse()->getStatusCode()));
+                        ->add('danger', sprintf('Error requesting items %s (%s)',
+                                                $start, $e->getResponse()->getStatusCode()))
                     ;
 
                 return $this->redirect($this->generateUrl('bibliography-list'));
@@ -213,7 +217,8 @@ extends BaseController
                     if (!$res) {
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('warning', 'An issue occured while storing id: ' . $id)
+                                ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
+                                                         $id))
                             ;
                     }
                     else {
@@ -223,7 +228,10 @@ extends BaseController
 
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
+                                ->add('info',
+                                      $update
+                                      ? $translator->trans('Entry updated')
+                                      : $translator->trans('Entry created'))
                             ;
                     }
                 }
@@ -232,8 +240,8 @@ extends BaseController
 
         $request->getSession()
                 ->getFlashBag()
-                ->add('info', sprintf('Fetched %s items (%s updated)',
-                                       $fetched, $updated));
+                ->add('info', sprintf($translator->trans('Fetched %s items (%s updated)'),
+                                      $fetched, $updated))
             ;
 
         return $this->redirect($this->generateUrl('bibliography-list'));
