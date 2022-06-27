@@ -34,7 +34,9 @@ extends AbstractType
     {
         $resolver->setDefaults([
             'invalid_message' => 'No matching term found !',
-            'finder_callback' => function(string $email) {
+            // term-autocomplete isn't implemented yet
+            /*
+            'finder_callback' => function(string $name) {
                 $term = new \App\Entity\Term();
                 $term->setId('term-1');
                 $term->setName('Term 1');
@@ -45,6 +47,7 @@ extends AbstractType
                 'class' => 'js-user-autocomplete',
                 'data-autocomplete-url' => $this->router->generate('term-autocomplete')
             ]
+            */
         ]);
     }
 }
