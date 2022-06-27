@@ -51,6 +51,16 @@ extends SchemaOrg
     private $containedInPlace;
 
     /**
+     * Gets additional.
+     *
+     * @return array|null
+     */
+    public function getAdditional()
+    {
+        return null; // not implemented yet
+    }
+
+    /**
      * Sets additionalType.
      *
      * @param string $additionalType

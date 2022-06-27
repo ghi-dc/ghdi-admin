@@ -55,7 +55,7 @@
             </h4>
             {% endif %}
 
-            {% if (entity.geo is not empty and entity.geo.latLong is not empty) or entity.additional.boundary is not empty %}
+            {% if (entity.geo is not empty and entity.geo.latLong is not empty) or (entity.additional is not null and entity.additional.boundary is not empty) %}
             <div id="map" class="col-sm-12" style="width: 100%; min-height: 360px"></div>
             <script>
             function adjustMapSize() {
@@ -72,7 +72,7 @@
             var map = L.map('map');
 
             var bounds = null;
-            {% if entity.additional.bounds is not empty %}
+            {% if entity.additional is not null and entity.additional.bounds is not empty %}
                 bounds = {{ entity.additional.bounds|json_encode|raw }};
             {% elseif entity.geo is not null %}
                 {% if entity.showCenterMarker %}
@@ -85,8 +85,8 @@
 
             {{ map.addTileLayer() }}
 
-            {% if place.additional.boundary is not empty %}
-                var boundary = {{ place.additional.boundary|json_encode|raw }};
+            {% if entity.additional is not empty and entity.additional.boundary is not empty %}
+                var boundary = {{ entity.additional.boundary|json_encode|raw }};
                 var geojsonLayer = L.geoJSON(boundary).addTo(map);
                 if (bounds == null) {
                     bounds = geojsonLayer.getBounds();
