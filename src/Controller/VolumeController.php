@@ -156,6 +156,9 @@ extends ResourceController
         return $ret;
     }
 
+    /**
+     * Write a single resource into an Excel-row
+     */
     private function exportResource($writer, &$terms, $resource, $style = null)
     {
         $row = [
@@ -220,10 +223,12 @@ extends ResourceController
                             if ($res) {
                                 $request->getSession()
                                         ->getFlashBag()
-                                        ->add('info', 'The Entry has been copied')
+                                        ->add('info', $translator->trans('The resource has been copied'))
                                     ;
 
-                                return $this->redirect($this->generateUrl('volume-edit', [ 'id' => $id ]));
+                                return $this->redirect($this->generateUrl('volume-edit', [
+                                    'id' => $id,
+                                ]));
                             }
                         }
                     }
@@ -241,11 +246,14 @@ extends ResourceController
 
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No item found for id: ' . $id)
+                    ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
+                                             $id))
                 ;
 
             return $this->redirect($this->generateUrl('volume-list'));
         }
+
+        $resourcePath = $client->getCollection() . '/' . $id . '/' . $id . '.' . $lang . '.xml';
 
         $q = trim($request->request->get('q'));
 
@@ -258,6 +266,7 @@ extends ResourceController
                         'id' => $id,
                         'volume' => $volume,
                         'webdav_base' => $this->buildWebDavBaseUrl($client),
+                        'titleHtml' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title', true),
                         'result' => $result,
                         'q' => $q,
                     ]);
@@ -265,7 +274,7 @@ extends ResourceController
 
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('info', 'No matching resources found')
+                        ->add('info', $translator->trans('No matching resources found'))
                     ;
             }
 
@@ -325,7 +334,7 @@ extends ResourceController
                     }
 
                     if ($updated) {
-                        $this->addFlash('info', 'The order has been updated');
+                        $this->addFlash('info', $translator->trans('The order has been updated'));
                     }
                 }
             }
@@ -418,6 +427,7 @@ extends ResourceController
             'id' => $id,
             'volume' => $volume,
             'webdav_base' => $this->buildWebDavBaseUrl($client),
+            'titleHtml' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title', true),
             'resources_grouped' => $this->buildResourcesGrouped($client, $id, $lang),
             'q' => $q,
         ]);
@@ -426,7 +436,9 @@ extends ResourceController
     /**
      * @Route("/volume/{id}/edit", name="volume-edit", requirements={"id" = "volume\-\d+"})
      */
-    public function volumeEditAction(Request $request, $id = null)
+    public function volumeEditAction(Request $request,
+                                     TranslatorInterface $translator,
+                                     $id = null)
     {
         $update = 'volume-edit' == $request->get('_route');
 
@@ -442,12 +454,13 @@ extends ResourceController
             $entity = $this->fetchTeiHeader($client, $resourcePath);
         }
 
+        $titleHtml = null;
         if (is_null($entity)) {
             if (is_null($id)) {
                 // add new not implemented yet
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'Creating new volumes is not implemented yet')
+                        ->add('warning', $translator->trans('Creating new volumes is not implemented yet'))
                     ;
 
                 return $this->redirect($this->generateUrl('volume-list'));
@@ -455,10 +468,14 @@ extends ResourceController
 
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No item found for id: ' . $id)
+                    ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
+                                             $id))
                 ;
 
             return $this->redirect($this->generateUrl('volume-list'));
+        }
+        else {
+            $titleHtml = $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title', true);
         }
 
         $form = $this->createForm(\App\Form\Type\TeiHeaderType::class, $entity);
@@ -484,7 +501,10 @@ extends ResourceController
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('info', 'Volume ' . ($update ? ' updated' : ' created'));
+                                ->add('info',
+                                      $update
+                                      ? $translator->trans('The volume has been updated')
+                                      : $translator->trans('The volume has been created'))
                     ;
             }
 
@@ -495,6 +515,7 @@ extends ResourceController
             'form' => $form->createView(),
             'entity' => $entity,
             'id' => $id,
+            'titleHtml' => $titleHtml,
         ]);
     }
 }

@@ -6,27 +6,100 @@
 {% block head %}
     {{ select2.head() }}
 
+    <!-- include editor webpack build -->
+    <script src="{{ app.request.basepath }}/js/inline-editor-bundle.js"></script>
+
+    <!-- editor needs some style, we use local copies of
+        https://github.com/ProseMirror/prosemirror-view/blob/master/style/prosemirror.css
+        https://github.com/ProseMirror/prosemirror-menu/blob/master/style/menu.css
+    -->
+    <link rel="stylesheet" href="{{ app.request.basepath }}/css/inline-editor-bundle/prosemirror.css" />
+    <link rel="stylesheet" href="{{ app.request.basepath }}/css/inline-editor-bundle/menu.css" />
+    <link rel="stylesheet" href="{{ app.request.basepath }}/css/inline-editor-bundle/style.css" />
+    <link rel="stylesheet" href="{{ app.request.basepath }}/css/inline-editor-bundle/customize.css" />
+
     <script>
+        function serializeWithCaseToString(doc) {
+            // we need an XML-DOM so tags don't get turned into all lower case
+            var oParser = new DOMParser();
+            var oDOM = oParser.parseFromString('<div />', 'application/xml');
+
+            var oSerializer = new XMLSerializer();
+
+            return oSerializer.serializeToString(window.serializer.serializeFragment(doc.content, { document: oDOM }));
+        }
+
+        function serializeState() {
+            for (id in window.editors) {
+                console.log(id);
+                $('#' + id).val(serializeWithCaseToString(window.editors[id]
+                                                .props['state'].doc));
+            }
+        }
+
     $(document).ready(function() {
         $('.select2').select2({
             language: {{ app.request.getLocale()|json_encode|raw }}
+        });
+
+        // wire generate slug button
+        $('#dtaDirNameButton').click(function() {
+            var url = '{{ path('api-slugify', { 'text' : '' }) }}';
+            var title = $("input[name='tei_header[title]']").val();
+            if ('' !== title.trim()) {
+                $.get(url + encodeURI(title), function(data) {
+                    $("input[name='tei_header[dtaDirName]']").val(data.slug);
+                });
+            }
         });
     });
     </script>
 {% endblock %}
 
 {% block body %}
-    <h2>
+    <h1 class="richtext">
+
         {% if id is empty %}
-        {{ 'Add Resource'|trans }}
+        {{ 'Add Volume'|trans }}
         {% else %}
         <a href="{{ path('volume-detail', { 'id' : id }) }}">
-            {{ entity.title }}
+            {{ titleHtml|raw }}
         </a>
         {% endif %}
-    </h2>
+    </h1>
     {{ helper.display_flashes() }}
+
+    {# custom widget for 'block_prefix' => 'generate_slug_widget' #}
+    {# see https://medium.com/@symfony/new-in-symfony-4-3-simpler-form-theming-c2310512aa9f #}
+    {% form_theme form.dtaDirName 'form/fields.html.twig' %}
 
     {# renders all fields *and* the form start and end tags #}
     {{ form(form) }}
+    <script>
+    window.editors = {};
+
+    $('input.tei.inline').each(function() {
+        var $input = $(this);
+
+        // append the editor
+        var id = $(this).attr('id');
+        var editorId = id + '_editor';
+
+        var $div = $('<div style="border: 1px solid"></div>').attr('id', editorId);
+        $div.insertAfter($input)
+
+        // change $input to hidden and insert before $div
+        $input.detach().attr('type', 'hidden').insertBefore($div);
+
+        window.editors[id] = window.createEditorView(
+            '#' + editorId,
+            document.querySelector('#' + id).value
+        );
+    });
+
+    $('form[name="tei_header"]').submit(function() {
+        serializeState();
+    });
+
+    </script>
 {% endblock %}

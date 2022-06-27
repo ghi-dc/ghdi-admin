@@ -9,9 +9,12 @@
 {% endblock %}
 
 {% block body %}
-    <h2>
-        {{ volume['data'].name }}
-    </h2>
+    <h1 class="richtext">
+        {{ titleHtml|raw }}
+        <a href="{{ path('volume-edit', { id: id }) }}" class="btn btn-default btn-md">
+            <span class="fa fa-edit"></span> {{ 'Edit'|trans }}
+        </a>
+    </h1>
     {{ helper.display_flashes() }}
 
     <form method="POST" action="{{ path('volume-detail', { 'id': id }) }}">
@@ -21,10 +24,12 @@
 
     <div style="text-align: right">
         <a href="{{ path(app.request.attributes.get('_route') ~ '-dc', app.request.attributes.get('_route_params')) }}">{{ 'Dublin Core'|trans }}</a><br />
-            WebDAV:
+        WebDAV:
             <span id="url">{{ webdav_base }}/{{ id }}/{{ volume['data'].fname }}</span>
             {{ helper.copy_to_clipboard_button('url', 'Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open'|trans) }}
+           <br /><a href="{{ path('volume-export', { id: id }) }}" class="fa fa-download" aria-hidden="true" title="{{ 'Export ToC'|trans }}"> </a>
     </div>
+
     <div class="row">
         <div class="col-sm-8">
         {% if result is defined and result is not empty %}
