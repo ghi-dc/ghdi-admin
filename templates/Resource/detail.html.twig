@@ -21,7 +21,7 @@
             var url = parts[0];
             var params = parts[1].split('&');
             var pp, inputs = '';
-            for( var i = 0, n = params.length; i < n; i++) {
+            for (var i = 0, n = params.length; i < n; i++) {
                 pp = params[i].split('=');
                 inputs += '<input type="hidden" name="' + pp[0] + '" value="' + pp[1] + '" />';
             }
@@ -37,7 +37,12 @@
 {% block body %}
     {{ helper.render_parent_path(parentPath) }}
 
-    <h1 class="richtext">{{ titleHtml|raw }}</h1>
+    <h1 class="richtext">
+        {{ titleHtml|raw }}
+        <a href="{{ path('resource-edit', { volume: volume.data.id, id: id }) }}" class="btn btn-default btn-md">
+            <span class="fa fa-edit"></span> {{ 'Edit'|trans }}
+        </a>
+    </h1>
     {{ helper.display_flashes() }}
 
     {% if showAddEntities == 2 %}

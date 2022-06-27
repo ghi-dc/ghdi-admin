@@ -16,7 +16,12 @@
         {{ 'Add to'|trans }}
     {% endif %}
 
-    <h2>{{ name|raw }}</h2>
+    <h1 class="richtext">
+        <a href="{{ path('resource-detail', { 'volume': volume, 'id' : id }) }}">
+            {{ titleHtml|raw }}
+        </a>
+    </h1>
+
     {{ helper.display_flashes() }}
 
     <form action="{{ path(app.request.attributes.get('_route'), { 'volume' : volume, 'id' : id }) }}" method="post" enctype="multipart/form-data" class="dropzone">

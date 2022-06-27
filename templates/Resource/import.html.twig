@@ -5,9 +5,9 @@
 {% block body %}
     <h2>{{ 'Create from Alternate Language'|trans }}</h2>
 
-    <p>This resource doesn't exist yet in the current language.</p>
+    <p>{{ "This resource doesn't exist yet in the current language."|trans }}</p>
     <form action="{{ path('resource-create', { 'volume': volume, 'id': id }) }}" method="post">
-        Create from:
+        {{ 'Create from'|trans }}:
         <select name="from-locale">
         {% for value, label in createFrom %}
             <option value="{{ value }}">{{ label }}</option>

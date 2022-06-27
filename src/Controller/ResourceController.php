@@ -389,7 +389,7 @@ EOXQL;
                             if ($res) {
                                 $request->getSession()
                                         ->getFlashBag()
-                                        ->add('info', 'The Entry has been copied')
+                                        ->add('info', $translator->trans('The resource has been copied'))
                                     ;
 
                                 if (in_array($resourceAlternate['data']['genre'], [ 'document-collection', 'image-collection' ])) {
@@ -417,10 +417,13 @@ EOXQL;
 
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No item found for id: ' . $id)
+                    ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
+                                             $id))
                 ;
 
-            return $this->redirect($this->generateUrl('volume-detail', [ 'id' => $volume ]));
+            return $this->redirect($this->generateUrl('volume-detail', [
+                'id' => $volume,
+            ]));
         }
 
         $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resource['data']['fname'];
@@ -469,11 +472,11 @@ EOXQL;
 
                     $res = $client->parse($tei, $resourcePath, true);
 
-                    $this->addFlash('info', 'The resource has been updated');
+                    $this->addFlash('info', $translator->trans('The resource has been updated'));
                 }
                 else {
                     $showAddEntities = 2;
-                    $this->addFlash('info', 'Please review the entities before pressing [Save Named Entities]');
+                    $this->addFlash('info', $translator->trans('Please review the entities before pressing [Save Named Entities]'));
 
                     $xql = $this->renderView('Resource/tei2html-string.xql.twig', []);
                     $query = $client->prepareQuery($xql);
@@ -513,7 +516,7 @@ EOXQL;
                 ];
 
                 $this->updateTeiHeaderContent($client, $resourcePath, $content, $data);
-                $this->addFlash('info', 'The resource has been updated');
+                $this->addFlash('info', $translator->trans('The resource has been updated'));
 
                 // refetch $resource for updated terms
                 $resource = $this->fetchResource($client, $id, $lang);
@@ -522,7 +525,7 @@ EOXQL;
                 $html = $this->teiToHtml($client, $resourcePath, $lang);
             }
             else {
-                $this->addFlash('warning', 'The import from Collective Access failed');
+                $this->addFlash('warning', $translator->trans('The import from Collective Access failed'));
             }
         }
 
@@ -586,7 +589,7 @@ EOXQL;
                 $updated = $this->reorderChildResources($client, $volume, $lang, $hasPart, $newOrder);
 
                 if ($updated) {
-                    $this->addFlash('info', 'The order has been updated');
+                    $this->addFlash('info', $translator->trans('The order has been updated'));
 
                     // fetch again with new order
                     $hasPart = $this->buildChildResources($client, $volume, $id, $lang);
@@ -792,7 +795,8 @@ EOXQL;
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'No entry found for id: ' . $id)
+                        ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
+                                                 $id))
                     ;
 
                 return $this->redirect($this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]));
@@ -832,12 +836,15 @@ EOXQL;
                 $res = $this->updateTeiHeader($client, $resourcePath, $entity);
             }
 
-            $redirectUrl = $this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]);
+            $redirectUrl = $this->generateUrl('resource-detail', [
+                'volume' => $volume, 'id' => $id,
+            ]);
 
             if (!$res) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                        ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
+                                                 $id))
                     ;
             }
             else {
@@ -847,7 +854,9 @@ EOXQL;
 
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
+                        ->add('info', $update
+                              ? $translator->trans('The resource has been updated')
+                              : $translator->trans('The resource has been created'));
                     ;
             }
 
@@ -907,6 +916,7 @@ EOXQL;
      *          requirements={"volume" = "volume\-\d+", "id" = "(introduction|document|image|audio|video|map)\-\d+"})
      */
     public function uploadAction(Request $request,
+                                 TranslatorInterface $translator,
                                  \App\Utils\PandocConverter $pandocConverter,
                                  $volume, $id)
     {
@@ -932,7 +942,8 @@ EOXQL;
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No item found for id: ' . $resourceId)
+                    ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
+                                             $resourceId))
                 ;
 
             return $this->redirect($this->generateUrl('volume-detail', [ 'id' => $volume ]));
@@ -943,8 +954,8 @@ EOXQL;
             if (is_null($file)) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'No upload found, please try again')
-                    ;
+                        ->add('warning', $translator->trans('No upload found, please try again'))
+                        ;
             }
             else {
                 $mime = $file->getMimeType();
@@ -956,8 +967,8 @@ EOXQL;
                 {
                     $request->getSession()
                             ->getFlashBag()
-                            ->add('error', "Uploaded file wasn't recognized as a Word-File (.docx) or as a TEI-File (.xml)")
-                        ;
+                            ->add('danger', $translator->trans("Uploaded file wasn't recognized as a Word-File (.docx) or as a TEI-File (.xml)"))
+                            ;
                 }
                 else {
                     $genre = 'document';
@@ -983,7 +994,7 @@ EOXQL;
                         if (!$success) {
                             $request->getSession()
                                     ->getFlashBag()
-                                    ->add('error', "There was an error loading the upload")
+                                    ->add('danger', $translator->trans('There was an error loading the upload'))
                                 ;
                             $teiDtabfDoc = false;
                         }
@@ -1015,8 +1026,8 @@ EOXQL;
                         if (false === $teiDtabfDoc) {
                             $request->getSession()
                                     ->getFlashBag()
-                                    ->add('error', "There was an error converting the upload")
-                                ;
+                                    ->add('danger', $translator->trans('There was an error converting the upload'))
+                                    ;
                         }
 
                         if ($update) {
@@ -1034,8 +1045,8 @@ EOXQL;
                         if (!$valid) {
                             $request->getSession()
                                     ->getFlashBag()
-                                    ->add('warning', 'The conversion was successful, but there might be an issue with the structure of the result')
-                                ;
+                                    ->add('warning', $translator->trans('The conversion was successful, but there might be an issue with the structure of the result'))
+                                    ;
                         }
 
                         $meta = [];
@@ -1085,10 +1096,11 @@ EOXQL;
                             'terms' => $terms,
                             'meta' => $meta,
                         ];
+
                         if (!is_null($translatedFrom)) {
                             $values['translatedFrom'] = $translatedFrom;
-
                         }
+
                         $teiHelper = new \App\Utils\TeiHelper();
                         $teiHelper->patchHeaderStructure($teiDtabfDoc->getDom(), $values);
 
@@ -1100,15 +1112,20 @@ EOXQL;
                             $request->getSession()
                                     ->getFlashBag()
                                     ->add('info',
-                                          $update ? 'The Entry has been updated' : 'The Entry has been created')
-                                ;
+                                          $update
+                                          ? $translator->trans('The resource has been updated')
+                                          : $translator->trans('The resource has been created'))
+                                    ;
 
-                            return $this->redirect($this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $resourceId ]));
+                            return $this->redirect($this->generateUrl('resource-detail', [
+                                'volume' => $volume,
+                                'id' => $resourceId,
+                            ]));
                         }
 
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('error', 'The new Entry could not be created')
+                                ->add('danger', $translator->trans('The new resource could not be created'))
                             ;
                     }
                 }
@@ -1117,7 +1134,7 @@ EOXQL;
 
         return $this->render('Resource/upload.html.twig', [
             'entity' => $entity,
-            'name' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
+            'titleHtml' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
             'volume' => $volume,
             'id' => $id,
             'parentPath' => $this->buildParentPath($client,  $this->fetchResource($client, $resourceId, $lang), $lang),
