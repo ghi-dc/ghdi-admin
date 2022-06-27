@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 use JMS\Serializer\SerializationContext;
 
 /**
@@ -44,21 +46,11 @@ extends BaseController
     }
 
     /**
-     * @Route("/term/autocomplete", methods="GET", name="term-autocomplete")
-     */
-    public function getTermsAutocomplete()
-    {
-        $terms = [ 'term-1' => 'Term 1' ];
-
-        return $this->json([
-            'terms' => $terms,
-        ], 200);
-    }
-
-    /**
      * @Route("/term/{id}", name="term-detail", requirements={"id" = "term\-\d+"})
      */
-    public function detailAction(Request $request, $id)
+    public function detailAction(Request $request,
+                                 TranslatorInterface $translator,
+                                 $id)
     {
         $client = $this->getExistDbClient($this->subCollection);
 
@@ -66,7 +58,8 @@ extends BaseController
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No entry found for id: ' . $id)
+                    ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
+                                             $id))
                 ;
 
             return $this->redirect($this->generateUrl('term-list'));
@@ -135,7 +128,8 @@ EOXQL;
     /**
      * @Route("/term/add-from-identifier", name="term-add-from-identifier")
      */
-    public function addFromIdentifierAction(Request $request)
+    public function addFromIdentifierAction(Request $request,
+                                            TranslatorInterface $translator)
     {
         $types = [
             'gnd' => 'GND',
@@ -160,7 +154,7 @@ EOXQL;
 
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('info', 'There is already an entry for this identifier')
+                        ->add('info', $translator->trans('There is already an entry for this identifier'))
                     ;
 
                 return $this->redirect($this->generateUrl('term-detail', [
@@ -193,7 +187,7 @@ EOXQL;
                 if (!$found) {
                     $request->getSession()
                             ->getFlashBag()
-                            ->add('warning', 'Could not find a corresponding GND or LoC authority ID')
+                             ->add('warning', $translator->trans('Could not find a corresponding GND'))
                         ;
                 }
             }
@@ -220,7 +214,7 @@ EOXQL;
                         // display for review
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('info', 'Please review and enhance before pressing [Save]')
+                                ->add('info', $translator->trans('Please review and enhance before pressing [Save]'))
                             ;
 
                         $termChoices = $this->buildTermChoicesById($request->getLocale(), $entity);
@@ -239,7 +233,8 @@ EOXQL;
                     else {
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('warning', 'No term found for: ' . $data['identifier'])
+                                ->add('warning', sprintf($translator->trans('No entry found for: %s'),
+                                                         $data['identifier']))
                             ;
                     }
                     break;
@@ -247,9 +242,9 @@ EOXQL;
                 default:
                     $request->getSession()
                             ->getFlashBag()
-                            ->add('warning', 'Not handling type: ' . $data['type'])
+                            ->add('warning', sprintf($translator->trans('Not handling type: %s'),
+                                                     $data['type']))
                         ;
-
             }
         }
 
@@ -293,7 +288,9 @@ EOXQL;
      * @Route("/term/{id}/edit", name="term-edit", requirements={"id" = "term\-\d+"})
      * @Route("/term/add", name="term-add")
      */
-    public function editAction(Request $request, $id = null)
+    public function editAction(Request $request,
+                               TranslatorInterface $translator,
+                               $id = null)
     {
         $update = 'term-edit' == $request->get('_route');
 
@@ -313,7 +310,8 @@ EOXQL;
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'No entry found for id: ' . $id)
+                        ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
+                                                 $id))
                     ;
 
                 return $this->redirect($this->generateUrl('term-list'));
@@ -333,7 +331,8 @@ EOXQL;
             if (!$res) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                        ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
+                                                 $id))
                     ;
             }
             else {
@@ -343,11 +342,16 @@ EOXQL;
 
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('info', 'Entry ' . ($update ? ' updated' : ' created'));
+                        ->add('info',
+                              $update
+                              ? $translator->trans('The entry has been updated')
+                              : $translator->trans('The entry has been created'));
                     ;
             }
 
-            return $this->redirect($this->generateUrl('term-detail', [ 'id' => $id ]));
+            return $this->redirect($this->generateUrl('term-detail', [
+                'id' => $id,
+            ]));
         }
 
         return $this->render('Term/edit.html.twig', [
@@ -359,7 +363,9 @@ EOXQL;
     /**
      * @Route("/term/{id}/lookup-identifier", name="term-lookup-identifier", requirements={"id" = "term\-\d+"})
      */
-    public function enhanceAction(Request $request, $id)
+    public function enhanceAction(Request $request,
+                                  TranslatorInterface $translator,
+                                  $id)
     {
         $client = $this->getExistDbClient($this->subCollection);
 
@@ -368,7 +374,8 @@ EOXQL;
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'No entry found for id: ' . $id)
+                    ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
+                                             $id))
                 ;
 
             return $this->redirect($this->generateUrl('term-list'));
@@ -377,10 +384,12 @@ EOXQL;
         if (!$entity->hasIdentifiers()) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', 'Entry has no identifier')
+                    ->add('warning', $translator->trans('Entry has no identifier'))
                 ;
 
-            return $this->redirect($this->generateUrl('term-detail', [ 'id' => $id ]));
+            return $this->redirect($this->generateUrl('term-detail', [
+                'id' => $id,
+            ]));
         }
 
         $update = false;
@@ -416,24 +425,27 @@ EOXQL;
             if (!$res) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'An issue occured while storing id: ' . $id)
+                        ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
+                                                 $id))
                     ;
             }
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('info', 'The entry has been updated.');
+                        ->add('info', $translator->trans('The entry has been updated'));
                     ;
             }
         }
         else {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('info', 'No additional information could be found.');
+                    ->add('info', $translator->trans('No additional information could be found'));
                 ;
         }
 
-        return $this->redirect($this->generateUrl('term-detail', [ 'id' => $id ]));
+        return $this->redirect($this->generateUrl('term-detail', [
+            'id' => $id,
+        ]));
     }
 
     /**

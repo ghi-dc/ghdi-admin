@@ -7,6 +7,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 /**
  *
  */
@@ -17,6 +19,7 @@ extends BaseController
      * @Route("/convert", name="convert")
      */
     public function uploadAction(Request $request,
+                                 TranslatorInterface $translator,
                                  \App\Utils\PandocConverter $pandocConverter)
     {
         if ($request->isMethod('post')) {
@@ -25,7 +28,7 @@ extends BaseController
             if (is_null($file)) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', 'No upload found, please try again')
+                        ->add('warning', $translator->trans('No upload found, please try again'))
                     ;
             }
             else {
@@ -37,7 +40,7 @@ extends BaseController
                 {
                     $request->getSession()
                             ->getFlashBag()
-                            ->add('error', "Uploaded file wasn't recognized as a Word-File (.docx)")
+                            ->add('danger', $translator->trans("The uploaded file wasn't recognized as a Word-File (.docx)"))
                         ;
                 }
                 else {

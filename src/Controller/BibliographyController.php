@@ -82,7 +82,7 @@ extends BaseController
         if (0 == count($simplexml)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No item found for id: %s'),
+                    ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
                                              $id))
                 ;
 
@@ -158,7 +158,7 @@ extends BaseController
             catch (\GuzzleHttp\Exception\ClientException $e) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('danger', sprintf('Error requesting items %s (%s)',
+                        ->add('danger', sprintf($translator->trans('Error requesting item %s (%s)'),
                                                 $start, $e->getResponse()->getStatusCode()))
                     ;
 
@@ -230,7 +230,7 @@ extends BaseController
                                 ->getFlashBag()
                                 ->add('info',
                                       $update
-                                      ? $translator->trans('Entry updated')
+                                      ? $translator->trans('The entry has been updated')
                                       : $translator->trans('Entry created'))
                             ;
                     }
