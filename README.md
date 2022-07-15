@@ -1,10 +1,11 @@
-exist-db for GHDI
-=================
+exist-db for GHDI/GHIS
+======================
 
 Installation
 ------------
 Adjust Settings
 
+- cp config/parameters.yaml-dist config/parameters.yaml
 - vi config/parameters.yaml
 
 Directory Permissions for cache and logs
@@ -14,7 +15,7 @@ Directory Permissions for cache and logs
 
 ## Repository Structure
 
-Guidelines http://exist-db.org/exist/apps/doc/using-collections.xml
+Guidelines https://exist-db.org/exist/apps/doc/using-collections.xml
 
 Settings
 
@@ -24,7 +25,7 @@ Settings
 ### Sub-collections and Resources
 
 #### Authority Data
-Located in /db/apps/ghdi/data/authority/{persons|organizations|places}
+Located in /db/apps/ghdi/data/authority/{persons|organizations|places|terms}
 
 #### Volumes
 Located in /db/apps/ghdi/data/volumes/
@@ -74,6 +75,46 @@ Located in /db/apps/ghdi/data/volumes/
 ## Fetch Frontend Bibliography
 
     ./bin/console zotero:fetch-collection volume-3 4CXHVSIY
+
+## Permissions
+
+Create a group {sitekey}.admin (e.g. ghdi.admin or ghis.admin)
+to which every backend user belongs.
+
+TODO: set proper umask for user (probably 002)
+
+Recursively set a group-ace with rw permissions on the data-collection,
+see https://github.com/eXist-db/AtomicWiki/blob/master/post-install.xql
+
+    xquery version "3.1";
+    (: with acl :)
+
+    import module namespace dbutil="http://exist-db.org/xquery/dbutil" at "/db/apps/shared-resources/content/dbutils.xql";
+
+    let $root := "/db/apps/ghdi/data"
+
+    return dbutil:scan(xs:anyURI($root), function($collection, $resource) {
+        let $path := ($resource, $collection)[1]
+
+        return (
+            if ($resource) then (
+                sm:chgrp($resource, "ghdi.admin"),
+                sm:chmod($path, "rw-rw-r--")
+            )
+            else (
+                sm:chgrp($collection, "ghdi.admin"),
+                sm:chmod($path, "rwxrwxr-x")
+            ),
+
+            sm:clear-acl($path),
+
+            if ($resource) then (
+                sm:add-group-ace($path, 'ghdi.admin', true(), "rw")
+            ) else (
+                sm:add-group-ace($path, 'ghdi.admin', true(), "rwx")
+            )
+        )
+    })
 
 ## Scalar (Legacy)
 
