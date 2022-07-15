@@ -1,5 +1,12 @@
-exist-db for GHDI/GHIS
-======================
+Content Management System for GHDI/GHIS
+=======================================
+
+Code for the TEI-based Content Management System.
+
+It uses https://exist-db.org/ as content repository and
+supports the import of documents as Word-Files (.docx) and
+Audio-Visual sources from the CollectiveAccess REST-AP
+(https://manual.collectiveaccess.org/providence/developer/web_api/json.html)
 
 Installation
 ------------
@@ -186,13 +193,41 @@ or for individual resources
     ./bin/console scalar:import --volume=15 --locale=de image-path
     ./bin/console scalar:import --volume=15 --locale=de map-path
 
-## Questions
-
-* How do we call the main parts of GHDI? Answer: Volume
-
 Development Notes
 -----------------
 
 Translate routes
 
     ./bin/console translation:extract de --dir=./src/ --dir=./templates/ --output-dir=./translations
+
+License
+-------
+    Code for the TEI-based Content Management System of
+        German History in Documents and Images (GHDI)
+    and
+        German History Intersections (GHIS)
+
+    (C) 2018-2022 German Historical Institute Washington
+        Daniel Burckhardt
+
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Third Party Code
+----------------
+This projects builds on numerous third-party projects under a variety of
+Open Source Licenses. Please check `composer.json` for these dependencies.
+
+The XSLT-Stylesheets are based on the files from
+    https://github.com/haoess/dta-tools/tree/master/stylesheets
