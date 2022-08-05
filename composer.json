@@ -138,7 +138,8 @@
 
         "symfony/polyfill-intl-normalizer": "*",
 
-        "boppy/solr-bundle": "dev-master"
+        "boppy/solr-bundle": "dev-master",
+        "doctrine/collections": "^1.6"
     },
     "autoload": {
         "psr-4": {
