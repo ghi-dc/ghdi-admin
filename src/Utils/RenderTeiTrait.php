@@ -118,11 +118,21 @@ trait RenderTeiTrait
         return $crawler->html();
     }
 
-    protected function markCombiningE($html)
+    /**
+     * Set a span around certain combining characters in order to switch font in css
+     *
+     * TODO: Keep in sync with method in AppExtension
+     */
+    protected function markCombiningCharacters($html)
     {
-        // since it doesn't seem to possible to style this with unicode-range
-        // set a span around Combining Latin Small Letter E so we can set an alternate font-family
-        return preg_replace('/([aou]\x{0364})/u', '<span class="combining-e">\1</span>', $html);
+        // since it doesn't seem to possible to style the follwing with unicode-ranges
+        // set span in order to set an alternate font-family
+
+        // Unicode Character 'COMBINING MACRON' (U+0304)
+        $html = preg_replace('/([n]\x{0304})/u', '<span class="combining">\1</span>', $html);
+
+        // Unicode Character 'COMBINING LATIN SMALL LETTER E' (U+0364)
+        return preg_replace('/([aou]\x{0364})/u', '<span class="combining">\1</span>', $html);
     }
 
     protected function adjustHtml($html, $baseUrlMedia)
@@ -138,8 +148,8 @@ trait RenderTeiTrait
         $html = $this->adjustMedia($html, $baseUrlMedia);
 
         // since it doesn't seem to possible to style this with unicode-range
-        // set a span around Combining Latin Small Letter E so we can set an alternate font-family
-        $html = $this->markCombiningE($html);
+        // set a span around Combining Characters so we can set an alternate font-family
+        $html = $this->markCombiningCharacters($html);
 
         return $html;
     }
