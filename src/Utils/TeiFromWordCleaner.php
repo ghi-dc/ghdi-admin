@@ -215,17 +215,39 @@ trait TeiFromWordCleaner
 
     protected function moveTranslationToHeader($pNode)
     {
-        if (preg_match('/^(Übersetzung|Translation):\s*(.*?)\s*$/', preg_replace('/[\r\n]+/', ' ', $pNode->textContent), $matches)) {
+        if (preg_match($re = '/^(Übersetzung|Translation):\s*(.*?)\s*$/', preg_replace('/[\r\n]+/', ' ', $pNode->textContent), $matches)) {
             $xpath = $this->getXPath();
             $titleStmt = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:titleStmt');
             if (0 == $titleStmt->length) {
                 // should never happen
                 die('TODO: add a titleStmt');
             }
+
             $titleStmt = $titleStmt->item(0);
 
-            $editor = $this->dom->createElementNS('http://www.tei-c.org/ns/1.0', 'editor', $matches[2]);
+            $editor = $this->dom->createElementNS('http://www.tei-c.org/ns/1.0', 'editor');
             $editor->setAttribute('role', 'translator');
+            $textNodeFound = false;
+            while ($node = $pNode->firstChild) {
+                if (!$textNodeFound && $node instanceof \FluentDOM\DOM\Text) {
+                    $textNodeFound = true;
+
+                    if (preg_match($re = '/^(Übersetzung|Translation):\s*(.*?)\s*$/', preg_replace('/[\r\n]+/', ' ', $node->textContent), $matches)) {
+                        if (empty($matches[2])) {
+                            // nothing to append
+                            $pNode->removeChild($node);
+                            continue;
+                        }
+
+                        $node->textContent = $matches[2];
+                    }
+                };
+
+                if (!is_null($node)) {
+                    $editor->appendChild($node);
+                }
+            }
+
             $titleStmt->appendChild($editor);
         }
 
