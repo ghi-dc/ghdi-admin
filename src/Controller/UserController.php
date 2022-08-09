@@ -18,16 +18,23 @@ extends AbstractController
     /**
      * @Route("/login", name="login")
      */
-    public function loginAction(Request $request, AuthenticationUtils $authenticationUtils = null)
+    public function loginAction(Request $request,
+                                AuthenticationUtils $authenticationUtils = null)
     {
         // last username entered by the user
         $defaultData = [ '_username' => $authenticationUtils->getLastUsername() ];
 
         // csrf_token_id needs to match with the id in LoginFormAuthenticator
         $form = $this->createFormBuilder($defaultData, [ 'csrf_token_id' => 'authenticate' ])
-            ->add('_username', \Symfony\Component\Form\Extension\Core\Type\TextType::class)
-            ->add('_password', \Symfony\Component\Form\Extension\Core\Type\PasswordType::class)
-            ->add('Login', \Symfony\Component\Form\Extension\Core\Type\SubmitType::class)
+            ->add('_username', \Symfony\Component\Form\Extension\Core\Type\TextType::class, [
+                'label' => 'Username',
+            ])
+            ->add('_password', \Symfony\Component\Form\Extension\Core\Type\PasswordType::class, [
+                'label' => 'Password',
+            ])
+            ->add('_login', \Symfony\Component\Form\Extension\Core\Type\SubmitType::class, [
+                'label' => 'Login',
+            ])
             ->getForm()
             ;
 
