@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -19,6 +20,7 @@ extends AbstractController
      * @Route("/login", name="login")
      */
     public function loginAction(Request $request,
+                                TranslatorInterface $translator,
                                 AuthenticationUtils $authenticationUtils = null)
     {
         // last username entered by the user
@@ -42,7 +44,7 @@ extends AbstractController
         $error = $authenticationUtils->getLastAuthenticationError();
         if (!empty($error)) {
             $form->addError(new \Symfony\Component\Form\FormError(
-                $error->getMessageKey()
+                /** @Ignore */$translator->trans($error->getMessageKey(), [], 'additional')
             ));
         }
 

@@ -50,7 +50,7 @@ extends AbstractGuardAuthenticator
         } catch (UsernameNotFoundException $exception) {
             // CAUTION: this message will be returned to the client
             // (so don't put any un-trusted messages / error strings here)
-            throw new AuthenticationException('Invalid username or password');
+            throw new AuthenticationException('Invalid username or password.');
         }
 
         if (!$user) {

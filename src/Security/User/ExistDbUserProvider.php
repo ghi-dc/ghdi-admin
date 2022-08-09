@@ -39,13 +39,13 @@ implements UserProviderInterface
             /*
             $msg = $e->getMessage();
             if (preg_match('/Unauthorized/', $msg)) {
-                throw new CustomUserMessageAuthenticationException('Invalid username or password');
+                throw new CustomUserMessageAuthenticationException('Invalid username or password.');
             }
 
             // CAUTION: this message will be returned to the client
             // (so don't put any un-trusted messages / error strings here)
             throw new CustomUserMessageAuthenticationException(
-                sprintf('Invalid username or password (%s)', $msg));
+                sprintf('Invalid username or password (%s).', $msg));
             */
 
             throw new UsernameNotFoundException($e->getMessage());
