@@ -105,7 +105,8 @@ class CollectiveAccessService
     public function getCollections()
     {
         $filter = !empty($this->options['root-collection'])
-            ? sprintf('ca_collections:"%s"', $this->options['root-collection'])
+            ? sprintf('idno_sort:"%s"', // was ca_collections:
+                      $this->options['root-collection'])
             : '*';
 
         $caSearchService = $this->getSearchService($filter, 'ca_collections');
@@ -134,6 +135,11 @@ class CollectiveAccessService
                 return $skipIdno !== $collection['idno'];
             });
         }
+
+        // sort by idno
+        usort($collections, function($a, $b) {
+            return strnatcmp($a['idno'], $b['idno']);
+        });
 
         return $collections;
     }
