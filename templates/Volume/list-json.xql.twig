@@ -24,7 +24,16 @@ declare option output:media-type "text/javascript";
 
 <json:value>
 {
-for $tei in collection($collection)/TEI{% if q is defined and q is not empty %}[ft:query(.//titleStmt/*, $q) or ft:query(.//notesStmt/*, $q)]{% endif %}
+
+(: The ft:query function allows a third parameter for passing additional settings to the query engine.
+https://exist-db.org/exist/apps/doc/lucene#parameters :)
+
+let $ft-options :=
+    <options>
+        <default-operator>and</default-operator>
+    </options>
+
+for $tei in collection($collection)/TEI{% if q is defined and q is not empty %}[ft:query(.//titleStmt/*, $q, $ft-options) or ft:query(.//notesStmt/*, $q, $ft-options)]{% endif %}
     where $tei/teiHeader/profileDesc/langUsage/language[@ident=$lang]
         {% if q is not defined or q is empty %}and $tei/teiHeader/profileDesc/textClass/classCode = 'volume'{% else %}and $tei/teiHeader/profileDesc/textClass/classCode != 'document-collection' and $tei/teiHeader/profileDesc/textClass/classCode != 'image-collection'{% endif %}
     let $name := fn:string($tei/teiHeader/fileDesc/titleStmt/title[@type="main"])
