@@ -20,6 +20,9 @@ Directory Permissions for cache and logs
 - sudo setfacl -R -m u:www-data:rwX ./var
 - sudo setfacl -dR -m u:www-data:rwX ./var
 
+Make sure https://pandoc.org/ is installed in a fresh enough version
+(>= 2.10).
+
 ## Repository Structure
 
 Guidelines https://exist-db.org/exist/apps/doc/using-collections.xml
