@@ -530,6 +530,13 @@ implements \JsonSerializable
                                    intval($matches[1]) - 1, intval($matches[1]));
         }
 
+        // decades like 1950s to range
+        if (preg_match('/^(\d+)s$/', $dateIndexed, $matches)) {
+            $dateIndexed = sprintf('[%d TO %d]',
+                                   intval($matches[1]),
+                                   intval($matches[1]) + 9);
+        }
+
         // year range like 1754 – 1761 to range [1754 TO 1761]
         if (preg_match('/^(\d{4}) – (\d{4})$/', $dateIndexed, $matches)) {
             $dateIndexed = sprintf('[%d TO %d]',
