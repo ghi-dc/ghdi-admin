@@ -909,7 +909,7 @@ EOXQL;
 
     /**
      * @Route("/resource/{volume}/{id}/add", name="resource-upload-child",
-     *        requirements={"volume" = "volume\-\d+", "id" = "(chapter|document)\-\d+"})
+     *        requirements={"volume" = "volume\-\d+", "id" = "(chapter|document|image|audio|video|map)\-\d+"})
      * @Route("/resource/{volume}/add/{id}", name="resource-add-introduction-or-map",
      *        requirements={"volume" = "volume\-\d+", "id" = "(introduction|map)"})
      * @Route("/resource/{volume}/{id}/upload", name="resource-upload",
