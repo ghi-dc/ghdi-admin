@@ -885,6 +885,38 @@ extends BaseController
 
         $figures = $this->buildFigures($caService, $result->getRawData(), $request->getLocale());
 
+        if ($teiFull->getGenre() == 'image' && !empty($figures)) {
+            // genre might not be set correctly in CollectiveAccess
+            // possibly re-assign from figures
+            if (preg_match('/^audio/', $figures[0]['mimetype'])) {
+                $isAudio = true;
+                for ($i = 1; $i < count($figures); $i++) {
+                    if (!preg_match('/^audio/', $figures[$i]['mimetype'])) {
+                        $isAudio = false;
+                        break;
+                    }
+                }
+
+                if ($isAudio) {
+                    $teiFull->setGenre('audio');
+                }
+            }
+
+            if (preg_match('/^video/', $figures[0]['mimetype'])) {
+                $isVideo = true;
+                for ($i = 1; $i < count($figures); $i++) {
+                    if (!preg_match('/^video/', $figures[$i]['mimetype'])) {
+                        $isVideo = false;
+                        break;
+                    }
+                }
+
+                if ($isVideo) {
+                    $teiFull->setGenre('video');
+                }
+            }
+        }
+
         if ('ca-detail-tei' == $request->get('_route')) {
             $skeleton = $this->getTeiSkeleton();
 

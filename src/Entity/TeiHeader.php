@@ -642,6 +642,7 @@ implements \JsonSerializable
      */
     public function setGenre($genre)
     {
+        $this->clearClassCodes('#genre');
         $this->addClassCode('#genre', $genre);
 
         // for solr-annotation
