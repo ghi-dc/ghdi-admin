@@ -844,13 +844,16 @@ extends BaseController
         foreach ([ 'name_plural', 'name_singular' ] as $lookup) {
             $key = 'ca_list_items.preferred_labels.' . $lookup;
             if (!empty($data[$key])) {
-                $choice = array_search($data[$key], $this->getTermChoicesByUri($locale));
+                // call decodeHtmlEntity to handle $data[$key] like 'Pogrom Night &lt;1938&gt;'
+                $value = $this->decodeHtmlEntity($data[$key]);
+
+                $choice = array_search($value, $this->getTermChoicesByUri($locale));
                 if (false !== $choice) {
-                    return [ $choice => $data[$key] ];
+                    return [ $choice => $value ];
                 }
 
                 if (is_null($label)) {
-                    $label = $data[$key];
+                    $label = $value;
                 }
             }
         }
