@@ -599,15 +599,54 @@ EOXQL;
 
         $entityLookup = $this->buildEntityLookup($parts['entities']);
 
-        $terms = [];
-        $uris = !empty($resource['data']['term'])
-            ? (is_scalar($resource['data']['term']) ? [ $resource['data']['term'] ] : $resource['data']['term'])
-            : [];
+        $showSetTerms = false;
+        $terms = $this->buildTermsFromResourceData($resource);
 
-        foreach ($uris as $uri) {
-            $term = $this->findTermByUri($uri);
-            if (!is_null($term)) {
-                $terms[] = $term;
+        if (empty($terms)) {
+            // check if we have terms in another locale
+            $createFrom = [];
+
+            foreach ($this->getParameter('locales') as $alternate) {
+                if ($alternate == $request->getLocale()) {
+                    continue;
+                }
+
+                $resourceAlternate = $this->fetchResource($client, $id, $alternateCode3 = \App\Utils\Iso639::code1To3($alternate));
+                if (!is_null($resourceAlternate)) {
+                    if (!empty($resourceAlternate['data']['term'])) {
+                        if ($request->isMethod('post') && $request->request->get('set-terms-from') == $alternate) {
+                            // set $terms to $entity and update
+                            $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
+                            $entity = $this->fetchTeiHeader($client, $resourcePath);
+
+                            $uris = !empty($resourceAlternate['data']['term'])
+                                ? (is_scalar($resourceAlternate['data']['term']) ? [ $resourceAlternate['data']['term'] ] : $resourceAlternate['data']['term'])
+                                : [];
+
+                            $entity->setTerms($uris);
+
+                            $res = $this->updateTeiHeader($client, $resourcePath, $entity);
+                            if ($res) {
+                                $terms = $this->buildTermsFromResourceData($resourceAlternate);
+                                $request->getSession()
+                                        ->getFlashBag()
+                                        ->add('info', $translator->trans('The subject headings have been set'));
+                                    ;
+                            }
+                            else {
+                                $request->getSession()
+                                        ->getFlashBag()
+                                        ->add('warning', $translator->trans('The subject headings could not be set'));
+                                    ;
+                            }
+                        }
+                        else {
+                            $showSetTerms = $alternate;
+                        }
+
+                        break;
+                    }
+                }
             }
         }
 
@@ -630,6 +669,7 @@ EOXQL;
             'titleHtml' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title', true),
             'html' => $html,
             'terms' => $terms,
+            'showSetTerms' => $showSetTerms,
             'entity_lookup' => $entityLookup,
             'showAddEntities' => $showAddEntities,
             'updateFromCollectiveAccess' => $updateFromCollectiveAccess,
@@ -759,6 +799,24 @@ EOXQL;
         if (!is_null($identifier)) {
             return $this->findTermByIdentifier($identifier->getValue(), $identifier->getPrefix(), true);
         }
+    }
+
+    protected function buildTermsFromResourceData($resource)
+    {
+        $terms = [];
+
+        $uris = !empty($resource['data']['term'])
+            ? (is_scalar($resource['data']['term']) ? [ $resource['data']['term'] ] : $resource['data']['term'])
+            : [];
+
+        foreach ($uris as $uri) {
+            $term = $this->findTermByUri($uri);
+            if (!is_null($term)) {
+                $terms[] = $term;
+            }
+        }
+
+        return $terms;
     }
 
     /**

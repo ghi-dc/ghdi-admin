@@ -71,15 +71,21 @@
         </div>
 
         <div class="col-sm-4 sidebar">
-            {% if terms is not empty %}
+            {% if terms is not empty or showSetTerms %}
             <h4>{{ 'Subject Headings'|trans }}</h4>
-             <ul class="list-group">
-                {% for term in terms %}
-                <li class="list-group-item">
-                    <a href="{{ path('term-detail', { id: term.id }) }}">{{ term.localizedName(app.request.locale) }}</a>
-                </li>
-                {% endfor %}
-            </ul>
+                <ul class="list-group">
+                {% if terms is not empty %}
+                    {% for term in terms %}
+                    <li class="list-group-item">
+                        <a href="{{ path('term-detail', { id: term.id }) }}">{{ term.localizedName(app.request.locale) }}</a>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="list-group-item">
+                        <a class="post" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({'set-terms-from': showSetTerms})) }}">{{ 'Set from Alternate Language'|trans }}</a>
+                    </li>
+                {% endif %}
+                </ul>
             {% endif %}
 
             {% if hasPart is not empty or '-collection' in resource.data.genre  %}

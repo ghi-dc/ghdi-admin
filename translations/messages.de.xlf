@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:jms="urn:jms:translation" version="1.2">
-  <file date="2022-08-09T10:52:18Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
+  <file date="2023-02-17T15:48:17Z" source-language="en" target-language="de" datatype="plaintext" original="not.available">
     <header>
       <tool tool-id="JMSTranslationBundle" tool-name="JMSTranslationBundle" tool-version="1.1.0-DEV"/>
       <note>The source node in most cases contains the sample message as written by the developer. If it looks like a dot-delimitted string such as "form.label.firstname", then the developer has not provided a default message.</note>
@@ -111,6 +111,11 @@
         <target>Hinzufügen zu</target>
         <jms:reference-file line="16">\..\..\..\..\..\./templates\Resource\upload.html.twig\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="923c15bbc72646b66ba570e6b2adc1489583ef07" resname="Add, move, remove values and press Submit.">
+        <source>Add, move, remove values and press Submit.</source>
+        <target state="new">Add, move, remove values and press Submit.</target>
+        <jms:reference-file line="23">\..\..\..\..\..\./src\Form\Type\CollectionTestType.php\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="ecfe29ef8fcfc7c6552fb9793fd0884a7b9c0a8b" resname="Additional Information">
         <source>Additional Information</source>
         <target>Weitere Informationen</target>
@@ -126,7 +131,7 @@
         <jms:reference-file line="397">\..\..\..\..\..\./src\Controller\PersonController.php\</jms:reference-file>
         <jms:reference-file line="305">\..\..\..\..\..\./src\Controller\PlaceController.php\</jms:reference-file>
         <jms:reference-file line="393">\..\..\..\..\..\./src\Controller\PlaceController.php\</jms:reference-file>
-        <jms:reference-file line="846">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="904">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
         <jms:reference-file line="334">\..\..\..\..\..\./src\Controller\TermController.php\</jms:reference-file>
         <jms:reference-file line="428">\..\..\..\..\..\./src\Controller\TermController.php\</jms:reference-file>
       </trans-unit>
@@ -174,7 +179,7 @@
       <trans-unit id="f5cbdf6bfb51439be085b5c6b7460a7c91eabc3c" resname="Contents">
         <source>Contents</source>
         <target>Inhalte</target>
-        <jms:reference-file line="86">\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
+        <jms:reference-file line="92">\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="78ab847f38767a7c83af0279b8aeecc1cf4b5afa" resname="Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open">
         <source>Copy to Clipboard, then press [Ctrl]-u in oXygen and paste to open</source>
@@ -347,8 +352,8 @@
       <trans-unit id="bafd4b54282745a2bed1442852b73f4b3189a77a" resname="Further Reading">
         <source>Further Reading</source>
         <target>Weiterführende Inhalte</target>
-        <jms:reference-file line="946">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
-        <jms:reference-file line="947">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="981">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
+        <jms:reference-file line="982">\..\..\..\..\..\./src\Controller\CollectiveAccessController.php\</jms:reference-file>
         <jms:reference-file line="87">\..\..\..\..\..\./templates\CollectiveAccess\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="904e2710786395c68f3992cd52a092b41e4beb2a" resname="GND">
@@ -482,8 +487,8 @@
       </trans-unit>
       <trans-unit id="4e5a2893bdcc7d239c1db72e4c4ffbe4bea73174" resname="Login">
         <source>Login</source>
-        <target state="new">Anmelden</target>
-        <jms:reference-file line="37">\..\..\..\..\..\./src\Controller\UserController.php\</jms:reference-file>
+        <target>Anmelden</target>
+        <jms:reference-file line="38">\..\..\..\..\..\./src\Controller\UserController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="6f9f011c5d36df6d431a68143636a75fbaa508bd" resname="Longitude">
         <source>Longitude</source>
@@ -572,16 +577,16 @@
       <trans-unit id="7ba3f78448d74ecfc0a9414ee11f43133a122e9d" resname="No resource found for id: %s">
         <source>No resource found for id: %s</source>
         <target>Kein Inhalt gefunden zur ID: %s</target>
+        <jms:reference-file line="1003">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
         <jms:reference-file line="420">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
-        <jms:reference-file line="798">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
-        <jms:reference-file line="945">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="856">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
         <jms:reference-file line="249">\..\..\..\..\..\./src\Controller\VolumeController.php\</jms:reference-file>
         <jms:reference-file line="471">\..\..\..\..\..\./src\Controller\VolumeController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="fcdef127e34d627d0b3aa7cdf29b163110dce501" resname="No upload found, please try again">
         <source>No upload found, please try again</source>
         <target>Kein hochgeladene Datei gefunden, bitte versuchen Sie es erneut </target>
-        <jms:reference-file line="957">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="1015">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
         <jms:reference-file line="31">\..\..\..\..\..\./src\Controller\WordToTeiController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="6a81fc94c34ad5f11783a4bba27b10440b94093e" resname="Not handling type: %s">
@@ -605,8 +610,8 @@
       </trans-unit>
       <trans-unit id="8be3c943b1609fffbfc51aad666d0a04adf83c9d" resname="Password">
         <source>Password</source>
-        <target state="new">Passwort</target>
-        <jms:reference-file line="34">\..\..\..\..\..\./src\Controller\UserController.php\</jms:reference-file>
+        <target>Passwort</target>
+        <jms:reference-file line="35">\..\..\..\..\..\./src\Controller\UserController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="f3cf96e919766ef2354bbbddd56e9cbb5f2792e8" resname="Persons">
         <source>Persons</source>
@@ -702,6 +707,11 @@
         <target>Suche im KVK</target>
         <jms:reference-file line="43">\..\..\..\..\..\./templates\Bibliography\detail.html.twig\</jms:reference-file>
       </trans-unit>
+      <trans-unit id="7abeb9af91414a641784af00fce33dc78fa4fff3" resname="Set from Alternate Language">
+        <source>Set from Alternate Language</source>
+        <target state="new">Aus alternativer Sprache übernehmen</target>
+        <jms:reference-file line="85">\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
+      </trans-unit>
       <trans-unit id="6da13addb000b67d42a6d66391713819e634149f" resname="Source">
         <source>Source</source>
         <target>Quelle</target>
@@ -750,7 +760,7 @@
       <trans-unit id="d777c6dbe7c88960db4acefddf039f60227ef385" resname="The conversion was successful, but there might be an issue with the structure of the result">
         <source>The conversion was successful, but there might be an issue with the structure of the result</source>
         <target>Die Konvertierung war erfolgreich, aber möglicherweise gibt es ein Problem mit der Struktur des Ergebnisses</target>
-        <jms:reference-file line="1048">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="1106">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="9000d7e5d2b850af1c170b6b90484bc0e99cd469" resname="The entry has been created">
         <source>The entry has been created</source>
@@ -781,7 +791,7 @@
       <trans-unit id="4c60f6f6b6c9aa702df35f76e958a01e98dbf6cd" resname="The new resource could not be created">
         <source>The new resource could not be created</source>
         <target>Der neue Inhalt konnte nicht erstellt werden</target>
-        <jms:reference-file line="1128">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="1186">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="1af8bee5bbe58b0a7bcf04927fbdbced30e0ddda" resname="The order has been updated">
         <source>The order has been updated</source>
@@ -798,16 +808,26 @@
       <trans-unit id="8be892ecbb1a26dc9ced208f675fd4ff12aaffa7" resname="The resource has been created">
         <source>The resource has been created</source>
         <target>Der Inhalt wurde erstellt</target>
-        <jms:reference-file line="1117">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
-        <jms:reference-file line="859">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="1175">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="917">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="e333b1880a448bbc3545a18c0300ddb04995fc3c" resname="The resource has been updated">
         <source>The resource has been updated</source>
         <target>Der Inhalt wurde aktualisiert</target>
-        <jms:reference-file line="1116">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="1174">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
         <jms:reference-file line="475">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
         <jms:reference-file line="519">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
-        <jms:reference-file line="858">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="916">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="97b6cb421e0cd9636aca3372af722cce5fb63965" resname="The subject headings could not be set">
+        <source>The subject headings could not be set</source>
+        <target state="new">Die Schlagworte konnten nicht übernommen werden</target>
+        <jms:reference-file line="639">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="70eafbc5f468e4e9a5970ee80212afda796508a9" resname="The subject headings have been set">
+        <source>The subject headings have been set</source>
+        <target state="new">Die Schlagworte wurden übernommen</target>
+        <jms:reference-file line="633">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="d332557775309e3c33707a95fcfe5fd024af90bc" resname="The uploaded file wasn't recognized as a Word-File (.docx)">
         <source>The uploaded file wasn't recognized as a Word-File (.docx)</source>
@@ -840,12 +860,12 @@
       <trans-unit id="a9fe51e521f6c4d3db83338dd3c73f7788f19cf5" resname="There was an error converting the upload">
         <source>There was an error converting the upload</source>
         <target>Es gab einen Fehler bei der Konvertierung des hochgeladenen Datei</target>
-        <jms:reference-file line="1029">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="1087">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="818974167cfc227e0eb127186113ec0bcb03d440" resname="There was an error loading the upload">
         <source>There was an error loading the upload</source>
         <target>Es gab einen Fehler beim Laden der hochgeladenen Datei</target>
-        <jms:reference-file line="997">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="1055">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="f652fe616e4b3b31da52e8c890154de7584f087a" resname="There was an error querying the items">
         <source>There was an error querying the items</source>
@@ -936,7 +956,7 @@
       <trans-unit id="238b18b79b078c1803531dd3876bb72479604a49" resname="Uploaded file wasn't recognized as a Word-File (.docx) or as a TEI-File (.xml)">
         <source>Uploaded file wasn't recognized as a Word-File (.docx) or as a TEI-File (.xml)</source>
         <target>Die hochgeladene Datei wurde nicht als Word-Datei (.docx) oder als TEI-Datei (.xml) erkannt</target>
-        <jms:reference-file line="970">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
+        <jms:reference-file line="1028">\..\..\..\..\..\./src\Controller\ResourceController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="035feb42119007667421d3c09479e05637fa6d6f" resname="Use as Section Symbol">
         <source>Use as Section Symbol</source>
@@ -946,13 +966,18 @@
       <trans-unit id="84c29015de33e5d22422382a372caba5c58f8c01" resname="Username">
         <source>Username</source>
         <target>Benutzername</target>
-        <jms:reference-file line="31">\..\..\..\..\..\./src\Controller\UserController.php\</jms:reference-file>
+        <jms:reference-file line="32">\..\..\..\..\..\./src\Controller\UserController.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="9146f284195f8fb1a99406688466ccd6aae724a1" resname="VIAF">
         <source>VIAF</source>
         <target>VIAF</target>
         <jms:reference-file line="91">\..\..\..\..\..\./src\Form\Type\OrganizationType.php\</jms:reference-file>
         <jms:reference-file line="98">\..\..\..\..\..\./src\Form\Type\PersonType.php\</jms:reference-file>
+      </trans-unit>
+      <trans-unit id="8dce170de238b1feda2ecd9674ea3ca0d068fbcb" resname="Value">
+        <source>Value</source>
+        <target state="new">Value</target>
+        <jms:reference-file line="21">\..\..\..\..\..\./src\Form\Type\CollectionTestType.php\</jms:reference-file>
       </trans-unit>
       <trans-unit id="39c0ee03f2b53ddb768f449a18c7a3e41ad94f8f" resname="Volumes">
         <source>Volumes</source>
@@ -976,7 +1001,7 @@
       <trans-unit id="1f98b76a68c113a2c3cd5364d67b326dd8a4ec15" resname="save changed order">
         <source>save changed order</source>
         <target>geänderte Reihenfolge speichern</target>
-        <jms:reference-file line="88">\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
+        <jms:reference-file line="94">\..\..\..\..\..\./templates\Resource\detail.html.twig\</jms:reference-file>
         <jms:reference-file line="66">\..\..\..\..\..\./templates\Volume\detail.html.twig\</jms:reference-file>
       </trans-unit>
       <trans-unit id="ce620d6749880d79c700eb0ae2a56646f3a59bc5" resname="terms">
