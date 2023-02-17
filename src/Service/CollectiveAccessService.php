@@ -172,11 +172,11 @@ class CollectiveAccessService
             return;
         }
 
-        if (!preg_match('/^image\-(\d+)$/', $resourceId, $matches)) {
+        if (!preg_match('/^(image|map)\-(\d+)$/', $resourceId, $matches)) {
             return;
         }
 
-        $filter = sprintf('ca_objects.idno_ghdi:%d', $matches[1]);
+        $filter = sprintf('ca_objects.idno_ghdi:%d', $matches[2]);
 
         $caSearchService = $this->getSearchService($filter, 'ca_objects');
 
