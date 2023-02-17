@@ -121,8 +121,14 @@ class TeiRefProcessor
                 break;
 
             default:
-                var_dump($components);
-                die('TODO: handle');
+                if (preg_match('~^/(de|en)~', $components['path'])) {
+                    // already in scheme for new site
+                    $route = false; // keep link as is
+                }
+                else {
+                    var_dump($components);
+                    die('TODO: handle');
+                }
         }
 
         return [ $route, $routeParams ];
