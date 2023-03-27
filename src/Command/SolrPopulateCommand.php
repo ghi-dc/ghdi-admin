@@ -199,7 +199,7 @@ extends ExistDbCommand
     protected function fetchRemoteImage($url, $mediaPath, $fname)
     {
         if (preg_match('~(^.+/)([^/]+)$~', $url, $matches)) {
-            // handles spaces and umlauts e.g. http://germanhistorydocs.ghi-dc.org/images/00004711_Stand auf dem Blutgerüste.jpg
+            // handles spaces and umlauts e.g. http://germanhistorydocs.ghi-dc.org/images/00004711_Stand auf dem Blutgerï¿½ste.jpg
             $url = $matches[1] . rawurlencode($matches[2]);
         }
 
@@ -231,9 +231,14 @@ extends ExistDbCommand
         }
 
         if (!file_exists($mediaPath . '/' . $fname)) {
-            file_put_contents($mediaPath . '/' . $fname, fopen($url, 'r'));
+            $handle = @fopen($url, 'r');
+
+            if (false !== $handle) {
+                file_put_contents($mediaPath . '/' . $fname, $handle);
+            }
         }
 
+        $imageName = null;
         if (file_exists($mediaPath . '/' . $fname)) {
             $file = new \Symfony\Component\HttpFoundation\File\File($mediaPath . '/' . $fname);
             $imageName = $file->getFileName();
