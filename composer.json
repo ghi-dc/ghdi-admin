@@ -2,33 +2,12 @@
     "config": {
         "platform": {
             "php": "7.3.0"
+        },
+        "allow-plugins": {
+            "php-http/discovery": true
         }
     },
     "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "citation-style-language/locales",
-                "version": "1.0.0",
-                "source": {
-                    "type": "git",
-                    "url": "https://github.com/citation-style-language/locales.git",
-                    "reference": "master"
-                }
-            }
-        },
-        {
-            "type": "package",
-            "package": {
-                "name": "citation-style-language/styles-distribution",
-                "version": "1.0.0",
-                "source": {
-                    "type": "git",
-                    "url": "https://github.com/citation-style-language/styles-distribution.git",
-                    "reference": "master"
-                }
-            }
-        },
         {
             "type": "vcs",
             "url": "https://github.com/ghi-dc/exist-db-rpc-client.git"
@@ -36,6 +15,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/boppy/SolrBundle.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Donkfather/zotero-api"
         }
     ],
     "require": {
@@ -111,10 +94,9 @@
         "masterminds/html5": "^2.7",
         "symfony/string": "^5.4",
 
-        "hedii/zotero-api": "@stable",
+        "hedii/zotero-api": "dev-master#c296090",
 
-        "citation-style-language/locales": "@dev",
-        "seboettg/citeproc-php": "^2.2",
+        "seboettg/citeproc-php": "^2.6",
         "fale/isbn": "^3.1",
 
         "easyrdf/easyrdf": "^1.1",
