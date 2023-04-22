@@ -66,6 +66,7 @@ Located in /db/apps/ghdi/data/volumes/
     ./bin/console existdb:import volumes volume-15.eng.xml
 
     #!/bin/bash
+    # run once for volume* / introduction* / chapter* / document* / image* / map*
     for filenameAbs in data/tei/introduction*.xml; do
         filename=$(basename -- "$filenameAbs")
         ./bin/console existdb:import volumes "$filename"
@@ -85,6 +86,7 @@ Located in /db/apps/ghdi/data/volumes/
 ## Fetch Frontend Bibliography
 
     ./bin/console zotero:fetch-collection volume-3 4CXHVSIY
+    ./bin/console zotero:fetch-collection volume-9 4XHHUSJK
 
 ## Permissions
 
@@ -210,7 +212,7 @@ License
     and
         German History Intersections (GHIS)
 
-    (C) 2018-2022 German Historical Institute Washington
+    (C) 2018-2023 German Historical Institute Washington
         Daniel Burckhardt
 
 
