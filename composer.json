@@ -14,7 +14,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/boppy/SolrBundle.git"
+            "url": "https://github.com/burki/SolrBundle.git"
         },
         {
             "type": "vcs",
@@ -22,7 +22,7 @@
         }
     ],
     "require": {
-        "php" : "^7.3.0",
+        "php": "^7.3|^8.1",
 
         "symfony/config": "^5.4",
         "symfony/finder": "^5.4",
@@ -37,7 +37,7 @@
         "symfony/event-dispatcher": "^5.4",
         "symfony/cache": "^5.4",
         "symfony/routing": "^5.4",
-        "jms/translation-bundle": "^1.6",
+        "jms/translation-bundle": "^1.7",
 
         "symfony/property-access": "^5.4",
         "symfony/options-resolver": "^5.4",
@@ -120,7 +120,7 @@
 
         "symfony/polyfill-intl-normalizer": "*",
 
-        "boppy/solr-bundle": "dev-master",
+        "boppy/solr-bundle": "dev-escape-id",
         "doctrine/collections": "^1.6"
     },
     "autoload": {
