@@ -59,10 +59,10 @@ fs_solr:
             port: 8983
             path: /
             core: "%app.site.key%_de"
-            timeout: 60
+            timeout: 600
         core_en:
             host: localhost
             port: 8983
             path: /
             core: "%app.site.key%_en"
-            timeout: 60
+            timeout: 600
