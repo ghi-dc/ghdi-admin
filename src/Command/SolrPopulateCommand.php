@@ -31,9 +31,9 @@ extends ExistDbCommand
     private $frontendMediaDir;
 
     public function __construct(string $siteKey,
-                                \App\Service\ExistDbClientService $existDbClientService,
                                 ParameterBagInterface $params,
                                 KernelInterface $kernel,
+                                \App\Service\ExistDbClientService $existDbClientService,
                                 HttpClientInterface $adminClient,
                                 \FS\SolrBundle\SolrInterface $solr,
                                 \App\Service\ImageConversion\ConversionService $conversionService,
@@ -42,7 +42,7 @@ extends ExistDbCommand
                                 \Cocur\Slugify\SlugifyInterface $slugify)
     {
         // you *must* call the parent constructor
-        parent::__construct($siteKey, $existDbClientService, $params, $kernel);
+        parent::__construct($siteKey, $params, $kernel, $existDbClientService);
 
         $this->adminClient = $adminClient;
         $this->solr = $solr;
@@ -86,6 +86,12 @@ extends ExistDbCommand
                 null,
                 InputOption::VALUE_NONE,
                 'Specify to force reindexing existing resources'
+            )
+            ->addOption(
+                'remove',
+                null,
+                InputOption::VALUE_NONE,
+                'Specify to remove an existing resources'
             )
             ->addOption(
                 'id',
@@ -334,22 +340,6 @@ extends ExistDbCommand
         }
     }
 
-    private function buildDtsUrlBase($locale)
-    {
-        return ('en' != $locale ? $locale . '/' : '')
-            . 'api/dts/';
-    }
-
-    protected function buildDtsUrlCollections($locale)
-    {
-        return  $this->buildDtsUrlBase($locale) . 'collections';
-    }
-
-    protected function buildDtsUrlDocument($locale)
-    {
-        return  $this->buildDtsUrlBase($locale) . 'document';
-    }
-
     protected function fetchCollection($locale, $id = null, $forceReindex = false)
     {
         $urlCollections = $this->buildDtsUrlCollections($locale);
@@ -407,27 +397,35 @@ extends ExistDbCommand
 
         $locale = $input->getOption('locale');
         $forceReindex = $input->getOption('force-reindex');
+        $remove = $input->getOption('remove');
 
         $id = $input->getOption('id');
         if (!empty($id)) {
             $entities = [];
             $urlDocument = $this->buildDtsUrlDocument($locale);
-            $entity = $this->fetchDocument($urlDocument . '?id=' . $id, $forceReindex);
+            // TODO: don't require $forceReindex set to true if document is not in solr-index,
+            // e.g. because it was removed
+            $entity = $this->fetchDocument($urlDocument . '?id=' . $id, $forceReindex || $remove);
             if (!is_null($entity) && $entity->getVolumeId() == $volume) {
                 $entities[] = $entity;
             }
-
         }
         else {
+            $remove = false; // currently only allowed with a specific id
             $entities = $this->buildEntities($locale, join(':', [ $this->siteKey, $volume ]), $forceReindex);
         }
 
         try {
             // $this->solr->synchronizeIndex($entities); would be more efficient but adds duplicates
             foreach ($entities as $entity) {
-                $this->prepareEntity($entity); // set tags for indexing
+                if ($remove) {
+                    $this->solr->removeDocument($entity);
+                }
+                else {
+                    $this->prepareEntity($entity); // set tags for indexing
 
-                $this->solr->updateDocument($entity);
+                    $this->solr->updateDocument($entity);
+                }
             }
         }
         catch (\Exception $e) {

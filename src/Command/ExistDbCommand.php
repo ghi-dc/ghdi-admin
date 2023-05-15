@@ -3,7 +3,6 @@
 // src/Command/ExistDbCommand.php
 namespace App\Command;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -14,30 +13,22 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class ExistDbCommand
-extends Command
+extends BaseCommand
 {
-    protected $siteKey = null;
-    protected $projectDir;
-    protected $params;
-
     /**
      * @var \App\Service\ExistDbClientService
      */
     private $existDbClientService;
 
     public function __construct(string $siteKey,
-                                \App\Service\ExistDbClientService $existDbClientService,
                                 ParameterBagInterface $params,
-                                KernelInterface $kernel)
+                                KernelInterface $kernel,
+                                \App\Service\ExistDbClientService $existDbClientService)
     {
-        $this->siteKey = $siteKey;
+        $this->existDbClientService = $existDbClientService;
 
         // you *must* call the parent constructor
-        parent::__construct();
-
-        $this->existDbClientService = $existDbClientService;
-        $this->projectDir = $kernel->getProjectDir();
-        $this->params = $params;
+        parent::__construct($siteKey, $params, $kernel);
     }
 
     protected function getExistDbClient() : \ExistDbRpc\Client
