@@ -120,7 +120,7 @@
 
         "symfony/polyfill-intl-normalizer": "*",
 
-        "boppy/solr-bundle": "dev-escape-id",
+        "boppy/solr-bundle": "dev-master",
         "doctrine/collections": "^1.6"
     },
     "autoload": {

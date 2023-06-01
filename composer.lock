@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "10ea18c52f27cd705b9100394f3ff015",
+    "content-hash": "9c8579b9ebde62b2433c0bd3398b55f1",
     "packages": [
         {
             "name": "armin/scssphp-bundle",
@@ -111,7 +111,7 @@
         },
         {
             "name": "boppy/solr-bundle",
-            "version": "dev-escape-id",
+            "version": "dev-master",
             "target-dir": "FS/SolrBundle",
             "source": {
                 "type": "git",
@@ -143,6 +143,7 @@
             "suggest": {
                 "doctrine/orm": "Required if you want to use the Doctrine ORM"
             },
+            "default-branch": true,
             "type": "symfony-bundle",
             "autoload": {
                 "psr-0": {
