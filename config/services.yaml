@@ -53,9 +53,14 @@ services:
         class: "%app.image-conversion-provider.class%"
         arguments:  [ "%app.image-conversion-provider.arguments%" ]
 
+    app.svg-conversion-provider:
+        class: "%app.svg-conversion-provider.class%"
+        arguments:  [ "%app.svg-conversion-provider.arguments%" ]
+
     App\Service\ImageConversion\ConversionService:
         calls:
             - [ addProvider, [ '@app.image-conversion-provider' ]]
+            - [ addProvider, [ '@app.svg-conversion-provider' ]]
 
     app.image-header-provider:
         class: "%app.image-header-provider.class%"
