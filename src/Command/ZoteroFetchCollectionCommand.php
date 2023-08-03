@@ -1,6 +1,6 @@
 <?php
-
 // src/Command/ZoteroFetchCollectionCommand.php
+
 namespace App\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
@@ -14,6 +14,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * Implement
+ *  zotero:fetch-collection
+ * for per-volume biographes
+ */
 class ZoteroFetchCollectionCommand
 extends BaseCommand
 {
@@ -105,6 +110,11 @@ extends BaseCommand
 
             $items  = $response->getBody();
             foreach ($items as $item) {
+                if ('note' == $item['data']['itemType']) {
+                    // ignore notes belonging to other items
+                    continue;
+                }
+
                 $creativeWork = \App\Entity\CreativeWork::fromZotero($item['data'], $item['meta']);
                 $data[] = $creativeWork->jsonSerialize(); // to citproc json
             }

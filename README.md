@@ -87,6 +87,7 @@ Located in /db/apps/ghdi/data/volumes/
 
     ./bin/console zotero:fetch-collection volume-3 4CXHVSIY
     ./bin/console zotero:fetch-collection volume-4 B3NMP5WN --group-by-chapter
+    ./bin/console zotero:fetch-collection volume-7 F4TQ7CAG
     ./bin/console zotero:fetch-collection volume-9 4XHHUSJK
 
 ## Permissions
