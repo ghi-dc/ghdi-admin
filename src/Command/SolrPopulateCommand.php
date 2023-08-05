@@ -1,6 +1,6 @@
 <?php
-
 // src/Command/SolrCommand.php
+
 namespace App\Command;
 
 use Symfony\Component\Console\Command\Command;
@@ -249,22 +249,26 @@ extends ExistDbCommand
             $file = new \Symfony\Component\HttpFoundation\File\File($mediaPath . '/' . $fname);
             $imageName = $file->getFileName();
 
+            $maxDimension = 1200;
+
             if ('image/svg+xml' == $targetType) {
-                // no conversion needed
-                // TODO: maybe render bitmap for PDF
+                // render PNG for PDF
+                $converted = $this->conversionService->convert($file, [
+                    'target_type' => 'image/png',
+                    // currently, the following adds blank space windows
+                    'geometry' => $maxDimension . 'x',
+                ]);
             }
             else {
-                $maxDimension = 1200;
                 $maxResolution = 72;
 
-                // check if we need to convert (either resize or change format)
-                $imageConversion = $this->conversionService;
+                // check if we need to convert (resize)
+                $info = $this->conversionService->identify($file);
 
-                $info = $imageConversion->identify($file);
                 if ((!empty($info['width']) && $info['width'] > $maxDimension)
                     || (!empty($info['height']) && $info['height'] > $maxDimension))
                 {
-                    $converted = $imageConversion->convert($file, [
+                    $converted = $this->conversionService->convert($file, [
                         'geometry' => $maxDimension . 'x' . $maxDimension,
                         'target_type' => $targetType,
                     ]);
