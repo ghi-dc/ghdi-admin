@@ -1,6 +1,6 @@
 <?php
-
 // src/Command/ExistDbImportCommand.php
+
 namespace App\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,6 +12,11 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 use function Symfony\Component\String\u;
 
+/**
+ * Implement
+ *  existdb:import
+ * for pre-populationg existdb
+ */
 class ExistDbImportCommand
 extends ExistDbCommand
 {

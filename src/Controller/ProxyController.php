@@ -1,4 +1,5 @@
 <?php
+// src/Controller/ProxyController.php
 
 namespace App\Controller;
 
@@ -8,8 +9,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-/*
- * Simple pass-through proxy since CA sends wrong mime-type
+/**
+ * Simple pass-through proxy since CollectiveAccess sends wrong mime-type
+ * for svg
  */
 class ProxyController
 extends BaseController

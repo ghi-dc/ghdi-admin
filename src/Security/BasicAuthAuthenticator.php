@@ -1,6 +1,6 @@
 <?php
-
 // src/Security/BasicAuthAuthenticator.php
+
 namespace App\Security;
 
 use Symfony\Component\HttpFoundation\Request;

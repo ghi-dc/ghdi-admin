@@ -1,6 +1,6 @@
 <?php
-
 // src/Command/WordToTeiCommand.php
+
 namespace App\Command;
 
 use Symfony\Component\Console\Command\Command;
@@ -13,6 +13,11 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * Implement
+ *  convert:word2tei
+ * for stand-alone conversions of .docx files
+ */
 class WordToTeiCommand
 extends Command
 {

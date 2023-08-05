@@ -1,6 +1,6 @@
 <?php
-
 // src/Command/ExistDbCommand.php
+
 namespace App\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,6 +12,9 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * Common base providing and ExistDbClientService
+ */
 abstract class ExistDbCommand
 extends BaseCommand
 {
@@ -31,7 +34,7 @@ extends BaseCommand
         parent::__construct($siteKey, $params, $kernel);
     }
 
-    protected function getExistDbClient() : \ExistDbRpc\Client
+    protected function getExistDbClient(): \ExistDbRpc\Client
     {
         $existDbClientService = $this->existDbClientService;
         $existDbOptions = $this->params->get('app.existdb.console.options');

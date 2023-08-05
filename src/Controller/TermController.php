@@ -1,4 +1,5 @@
 <?php
+// src/Controller/Term.php
 
 namespace App\Controller;
 
@@ -11,7 +12,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use JMS\Serializer\SerializationContext;
 
 /**
- *
+ * CRUD for Term
  */
 class TermController
 extends BaseController

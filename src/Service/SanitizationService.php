@@ -1,6 +1,6 @@
 <?php
-
 // src/Service/SanitizationService.php
+
 namespace App\Service;
 
 /**

@@ -1,4 +1,5 @@
 <?php
+// src/Controller/PlaceController.php
 
 namespace App\Controller;
 
@@ -9,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- *
+ * CRUD for Place
  */
 class PlaceController
 extends BaseController

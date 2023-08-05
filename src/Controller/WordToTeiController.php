@@ -1,4 +1,5 @@
 <?php
+// src/Controller/WordToTeiController.php
 
 namespace App\Controller;
 
@@ -10,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- *
+ * Upload form for Word to TEI conversion
  */
 class WordToTeiController
 extends BaseController

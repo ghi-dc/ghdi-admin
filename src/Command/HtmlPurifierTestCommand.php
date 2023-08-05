@@ -1,6 +1,6 @@
 <?php
-
 // src/Command/HtmlPurifierTestCommand.php
+
 namespace App\Command;
 
 use Symfony\Component\Console\Command\Command;

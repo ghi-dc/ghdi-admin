@@ -1,4 +1,5 @@
 <?php
+// src/Microkernel.php
 
 namespace App;
 
@@ -35,10 +36,10 @@ extends Kernel
         return new self($env, $debug);
     }
 
-    /*
+    /**
      * {@inheritDoc}
      */
-    public function registerBundles() : iterable
+    public function registerBundles(): array
     {
         $bundles = [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
@@ -85,23 +86,24 @@ extends Kernel
         return $bundles;
     }
 
-    // see https://github.com/symfony/symfony-standard/blob/master/app/AppKernel.php
-    public function getCacheDir() : string
+    // optional, to use the standard Symfony cache directory
+    public function getCacheDir(): string
     {
         return $this->getProjectDir() . '/var/cache/' . $this->getEnvironment();
     }
 
-    public function getLogDir() : string
+    // optional, to use the standard Symfony logs directory
+    public function getLogDir(): string
     {
         return $this->getProjectDir() . '/var/logs';
     }
 
-    public function getConfigDir() : string
+    public function getConfigDir(): string
     {
         return $this->getProjectDir() . '/config';
     }
 
-    /*
+    /**
      * {@inheritDoc}
      */
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
@@ -119,7 +121,7 @@ extends Kernel
         }
     }
 
-    /*
+    /**
      * {@inheritDoc}
      *
      * use

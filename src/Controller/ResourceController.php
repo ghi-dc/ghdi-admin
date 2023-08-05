@@ -1,4 +1,5 @@
 <?php
+// src/Controller/ResourceController.php
 
 namespace App\Controller;
 
@@ -12,7 +13,7 @@ use App\Service\CollectiveAccessService;
 use App\Utils\MpdfConverter;
 
 /**
- *
+ * List and display section and resource
  */
 class ResourceController
 extends BaseController

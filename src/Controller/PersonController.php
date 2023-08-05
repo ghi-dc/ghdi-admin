@@ -1,5 +1,5 @@
 <?php
-
+// src/Controller/PersonController.php
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- *
+ * CRUD for Person
  */
 class PersonController
 extends BaseController

@@ -1,6 +1,6 @@
 <?php
+// src/Command/TeiToPdfCommand.php
 
-// src/Command/WordToTeiCommand.php
 namespace App\Command;
 
 use Symfony\Component\Console\Command\Command;
@@ -11,6 +11,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
+/**
+ * Standalone conversion of TEI to PDF
+ */
 class TeiToPdfCommand
 extends Command
 {

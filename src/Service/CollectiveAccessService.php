@@ -1,6 +1,6 @@
 <?php
-
 // src/Service/CollectiveAccessService.php
+
 namespace App\Service;
 
 /**
@@ -9,7 +9,8 @@ namespace App\Service;
  * The API is documented on
  *  https://docs.collectiveaccess.org/wiki/Web_Service_API
  *
- * The service uses https://github.com/trisoftro/ca-service-wrapper
+ * The service uses
+ *  https://github.com/trisoftro/ca-service-wrapper
  * as REST client
  *
  */

@@ -1,6 +1,6 @@
 <?php
-
 // src/Command/ExistDbIndexCommand.php
+
 namespace App\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,6 +11,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
+/**
+ * Implement
+ *  existdb:import
+ * for adding fitting collection.xconf and generating corresponding indexes
+ */
 class ExistDbIndexCommand
 extends ExistDbCommand
 {

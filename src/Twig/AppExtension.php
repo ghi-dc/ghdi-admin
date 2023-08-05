@@ -4,7 +4,6 @@
 /**
  * see https://symfony.com/doc/current/templating/twig_extension.html
  */
-
 namespace App\Twig;
 
 use Symfony\Component\HttpKernel\KernelInterface;

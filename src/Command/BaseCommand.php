@@ -1,12 +1,15 @@
 <?php
-
 // src/Command/BaseCommand.php
+
 namespace App\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * Common base setting up $siteKey and $projectDir
+ */
 abstract class BaseCommand
 extends Command
 {
@@ -26,18 +29,18 @@ extends Command
         parent::__construct();
     }
 
-    private function buildDtsUrlBase($locale)
+    private function buildDtsUrlBase($locale): string
     {
         return ('en' != $locale ? $locale . '/' : '')
             . 'api/dts/';
     }
 
-    protected function buildDtsUrlCollections($locale)
+    protected function buildDtsUrlCollections($locale): string
     {
         return  $this->buildDtsUrlBase($locale) . 'collections';
     }
 
-    protected function buildDtsUrlDocument($locale)
+    protected function buildDtsUrlDocument($locale): string
     {
         return  $this->buildDtsUrlBase($locale) . 'document';
     }

@@ -1,4 +1,5 @@
 <?php
+// src/Controller/UserController.php
 
 namespace App\Controller;
 
@@ -11,7 +12,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
- * Render a Login form
+ * Login and logout actions
  */
 class UserController
 extends AbstractController

@@ -1,4 +1,5 @@
 <?php
+// src/Controller/DefaultController.php
 
 namespace App\Controller;
 
@@ -9,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
- *
+ * Render Administration home page
  */
 class DefaultController
 extends AbstractController

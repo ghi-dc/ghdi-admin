@@ -1,4 +1,5 @@
 <?php
+// src/Controller/BaseController.php
 
 namespace App\Controller;
 
@@ -16,7 +17,7 @@ use App\Service\ExistDbClientService;
 use App\Utils\XmlPrettyPrinter\XmlPrettyPrinter;
 
 /**
- *
+ * Base class setting up various paths and services
  */
 abstract class BaseController
 extends AbstractController

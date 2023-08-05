@@ -9,7 +9,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- *
+ * Handle Bibliography items
+ * Currently unused, since handling of individual items is done directly
+ * in per volume Zotero collections
  */
 class BibliographyController
 extends BaseController

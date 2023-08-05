@@ -1,4 +1,5 @@
 <?php
+// src/Controller/CollectiveAccessController.php
 
 namespace App\Controller;
 
@@ -21,7 +22,7 @@ use App\Utils\PandocProcessor;
 use App\Utils\XmlPrettyPrinter\XmlPrettyPrinter;
 
 /**
- *
+ * List and and display CollectiveAccess entries including TEI-representation
  */
 class CollectiveAccessController
 extends BaseController

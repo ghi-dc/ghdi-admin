@@ -1,6 +1,6 @@
 <?php
-
 // src/Security/User/ExistDbUserProvider.php
+
 namespace App\Security\User;
 
 use Symfony\Component\Security\Core\User\UserProviderInterface;

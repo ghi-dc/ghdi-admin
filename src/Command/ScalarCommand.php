@@ -1,6 +1,6 @@
 <?php
-
 // src/App/Command/ScalarCommand.php
+
 namespace App\Command;
 
 use Symfony\Component\Console\Command\Command;

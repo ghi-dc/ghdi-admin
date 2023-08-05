@@ -1,8 +1,13 @@
 <?php
-
 // src/Service/ZoteroApiService.php
+
 namespace App\Service;
 
+/**
+ * Wrapper around \Hedii\ZoteroApi\ZoteroApi
+ * for Zotero-API calls
+ *
+ */
 class ZoteroApiService
 {
     protected $options;
