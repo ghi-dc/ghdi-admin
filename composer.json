@@ -83,7 +83,7 @@
         "symfony/debug-bundle": "^5.4",
         "symfony/var-dumper": "^5.4",
 
-        "jms/serializer": "^1.14",
+        "jms/serializer": "^3.27",
 
         "gmo/iso-639": "dev-master#4834357 as 1.0",
         "league/iso3166": "^4.3",
