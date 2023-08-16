@@ -41,7 +41,7 @@
         "symfony/event-dispatcher": "^5.4",
         "symfony/cache": "^5.4",
         "symfony/routing": "^5.4",
-        "jms/translation-bundle": "^1.7",
+        "jms/translation-bundle": "^1.7|2.0.0-RC1",
 
         "symfony/property-access": "^5.4",
         "symfony/options-resolver": "^5.4",
@@ -124,7 +124,7 @@
 
         "symfony/polyfill-intl-normalizer": "*",
 
-        "boppy/solr-bundle": "dev-master",
+        "boppy/solr-bundle": "dev-solarium-6",
         "doctrine/collections": "^1.8"
     },
     "autoload": {
