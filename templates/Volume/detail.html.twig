@@ -52,17 +52,20 @@
             {% endfor %}
             </ul>
         {% elseif resources_grouped is not empty %}
-            {% set groups = [ "introduction", "documents", "images", "maps" ] %}
+            {% set groups = [ 'introduction', 'documents', 'images', 'maps' ] %}
             <h3>{{ 'Resources'|trans }}</h3>
             <ul class="list-group">
                 {% for key in groups %}
                     {% if resources_grouped[key] is defined %}
-                    {% set group = resources_grouped[key] %}
+                        {% set group = resources_grouped[key] %}
                 <li class="list-group-item">
                     <h4>
                         <a href="#{{ key }}" data-toggle="collapse">{{ group.name|trans({}, 'additional') }}</a>
                         {% if key == 'documents' or key == 'images' %}
                         <small><a href="{{ path('collection-add', { 'volume' : id, 'genre' : key|trim('s', 'right') ~ '-collection' }) }}" class="fa fa-plus" title="{{ 'add ' ~ key ~ ' collection' }}"> </a></small>
+                        <small><a href="#" id="save-{{ key }}" onclick="$('#update-{{ key }}').submit()" class="fa fa-save collapse" title="{{ 'save changed order'|trans }}"> </a></small>
+                        {% elseif key == 'maps' %}
+                        <small><a href="{{ path('resource-add-introduction-or-map', { 'volume' : id, 'id' : key|trim('s', 'right') }) }}" class="fa fa-plus" title="{{ 'add ' ~ key ~ ' map' }}"> </a></small>
                         <small><a href="#" id="save-{{ key }}" onclick="$('#update-{{ key }}').submit()" class="fa fa-save collapse" title="{{ 'save changed order'|trans }}"> </a></small>
                         {% endif %}
                     </h4>

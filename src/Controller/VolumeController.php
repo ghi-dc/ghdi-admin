@@ -314,18 +314,20 @@ extends ResourceController
 
                                     $updated = true;
 
-                                    // TODO: adjust shelfmark of inherited
-                                    foreach ($child['resources'] as $grandChild) {
-                                        if (!u($grandChild['shelfmark'])->startsWith($newShelfmark)) {
-                                            // replace everything until $childId with $newShelfmark
-                                            $subShelfmark = preg_replace('/^(.*?)' . preg_quote($childId, '/') . '/',
-                                                                         $newShelfmark,
-                                                                         $grandChild['shelfmark']);
-                                            if ($subShelfmark != $grandChild['shelfmark']) {
-                                                $this->updateDocumentShelfmark($client,
-                                                                               $id, $grandChild['id'], $lang,
-                                                                               $subShelfmark, $grandChild['shelfmark']);
+                                    if (array_key_exists('resources', $child)) {
+                                        // adjust shelfmark of inherited
+                                        foreach ($child['resources'] as $grandChild) {
+                                            if (!u($grandChild['shelfmark'])->startsWith($newShelfmark)) {
+                                                // replace everything until $childId with $newShelfmark
+                                                $subShelfmark = preg_replace('/^(.*?)' . preg_quote($childId, '/') . '/',
+                                                                             $newShelfmark,
+                                                                             $grandChild['shelfmark']);
+                                                if ($subShelfmark != $grandChild['shelfmark']) {
+                                                    $this->updateDocumentShelfmark($client,
+                                                                                   $id, $grandChild['id'], $lang,
+                                                                                   $subShelfmark, $grandChild['shelfmark']);
 
+                                                }
                                             }
                                         }
                                     }

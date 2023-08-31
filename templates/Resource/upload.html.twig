@@ -17,9 +17,15 @@
     {% endif %}
 
     <h1 class="richtext">
+        {% if 'resource-add-introduction-or-map' == app.request.attributes.get('_route') %}
+        <a href="{{ path('volume-detail', { 'id' : volume }) }}">
+            {{ titleHtml|raw }}
+        </a>
+        {% else %}
         <a href="{{ path('resource-detail', { 'volume': volume, 'id' : id }) }}">
             {{ titleHtml|raw }}
         </a>
+        {% endif %}
     </h1>
 
     {{ helper.display_flashes() }}
