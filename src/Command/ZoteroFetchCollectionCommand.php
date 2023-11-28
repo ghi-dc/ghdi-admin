@@ -64,11 +64,17 @@ extends BaseCommand
                 InputOption::VALUE_NONE,
                 'Group bibliography by chapters'
             )
+            ->addOption(
+                'group-by-tag',
+                null,
+                InputOption::VALUE_NONE,
+                'Group bibliography by tags'
+            )
             ->setDescription('Fetch items from Zotero collection')
             ;
     }
 
-    protected function fetchItems($key)
+    protected function fetchItems($key, $setTags = false)
     {
         $api = $this->zoteroApiService->getInstance();
 
@@ -116,7 +122,12 @@ extends BaseCommand
                 }
 
                 $creativeWork = \App\Entity\CreativeWork::fromZotero($item['data'], $item['meta']);
-                $data[] = $creativeWork->jsonSerialize(); // to citproc json
+                $serialized = $creativeWork->jsonSerialize(); // to citproc json
+                if ($setTags && array_key_exists('tags', $item['data'])) {
+                    $serialized['tags'] = $item['data']['tags'];
+                }
+
+                $data[] = $serialized;
             }
 
             $statusCode = $response->getStatusCode();
@@ -226,10 +237,11 @@ extends BaseCommand
         }
 
         $groupByChapter = $input->getOption('group-by-chapter');
+        $groupByTag = !$groupByChapter && $input->getOption('group-by-tag');
 
         $info = null;
         try {
-            $info = $this->fetchItems($key);
+            $info = $this->fetchItems($key, $groupByTag);
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {
             $output->writeln(sprintf('<error>Error requesting collection %s (%s)</error>',
@@ -296,6 +308,40 @@ extends BaseCommand
             }
 
             $info['collections'] = $collections;
+        }
+        else if ($groupByTag) {
+            $itemsWithoutTag = [];
+
+            $collections = [];
+
+            foreach ($info['data'] as $item) {
+                if (!empty($item['tags'])) {
+                    $tag = $item['tags'][0]['tag'];
+                    $key = 'tag:' . $tag;
+
+                    if (!array_key_exists($key, $collections)) {
+                        $collections[$key] = [
+                            'data' => [],
+                        ];
+                    }
+
+                    unset($item['tags']);
+                    $collections[$key] ['data'][] = $item;
+                }
+                else {
+                    if (array_key_exists('tags', $item)) {
+                        unset($item['tags']);
+                    }
+
+                    $itemsWithoutTag[] = $item;
+                }
+            }
+
+            $info['data'] = $itemsWithoutTag;
+
+            if (!empty($collections)) {
+                $info['collections'] = $collections;
+            }
         }
 
         if (!is_null($info)) {
