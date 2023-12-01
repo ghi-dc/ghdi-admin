@@ -15,20 +15,18 @@ security:
             security: false
 
         api:
-            pattern: /api/dts
-            guard:
-                authenticators:
-                    - App\Security\BasicAuthAuthenticator
+            pattern: ^/api/dts
+            custom_authenticators:
+                - App\Security\HttpBasicAuthenticator
 
         main:
             pattern: ^/
-            guard:
-                authenticators:
-                    - App\Security\LoginFormAuthenticator
+            custom_authenticators:
+                - App\Security\FormLoginAuthenticator
             logout:
                 path:   logout
-                target: /
-        
+                target: home
+
     access_control:
         - { path: ^/(login|logout)$, role: PUBLIC_ACCESS }
         - { path: ^/(de)/(login|logout)$, role: PUBLIC_ACCESS }
