@@ -22,7 +22,7 @@ implements UserInterface, EquatableInterface
         $this->roles = $roles;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         $roles = [ 'ROLE_USER' ];
         // TODO: set according to $this->roles;
@@ -46,7 +46,15 @@ implements UserInterface, EquatableInterface
         return $this->salt;
     }
 
+    /**
+     * Legacy
+     */
     public function getUsername()
+    {
+        return $this->getUserIdentifier();
+    }
+
+    public function getUserIdentifier(): string
     {
         return $this->username;
     }
@@ -55,7 +63,7 @@ implements UserInterface, EquatableInterface
     {
     }
 
-    public function isEqualTo(UserInterface $user)
+    public function isEqualTo(UserInterface $user): bool
     {
         if (!$user instanceof ExistDbUser) {
             return false;

@@ -23,7 +23,15 @@ implements UserProviderInterface
         return $this->existDbClientService->getClient($user, $password);
     }
 
+    /**
+     * Legacy
+     */
     public function loadUserByUsername($username, $password = null)
+    {
+        return $this->loadUserByIdentifier($username, $password);
+    }
+
+    public function loadUserByIdentifier($username, $password = null): UserInterface
     {
         if (!is_null($password)) {
             $existDbClient = $this->getExistDbClient($username, $password);
@@ -83,7 +91,7 @@ implements UserProviderInterface
             );
         }
 
-        return $this->loadUserByUsername($user->getUsername(), $user->getPassword());
+        return $this->loadUserByIdentifier($user->getUsername(), $user->getPassword());
     }
 
     public function supportsClass($class)

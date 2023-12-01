@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Routing\Annotation\Route;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -28,6 +29,7 @@ extends AbstractController
 
     protected $existDbClientService;
     private $kernel;
+    private $security;
     private $teiPrettyPrinter;
     protected $siteKey;
     protected $sequenceStart = 1;
@@ -40,20 +42,22 @@ extends AbstractController
 
     public function __construct(ExistDbClientService $existDbClientService,
                                 KernelInterface $kernel,
+                                Security $security,
                                 XmlPrettyPrinter $teiPrettyPrinter,
                                 string $siteKey,
                                 int $sequenceStart)
     {
         $this->existDbClientService = $existDbClientService;
         $this->kernel = $kernel;
+        $this->security = $security;
         $this->teiPrettyPrinter = $teiPrettyPrinter;
         $this->siteKey = $siteKey;
         $this->sequenceStart = $sequenceStart;
     }
 
-    protected function getExistDbClient($subCollection = null) : \ExistDbRpc\Client
+    protected function getExistDbClient($subCollection = null): \ExistDbRpc\Client
     {
-        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $user = $this->security->getUser();
 
         $existDbClient = $this->existDbClientService->getClient($user->getUsername(), $user->getPassword());
 
@@ -108,7 +112,8 @@ extends AbstractController
             ->build();
     }
 
-    private function unparse_url($parsed_url) {
+    private function unparse_url($parsed_url)
+    {
         $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
         $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
         $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';

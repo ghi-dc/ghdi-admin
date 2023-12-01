@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -38,12 +39,13 @@ extends BaseController
 
     public function __construct(ExistDbClientService $existDbClientService,
                                 KernelInterface $kernel,
+                                Security $security,
                                 XmlPrettyPrinter $teiPrettyPrinter,
                                 string $siteKey, string $sequenceStart,
                                 PandocProcessor $pandocProcessor,
                                 SanitizationService $sanitizationService)
     {
-        parent::__construct($existDbClientService, $kernel, $teiPrettyPrinter,
+        parent::__construct($existDbClientService, $kernel, $security, $teiPrettyPrinter,
                             $siteKey, $sequenceStart);
 
         $this->pandocProcessor = $pandocProcessor;

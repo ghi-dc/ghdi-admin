@@ -45,7 +45,7 @@ class HttpBasicAuthenticator implements AuthenticatorInterface, AuthenticationEn
         return $request->headers->has('PHP_AUTH_USER');
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         $username = $request->headers->get('PHP_AUTH_USER');
         $password = $request->headers->get('PHP_AUTH_PW', '');
