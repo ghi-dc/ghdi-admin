@@ -1,9 +1,11 @@
 # config/security.yaml
 
-# see https://symfony.com/doc/4.4/security.html
+# see https://symfony.com/doc/5.2/security/experimental_authenticators.html
 security:
+    enable_authenticator_manager: true
+
     providers:
-        # see https://symfony.com/doc/current/security/custom_provider.html
+        # see https://symfony.com/doc/5.4/security/custom_provider.html
         existdb_provider:
             id: App\Security\User\ExistDbUserProvider
 
@@ -17,8 +19,8 @@ security:
             guard:
                 authenticators:
                     - App\Security\BasicAuthAuthenticator
+
         main:
-            anonymous: ~
             pattern: ^/
             guard:
                 authenticators:
@@ -28,7 +30,8 @@ security:
                 target: /
         
     access_control:
-        - { path: ^/(login|logout)$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/(de)/(login|logout)$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/(word2tei)$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/(login|logout)$, role: PUBLIC_ACCESS }
+        - { path: ^/(de)/(login|logout)$, role: PUBLIC_ACCESS }
+        - { path: ^/(convert)$, role: PUBLIC_ACCESS }
+        - { path: ^/(de)/(convert)$, role: PUBLIC_ACCESS }
         - { path: ^/, role: ROLE_USER }
