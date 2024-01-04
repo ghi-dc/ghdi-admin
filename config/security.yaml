@@ -1,9 +1,7 @@
 # config/security.yaml
 
-# see https://symfony.com/doc/5.2/security/experimental_authenticators.html
+# see https://symfony.com/doc/6.4/security.html
 security:
-    enable_authenticator_manager: true
-
     providers:
         # see https://symfony.com/doc/5.4/security/custom_provider.html
         existdb_provider:

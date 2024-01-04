@@ -12,10 +12,25 @@ framework:
     secret: '%kernel.secret%'
     session:
         storage_factory_id: session.storage.factory.native
+        # Not setting either "framework.session.handler_id" or "save_path" config options is deprecated; "handler_id" will default to null in 7.0 if "save_path" is not set and to "session.handler.native_file" otherwise.
+        handler_id: null
+        # Not setting the "framework.session.cookie_secure" config option is deprecated. It will default to "auto" in 7.0.
+        cookie_secure: auto
+        # Not setting the "framework.session.cookie_samesite" config option is deprecated. It will default to "lax" in 7.0.
+        cookie_samesite: lax
+    php_errors:
+        # Not setting the "framework.php_errors.log" config option is deprecated. It will default to "true" in 7.0.
+        log: true
     # LoginFormAuthenticator checks for csrf_protection
     csrf_protection: ~
+    # Not setting the "framework.http_method_override" config option is deprecated. It will default to "false" in 7.0.
+    http_method_override: false
+    # Not setting the "framework.handle_all_throwables" config option is deprecated. It will default to "true" in 7.0.
+    handle_all_throwables: true
     # JMS\TranslationBundle\JMSTranslationBundle needs validation
-    validation: ~
+    validation:
+        # Not setting the "framework.validation.email_validation_mode" config option is deprecated. It will default to "html5" in 7.0.
+        email_validation_mode: html5
     # knp_paginator needs translate bundle
     translator: { fallbacks: ['%default_locale%'], logging: false }
     profiler: { only_exceptions: false }
