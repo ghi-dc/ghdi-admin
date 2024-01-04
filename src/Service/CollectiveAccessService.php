@@ -177,6 +177,10 @@ class CollectiveAccessService
             return;
         }
 
+        if ('map' == $matches[1] && $matches[2] > 5000) {
+            return; // ids no longer unique among image and map
+        }
+
         $filter = sprintf('ca_objects.idno_ghdi:%d', $matches[2]);
 
         $caSearchService = $this->getSearchService($filter, 'ca_objects');
