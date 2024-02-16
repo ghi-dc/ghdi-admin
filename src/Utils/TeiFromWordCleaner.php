@@ -116,7 +116,7 @@ trait TeiFromWordCleaner
                     if ('div' == $node->nodeName) {
                         // check if we get the quellentext / source-text
                         if ($node->hasAttribute('xml:id')) {
-                            if (in_array($node->attributes['xml:id']->textContent, [ 'quellentext', 'source-text' ])) {
+                            if (in_array($node->getAttribute('xml:id'), [ 'quellentext', 'source-text' ])) {
                                 // this is the main content we are after
 
                                 // check if it starts with <head>{QUELLENTEXT|SOURCE_TEXT}</head>, if so remove
