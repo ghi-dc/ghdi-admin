@@ -13,7 +13,7 @@ security:
             security: false
 
         api:
-            pattern: ^/api/dts
+            pattern: ^(/de|)/api/dts
             custom_authenticators:
                 - App\Security\HttpBasicAuthenticator
 
