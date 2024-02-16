@@ -61,6 +61,8 @@ class HttpBasicAuthenticator implements AuthenticatorInterface, AuthenticationEn
         $passport = new Passport(
             new UserBadge($username, [$this->userProvider, $method]),
             new CustomCredentials(function($credentials, ExistDbUser $user) {
+                $user->setPassword($credentials); // since userProvider doesn't fetch password
+
                 return $this->userProvider->isPasswordValid($user->getUsername(), $credentials);
             }, $password)
         );
