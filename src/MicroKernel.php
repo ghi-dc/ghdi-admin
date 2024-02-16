@@ -77,11 +77,18 @@ extends Kernel
         // as long as we don't use jms serializer bundle
         // Bootstrap the JMS custom annotations for Object to Json mapping
         // see https://stackoverflow.com/q/14629137
-        // alternative is AnnotationRegistry::registerLoader('class_exists'); see https://github.com/doctrine/annotations/issues/103
+        /*
         \Doctrine\Common\Annotations\AnnotationRegistry::registerAutoloadNamespace(
             'JMS\Serializer\Annotation',
             $this->getProjectDir().'/vendor/jms/serializer/src'
         );
+        */
+
+        // since boppy/solr-bundle requires the class_exists-loader
+        // which is no longer added by default in Symfony 6.4
+        // https://github.com/symfony/symfony/issues/50617#issuecomment-1635951372
+        // we call the following for both JMS and FS\SolrBundle
+        \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
 
         return $bundles;
     }
