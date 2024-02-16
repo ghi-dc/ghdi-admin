@@ -5,7 +5,7 @@ namespace App\Security\User;
 
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 
 class ExistDbUserProvider
@@ -56,7 +56,7 @@ implements UserProviderInterface
                 sprintf('Invalid username or password (%s).', $msg));
             */
 
-            throw new UsernameNotFoundException($e->getMessage());
+            throw new UserNotFoundException($e->getMessage());
         }
 
         // TODO: maybe check 'enabled'
@@ -64,7 +64,7 @@ implements UserProviderInterface
             return new ExistDbUser($username, is_null($password) ? '' : $password, '', $user['groups']);
         }
 
-        throw new UsernameNotFoundException(
+        throw new UserNotFoundException(
             sprintf('Username "%s" does not exist.', $username)
         );
     }
