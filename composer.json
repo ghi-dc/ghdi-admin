@@ -103,8 +103,8 @@
         "seboettg/citeproc-php": "^2.6",
         "fale/isbn": "^3.1",
 
-        "easyrdf/easyrdf": "^1.1",
-        "ml/json-ld": "1.1.*",
+        "sweetrdf/easyrdf": "^1.1",
+        "ml/json-ld": "^1.1",
 
         "ghi-dc/exist-db-rpc-client": "dev-master",
 
