@@ -885,6 +885,35 @@ extends BaseController
         }
     }
 
+    private function checkGenreFromFigure($figure, $genre)
+    {
+        switch ($genre) {
+            case 'audio':
+                if (preg_match('/^audio/', $figure['mimetype'])) {
+                    return true;
+                }
+
+                if (!empty($figure['embed_url']) && str_contains($figure['embed_url'], 'ardaudiothek.de/embed/')) {
+                    return true;
+                }
+
+                break;
+
+            case 'video':
+                if (preg_match('/^video/', $figure['mimetype'])) {
+                    return true;
+                }
+
+                if (!empty($figure['embed_url']) && str_contains($figure['embed_url'], 'ardmediathek.de/embed/')) {
+                    return true;
+                }
+
+                break;
+        }
+
+        return false;
+    }
+
     /**
      * @Route("/collective-access/{id}.tei.xml", name="ca-detail-tei", requirements={"id" = "[0-9]+"})
      * @Route("/collective-access/{id}", name="ca-detail", requirements={"id" = "[0-9]+"})
@@ -913,10 +942,10 @@ extends BaseController
         if ($teiFull->getGenre() == 'image' && !empty($figures)) {
             // genre might not be set correctly in CollectiveAccess
             // possibly re-assign from figures
-            if (preg_match('/^audio/', $figures[0]['mimetype'])) {
+            if ($this->checkGenreFromFigure($figures[0], 'audio')) {
                 $isAudio = true;
                 for ($i = 1; $i < count($figures); $i++) {
-                    if (!preg_match('/^audio/', $figures[$i]['mimetype'])) {
+                    if (!$this->checkGenreFromFigure($figures[$i], 'audio')) {
                         $isAudio = false;
                         break;
                     }
@@ -927,10 +956,10 @@ extends BaseController
                 }
             }
 
-            if (preg_match('/^video/', $figures[0]['mimetype'])) {
+            if ($this->checkGenreFromFigure($figures[0], 'video')) {
                 $isVideo = true;
                 for ($i = 1; $i < count($figures); $i++) {
-                    if (!preg_match('/^video/', $figures[$i]['mimetype'])) {
+                    if (!$this->checkGenreFromFigure($figures[$i], 'video')) {
                         $isVideo = false;
                         break;
                     }
