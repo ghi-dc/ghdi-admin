@@ -29,8 +29,17 @@ Guidelines https://exist-db.org/exist/apps/doc/using-collections.xml
 
 Settings
 
-* Root-collection: ./bin/console existdb:import base (creates /db/apps/ghdi/data)
+* Root-collection: (creates /db/apps/ghdi/data)
 
+    ./bin/console existdb:import base
+
+* Styles:
+
+    ./bin/console existdb:import styles
+
+    For later updates:
+
+    ./bin/console existdb:import styles --overwrite
 
 ### Sub-collections and Resources
 
@@ -215,7 +224,7 @@ License
     and
         German History Intersections (GHIS)
 
-    (C) 2018-2023 German Historical Institute Washington
+    (C) 2018-2024 German Historical Institute Washington
         Daniel Burckhardt
 
 
