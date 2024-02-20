@@ -646,7 +646,7 @@ extends BaseController
         return $teiHeader;
     }
 
-    protected function lookupFigureCaption(CollectiveAccessService $caService, $representation, $locale)
+    protected function lookupFigureAdditional(CollectiveAccessService $caService, $representation, $locale)
     {
         $caItemService = $caService->getItemService($representation['representation_id'], 'ca_object_representations');
 
@@ -655,6 +655,7 @@ extends BaseController
             'bundles' => [
                 'ca_object_representations.representation_id' => [],
                 'ca_object_representations.description' => [],
+                'ca_object_representations.external_link' => [],
             ],
         ]);
 
@@ -663,14 +664,31 @@ extends BaseController
             $caItemService->setLang(self::$LOCALE_MAP[$locale]);
         }
 
+        $ret = [];
+
         $result = $caItemService->request();
         $data = $result->getRawData();
 
         if (!empty($data['ca_object_representations.description'])) {
-            return $this->htmlFragmentToTei($data['ca_object_representations.description']);
+            $ret['caption'] = $this->htmlFragmentToTei($data['ca_object_representations.description']);;
         }
+
+        if (!empty($data['ca_object_representations.external_link'])) {
+            $linkDescriptionUrl = explode(';', $data['ca_object_representations.external_link'], 2);
+            if (count($linkDescriptionUrl) > 1 && !empty($linkDescriptionUrl[1])) {
+                $url = $linkDescriptionUrl[1];
+                if (str_contains($url, 'ardaudiothek.de/embed/')) {
+                    $ret['embed_url'] = $url;
+                }
+            }
+        }
+
+        return $ret;
     }
 
+    /**
+     * Loop through representations and look-up additional information where needed
+     */
     protected function buildFigures(CollectiveAccessService $caService, $data, $locale, $primaryOnly = false)
     {
         $figures = [];
@@ -692,7 +710,7 @@ extends BaseController
                 continue;
             }
 
-            $figureCaption = $this->lookupFigureCaption($caService, $representation, $locale);
+            $additional = $this->lookupFigureAdditional($caService, $representation, $locale);
 
             if (in_array($representation['mimetype'], [ 'audio/mpeg', 'video/mp4' ])) {
                 // set $idxAV if there is exactly one AV so we might merge possible poster-figure into single figure
@@ -713,7 +731,7 @@ extends BaseController
                 }
             }
 
-            $figures[] = $representation + [ 'caption' => $figureCaption ];
+            $figures[] = $representation + $additional;
         }
 
         // if there is exactly one AV and one image, assign image to AV as poster
@@ -958,6 +976,22 @@ extends BaseController
                                                         htmlspecialchars($figure['mimetype'], ENT_XML1, 'utf-8'),
                                                         htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
                                                         htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8'),
+                                                        !empty($figure['caption']) ? $figure['caption'] : '');
+                            }
+                            else if (array_key_exists('embed_url', $figure)) {
+                                $attrFigure = '';
+
+                                if (!empty($figure['poster'])) {
+                                    $posterInfo = $this->buildFigureFacs($figure['poster']);
+                                    $attrFigure = sprintf(' facs="%s" corresp="%s"',
+                                                        htmlspecialchars($posterInfo['facs'], ENT_XML1, 'utf-8'),
+                                                        htmlspecialchars($posterInfo['corresp'], ENT_XML1, 'utf-8'));
+                                }
+
+                                $figureTags[] = sprintf('<figure%s><media mimeType="%s" url="%s" />%s</figure>',
+                                                        $attrFigure,
+                                                        'text/html',
+                                                        htmlspecialchars($figure['embed_url'], ENT_XML1, 'utf-8'),
                                                         !empty($figure['caption']) ? $figure['caption'] : '');
                             }
                             else {

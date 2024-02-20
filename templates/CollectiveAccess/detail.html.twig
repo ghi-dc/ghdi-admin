@@ -57,27 +57,36 @@
         <dt class="col-sm-3 col-md-2">{{ 'Figure'|trans }}</dt>
         <dd class="col-sm-9 col-md-10">
        {% for figure in figures %}
-           <div>
-            {% if 'audio/mpeg' == figure['mimetype'] %}
-                <audio
-                    controls
-                    src="{{ figure['urls']['original'] }}">
-                        Your browser does not support the
-                        <code>audio</code> element.
-                </audio>
-            {% elseif 'text/xml' == figure['mimetype'] and figure['original_filename'] ends with '.svg' %}
-                <img src="{{ path('svgproxy') }}?url={{ figure['urls']['original']|url_encode }}" style="max-width: 60%; height: auto" />
-            {% elseif 'video/mp4' == figure['mimetype'] %}
-                {{ figure['tags']['original']|raw }}
+            <div>
+            {% if figure['embed_url'] is defined %}
+                {% set iframeAttrs = ' width="640" height="320" frameBorder="0" scrolling="no"' %}
+                {% if 'ardaudiothek.de' in figure['embed_url'] %}
+                    {% set iframeAttrs = ' width="640" height="185" frameBorder="0" scrolling="no"' %}
+                {% endif %}
+                <iframe src="{{ figure['embed_url'] }}"{{ iframeAttrs|raw }}></iframe>
             {% else %}
-                {{ figure['tags']['preview170']|raw }}
-            {% endif %}
+                {% if 'audio/mpeg' == figure['mimetype'] %}
+                    <audio
+                        controls
+                        src="{{ figure['urls']['original'] }}">
+                            Your browser does not support the
+                            <code>audio</code> element.
+                    </audio>
+                {% elseif 'text/xml' == figure['mimetype'] and figure['original_filename'] ends with '.svg' %}
+                    <img src="{{ path('svgproxy') }}?url={{ figure['urls']['original']|url_encode }}" style="max-width: 60%; height: auto" />
+                {% elseif 'video/mp4' == figure['mimetype'] %}
+                    {{ figure['tags']['original']|raw }}
+                {% else %}
+                    {{ figure['tags']['preview170']|raw }}
+                {% endif %}
+
                 <a href="{{ figure['urls']['original'] }}" target="_blank">{{ figure['original_filename'] }}</a>
-                {% if figure['caption'] is not null %}
+            {% endif %}
+            {% if figure['caption'] is defined and figure['caption'] is not null %}
                 <div>
                     {{ figure['caption']|raw }}
                 </div>
-                {% endif %}
+            {% endif %}
             </div>
         {% endfor %}
         </dd>
