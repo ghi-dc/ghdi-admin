@@ -59,7 +59,7 @@
        {% for figure in figures %}
             <div>
             {% if figure['embed_url'] is defined %}
-                {% set iframeAttrs = ' width="640" height="320" frameBorder="0" scrolling="no"' %}
+                {% set iframeAttrs = ' width="640" height="360" frameBorder="0" scrolling="no"' %}
                 {% if 'ardaudiothek.de' in figure['embed_url'] %}
                     {% set iframeAttrs = ' width="640" height="185" frameBorder="0" scrolling="no"' %}
                 {% endif %}

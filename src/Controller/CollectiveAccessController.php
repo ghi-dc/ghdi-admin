@@ -677,7 +677,7 @@ extends BaseController
             $linkDescriptionUrl = explode(';', $data['ca_object_representations.external_link'], 2);
             if (count($linkDescriptionUrl) > 1 && !empty($linkDescriptionUrl[1])) {
                 $url = $linkDescriptionUrl[1];
-                if (str_contains($url, 'ardaudiothek.de/embed/')) {
+                if (str_contains($url, 'ardaudiothek.de/embed/') || str_contains($url, 'ardmediathek.de/embed/')) {
                     $ret['embed_url'] = $url;
                 }
             }
