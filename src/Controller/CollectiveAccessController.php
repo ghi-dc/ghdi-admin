@@ -674,7 +674,10 @@ extends BaseController
             $linkDescriptionUrl = explode(';', $data['ca_object_representations.external_link'], 2);
             if (count($linkDescriptionUrl) > 1 && !empty($linkDescriptionUrl[1])) {
                 $url = $linkDescriptionUrl[1];
-                if (str_contains($url, 'ardaudiothek.de/embed/') || str_contains($url, 'ardmediathek.de/embed/')) {
+                if (str_contains($url, 'ardaudiothek.de/embed/')
+                    || str_contains($url, 'ardmediathek.de/embed/')
+                    || str_contains($url, 'youtube.com/embed/'))
+                {
                     $ret['embed_url'] = $url;
                 }
             }
@@ -901,7 +904,11 @@ extends BaseController
                     return true;
                 }
 
-                if (!empty($figure['embed_url']) && str_contains($figure['embed_url'], 'ardmediathek.de/embed/')) {
+                if (!empty($figure['embed_url'])
+                    && (str_contains($figure['embed_url'], 'ardmediathek.de/embed/')
+                        || str_contains($figure['embed_url'], 'youtube.com/embed/'))
+                    )
+                {
                     return true;
                 }
 
