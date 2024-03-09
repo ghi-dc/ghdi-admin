@@ -60,7 +60,7 @@
         {% if updateFromCollectiveAccess is not empty %}
             <br /><a class="post" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({'action': 'overwrite'})) }}">{{ 'Overwrite from Collective Access'|trans }}</a>
         {% endif %}
-        {% if 'introduction' == resource.data.genre or 'document' == resource.data.genre or 'image' == resource.data.genre or 'audio' == resource.data.genre or 'video' == resource.data.genre %}
+        {% if 'introduction' == resource.data.genre or 'document' == resource.data.genre or 'image' == resource.data.genre or 'audio' == resource.data.genre or 'video' == resource.data.genre or 'map' == resource.data.genre %}
            <br /><a href="{{ path('resource-upload', { volume: volume.data.id, id: id }) }}" class="fa fa-upload" aria-hidden="true" title="{{ 'Replace Content'|trans }}"> </a>
         {% endif %}
     </div>
