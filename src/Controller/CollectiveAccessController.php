@@ -676,7 +676,8 @@ extends BaseController
                 $url = $linkDescriptionUrl[1];
                 if (str_contains($url, 'ardaudiothek.de/embed/')
                     || str_contains($url, 'ardmediathek.de/embed/')
-                    || str_contains($url, 'youtube.com/embed/'))
+                    || str_contains($url, 'youtube.com/embed/')
+                    || str_contains($url, 'player.vimeo.com/video/'))
                 {
                     $ret['embed_url'] = $url;
                 }
@@ -906,7 +907,8 @@ extends BaseController
 
                 if (!empty($figure['embed_url'])
                     && (str_contains($figure['embed_url'], 'ardmediathek.de/embed/')
-                        || str_contains($figure['embed_url'], 'youtube.com/embed/'))
+                        || str_contains($figure['embed_url'], 'youtube.com/embed/')
+                        || str_contains($figure['embed_url'], 'player.vimeo.com/video/'))
                     )
                 {
                     return true;
