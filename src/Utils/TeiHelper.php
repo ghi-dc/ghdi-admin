@@ -216,14 +216,12 @@ class TeiHelper
         }
 
         // translator - currently don't expect persName due to things like David Haney and GHI staff
+        $article->translator = null;
         $result = $header('./tei:fileDesc/tei:titleStmt/tei:editor[@role="translator"]');
         if ($result->length > 0) {
             $article->translator = $asXml
                 ? $this->extractInnerContent($result[0])
                 : $this->extractTextContent($result[0]);
-        }
-        else {
-            $article->translator = null;
         }
 
         // responsible
@@ -283,7 +281,7 @@ class TeiHelper
             unset($article->dateModified);
         }
 
-        // licence
+        // licence / rights
         $article->rights = null;
         $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence');
         if ($result->length > 0) {
@@ -315,11 +313,26 @@ class TeiHelper
             }
         }
 
+        // abstract
+        $article->abstract = null;
         $result = $header('(./tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"])[1]');
         if ($result->length > 0) {
             $article->abstract = $asXml
                 ? $this->extractInnerContent($result[0])
                 : $this->extractTextContent($result[0]);
+        }
+
+        // bibl
+        $article->bibl = null;
+        $result = $header('./tei:fileDesc/tei:sourceDesc/tei:bibl');
+        if ($result->length > 0) {
+            $parts = [];
+            foreach ($result as $element) {
+                $parts[] = $asXml
+                    ? $this->extractInnerContent($element)
+                    : $this->extractTextContent($element);
+            }
+            $article->bibl = join("\n", $parts);
         }
 
         // url

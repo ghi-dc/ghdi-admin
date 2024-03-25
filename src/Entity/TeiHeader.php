@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
 use Doctrine\Common\Collections\ArrayCollection;
 
 use FS\SolrBundle\Doctrine\Annotation as Solr;
@@ -63,6 +61,11 @@ implements \JsonSerializable
      */
     protected $note;
 
+    /**
+     * @var string The bibliographic citation.
+     *
+     * @Solr\Field(type="text")
+     */
     protected $sourceDescBibl;
 
     /**
@@ -192,6 +195,10 @@ implements \JsonSerializable
 
         if (property_exists($article, 'abstract')) {
             $entity->setNote($article->abstract);
+        }
+
+        if (property_exists($article, 'bibl')) {
+            $entity->setSourceDescBibl($article->bibl);
         }
 
         if (property_exists($article, 'dateCreated')) {
