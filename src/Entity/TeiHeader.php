@@ -20,6 +20,7 @@ implements \JsonSerializable
      *
      * @Solr\Id
      */
+    #[Solr\Id]
     protected $id;
 
     /**
@@ -27,6 +28,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="string")
      */
+    #[Solr\Field(type:"string")]
     protected $title;
 
     /**
@@ -34,6 +36,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="strings", getter="getFullname")
      */
+    #[Solr\Field(type:"strings", getter:"getFullname")]
     protected $authors;
 
     protected $editors = [];
@@ -45,6 +48,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="string")
      */
+    #[Solr\Field(type:"string")]
     protected $licence;
 
     /**
@@ -52,6 +56,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="string")
      */
+    #[Solr\Field(type:"string")]
     protected $licenceTarget;
 
     /**
@@ -59,6 +64,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="text")
      */
+    #[Solr\Field(type:"text")]
     protected $note;
 
     /**
@@ -66,6 +72,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="text")
      */
+    #[Solr\Field(type:"text")]
     protected $sourceDescBibl;
 
     /**
@@ -73,6 +80,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="string")
      */
+    #[Solr\Field(type:"string")]
     protected $language;
 
     /**
@@ -85,6 +93,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="string")
      */
+    #[Solr\Field(type:"string")]
     protected $shelfmark;
 
     /**
@@ -92,6 +101,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="date")
      */
+    #[Solr\Field(type:"date")]
     protected $dateIndexed = null;
 
     /**
@@ -99,6 +109,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="string")
      */
+    #[Solr\Field(type:"string")]
     protected $dateCreated;
 
     protected $idno = [];
@@ -111,6 +122,7 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="string")
      */
+    #[Solr\Field(type:"string")]
     private $slug;
 
     /**
@@ -118,10 +130,15 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="string")
      */
+    #[Solr\Field(type:"string")]
     private $genre;
 
     protected static function normalizeWhitespace($tei)
     {
+        if (is_null($tei)) {
+            return $tei;
+        }
+
         return preg_replace('/\R+/', ' ', $tei); // get rid of newlines added e.g. through pretty-printing
     }
 
@@ -848,7 +865,7 @@ implements \JsonSerializable
         }
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return [
             'id' => $this->getId(),

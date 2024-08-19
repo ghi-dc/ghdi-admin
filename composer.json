@@ -124,7 +124,7 @@
 
         "symfony/polyfill-intl-normalizer": "*",
 
-        "boppy/solr-bundle": "dev-solarium-6",
+        "boppy/solr-bundle": "dev-attributes",
         "doctrine/collections": "^1.8"
     },
     "autoload": {
