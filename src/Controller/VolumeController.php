@@ -9,9 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-use OpenSpout\Writer\Common\Creator\WriterEntityFactory;
-use OpenSpout\Writer\Common\Creator\Style\StyleBuilder;
-use OpenSpout\Common\Entity\Row;
+use OpenSpout\Common\Entity\Style\Style;
 
 use function Symfony\Component\String\u;
 
@@ -173,7 +171,7 @@ extends ResourceController
                 array_key_exists('terms', $resource) ? $resource['terms'] : [])),
         ];
 
-        $writer->addRow(WriterEntityFactory::createRowFromArray($row, $style));
+        $writer->addRow(\OpenSpout\Common\Entity\Row::fromValues($row, $style));
     }
 
     #[Route(path: '/volume/{id}.dc.xml', name: 'volume-detail-dc', requirements: ['id' => 'volume\-\d+'])]
@@ -366,29 +364,29 @@ extends ResourceController
             $fileName = sprintf('%s-%s.xlsx',
                                 $volume['data']['id'], $lang);
 
-            // Create styles with the StyleBuilder
-            $titleStyle = (new StyleBuilder())
+            // Create styles
+            $titleStyle = (new Style())
                        ->setFontBold()
                        ->setFontSize(20)
                        // ->setShouldWrapText()
-                       ->build();
+                       ;
 
-            $sectionStyle = (new StyleBuilder())
+            $sectionStyle = (new Style())
                        ->setFontBold()
                        ->setFontSize(18)
                        // ->setShouldWrapText()
-                       ->build();
+                       ;
 
-            $chapterStyle = (new StyleBuilder())
+            $chapterStyle = (new Style())
                        ->setFontBold()
                        // ->setShouldWrapText()
-                       ->build();
+                       ;
 
-            $writer = WriterEntityFactory::createXLSXWriter();
+            $writer = new \OpenSpout\Writer\XLSX\Writer();
             $writer->openToBrowser($fileName);
 
             // Create a row with cells and apply the style to all cells
-            $row = WriterEntityFactory::createRowFromArray([ $volume['data']['name'] ], $titleStyle);
+            $row = \OpenSpout\Common\Entity\Row::fromValues([ $volume['data']['name'] ], $titleStyle);
             $writer->addRow($row);
 
             foreach ($resourcesGrouped as $key => $section) {
@@ -403,7 +401,7 @@ extends ResourceController
 
                     if (!$hasResources) {
                         // empty row
-                        $writer->addRow(WriterEntityFactory::createRowFromArray([]));
+                        $writer->addRow(\OpenSpout\Common\Entity\Row::fromValues([]));
 
                         continue;
                     }
@@ -413,7 +411,7 @@ extends ResourceController
                     }
 
                     // empty row
-                    $writer->addRow(WriterEntityFactory::createRowFromArray([]));
+                    $writer->addRow(\OpenSpout\Common\Entity\Row::fromValues([]));
                 }
             }
 
