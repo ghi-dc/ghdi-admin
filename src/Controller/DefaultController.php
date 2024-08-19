@@ -15,9 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class DefaultController
 extends AbstractController
 {
-    /**
-     * @Route("/", name="home")
-     */
+    #[Route(path: '/', name: 'home')]
     public function homeAction(Request $request)
     {
         return $this->render('Home/home.html.twig', [

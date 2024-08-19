@@ -14,9 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class ApiController
 extends AbstractController
 {
-    /**
-     * @Route("/api/slugify/{text}", name="api-slugify", requirements={"text"=".*"})
-     */
+    #[Route(path: '/api/slugify/{text}', name: 'api-slugify', requirements: ['text' => '.*'])]
     public function slugifyAction(Request $request,
                                   \Cocur\Slugify\SlugifyInterface $slugify,
                                   $text)

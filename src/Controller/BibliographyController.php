@@ -20,9 +20,7 @@ extends BaseController
 
     protected $subCollection = '/data/bibliography';
 
-    /**
-     * @Route("/bibliography", name="bibliography-list")
-     */
+    #[Route(path: '/bibliography', name: 'bibliography-list')]
     public function listAction(Request $request)
     {
         $client = $this->getExistDbClient($this->subCollection);
@@ -57,10 +55,8 @@ extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/bibliography/{id}.tei.xml", name="bibliography-detail-tei", requirements={"id" = "[0-9A-Z]+"})
-     * @Route("/bibliography/{id}", name="bibliography-detail", requirements={"id" = "[0-9A-Z]+"})
-     */
+    #[Route(path: '/bibliography/{id}.tei.xml', name: 'bibliography-detail-tei', requirements: ['id' => '[0-9A-Z]+'])]
+    #[Route(path: '/bibliography/{id}', name: 'bibliography-detail', requirements: ['id' => '[0-9A-Z]+'])]
     public function detailAction(Request $request,
                                  TranslatorInterface $translator,
                                  \App\Service\ZoteroApiService $zoteroApiService,
@@ -121,9 +117,7 @@ extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/bibliography/sync", name="bibliography-sync")
-     */
+    #[Route(path: '/bibliography/sync', name: 'bibliography-sync')]
     public function syncAction(Request $request,
                                TranslatorInterface $translator,
                                \App\Service\ZoteroApiService $zoteroApiService)

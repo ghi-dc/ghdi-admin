@@ -19,9 +19,7 @@ extends BaseController
 {
     protected $subCollection = '/data/authority/terms';
 
-    /**
-     * @Route("/term", name="term-list")
-     */
+    #[Route(path: '/term', name: 'term-list')]
     public function listAction(Request $request)
     {
         $client = $this->getExistDbClient($this->subCollection);
@@ -46,9 +44,7 @@ extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/term/{id}", name="term-detail", requirements={"id" = "term\-\d+"})
-     */
+    #[Route(path: '/term/{id}', name: 'term-detail', requirements: ['id' => 'term\-\d+'])]
     public function detailAction(Request $request,
                                  TranslatorInterface $translator,
                                  $id)
@@ -126,9 +122,7 @@ EOXQL;
         return $term;
     }
 
-    /**
-     * @Route("/term/add-from-identifier", name="term-add-from-identifier")
-     */
+    #[Route(path: '/term/add-from-identifier', name: 'term-add-from-identifier')]
     public function addFromIdentifierAction(Request $request,
                                             TranslatorInterface $translator)
     {
@@ -285,10 +279,8 @@ EOXQL;
         return $choices;
     }
 
-    /**
-     * @Route("/term/{id}/edit", name="term-edit", requirements={"id" = "term\-\d+"})
-     * @Route("/term/add", name="term-add")
-     */
+    #[Route(path: '/term/{id}/edit', name: 'term-edit', requirements: ['id' => 'term\-\d+'])]
+    #[Route(path: '/term/add', name: 'term-add')]
     public function editAction(Request $request,
                                TranslatorInterface $translator,
                                $id = null)
@@ -361,9 +353,7 @@ EOXQL;
         ]);
     }
 
-    /**
-     * @Route("/term/{id}/lookup-identifier", name="term-lookup-identifier", requirements={"id" = "term\-\d+"})
-     */
+    #[Route(path: '/term/{id}/lookup-identifier', name: 'term-lookup-identifier', requirements: ['id' => 'term\-\d+'])]
     public function enhanceAction(Request $request,
                                   TranslatorInterface $translator,
                                   $id)
@@ -449,9 +439,7 @@ EOXQL;
         ]));
     }
 
-    /**
-     * @Route("/term/test", name="term-test")
-     */
+    #[Route(path: '/term/test', name: 'term-test')]
     public function testAction(Request $request)
     {
         $term = new \App\Entity\Term();

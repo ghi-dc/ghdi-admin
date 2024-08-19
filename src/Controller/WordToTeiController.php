@@ -16,9 +16,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class WordToTeiController
 extends BaseController
 {
-    /**
-     * @Route("/convert", name="convert")
-     */
+    #[Route(path: '/convert', name: 'convert')]
     public function uploadAction(Request $request,
                                  TranslatorInterface $translator,
                                  \App\Utils\PandocConverter $pandocConverter)

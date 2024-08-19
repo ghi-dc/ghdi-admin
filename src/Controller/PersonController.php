@@ -16,9 +16,7 @@ extends BaseController
 {
     protected $subCollection = '/data/authority/persons';
 
-    /**
-     * @Route("/person", name="person-list")
-     */
+    #[Route(path: '/person', name: 'person-list')]
     public function listAction(Request $request)
     {
         $client = $this->getExistDbClient($this->subCollection);
@@ -43,9 +41,7 @@ extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/person/{id}", name="person-detail", requirements={"id" = "person\-\d+"})
-     */
+    #[Route(path: '/person/{id}', name: 'person-detail', requirements: ['id' => 'person\-\d+'])]
     public function detailAction(Request $request,
                                  TranslatorInterface $translator,
                                  $id)
@@ -111,9 +107,7 @@ EOXQL;
         return $info;
     }
 
-    /**
-     * @Route("/person/add-from-identifier", name="person-add-from-identifier")
-     */
+    #[Route(path: '/person/add-from-identifier', name: 'person-add-from-identifier')]
     public function addFromIdentifierAction(Request $request,
                                             TranslatorInterface $translator)
     {
@@ -254,10 +248,8 @@ EOXQL;
         ]);
     }
 
-    /**
-     * @Route("/person/{id}/edit", name="person-edit", requirements={"id" = "person\-\d+"})
-     * @Route("/person/add", name="person-add")
-     */
+    #[Route(path: '/person/{id}/edit', name: 'person-edit', requirements: ['id' => 'person\-\d+'])]
+    #[Route(path: '/person/add', name: 'person-add')]
     public function editAction(Request $request,
                                TranslatorInterface $translator,
                                $id = null)
@@ -329,9 +321,7 @@ EOXQL;
         ]);
     }
 
-    /**
-     * @Route("/person/{id}/lookup-identifier", name="person-lookup-identifier", requirements={"id" = "person\-\d+"})
-     */
+    #[Route(path: '/person/{id}/lookup-identifier', name: 'person-lookup-identifier', requirements: ['id' => 'person\-\d+'])]
     public function enhanceAction(Request $request,
                                   TranslatorInterface $translator,
                                   $id)
@@ -417,9 +407,7 @@ EOXQL;
         ]));
     }
 
-    /**
-     * @Route("/person/import-missing", name="person-import-missing")
-     */
+    #[Route(path: '/person/import-missing', name: 'person-import-missing')]
     public function importMissing(Request $request)
     {
         $xql = $this->renderView('Person/lookup-missing-json.xql.twig', [
@@ -442,9 +430,7 @@ EOXQL;
         ]);
     }
 
-    /**
-     * @Route("/person/test", name="person-test")
-     */
+    #[Route(path: '/person/test', name: 'person-test')]
     public function testAction(Request $request)
     {
         $person = new \App\Entity\Person();

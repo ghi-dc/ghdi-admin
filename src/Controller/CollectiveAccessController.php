@@ -59,9 +59,7 @@ extends BaseController
         return $this->termChoicesByUri[$locale];
     }
 
-    /**
-     * @Route("/collective-access", name="ca-list")
-     */
+    #[Route(path: '/collective-access', name: 'ca-list')]
     public function homeAction(Request $request,
                                CollectiveAccessService $caService)
     {
@@ -920,10 +918,8 @@ extends BaseController
         return false;
     }
 
-    /**
-     * @Route("/collective-access/{id}.tei.xml", name="ca-detail-tei", requirements={"id" = "[0-9]+"})
-     * @Route("/collective-access/{id}", name="ca-detail", requirements={"id" = "[0-9]+"})
-     */
+    #[Route(path: '/collective-access/{id}.tei.xml', name: 'ca-detail-tei', requirements: ['id' => '[0-9]+'])]
+    #[Route(path: '/collective-access/{id}', name: 'ca-detail', requirements: ['id' => '[0-9]+'])]
     public function detailAction(Request $request,
                                  TranslatorInterface $translator,
                                  CollectiveAccessService $caService,

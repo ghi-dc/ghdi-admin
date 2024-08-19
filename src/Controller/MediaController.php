@@ -18,9 +18,8 @@ extends BaseController
     /**
      * By default, the Symfony Routing component requires that the parameters match the following regular expression: [^/]+.
      * This means that all characters are allowed except /.
-     *
-     * @Route("/media/{path}", requirements={"path" = ".+"})
      */
+    #[Route(path: '/media/{path}', requirements: ['path' => '.+'])]
     public function sendAction(Request $request, $path)
     {
         try {

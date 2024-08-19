@@ -17,9 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class UserController
 extends AbstractController
 {
-    /**
-     * @Route("/login", name="login")
-     */
+    #[Route(path: '/login', name: 'login')]
     public function loginAction(Request $request,
                                 TranslatorInterface $translator,
                                 AuthenticationUtils $authenticationUtils = null)
@@ -56,9 +54,7 @@ extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/logout", name="logout")
-     */
+    #[Route(path: '/logout', name: 'logout')]
     public function logoutAction(Request $request, TokenStorageInterface $tokenStorage)
     {
         $tokenStorage->setToken(null);

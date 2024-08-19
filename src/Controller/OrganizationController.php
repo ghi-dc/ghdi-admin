@@ -17,9 +17,7 @@ extends BaseController
 {
     protected $subCollection = '/data/authority/organizations';
 
-    /**
-     * @Route("/organization", name="organization-list")
-     */
+    #[Route(path: '/organization', name: 'organization-list')]
     public function listAction(Request $request)
     {
         $client = $this->getExistDbClient($this->subCollection);
@@ -44,9 +42,7 @@ extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/organization/{id}", name="organization-detail", requirements={"id" = "organization\-\d+"})
-     */
+    #[Route(path: '/organization/{id}', name: 'organization-detail', requirements: ['id' => 'organization\-\d+'])]
     public function detailAction(Request $request,
                                  TranslatorInterface $translator,
                                  $id)
@@ -112,9 +108,7 @@ EOXQL;
         return $info;
     }
 
-    /**
-     * @Route("/organization/add-from-identifier", name="organization-add-from-identifier")
-     */
+    #[Route(path: '/organization/add-from-identifier', name: 'organization-add-from-identifier')]
     public function addFromIdentifierAction(Request $request,
                                             TranslatorInterface $translator)
     {
@@ -256,10 +250,8 @@ EOXQL;
         ]);
     }
 
-    /**
-     * @Route("/organization/{id}/edit", name="organization-edit", requirements={"id" = "organization\-\d+"})
-     * @Route("/organization/add", name="organization-add")
-     */
+    #[Route(path: '/organization/{id}/edit', name: 'organization-edit', requirements: ['id' => 'organization\-\d+'])]
+    #[Route(path: '/organization/add', name: 'organization-add')]
     public function editAction(Request $request,
                                TranslatorInterface $translator,
                                $id = null)
@@ -331,9 +323,7 @@ EOXQL;
         ]);
     }
 
-    /**
-     * @Route("/organization/{id}/lookup-identifier", name="organization-lookup-identifier", requirements={"id" = "organization\-\d+"})
-     */
+    #[Route(path: '/organization/{id}/lookup-identifier', name: 'organization-lookup-identifier', requirements: ['id' => 'organization\-\d+'])]
     public function enhanceAction(Request $request,
                                   TranslatorInterface $translator,
                                   $id)
@@ -419,9 +409,7 @@ EOXQL;
         ]));
     }
 
-    /**
-     * @Route("/organization/import-missing", name="organization-import-missing")
-     */
+    #[Route(path: '/organization/import-missing', name: 'organization-import-missing')]
     public function importMissing(Request $request)
     {
         $xql = $this->renderView('Organization/lookup-missing-json.xql.twig', [
@@ -444,9 +432,7 @@ EOXQL;
         ]);
     }
 
-    /**
-     * @Route("/organization/test", name="organization-test")
-     */
+    #[Route(path: '/organization/test', name: 'organization-test')]
     public function testAction(Request $request)
     {
         $organization = new \App\Entity\Organization();

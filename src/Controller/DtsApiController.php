@@ -1,4 +1,5 @@
 <?php
+// src/Controller/DtsApiController.php
 
 namespace App\Controller;
 
@@ -9,7 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-/*
+/**
  * Start implementing DTS API https://w3id.org/dts
  *
  * Currently leaving out navigation and collections
@@ -23,9 +24,7 @@ extends ResourceController
         'dts' => 'https://w3id.org/dts/api#',
     ];
 
-    /**
-     * @Route("/api/dts", name="dts-entry-point")
-     */
+    #[Route(path: '/api/dts', name: 'dts-entry-point')]
     public function entryPointAction(Request $request)
     {
         return new JsonResponse([
@@ -38,9 +37,7 @@ extends ResourceController
         ]);
     }
 
-    /**
-     * @Route("/api/dts/contexts/EntryPoint.jsonld", name="dts-entry-point-context")
-     */
+    #[Route(path: '/api/dts/contexts/EntryPoint.jsonld', name: 'dts-entry-point-context')]
     public function entryPointContextAction(Request $request)
     {
         return new JsonResponse([
@@ -67,11 +64,7 @@ extends ResourceController
         return $resources;
     }
 
-    /**
-     * @Route("/api/dts/collections", name="dts-collections")
-     *
-     * TODO: https://distributed-text-services.github.io/specifications/Collections-Endpoint.html#parent-collection-query
-     */
+    #[Route(path: '/api/dts/collections', name: 'dts-collections')] // TODO: https://distributed-text-services.github.io/specifications/Collections-Endpoint.html#parent-collection-query
     public function collectionsAction(Request $request, TranslatorInterface $translator)
     {
         $id = $request->get('id');
@@ -186,7 +179,7 @@ extends ResourceController
                 }
                 else {
                     $volumeParts = explode(':', $path[1], 2);
-                    $volumeId = $volumeParts[1];
+                    $volumeId = join(':', [ $path[0], $volumeParts[1] ]);
                 }
 
                 $resources = $this->buildResources($client, $volumeId, $lang);
@@ -248,9 +241,7 @@ EOT;
         return $response;
     }
 
-    /**
-     * @Route("/api/dts/document", name="dts-document")
-     */
+    #[Route(path: '/api/dts/document', name: 'dts-document')]
     public function documentAction(Request $request)
     {
         $id = $request->get('id');

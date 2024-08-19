@@ -49,9 +49,7 @@ extends ResourceController
         return $result;
     }
 
-    /**
-     * @Route("/volume", name="volume-list")
-     */
+    #[Route(path: '/volume', name: 'volume-list')]
     public function listAction(Request $request)
     {
         $q = trim($request->request->get('q'));
@@ -178,14 +176,12 @@ extends ResourceController
         $writer->addRow(WriterEntityFactory::createRowFromArray($row, $style));
     }
 
-    /**
-     * @Route("/volume/{id}.dc.xml", name="volume-detail-dc", requirements={"id" = "volume\-\d+"})
-     * @Route("/volume/{id}.scalar.json", name="volume-detail-scalar", requirements={"id" = "volume\-\d+"})
-     * @Route("/volume/{id}.tei.xml", name="volume-detail-tei", requirements={"id" = "volume\-\d+"})
-     * @Route("/volume/{id}", name="volume-detail", requirements={"id" = "volume\-\d+"})
-     * @Route("/volume/{id}/create", name="volume-create", requirements={"id" = "volume\-\d+"})
-     * @Route("/volume/{id}/export", name="volume-export", requirements={"id" = "volume\-\d+"})
-     */
+    #[Route(path: '/volume/{id}.dc.xml', name: 'volume-detail-dc', requirements: ['id' => 'volume\-\d+'])]
+    #[Route(path: '/volume/{id}.scalar.json', name: 'volume-detail-scalar', requirements: ['id' => 'volume\-\d+'])]
+    #[Route(path: '/volume/{id}.tei.xml', name: 'volume-detail-tei', requirements: ['id' => 'volume\-\d+'])]
+    #[Route(path: '/volume/{id}', name: 'volume-detail', requirements: ['id' => 'volume\-\d+'])]
+    #[Route(path: '/volume/{id}/create', name: 'volume-create', requirements: ['id' => 'volume\-\d+'])]
+    #[Route(path: '/volume/{id}/export', name: 'volume-export', requirements: ['id' => 'volume\-\d+'])]
     public function volumeDetailAction(Request $request,
                                        TranslatorInterface $translator,
                                        $id)
@@ -436,9 +432,7 @@ extends ResourceController
         ]);
     }
 
-    /**
-     * @Route("/volume/{id}/edit", name="volume-edit", requirements={"id" = "volume\-\d+"})
-     */
+    #[Route(path: '/volume/{id}/edit', name: 'volume-edit', requirements: ['id' => 'volume\-\d+'])]
     public function volumeEditAction(Request $request,
                                      TranslatorInterface $translator,
                                      $id = null)

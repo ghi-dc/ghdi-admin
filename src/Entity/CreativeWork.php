@@ -437,17 +437,15 @@ extends SchemaOrg
 
     /**
      * @var string
-     *
-     * @Assert\Type(type="string")
-     * @Assert\NotNull
      */
+    #[Assert\Type(type: 'string')]
+    #[Assert\NotNull]
     protected $language;
 
     /**
      * @var string URL of the item.
-     *
-     * @Assert\Url
      */
+    #[Assert\Url]
     protected $url;
 
     /**
@@ -457,9 +455,8 @@ extends SchemaOrg
 
     /**
      * @var string
-     *
-     * @Assert\Type(type="string")
      */
+    #[Assert\Type(type: 'string')]
     protected $slug;
 
     /**

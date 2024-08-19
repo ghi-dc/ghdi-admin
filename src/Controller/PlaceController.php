@@ -17,9 +17,7 @@ extends BaseController
 {
     protected $subCollection = '/data/authority/places';
 
-    /**
-     * @Route("/place", name="place-list")
-     */
+    #[Route(path: '/place', name: 'place-list')]
     public function listAction(Request $request)
     {
         $client = $this->getExistDbClient($this->subCollection);
@@ -44,9 +42,7 @@ extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/place/{id}", name="place-detail", requirements={"id" = "place\-\d+"})
-     */
+    #[Route(path: '/place/{id}', name: 'place-detail', requirements: ['id' => 'place\-\d+'])]
     public function detailAction(Request $request,
                                  TranslatorInterface $translator,
                                  $id)
@@ -171,9 +167,7 @@ EOXQL;
         }
     }
 
-    /**
-     * @Route("/place/add-from-identifier", name="place-add-from-identifier")
-     */
+    #[Route(path: '/place/add-from-identifier', name: 'place-add-from-identifier')]
     public function addFromIdentifierAction(Request $request,
                                             TranslatorInterface $translator)
     {
@@ -261,10 +255,8 @@ EOXQL;
         ]);
     }
 
-    /**
-     * @Route("/place/{id}/edit", name="place-edit", requirements={"id" = "place\-\d+"})
-     * @Route("/place/add", name="place-add")
-     */
+    #[Route(path: '/place/{id}/edit', name: 'place-edit', requirements: ['id' => 'place\-\d+'])]
+    #[Route(path: '/place/add', name: 'place-add')]
     public function editAction(Request $request,
                                TranslatorInterface $translator,
                                $id = null)
@@ -326,9 +318,7 @@ EOXQL;
         ]);
     }
 
-    /**
-     * @Route("/place/{id}/lookup-identifier", name="place-lookup-identifier", requirements={"id" = "place\-\d+"})
-     */
+    #[Route(path: '/place/{id}/lookup-identifier', name: 'place-lookup-identifier', requirements: ['id' => 'place\-\d+'])]
     public function enhanceAction(Request $request,
                                   TranslatorInterface $translator,
                                   $id)
@@ -414,9 +404,7 @@ EOXQL;
         ]));
     }
 
-    /**
-     * @Route("/place/test", name="place-test")
-     */
+    #[Route(path: '/place/test', name: 'place-test')]
     public function testAction(Request $request)
     {
         $province = new \App\Entity\Place();

@@ -23,9 +23,7 @@ extends BaseController
         $this->client = $client;
     }
 
-    /**
-     * @Route("/helper/svgproxy", name="svgproxy")
-     */
+    #[Route(path: '/helper/svgproxy', name: 'svgproxy')]
     public function svgProxyAction(Request $request)
     {
         $url = $request->get('url');
