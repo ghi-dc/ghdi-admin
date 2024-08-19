@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class EntityIdentifierType
 extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $types = $options['types'];
 
@@ -37,7 +37,7 @@ extends AbstractType
         ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(array(
             'types' => [

@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class GeoCoordinatesType
 extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('latitude', TextType::class, [
@@ -32,7 +32,7 @@ extends AbstractType
             ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(array(
             'data_class' => GeoCoordinates::class,
