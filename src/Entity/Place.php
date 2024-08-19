@@ -11,16 +11,14 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @see http://schema.org/Place Documentation on Schema.org
  *
- * @Serializer\XmlRoot("Place")
- * @Serializer\XmlNamespace(uri="http://www.w3.org/XML/1998/namespace", prefix="xml")
  *
  */
+#[Serializer\XmlRoot('Place')]
+#[Serializer\XmlNamespace(uri: 'http://www.w3.org/XML/1998/namespace', prefix: 'xml')]
 class Place
 extends SchemaOrg
 {
-    /**
-     * @Serializer\Exclude()
-     */
+    #[Serializer\Exclude]
     static $zoomLevelByType = [
         'neighborhoods' => 12,
         'city districts' => 11,
@@ -30,24 +28,21 @@ extends SchemaOrg
 
     /**
      * @var string
-     *
-     * @Serializer\Type("string")
-     * @Serializer\XmlElement(cdata=false)
      */
+    #[Serializer\Type('string')]
+    #[Serializer\XmlElement(cdata: false)]
     protected $additionalType;
 
     /**
      * @var GeoCoordinates The geo coordinates of the place.
-     *
-     * @Serializer\Type("App\Entity\GeoCoordinates")
      */
+    #[Serializer\Type('App\Entity\GeoCoordinates')]
     protected $geo;
 
     /**
      * @var Place
-     *
-     * @Serializer\Type("App\Entity\Place")
      */
+    #[Serializer\Type('App\Entity\Place')]
     private $containedInPlace;
 
     /**

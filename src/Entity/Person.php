@@ -11,70 +11,62 @@ use JMS\Serializer\Annotation as Serializer;
  *
  * @see http://schema.org/Person Documentation on Schema.org
  *
- * @Serializer\XmlRoot("Person")
- * @Serializer\XmlNamespace(uri="http://www.w3.org/XML/1998/namespace", prefix="xml")
  *
  */
+#[Serializer\XmlRoot('Person')]
+#[Serializer\XmlNamespace(uri: 'http://www.w3.org/XML/1998/namespace', prefix: 'xml')]
 class Person
 extends SchemaOrg
 {
     /**
      * @var string Date of birth.
-     *
-     * @Serializer\XmlElement(cdata=false)
-     * @Serializer\Type("string")
      */
+    #[Serializer\XmlElement(cdata: false)]
+    #[Serializer\Type('string')]
     protected $birthDate;
 
     /**
      * @var string Date of death.
-     *
-     * @Serializer\XmlElement(cdata=false)
-     * @Serializer\Type("string")
      */
+    #[Serializer\XmlElement(cdata: false)]
+    #[Serializer\Type('string')]
     protected $deathDate;
 
     /**
      * @var string Family name. In the U.S., the last name of an Person. This can be used along with givenName instead of the name property.
-     *
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     protected $familyName;
 
     /**
      * @var string Gender of the person.
-     *
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     protected $gender;
 
     /**
      * @var string Given name. In the U.S., the first name of a Person. This can be used along with familyName instead of the name property.
-     *
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     protected $givenName;
 
     /**
      * @var Place The place where the person was born.
-     *
-     * @Serializer\Type("App\Entity\Place")
      */
+    #[Serializer\Type('App\Entity\Place')]
     protected $birthPlace;
 
     /**
      * @var Place The place where the person died.
-     *
-     * @Serializer\XmlElement(cdata=false)
-     * @Serializer\Type("string")
      */
+    #[Serializer\XmlElement(cdata: false)]
+    #[Serializer\Type('string')]
     protected $deathPlace;
 
     /**
      * @var string
-     *
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     protected $slug;
 
     /**
@@ -336,9 +328,7 @@ extends SchemaOrg
         return $tag;
     }
 
-    /**
-     * @Serializer\PreSerialize
-     */
+    #[Serializer\PreSerialize]
     public function onPreSerialize()
     {
         $name = $this->getName();

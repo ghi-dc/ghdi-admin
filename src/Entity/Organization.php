@@ -10,55 +10,48 @@ use JMS\Serializer\Annotation as Serializer;
  * An organization such as a school, NGO, corporation, club, etc.
  *
  * @see http://schema.org/Organization Documentation on Schema.org
- *
- * @Serializer\XmlRoot("Organization")
- * @Serializer\XmlNamespace(uri="http://www.w3.org/XML/1998/namespace", prefix="xml")
  */
+#[Serializer\XmlRoot('Organization')]
+#[Serializer\XmlNamespace(uri: 'http://www.w3.org/XML/1998/namespace', prefix: 'xml')]
 class Organization
 extends SchemaOrg
 {
     /**
      * @var string The date that this organization was dissolved.
-     *
-     * @Serializer\XmlElement(cdata=false)
-     * @Serializer\Type("string")
      */
+    #[Serializer\XmlElement(cdata: false)]
+    #[Serializer\Type('string')]
     protected $dissolutionDate;
 
     /**
      * @var string The date that this organization was founded.
-     *
-     * @Serializer\XmlElement(cdata=false)
-     * @Serializer\Type("string")
      */
+    #[Serializer\XmlElement(cdata: false)]
+    #[Serializer\Type('string')]
     protected $foundingDate;
 
     /**
      * @var Place The place where the organization was founded.
-     *
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     protected $foundingLocation;
 
     /**
      * @var Place The location where the organization is located.
-     *
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     protected $location;
 
     /**
      * @var Organization The organization that preceded this on.
-     *
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     protected $precedingOrganization;
 
     /**
      * @var Organization The organization that suceeded this on.
-     *
-     * @Serializer\Type("string")
      */
+    #[Serializer\Type('string')]
     protected $succeedingOrganization;
 
     /**
