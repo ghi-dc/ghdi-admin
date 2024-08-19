@@ -25,7 +25,7 @@ class Repository extends \FS\SolrBundle\Repository\Repository
     /**
      * {@inheritdoc}
      */
-    public function findBy(array $args)
+    public function findBy(array $args): array
     {
         $query = $this->solr->createQuery($this->metaInformation->getEntity());
         $query->setHydrationMode($this->hydrationMode);
