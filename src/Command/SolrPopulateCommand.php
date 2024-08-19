@@ -64,7 +64,7 @@ extends ExistDbCommand
         }
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('solr:populate')

@@ -19,7 +19,7 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 class ExistDbIndexCommand
 extends ExistDbCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('existdb:index')

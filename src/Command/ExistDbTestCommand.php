@@ -16,7 +16,7 @@ extends ExistDbCommand
 {
     protected $collection = null; // '/db/apps/demo/data';
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('existdb:test')

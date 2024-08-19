@@ -20,7 +20,7 @@ use function Symfony\Component\String\u;
 class ExistDbImportCommand
 extends ExistDbCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('existdb:import')

@@ -14,7 +14,7 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 class HtmlPurifierTestCommand
 extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('test:htmlpurifier')

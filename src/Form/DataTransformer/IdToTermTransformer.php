@@ -11,7 +11,7 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 class IdToTermTransformer
 implements DataTransformerInterface
 {
-    public function transform($value)
+    public function transform(mixed $value): mixed
     {
         if (null === $value) {
             return '';
@@ -24,7 +24,7 @@ implements DataTransformerInterface
         return $value->getId();
     }
 
-    public function reverseTransform($value)
+    public function reverseTransform(mixed $value): mixed
     {
         if (empty($value)) {
             return null;

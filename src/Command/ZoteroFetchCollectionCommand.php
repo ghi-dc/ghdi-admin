@@ -44,7 +44,7 @@ extends BaseCommand
         }
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('zotero:fetch-collection')
@@ -209,7 +209,7 @@ extends BaseCommand
         ];
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $volume = $input->getArgument('volume');
         if (empty($volume)) {
