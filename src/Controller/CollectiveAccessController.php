@@ -142,9 +142,11 @@ extends BaseController
         }
 
         // for <hi> - should be solved in xml-processing or tei
-        $teiDtabf = str_replace([ 'simple:bold', 'simple:italic' ],
-                                [ '#b', '#i' ],
-                                $tei);
+        // for <hi> - should be solved in xml-processing or tei
+        $teiDtabf = str_replace(
+            [ 'simple:bold', 'simple:italic', 'simple:strikethrough', 'simple:superscript', 'simple:subscript', 'simple:smallcaps', 'simple:letterspace', 'simple:underline' ],
+            [ '#b', '#i', '#s', '#sup', '#sub', '#k', '#g', '#u' ],
+            $tei);
 
         // don't allow role="c1" on ref
         $teiDtabf = preg_replace('/(<ref\s+[^>]*)role="[^"]*"([^>]*>)/', '\1\2', $teiDtabf);
