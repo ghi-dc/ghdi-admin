@@ -72,7 +72,7 @@ extends SchemaOrg
     /**
      * Sets birthDate.
      *
-     * @param string $birthDate
+     * @param string|null $birthDate
      *
      * @return $this
      */
@@ -86,7 +86,7 @@ extends SchemaOrg
     /**
      * Gets birthDate.
      *
-     * @return string
+     * @return string|null
      */
     public function getBirthDate()
     {
@@ -96,7 +96,7 @@ extends SchemaOrg
     /**
      * Sets deathDate.
      *
-     * @param string $deathDate
+     * @param string|null $deathDate
      *
      * @return $this
      */
@@ -110,7 +110,7 @@ extends SchemaOrg
     /**
      * Gets deathDate.
      *
-     * @return string
+     * @return string|null
      */
     public function getDeathDate()
     {
@@ -192,11 +192,11 @@ extends SchemaOrg
     /**
      * Sets birthPlace.
      *
-     * @param Place $birthPlace
+     * @param Place|null $birthPlace
      *
      * @return $this
      */
-    public function setBirthPlace(Place $birthPlace = null)
+    public function setBirthPlace(?Place $birthPlace = null)
     {
         $this->birthPlace = $birthPlace;
 
@@ -206,7 +206,7 @@ extends SchemaOrg
     /**
      * Gets birthPlace.
      *
-     * @return Place
+     * @return Place|null
      */
     public function getBirthPlace()
     {
@@ -216,11 +216,11 @@ extends SchemaOrg
     /**
      * Sets deathPlace.
      *
-     * @param Place $deathPlace
+     * @param Place|null $deathPlace
      *
      * @return $this
      */
-    public function setDeathPlace(Place $deathPlace = null)
+    public function setDeathPlace(?Place $deathPlace = null)
     {
         $this->deathPlace = $deathPlace;
 
@@ -230,7 +230,7 @@ extends SchemaOrg
     /**
      * Gets deathPlace.
      *
-     * @return Place
+     * @return Place|null
      */
     public function getDeathPlace()
     {

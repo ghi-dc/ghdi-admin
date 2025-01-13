@@ -31,7 +31,7 @@ class HttpBasicAuthenticator implements AuthenticatorInterface, AuthenticationEn
         $this->userProvider = $userProvider;
     }
 
-    public function start(Request $request, AuthenticationException $authException = null): Response
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         $response = new Response();
         $response->headers->set('WWW-Authenticate', sprintf('Basic realm="%s"', $this->realmName));

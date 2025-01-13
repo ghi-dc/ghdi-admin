@@ -20,7 +20,7 @@ extends AbstractController
     #[Route(path: '/login', name: 'login')]
     public function loginAction(Request $request,
                                 TranslatorInterface $translator,
-                                AuthenticationUtils $authenticationUtils = null)
+                                ?AuthenticationUtils $authenticationUtils = null)
     {
         // last username entered by the user
         $defaultData = [ '_username' => $authenticationUtils->getLastUsername() ];

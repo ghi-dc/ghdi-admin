@@ -57,7 +57,7 @@ extends SchemaOrg
     /**
      * Sets dissolutionDate.
      *
-     * @param string $dissolutionDate
+     * @param string|null $dissolutionDate
      *
      * @return $this
      */
@@ -71,7 +71,7 @@ extends SchemaOrg
     /**
      * Gets dissolutionDate.
      *
-     * @return string
+     * @return string|null
      */
     public function getDissolutionDate()
     {
@@ -81,7 +81,7 @@ extends SchemaOrg
     /**
      * Sets foundingDate.
      *
-     * @param string $foundingDate
+     * @param string|null $foundingDate
      *
      * @return $this
      */
@@ -95,7 +95,7 @@ extends SchemaOrg
     /**
      * Gets foundingDate.
      *
-     * @return string
+     * @return string|null
      */
     public function getFoundingDate()
     {
@@ -105,11 +105,11 @@ extends SchemaOrg
     /**
      * Sets foundingLocation.
      *
-     * @param Place $foundingLocation
+     * @param Place|null $foundingLocation
      *
      * @return $this
      */
-    public function setFoundingLocation(Place $foundingLocation = null)
+    public function setFoundingLocation(?Place $foundingLocation = null)
     {
         $this->foundingLocation = $foundingLocation;
 
@@ -119,7 +119,7 @@ extends SchemaOrg
     /**
      * Gets foundingLocation.
      *
-     * @return Place
+     * @return Place|null
      */
     public function getFoundingLocation()
     {
@@ -129,11 +129,11 @@ extends SchemaOrg
     /**
      * Sets location.
      *
-     * @param Place $location
+     * @param Place|null $location
      *
      * @return $this
      */
-    public function setLocation(Place $location = null)
+    public function setLocation(?Place $location = null)
     {
         $this->location = $location;
 
@@ -143,7 +143,7 @@ extends SchemaOrg
     /**
      * Gets location.
      *
-     * @return Place
+     * @return Place|null
      */
     public function getLocation()
     {
@@ -153,11 +153,11 @@ extends SchemaOrg
     /**
      * Sets precedingOrganization.
      *
-     * @param Organization $precedingOrganization
+     * @param Organization|null $precedingOrganization
      *
      * @return $this
      */
-    public function setPrecedingOrganization(Organization $precedingOrganization = null)
+    public function setPrecedingOrganization(?Organization $precedingOrganization = null)
     {
         $this->precedingOrganization = $precedingOrganization;
 
@@ -167,7 +167,7 @@ extends SchemaOrg
     /**
      * Gets precedingOrganization.
      *
-     * @return Organization
+     * @return Organization|null
      */
     public function getPrecedingOrganization()
     {

@@ -96,7 +96,7 @@ extends SchemaOrg
     /**
      * Gets geo.
      *
-     * @return GeoCoordinates
+     * @return GeoCoordinates|null
      */
     public function getGeo()
     {
@@ -118,6 +118,11 @@ extends SchemaOrg
         return false;
     }
 
+    /**
+     * Gets defaultZoomlevel.
+     *
+     * @return int
+     */
     public function getDefaultZoomlevel()
     {
         if (array_key_exists($this->additionalType, self::$zoomLevelByType)) {
@@ -173,16 +178,35 @@ extends SchemaOrg
         return $this->getIdentifier('geonames');
     }
 
-    public function setContainedInPlace(Place $parent = null)
+    /**
+     * Sets containedInPlace.
+     *
+     * @param string|null $birthDate
+     *
+     * @return $this
+     */
+    public function setContainedInPlace(?Place $parent = null)
     {
         $this->containedInPlace = $parent;
+
+        return $this;
     }
 
+    /**
+     * Gets containedInPlace.
+     *
+     * @return string|null
+     */
     public function getContainedInPlace()
     {
         return $this->containedInPlace;
     }
 
+    /**
+     * Gets all parents.
+     *
+     * @return array
+     */
     public function getPath()
     {
         $path = [];
