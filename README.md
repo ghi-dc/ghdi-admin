@@ -215,9 +215,9 @@ or for individual resources
 Development Notes
 -----------------
 
-Translate routes
+Update translations
 
-    ./bin/console translation:extract de --dir=./src/ --dir=./templates/ --output-dir=./translations
+    ./bin/console jms:translation:extract de --dir=./src/ --dir=./templates/ --output-dir=./translations
 
 License
 -------
@@ -226,7 +226,7 @@ License
     and
         German History Intersections (GHIS)
 
-    (C) 2018-2024 German Historical Institute Washington
+    (C) 2018-2025 German Historical Institute Washington
         Daniel Burckhardt
 
 
