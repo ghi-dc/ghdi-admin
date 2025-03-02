@@ -11,7 +11,7 @@ class TeiRefProcessor
     protected $volume;
     protected $locale;
 
-    public function __construct(\ExistDbRpc\Client $client = null, $volume = null, $locale = null)
+    public function __construct(?\ExistDbRpc\Client $client = null, $volume = null, $locale = null)
     {
         $this->client = $client;
         $this->volume = $volume;

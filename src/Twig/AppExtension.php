@@ -16,8 +16,8 @@ extends \Twig\Extension\AbstractExtension
     private $translator;
     private $slugifyer;
 
-    public function __construct(KernelInterface $kernel = null,
-                                TranslatorInterface $translator = null,
+    public function __construct(?KernelInterface $kernel = null,
+                                ?TranslatorInterface $translator = null,
                                 $slugifyer = null)
     {
         $this->kernel = $kernel;
@@ -29,14 +29,14 @@ extends \Twig\Extension\AbstractExtension
         }
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new \Twig\TwigFunction('file_exists', 'file_exists'),
         ];
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             // general
@@ -48,7 +48,7 @@ extends \Twig\Extension\AbstractExtension
         ];
     }
 
-    private function getLocale()
+    private function getLocale(): string
     {
         if (is_null($this->translator)) {
             return 'en';
@@ -91,7 +91,7 @@ extends \Twig\Extension\AbstractExtension
             . (!empty($parsed['path']) && '/' !== $parsed['path'] ? $parsed['path'] : '');
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'app_extension';
     }
