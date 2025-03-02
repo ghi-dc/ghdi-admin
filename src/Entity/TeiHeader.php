@@ -342,7 +342,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets translator.
      *
-     * @return string
+     * @return string|null
      */
     public function getTranslator()
     {
@@ -384,7 +384,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets licence.
      *
-     * @return string
+     * @return string|null
      */
     public function getLicence()
     {
@@ -408,7 +408,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets licence target.
      *
-     * @return string
+     * @return string|null
      */
     public function getLicenceTarget()
     {
@@ -432,7 +432,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets note.
      *
-     * @return string
+     * @return string|null
      */
     public function getNote()
     {
@@ -456,7 +456,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets sourceDescBibl.
      *
-     * @return string
+     * @return string|null
      */
     public function getSourceDescBibl()
     {
@@ -480,7 +480,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets language.
      *
-     * @return string
+     * @return string|null
      */
     public function getLanguage()
     {
@@ -509,7 +509,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets translated from.
      *
-     * @return string
+     * @return string|null
      */
     public function getTranslatedFrom()
     {
@@ -596,7 +596,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets creation date.
      *
-     * @return string
+     * @return string|null
      */
     public function getDateCreated()
     {
@@ -620,7 +620,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets shelfmark.
      *
-     * @return string
+     * @return string|null
      */
     public function getShelfmark()
     {
@@ -682,7 +682,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets genre.
      *
-     * @return string
+     * @return string|null
      */
     public function getGenre()
     {
@@ -794,7 +794,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets idno.
      *
-     * @return string
+     * @return string|null
      */
     public function getIdno($type)
     {
@@ -830,7 +830,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets doi.
      *
-     * @return string
+     * @return string|null
      */
     public function getDoi()
     {
@@ -858,7 +858,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Gets settting.
      *
-     * @return string
+     * @return string|null
      */
     public function getTemporalCoverage()
     {
