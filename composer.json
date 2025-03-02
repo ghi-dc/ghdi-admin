@@ -31,6 +31,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/burki/FluentDOM"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/tomas-kulhanek/fxmlrpc"
         }
     ],
     "require": {
@@ -114,7 +118,8 @@
         "sweetrdf/easyrdf": "^1.14",
         "ml/json-ld": "^1.1",
 
-        "ghi-dc/exist-db-rpc-client": "dev-master",
+        "ghi-dc/exist-db-rpc-client": "dev-psr17",
+        "lstrojny/fxmlrpc": "dev-master#39bb764944caf3bce9d7110a5ac924e43fe4173f",
 
         "cocur/slugify": "^4.5",
 
