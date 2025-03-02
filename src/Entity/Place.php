@@ -188,7 +188,7 @@ class Place extends SchemaOrg
     /**
      * Gets containedInPlace.
      *
-     * @return string|null
+     * @return Place|null
      */
     public function getContainedInPlace()
     {
