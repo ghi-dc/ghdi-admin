@@ -904,7 +904,6 @@ class TeiHelper
             ], true);
         }
 
-
         foreach (['genre' => 'genre', 'translatedFrom' => 'translated-from'] as $key => $scheme) {
             if (array_key_exists($key, $data)) {
                 $code = $data[$key];
