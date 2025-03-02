@@ -9,4 +9,6 @@ interface Identifier
     public function setValue($value);
 
     public function getName();
+
+    public function getPrefix();
 }
