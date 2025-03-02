@@ -29,7 +29,7 @@ class TeiToPdfCommand extends Command
         $this->xslConverter = $xslConverter;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('convert:tei2pdf')

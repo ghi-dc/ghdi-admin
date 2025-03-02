@@ -12,7 +12,7 @@ class ExistDbTestCommand extends ExistDbCommand
 {
     protected $collection; // '/db/apps/demo/data';
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('existdb:test')

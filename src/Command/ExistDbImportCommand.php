@@ -18,7 +18,7 @@ use function Symfony\Component\String\u;
  */
 class ExistDbImportCommand extends ExistDbCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('existdb:import')
@@ -260,8 +260,7 @@ class ExistDbImportCommand extends ExistDbCommand
 
         if (empty($resource)) {
             $output->writeln(sprintf(
-                '<error>Please pass the name of the resource</error>',
-                $inputDir
+                '<error>Please pass the name of the resource</error>'
             ));
 
             return -6;
@@ -385,6 +384,7 @@ class ExistDbImportCommand extends ExistDbCommand
             || !in_array($entity->getLanguage(), ['eng', 'deu'])) {
             $output->writeln(sprintf(
                 '<error>Invalid language %s (%s)</error>',
+                $entity->getLanguage(),
                 $resource
             ));
 

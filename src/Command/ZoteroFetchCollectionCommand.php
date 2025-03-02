@@ -21,6 +21,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
 {
     private $zoteroApiService;
     private $adminClient;
+    private $frontendDataDir;
 
     public function __construct(
         string $siteKey,
@@ -44,7 +45,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
         }
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('zotero:fetch-collection')
@@ -209,7 +210,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
         ];
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $volume = $input->getArgument('volume');
         if (empty($volume)) {

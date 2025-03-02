@@ -37,7 +37,7 @@ class ScalarCommand extends Command
         $this->projectDir = $kernel->getProjectDir();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('scalar:import')
@@ -114,7 +114,7 @@ class ScalarCommand extends Command
     protected function fetchRemoteImage($url, $basename, $imagePath)
     {
         if (preg_match('~(^.+/)([^/]+)$~', $url, $matches)) {
-            // handles spaces and umlauts e.g. http://germanhistorydocs.ghi-dc.org/images/00004711_Stand auf dem Blutgerüste.jpg
+            // handles spaces and umlauts e.g. http://germanhistorydocs.ghi-dc.org/images/00004711_Stand auf dem BlutgerÃ¼ste.jpg
             $url = $matches[1] . rawurlencode($matches[2]);
         }
 

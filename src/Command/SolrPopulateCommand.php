@@ -66,7 +66,7 @@ class SolrPopulateCommand extends ExistDbCommand
         }
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('solr:populate')
@@ -330,7 +330,6 @@ class SolrPopulateCommand extends ExistDbCommand
                     $imageName = $this->fetchRemoteImage($url, $mediaPath, $fname);
                 }
             }
-
 
             if ($reindex) {
                 file_put_contents($teiPath, $xml);

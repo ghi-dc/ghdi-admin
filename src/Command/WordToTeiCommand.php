@@ -35,7 +35,7 @@ class WordToTeiCommand extends Command
         $this->teiPrettyPrinter = $teiPrettyPrinter;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('convert:word2tei')
