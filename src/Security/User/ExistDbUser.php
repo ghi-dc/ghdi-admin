@@ -59,7 +59,9 @@ class ExistDbUser implements UserInterface, EquatableInterface
         return $this->username;
     }
 
-    public function eraseCredentials() {}
+    public function eraseCredentials(): void
+    {
+    }
 
     public function isEqualTo(UserInterface $user): bool
     {

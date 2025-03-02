@@ -81,7 +81,7 @@ class ExistDbUserProvider implements UserProviderInterface
         return true;
     }
 
-    public function refreshUser(UserInterface $user)
+    public function refreshUser(UserInterface $user): UserInterface
     {
         if (!$user instanceof ExistDbUser) {
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_class($user)));
@@ -90,7 +90,7 @@ class ExistDbUserProvider implements UserProviderInterface
         return $this->loadUserByIdentifier($user->getUsername(), $user->getPassword());
     }
 
-    public function supportsClass($class)
+    public function supportsClass($class): bool
     {
         return ExistDbUser::class === $class;
     }
