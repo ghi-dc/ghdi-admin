@@ -25,7 +25,7 @@ class WikidataProvider extends AbstractProvider
         return new \EasyRdf\Sparql\Client('https://query.wikidata.org/sparql');
     }
 
-    protected $name = 'dnb';
+    protected $name = 'wikidata';
 
     public function __construct()
     {
