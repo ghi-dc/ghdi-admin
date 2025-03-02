@@ -19,7 +19,7 @@ class Repository extends \FS\SolrBundle\Repository\Repository
     }
 
     /* debugging */
-    public function findBy(array $args)
+    public function findBy(array $args): array
     {
         $query = $this->solr->createQuery($this->metaInformation->getEntity());
         $query->setHydrationMode($this->hydrationMode);
@@ -34,8 +34,6 @@ class Repository extends \FS\SolrBundle\Repository\Repository
 
             $query->addSearchTerm($fieldName, $fieldValue);
         }
-        dd($query->getQuery());
-        exit;
 
         return $this->solr->query($query);
     }
