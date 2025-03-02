@@ -82,6 +82,8 @@ class PandocConverter extends DocumentConverter
                 }
             }
             else {
+                $className = get_class($ret);
+
                 throw new \InvalidArgumentException('Not handling conversion to ' . $className . ' yet');
             }
         }
