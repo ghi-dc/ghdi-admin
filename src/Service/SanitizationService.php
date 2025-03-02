@@ -4,6 +4,8 @@
 
 namespace App\Service;
 
+use HTMLPurifier;
+
 /**
  * Wrap HTMLPurifier into a Service.
  */

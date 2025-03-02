@@ -28,7 +28,7 @@ class XslConverter extends DocumentConverter
      *
      * Convert documents of the given type to the requested type.
      *
-     * @return Document
+     * @return Document|false
      */
     public function convert(Document $doc)
     {
