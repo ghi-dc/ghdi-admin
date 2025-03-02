@@ -6,6 +6,8 @@ use App\Utils\Lod\Provider\Provider;
 
 class LodService
 {
+    protected Provider $provider;
+
     public function __construct(Provider $provider)
     {
         $this->provider = $provider;
