@@ -2,12 +2,8 @@
 
 namespace App\Utils;
 
-/**
- *
- */
 class Formatter
 {
-
     /** No instances */
     private function __construct() {}
 
@@ -18,7 +14,7 @@ class Formatter
         $date_parts = preg_split('/\-/', $datestr, -1, PREG_SPLIT_NO_EMPTY);
 
         $date_parts_formatted = [];
-        for ($i = 0; $i < count($date_parts); $i++) {
+        for ($i = 0; $i < count($date_parts); ++$i) {
             if ($i > 0 && 0 == $date_parts[$i]) {
                 break;
             }
@@ -40,7 +36,7 @@ class Formatter
         if ('en' == $locale && count($date_parts_formatted) > 1) {
             $dateObj  = \DateTime::createFromFormat('!m', $date_parts_formatted[1]);
             $monthName = $dateObj->format('F'); // March
-            $ret = [ $monthName ];
+            $ret = [$monthName];
             if (count($date_parts_formatted) > 2) {
                 $ret[] = $date_parts_formatted[2] . ','; // day
             }

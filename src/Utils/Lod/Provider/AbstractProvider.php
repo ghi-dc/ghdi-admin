@@ -2,12 +2,11 @@
 
 namespace App\Utils\Lod\Provider;
 
-abstract class AbstractProvider
-implements Provider
+abstract class AbstractProvider implements Provider
 {
     protected static function normalizeString($str)
     {
-        /**
+        /*
          * you can run
          *  composer require symfony/polyfill-intl-normalizer
          * to make sure this function is available
@@ -27,14 +26,14 @@ implements Provider
     }
 
     /**
-     * Shared helper methods
+     * Shared helper methods.
      */
     protected function processSameAs($entity, $resource, $property = 'owl:sameAs')
     {
         $resources = $resource->all($property);
         if (!is_null($resources)) {
             foreach ($resources as $resource) {
-                $identifier = \App\Utils\Lod\Identifier\Factory::fromUri((string)$resource);
+                $identifier = \App\Utils\Lod\Identifier\Factory::fromUri((string) $resource);
 
                 if (!is_null($identifier)) {
                     $entity->setIdentifier($identifier->getName(), $identifier->getValue());
@@ -76,7 +75,7 @@ implements Provider
                 $method = 'set' . ucfirst($property);
 
                 if (method_exists($entity, $method)) {
-                    $entity->$method(self::normalizeString((string)$value));
+                    $entity->$method(self::normalizeString((string) $value));
                 }
             }
         }

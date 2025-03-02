@@ -4,7 +4,7 @@ namespace App\Utils;
 
 /**
  * For scalar namespace prefixes see
- *  https://github.com/anvc/scalar/blob/master/system/application/config/rdf.php
+ *  https://github.com/anvc/scalar/blob/master/system/application/config/rdf.php.
  */
 class AnvcScalarClient
 {
@@ -18,8 +18,10 @@ class AnvcScalarClient
     {
         $this->config = $config;
 
-        \Httpful\Httpful::register(\Httpful\Mime::JSON,
-                                   new \Httpful\Handlers\JsonHandler([ 'decode_as_array' => true ]));
+        \Httpful\Httpful::register(
+            \Httpful\Mime::JSON,
+            new \Httpful\Handlers\JsonHandler(['decode_as_array' => true])
+        );
     }
 
     public function getBaseurl()
@@ -38,8 +40,7 @@ class AnvcScalarClient
 
         foreach ($properties as $uri => $property) {
             if (array_key_exists($uri, $info)
-                && in_array($info[$uri][0]['type'], [ 'literal', 'uri' ]))
-            {
+                && in_array($info[$uri][0]['type'], ['literal', 'uri'])) {
                 $ret[$property] = $info[$uri][0]['value'];
             }
         }
@@ -72,9 +73,11 @@ class AnvcScalarClient
 
     public function getBookInfo()
     {
-        $bookUrl = sprintf('%s%s',
-                           $this->config['baseurl'],
-                           $this->config['book']);
+        $bookUrl = sprintf(
+            '%s%s',
+            $this->config['baseurl'],
+            $this->config['book']
+        );
 
         try {
             $response = $this->callGet($bookUrl . '/rdf/?rec=0&format=json');
@@ -100,10 +103,12 @@ class AnvcScalarClient
 
     public function getPage($slug)
     {
-        $pageUrl = sprintf('%s%s/%s',
-                           $this->config['baseurl'],
-                           $this->config['book'],
-                           $slug);
+        $pageUrl = sprintf(
+            '%s%s/%s',
+            $this->config['baseurl'],
+            $this->config['book'],
+            $slug
+        );
 
         try {
             $response = $this->callGet($pageUrl . '.rdf?rec=0&format=json');
@@ -122,7 +127,7 @@ class AnvcScalarClient
                 }
             }
             else if (!is_null($versionUrl) && $versionUrl == $url) {
-                $page = [ 'url' => $pageUrl ]
+                $page = ['url' => $pageUrl]
                     + $this->lookupProperties($info, [
                         'http://open.vocab.org/terms/versionnumber' => 'ov:versionnumber',
                         'http://purl.org/dc/terms/title' => 'dcterms:title',
@@ -147,8 +152,11 @@ class AnvcScalarClient
             return false;
         }
 
-        $apiUrl = sprintf('%s%s/api/update',
-                          $this->config['baseurl'], $this->config['book']);
+        $apiUrl = sprintf(
+            '%s%s/api/update',
+            $this->config['baseurl'],
+            $this->config['book']
+        );
 
         $params = [
             // general api
@@ -172,8 +180,10 @@ class AnvcScalarClient
         $additionalProperties = array_values($this->additionalProperties);
 
         if ('media' == $type) {
-            $additionalProperties = array_merge($additionalProperties,
-                                                [ 'scalar:metadata:url', 'scalar:metadata:thubmnail' ]);
+            $additionalProperties = array_merge(
+                $additionalProperties,
+                ['scalar:metadata:url', 'scalar:metadata:thubmnail']
+            );
         }
 
         foreach ($additionalProperties as $key) {
@@ -196,7 +206,7 @@ class AnvcScalarClient
             $versionUrl = $urls[0];
             $info = $response->body[$versionUrl];
 
-            $page = [ 'url' => $page['url'] ] + $this->lookupProperties($info, [
+            $page = ['url' => $page['url']] + $this->lookupProperties($info, [
                 'http://open.vocab.org/terms/versionnumber' => 'ov:versionnumber',
                 'http://purl.org/dc/terms/title' => 'dcterms:title',
                 'http://purl.org/dc/terms/description' => 'dcterms:description',
@@ -219,8 +229,11 @@ class AnvcScalarClient
             return false;
         }
 
-        $apiUrl = sprintf('%s%s/api/add',
-                          $this->config['baseurl'], $this->config['book']);
+        $apiUrl = sprintf(
+            '%s%s/api/add',
+            $this->config['baseurl'],
+            $this->config['book']
+        );
 
         $params = [
             // general api
@@ -248,8 +261,10 @@ class AnvcScalarClient
         $additionalProperties = array_values($this->additionalProperties);
 
         if ('media' == $type) {
-            $additionalProperties = array_merge($additionalProperties,
-                                                [ 'scalar:metadata:url', 'scalar:metadata:thubmnail' ]);
+            $additionalProperties = array_merge(
+                $additionalProperties,
+                ['scalar:metadata:url', 'scalar:metadata:thubmnail']
+            );
         }
 
         foreach ($additionalProperties as $key) {
@@ -280,10 +295,14 @@ class AnvcScalarClient
             $versionUrl = $urls[0];
             $info = $response->body[$versionUrl];
 
-            $page['url'] = sprintf('%s%s/%s',
-                                   $this->config['baseurl'], $this->config['book'], $page['scalar:metadata:slug']);
+            $page['url'] = sprintf(
+                '%s%s/%s',
+                $this->config['baseurl'],
+                $this->config['book'],
+                $page['scalar:metadata:slug']
+            );
 
-            $page = [ 'url' => $page['url'] ] + $this->lookupProperties($info, [
+            $page = ['url' => $page['url']] + $this->lookupProperties($info, [
                 'http://open.vocab.org/terms/versionnumber' => 'ov:versionnumber',
                 'http://purl.org/dc/terms/title' => 'dcterms:title',
                 'http://purl.org/dc/terms/description' => 'dcterms:description',
@@ -301,8 +320,11 @@ class AnvcScalarClient
 
     public function relate($urn, $child_urn, $child_rel = 'contained', $options = [])
     {
-        $apiUrl = sprintf('%s%s/api/relate',
-                          $this->config['baseurl'], $this->config['book']);
+        $apiUrl = sprintf(
+            '%s%s/api/relate',
+            $this->config['baseurl'],
+            $this->config['book']
+        );
 
         $params = [
             // general api
@@ -335,10 +357,12 @@ class AnvcScalarClient
 
     public function listContent($instance)
     {
-        $listUrl = sprintf('%s%s/rdf/instancesof/%s',
-                           $this->config['baseurl'],
-                           $this->config['book'],
-                           $instance);
+        $listUrl = sprintf(
+            '%s%s/rdf/instancesof/%s',
+            $this->config['baseurl'],
+            $this->config['book'],
+            $instance
+        );
 
         try {
             $response = $this->callGet($listUrl . '?rec=0&format=json');
@@ -354,14 +378,16 @@ class AnvcScalarClient
     }
 
     /**
-     * TODO: maybe rename since it is more a listProperties when calling on an individual resource
+     * TODO: maybe rename since it is more a listProperties when calling on an individual resource.
      */
     public function listRelated($instance, $type = 'path')
     {
-        $listUrl = sprintf('%s%s/rdf/node/%s',
-                           $this->config['baseurl'],
-                           $this->config['book'],
-                           $instance);
+        $listUrl = sprintf(
+            '%s%s/rdf/node/%s',
+            $this->config['baseurl'],
+            $this->config['book'],
+            $instance
+        );
 
         try {
             // to determine this url, use http://scalar.usc.edu/tools/apiexplorer/
@@ -378,15 +404,17 @@ class AnvcScalarClient
     }
 
     /**
-     * This call needs patched scalar instance (regular cannot use api_key for upload)
+     * This call needs patched scalar instance (regular cannot use api_key for upload).
      *
      * Alternative would be copy file and thumbnail directly into media-folder
-     *
      */
     public function upload($fname)
     {
-        $uploadUrl = sprintf('%s%s/upload',
-                             $this->config['baseurl'], $this->config['book']);
+        $uploadUrl = sprintf(
+            '%s%s/upload',
+            $this->config['baseurl'],
+            $this->config['book']
+        );
 
         $params = [
             // general api
@@ -402,7 +430,7 @@ class AnvcScalarClient
         try {
             $request = \Httpful\Request::post($uploadUrl)
                 ->body($params)
-                ;
+            ;
             $request->attach([
                 'source_file' => $fname,
             ]);

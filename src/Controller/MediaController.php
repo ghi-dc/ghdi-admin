@@ -1,4 +1,5 @@
 <?php
+
 // src/Controller/MediaController.php
 
 namespace App\Controller;
@@ -8,10 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Basic controller to deliver binary images stored in exist to the browser
+ * Basic controller to deliver binary images stored in exist to the browser.
  */
-class MediaController
-extends BaseController
+class MediaController extends BaseController
 {
     protected $subCollection = '/data/media';
 
@@ -38,7 +38,7 @@ extends BaseController
             }
         }
         catch (\Exception $e) {
-            ; // ignore
+            // ignore
         }
 
         throw $this->createNotFoundException('/' . $path . ' not found.');

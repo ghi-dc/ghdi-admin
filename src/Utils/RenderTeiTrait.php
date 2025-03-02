@@ -4,10 +4,6 @@ namespace App\Utils;
 
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- *
- *
- */
 trait RenderTeiTrait
 {
     function removeByCssSelector($html, $selectorsToRemove, $removeBodyTag = false)
@@ -53,7 +49,7 @@ trait RenderTeiTrait
             }
         }
         catch (\Exception $e) {
-            ; // ignore
+            // ignore
         }
 
         if (!array_key_exists('logo_top', $imageVars)) {
@@ -65,14 +61,14 @@ trait RenderTeiTrait
             $pdfConverter->setOption('imageVars', $imageVars);
         }
 
-        $htmlDoc = new \App\Utils\HtmlDocument();
+        $htmlDoc = new HtmlDocument();
         $htmlDoc->loadString($html);
 
         $pdfDoc = @$pdfConverter->convert($htmlDoc);
 
-        return new Response((string)$pdfDoc, Response::HTTP_OK, [
+        return new Response((string) $pdfDoc, Response::HTTP_OK, [
             'Content-Type'          => 'application/pdf',
-            'Content-Disposition'   => 'inline; filename="' . $filename . '"'
+            'Content-Disposition'   => 'inline; filename="' . $filename . '"',
         ]);
     }
 
@@ -119,7 +115,7 @@ trait RenderTeiTrait
     }
 
     /**
-     * Set a span around certain combining characters in order to switch font in css
+     * Set a span around certain combining characters in order to switch font in css.
      *
      * TODO: Keep in sync with method in AppExtension
      */

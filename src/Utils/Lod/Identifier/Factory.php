@@ -27,7 +27,7 @@ class Factory
     public static function fromUri($uri)
     {
         foreach (self::$classByBaseUri as $baseUri => $class) {
-            if (strpos($uri, $baseUri) === 0) {
+            if (0 === strpos($uri, $baseUri)) {
                 return new $class($uri);
             }
         }
@@ -36,12 +36,10 @@ class Factory
     public static function byName($name)
     {
         if (array_key_exists($name, self::$classByName)) {
-            return new self::$classByName[$name];
+            return new self::$classByName[$name]();
         }
     }
 
     /* this is a Singleton */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 }

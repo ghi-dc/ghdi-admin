@@ -2,31 +2,26 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
 use JMS\Serializer\Annotation as Serializer;
 
 /**
  * A person (alive, dead, undead, or fictional).
  *
  * @see http://schema.org/Person Documentation on Schema.org
- *
- *
  */
 #[Serializer\XmlRoot('Person')]
 #[Serializer\XmlNamespace(uri: 'http://www.w3.org/XML/1998/namespace', prefix: 'xml')]
-class Person
-extends SchemaOrg
+class Person extends SchemaOrg
 {
     /**
-     * @var string Date of birth.
+     * @var string date of birth
      */
     #[Serializer\XmlElement(cdata: false)]
     #[Serializer\Type('string')]
     protected $birthDate;
 
     /**
-     * @var string Date of death.
+     * @var string date of death
      */
     #[Serializer\XmlElement(cdata: false)]
     #[Serializer\Type('string')]
@@ -39,7 +34,7 @@ extends SchemaOrg
     protected $familyName;
 
     /**
-     * @var string Gender of the person.
+     * @var string gender of the person
      */
     #[Serializer\Type('string')]
     protected $gender;
@@ -51,13 +46,13 @@ extends SchemaOrg
     protected $givenName;
 
     /**
-     * @var Place The place where the person was born.
+     * @var Place the place where the person was born
      */
     #[Serializer\Type('App\Entity\Place')]
     protected $birthPlace;
 
     /**
-     * @var Place The place where the person died.
+     * @var Place the place where the person died
      */
     #[Serializer\XmlElement(cdata: false)]
     #[Serializer\Type('string')]
@@ -192,8 +187,6 @@ extends SchemaOrg
     /**
      * Sets birthPlace.
      *
-     * @param Place|null $birthPlace
-     *
      * @return $this
      */
     public function setBirthPlace(?Place $birthPlace = null)
@@ -215,8 +208,6 @@ extends SchemaOrg
 
     /**
      * Sets deathPlace.
-     *
-     * @param Place|null $deathPlace
      *
      * @return $this
      */
@@ -269,7 +260,7 @@ extends SchemaOrg
     public function getFullname($givenNameFirst = false)
     {
         $parts = [];
-        foreach ([ 'familyName', 'givenName' ] as $key) {
+        foreach (['familyName', 'givenName'] as $key) {
             if (!empty($this->$key)) {
                 $parts[] = $this->$key;
             }
@@ -285,7 +276,7 @@ extends SchemaOrg
     }
 
     /**
-     * build <persName>
+     * build <persName>.
      */
     public function teiSerializePersName()
     {
@@ -295,22 +286,28 @@ extends SchemaOrg
         if (!empty($givenName)) {
             // assume a structured name
             $nameParts = [
-                sprintf('<%s>%s</%s>',
-                        'forename',
-                        self::xmlSpecialchars($givenName),
-                        'forename'),
+                sprintf(
+                    '<%s>%s</%s>',
+                    'forename',
+                    self::xmlSpecialchars($givenName),
+                    'forename'
+                ),
             ];
 
             $familyName = $this->getFamilyName();
             if (!empty($familyName)) {
-                $nameParts[] = sprintf('<%s>%s</%s>',
-                                       'surname',
-                                       self::xmlSpecialchars($familyName),
-                                       'surname');
+                $nameParts[] = sprintf(
+                    '<%s>%s</%s>',
+                    'surname',
+                    self::xmlSpecialchars($familyName),
+                    'surname'
+                );
             }
 
-            $tag = sprintf('<persName>%s</persName>',
-                           join(' ', $nameParts));
+            $tag = sprintf(
+                '<persName>%s</persName>',
+                join(' ', $nameParts)
+            );
         }
         else {
             $fullname = $this->getFullname();

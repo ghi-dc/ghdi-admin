@@ -2,8 +2,6 @@
 
 namespace App\Utils\XmlPrettyPrinter;
 
-use App\Utils\Sprintf;
-
 class NullAdapter
 {
     var $config = [];

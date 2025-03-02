@@ -9,12 +9,11 @@ use Symfony\Component\HttpFoundation\File\File;
  *  getResolution()
  * and
  *  setResolution()
- * to get information about image files
+ * to get information about image files.
  *
  * - ExiftoolProvider
  *  calls the exiftool command-line utilities
  *  through symfony/process.
- *
  */
 class ImageHeaderService
 {
@@ -31,7 +30,7 @@ class ImageHeaderService
 
         if (!empty($providers)) {
             if (!is_array($providers)) {
-                $providers = [ $providers ];
+                $providers = [$providers];
             }
 
             $this->addProviders($providers);
@@ -70,7 +69,7 @@ class ImageHeaderService
 
     protected function findProvider($srcType)
     {
-        $cacheKey = implode('|', [ $srcType ]);
+        $cacheKey = implode('|', [$srcType]);
         if (array_key_exists($cacheKey, $this->providerCache)) {
             return $this->providerCache[$cacheKey];
         }
@@ -116,10 +115,10 @@ class ImageHeaderService
 
         $provider = $this->findBestProvider($srcType);
         if (!isset($provider)) {
-            throw new \RuntimeException("No provider found for getting header for " . $srcType);
+            throw new \RuntimeException('No provider found for getting header for ' . $srcType);
         }
 
-        return $provider->getResolution((string)$file);
+        return $provider->getResolution((string) $file);
     }
 
     public function setResolution(File $file, $options)
@@ -132,9 +131,9 @@ class ImageHeaderService
 
         $provider = $this->findBestProvider($srcType);
         if (!isset($provider)) {
-            throw new \RuntimeException("No provider found for getting header for " . $srcType);
+            throw new \RuntimeException('No provider found for getting header for ' . $srcType);
         }
 
-        return $provider->setResolution((string)$file, $options);
+        return $provider->setResolution((string) $file, $options);
     }
 }

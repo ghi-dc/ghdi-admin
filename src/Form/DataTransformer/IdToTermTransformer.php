@@ -6,10 +6,9 @@ use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
 /**
- * See https://symfonycasts.com/screencast/symfony-forms/data-transformer
+ * See https://symfonycasts.com/screencast/symfony-forms/data-transformer.
  */
-class IdToTermTransformer
-implements DataTransformerInterface
+class IdToTermTransformer implements DataTransformerInterface
 {
     public function transform($value)
     {

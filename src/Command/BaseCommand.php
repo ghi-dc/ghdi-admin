@@ -1,4 +1,5 @@
 <?php
+
 // src/Command/BaseCommand.php
 
 namespace App\Command;
@@ -8,19 +9,19 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
- * Common base setting up $siteKey and $projectDir
+ * Common base setting up $siteKey and $projectDir.
  */
-abstract class BaseCommand
-extends Command
+abstract class BaseCommand extends Command
 {
-    protected $siteKey = null;
+    protected $siteKey;
     protected $projectDir;
     protected $params;
 
-    public function __construct(string $siteKey,
-                                ParameterBagInterface $params,
-                                KernelInterface $kernel)
-    {
+    public function __construct(
+        string $siteKey,
+        ParameterBagInterface $params,
+        KernelInterface $kernel
+    ) {
         $this->siteKey = $siteKey;
         $this->projectDir = $kernel->getProjectDir();
         $this->params = $params;

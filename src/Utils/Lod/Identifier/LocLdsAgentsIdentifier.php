@@ -2,8 +2,7 @@
 
 namespace App\Utils\Lod\Identifier;
 
-class LocLdsAgentsIdentifier
-extends UriIdentifier
+class LocLdsAgentsIdentifier extends UriIdentifier
 {
     protected $name = 'lcagents';
     protected $prefix = 'lcauth';

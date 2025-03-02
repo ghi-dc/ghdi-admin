@@ -1,4 +1,5 @@
 <?php
+
 // src/Security/User/ExistDbUser.php
 
 namespace App\Security\User;
@@ -6,8 +7,7 @@ namespace App\Security\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 
-class ExistDbUser
-implements UserInterface, EquatableInterface
+class ExistDbUser implements UserInterface, EquatableInterface
 {
     private $username;
     private $password;
@@ -24,7 +24,7 @@ implements UserInterface, EquatableInterface
 
     public function getRoles(): array
     {
-        $roles = [ 'ROLE_USER' ];
+        $roles = ['ROLE_USER'];
         // TODO: set according to $this->roles;
 
         return $roles;
@@ -47,7 +47,7 @@ implements UserInterface, EquatableInterface
     }
 
     /**
-     * Legacy
+     * Legacy.
      */
     public function getUsername()
     {
@@ -59,9 +59,7 @@ implements UserInterface, EquatableInterface
         return $this->username;
     }
 
-    public function eraseCredentials()
-    {
-    }
+    public function eraseCredentials() {}
 
     public function isEqualTo(UserInterface $user): bool
     {

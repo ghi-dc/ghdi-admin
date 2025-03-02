@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Methods for Document Conversions.
  * Interfaces inspired by ezcDocument
- *  https://github.com/zetacomponents/Document/blob/master/src/interfaces/document.php
+ *  https://github.com/zetacomponents/Document/blob/master/src/interfaces/document.php.
  *
  * TODO: Build a separate Component
  * TODO: Finalize switch from DOMDocument to FluentDOM
@@ -12,14 +13,13 @@ namespace App\Utils;
 
 use FluentDOM\Exceptions\LoadingError\FileNotLoaded;
 
-class XmlDocument
-extends Document
+class XmlDocument extends Document
 {
     protected $mimeType = 'text/xml';
-    protected $dom = null;
+    protected $dom;
 
     /**
-     * Construct new document
+     * Construct new document.
      */
     public function __construct(array $options = [])
     {
@@ -32,9 +32,10 @@ extends Document
     }
 
     /**
-     * Load string or file into \FluentDOM\DOM\Document
+     * Load string or file into \FluentDOM\DOM\Document.
      *
      * @param string $source
+     *
      * @return \FluentDOM\DOM\Document|false
      */
     private function loadXml($source, $fromFile = false)
@@ -58,9 +59,7 @@ extends Document
         return $xpath;
     }
 
-    protected function registerNamespaces()
-    {
-    }
+    protected function registerNamespaces() {}
 
     protected function xmlSpecialchars($txt)
     {
@@ -106,7 +105,7 @@ extends Document
         $parent = $node->parentNode;
 
         while ($node->firstChild) {
-           $parent->appendChild($node->firstChild);
+            $parent->appendChild($node->firstChild);
         }
 
         $parent->removeChild($node);
@@ -144,9 +143,7 @@ extends Document
         }
     }
 
-    protected function registerDefaultXpathNamespaces($dom)
-    {
-    }
+    protected function registerDefaultXpathNamespaces($dom) {}
 
     protected function extractTextContent(\SimpleXMLElement $node, $normalizeWhitespace = true)
     {
@@ -163,21 +160,14 @@ extends Document
      * Allow the loaders to validate the first part of the provided string.
      *
      * From https://github.com/ThomasWeinert/FluentDOM/blob/master/src/FluentDOM/Loader/Supports.php
-     *
-     * @param string $haystack
-     * @param string $needle
-     * @param bool $ignoreWhitespace
-     * @return bool
      */
-    private function startsWith(string $haystack, string $needle, bool $ignoreWhitespace = TRUE): bool {
-      return $ignoreWhitespace
-        ? (bool)\preg_match('(^\s*'.\preg_quote($needle, '(').')', $haystack)
-        : 0 === \strpos($haystack, $needle);
+    private function startsWith(string $haystack, string $needle, bool $ignoreWhitespace = true): bool
+    {
+        return $ignoreWhitespace
+          ? (bool) \preg_match('(^\s*' . \preg_quote($needle, '(') . ')', $haystack)
+          : 0 === \strpos($haystack, $needle);
     }
 
-    /**
-     *  @param mixed $source
-     */
     public function validate($schemaSource, $schemaType = 'relaxng')
     {
         switch ($schemaType) {
@@ -197,7 +187,7 @@ extends Document
                 if (!$result) {
                     $errors = [];
                     foreach ($document->getValidationWarnings() as $message) {
-                        $errors[] = (object)[ 'message' => $message ];
+                        $errors[] = (object) ['message' => $message];
                     }
                     $this->errors = $errors;
                 }

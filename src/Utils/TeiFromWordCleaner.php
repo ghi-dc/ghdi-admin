@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Mix-in to deal with our specific formatting conventions
+ * Mix-in to deal with our specific formatting conventions.
  */
 
 namespace App\Utils;
@@ -81,7 +82,7 @@ trait TeiFromWordCleaner
                             $parent = $res->item(0);
 
                             foreach (array_reverse($append) as $newNodeName) {
-                                list($ns, $localName) = explode(':', $newNodeName, 2);
+                                [$ns, $localName] = explode(':', $newNodeName, 2);
                                 $newNode = $this->dom->createElement($localName);
 
                                 if ('note' == $localName) {
@@ -92,7 +93,7 @@ trait TeiFromWordCleaner
                                     // must be added before sourceDesc
                                     $sourceDesc = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:sourceDesc');
                                     if (0 == $sourceDesc->length) {
-                                        die('TODO: add a sourceDesc');
+                                        exit('TODO: add a sourceDesc');
                                     }
 
                                     $sourceDesc = $sourceDesc->item(0);
@@ -116,17 +117,18 @@ trait TeiFromWordCleaner
                     if ('div' == $node->nodeName) {
                         // check if we get the quellentext / source-text
                         if ($node->hasAttribute('xml:id')) {
-                            if (in_array($node->getAttribute('xml:id'), [ 'quellentext', 'source-text' ])) {
+                            if (in_array($node->getAttribute('xml:id'), ['quellentext', 'source-text'])) {
                                 // this is the main content we are after
 
                                 // check if it starts with <head>{QUELLENTEXT|SOURCE_TEXT}</head>, if so remove
-                                $firstChild = $xpath->evaluate("./*[1]", $node);
+                                $firstChild = $xpath->evaluate('./*[1]', $node);
                                 if (1 == $firstChild->length) {
                                     $firstChild = $firstChild->item(0);
                                     if ('head' == $firstChild->nodeName) {
-                                        if (in_array(trim(mb_strtoupper($firstChild->textContent, 'UTF-8')),
-                                                     [ 'QUELLENTEXT', 'SOURCE TEXT' ]))
-                                        {
+                                        if (in_array(
+                                            trim(mb_strtoupper($firstChild->textContent, 'UTF-8')),
+                                            ['QUELLENTEXT', 'SOURCE TEXT']
+                                        )) {
                                             $node->removeChild($firstChild);
                                         }
                                     }
@@ -151,7 +153,8 @@ trait TeiFromWordCleaner
                                             $found = true;
                                         }
                                     }
-                                } while ($found);
+                                }
+                                while ($found);
 
                                 // check if we get weiterführende-inhalte or similar heading-2 afterwards that we want to keep
                                 $append = [];
@@ -199,7 +202,7 @@ trait TeiFromWordCleaner
         $xpath = $this->getXPath();
         $title = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title');
         if (0 == $title->length) {
-            die('TODO: add a title');
+            exit('TODO: add a title');
         }
 
         $title = $title->item(0);
@@ -207,7 +210,7 @@ trait TeiFromWordCleaner
         // TODO: maybe split creator and title
         // TODO: maybe extract year
         while ($headNode->firstChild) {
-           $title->appendChild($headNode->firstChild);
+            $title->appendChild($headNode->firstChild);
         }
 
         $headNode->parentNode->removeChild($headNode);
@@ -220,7 +223,7 @@ trait TeiFromWordCleaner
             $titleStmt = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:titleStmt');
             if (0 == $titleStmt->length) {
                 // should never happen
-                die('TODO: add a titleStmt');
+                exit('TODO: add a titleStmt');
             }
 
             $titleStmt = $titleStmt->item(0);
@@ -241,7 +244,7 @@ trait TeiFromWordCleaner
 
                         $node->textContent = $matches[2];
                     }
-                };
+                }
 
                 if (!is_null($node)) {
                     $editor->appendChild($node);
@@ -259,7 +262,7 @@ trait TeiFromWordCleaner
         $xpath = $this->getXPath();
         $sourceDesc = $xpath->evaluate('//tei:teiHeader/tei:fileDesc/tei:sourceDesc');
         if (0 == $sourceDesc->length) {
-            die('TODO: add a sourceDesc');
+            exit('TODO: add a sourceDesc');
         }
 
         $sourceDesc = $sourceDesc->item(0);

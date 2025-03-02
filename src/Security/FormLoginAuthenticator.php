@@ -1,32 +1,26 @@
 <?php
+
 // src/Security/FormLoginAuthenticator.php
 
 namespace App\Security;
 
 use App\Security\User\ExistDbUser;
-
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\PasswordUpgradeBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\CustomCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-/**
- */
 class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
@@ -36,11 +30,12 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
     private $userProvider;
     private $options = [];
 
-    public function __construct(RouterInterface $router,
-                                CsrfTokenManagerInterface $csrfTokenManager,
-                                UserProviderInterface $userProvider,
-                                array $options = [])
-    {
+    public function __construct(
+        RouterInterface $router,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        UserProviderInterface $userProvider,
+        array $options = []
+    ) {
         $this->router = $router;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->userProvider = $userProvider;
@@ -87,7 +82,7 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
 
         $passport = new Passport(
             new UserBadge($credentials['username'], [$this->userProvider, $method]),
-            new CustomCredentials(function($credentials, ExistDbUser $user) {
+            new CustomCredentials(function ($credentials, ExistDbUser $user) {
                 $user->setPassword($credentials); // since userProvider doesn't fetch password
 
                 return $this->userProvider->isPasswordValid($user->getUsername(), $credentials);

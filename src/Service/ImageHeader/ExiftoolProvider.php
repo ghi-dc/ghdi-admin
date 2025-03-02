@@ -4,12 +4,11 @@ namespace App\Service\ImageHeader;
 
 /**
  * TODO: ImageMagickProvider
- * with identify -format '%x,%y' filename
+ * with identify -format '%x,%y' filename.
  */
-class ExiftoolProvider
-extends CommandlineProvider
+class ExiftoolProvider extends CommandlineProvider
 {
-    protected $supportedTypes = [ 'image/*' ];
+    protected $supportedTypes = ['image/*'];
 
     private function buildExiftoolCommand()
     {

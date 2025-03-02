@@ -1,4 +1,5 @@
 <?php
+
 // src/Command/ZoteroFetchCollectionCommand.php
 
 namespace App\Command;
@@ -8,29 +9,26 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Implement
  *  zotero:fetch-collection
- * for per-volume biographes
+ * for per-volume biographes.
  */
-class ZoteroFetchCollectionCommand
-extends BaseCommand
+class ZoteroFetchCollectionCommand extends BaseCommand
 {
     private $zoteroApiService;
     private $adminClient;
 
-    public function __construct(string $siteKey,
-                                ParameterBagInterface $params,
-                                KernelInterface $kernel,
-                                \App\Service\ZoteroApiService $zoteroApiService,
-                                HttpClientInterface $adminClient)
-    {
+    public function __construct(
+        string $siteKey,
+        ParameterBagInterface $params,
+        KernelInterface $kernel,
+        \App\Service\ZoteroApiService $zoteroApiService,
+        HttpClientInterface $adminClient
+    ) {
         // you *must* call the parent constructor
         parent::__construct($siteKey, $params, $kernel);
 
@@ -39,8 +37,10 @@ extends BaseCommand
 
         $this->frontendDataDir = realpath($this->params->get('app.frontend.data_dir'));
         if (empty($this->frontendDataDir)) {
-            die(sprintf('app.frontend.data_dir (%s) does not exist',
-                        $this->params->get('app.frontend.data_dir')));
+            exit(sprintf(
+                'app.frontend.data_dir (%s) does not exist',
+                $this->params->get('app.frontend.data_dir')
+            ));
         }
     }
 
@@ -71,7 +71,7 @@ extends BaseCommand
                 'Group bibliography by tags'
             )
             ->setDescription('Fetch items from Zotero collection')
-            ;
+        ;
     }
 
     protected function fetchItems($key, $setTags = false)
@@ -137,7 +137,7 @@ extends BaseCommand
             }
         }
 
-        if (count($data) == 0) {
+        if (0 == count($data)) {
             return null;
         }
 
@@ -198,7 +198,7 @@ extends BaseCommand
             }
         }
 
-        if (count($data) == 0) {
+        if (0 == count($data)) {
             return null;
         }
 
@@ -219,8 +219,10 @@ extends BaseCommand
         }
 
         if (!preg_match('/^volume\-\d+$/', $volume)) {
-            $output->writeln(sprintf('<error>Invalid volume %s</error>',
-                                     $volume));
+            $output->writeln(sprintf(
+                '<error>Invalid volume %s</error>',
+                $volume
+            ));
 
             return -1;
         }
@@ -244,8 +246,11 @@ extends BaseCommand
             $info = $this->fetchItems($key, $groupByTag);
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {
-            $output->writeln(sprintf('<error>Error requesting collection %s (%s)</error>',
-                                     $key, $e->getResponse()->getStatusCode()));
+            $output->writeln(sprintf(
+                '<error>Error requesting collection %s (%s)</error>',
+                $key,
+                $e->getResponse()->getStatusCode()
+            ));
 
             /*
             if (404 == $e->getResponse()->getStatusCode()) {
@@ -258,7 +263,7 @@ extends BaseCommand
 
         if ($groupByChapter) {
             $urlCollections = $this->buildDtsUrlCollections('en')
-                . '?id=' . join(':', [ $this->siteKey, $volume ]);
+                . '?id=' . join(':', [$this->siteKey, $volume]);
 
             $response = $this->adminClient->request('GET', $urlCollections);
             $structure = $response->toArray();
@@ -277,8 +282,11 @@ extends BaseCommand
                 $subCollections = $this->fetchCollections($key);
             }
             catch (\GuzzleHttp\Exception\ClientException $e) {
-                $output->writeln(sprintf('<error>Error requesting collection %s (%s)</error>',
-                                         $key, $e->getResponse()->getStatusCode()));
+                $output->writeln(sprintf(
+                    '<error>Error requesting collection %s (%s)</error>',
+                    $key,
+                    $e->getResponse()->getStatusCode()
+                ));
 
                 /*
                 if (404 == $e->getResponse()->getStatusCode()) {
@@ -326,7 +334,7 @@ extends BaseCommand
                     }
 
                     unset($item['tags']);
-                    $collections[$key] ['data'][] = $item;
+                    $collections[$key]['data'][] = $item;
                 }
                 else {
                     if (array_key_exists('tags', $item)) {
@@ -353,8 +361,10 @@ extends BaseCommand
                 return 0;
             }
 
-            $output->writeln(sprintf('<error>Error writing %s</error>',
-                                     $fnameOut));
+            $output->writeln(sprintf(
+                '<error>Error writing %s</error>',
+                $fnameOut
+            ));
 
             return -2;
         }

@@ -1,4 +1,5 @@
 <?php
+
 // src/App/Command/ScalarCommand.php
 
 namespace App\Command;
@@ -11,12 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
- *
- * Import content from eXist-db admin into Scalar
- *
+ * Import content from eXist-db admin into Scalar.
  */
-class ScalarCommand
-extends Command
+class ScalarCommand extends Command
 {
     protected $adminClient;
     protected $scalarClient;
@@ -24,11 +22,12 @@ extends Command
     protected $projectDir;
     protected $config = [];
 
-    public function __construct(KernelInterface $kernel,
-                                \Symfony\Contracts\HttpClient\HttpClientInterface $adminClient,
-                                \App\Utils\AnvcScalarClient $scalarClient,
-                                \App\Service\ImageConversion\ConversionService $conversionService)
-    {
+    public function __construct(
+        KernelInterface $kernel,
+        \Symfony\Contracts\HttpClient\HttpClientInterface $adminClient,
+        \App\Utils\AnvcScalarClient $scalarClient,
+        \App\Service\ImageConversion\ConversionService $conversionService
+    ) {
         // you *must* call the parent constructor
         parent::__construct();
 
@@ -61,22 +60,24 @@ extends Command
                 'what locale (en or de)',
                 'en'
             )
-            ;
+        ;
     }
 
     /**
-     * Small helper for nice looking JSON content
+     * Small helper for nice looking JSON content.
      */
     protected function jsonPretty($res)
     {
-        return json_encode($res,
-                           JSON_UNESCAPED_SLASHES
+        return json_encode(
+            $res,
+            JSON_UNESCAPED_SLASHES
                            | JSON_PRETTY_PRINT
-                           | JSON_UNESCAPED_UNICODE);
+                           | JSON_UNESCAPED_UNICODE
+        );
     }
 
     /**
-     * Fetch a JSON representation from our admin
+     * Fetch a JSON representation from our admin.
      */
     protected function fetchJson($volumeId, $page = null, $locale = 'en')
     {
@@ -87,8 +88,11 @@ extends Command
 
         }
         else {
-            $url .= sprintf('resource/volume-%d/%s',
-                            $volumeId, $page);
+            $url .= sprintf(
+                'resource/volume-%d/%s',
+                $volumeId,
+                $page
+            );
         }
 
         $url .= '.scalar.json';
@@ -105,7 +109,7 @@ extends Command
     }
 
     /**
-     * Fetches an image from the legacy site and stores it into $imagePath
+     * Fetches an image from the legacy site and stores it into $imagePath.
      */
     protected function fetchRemoteImage($url, $basename, $imagePath)
     {
@@ -118,7 +122,7 @@ extends Command
         $path = parse_url($url, PHP_URL_PATH);
 
         if (!preg_match('/(\.jpg)$/i', $path, $matches)) {
-            die('TODO: handle extension for ' . $url);
+            exit('TODO: handle extension for ' . $url);
         }
 
         $extension = strtolower($matches[1]);
@@ -138,8 +142,7 @@ extends Command
 
             $info = $imageConversion->identify($file);
             if ((!empty($info['width']) && $info['width'] > $maxDimension)
-                || (!empty($info['height']) && $info['height'] > $maxDimension))
-            {
+                || (!empty($info['height']) && $info['height'] > $maxDimension)) {
                 $converted = $imageConversion->convert($file, [
                     'geometry' => $maxDimension . 'x' . $maxDimension, 'target_type' => 'image/jpeg',
                 ]);
@@ -152,7 +155,7 @@ extends Command
 
     protected function addOrUpdateMedia($volumeId, $slug, $locale = 'en')
     {
-        $mediaProperties = [ 'dcterms:title', 'dcterms:description', 'dcterms:creator', 'dcterms:date' ];
+        $mediaProperties = ['dcterms:title', 'dcterms:description', 'dcterms:creator', 'dcterms:date'];
 
         $pageInfo = $this->fetchJson($volumeId, $slug . '/media', $locale);
         $mediaSlug = $pageInfo['scalar:metadata:slug'];
@@ -195,27 +198,31 @@ extends Command
 
         if (!empty($pageInfo['scalar:metadata:url'])) {
             $basename = basename($mediaSlug); // chop of leading media/
-            $imageName = $this->fetchRemoteImage($pageInfo['scalar:metadata:url'], $basename,
-                                                 $imagePath = $this->projectDir . '/data/media/');
+            $imageName = $this->fetchRemoteImage(
+                $pageInfo['scalar:metadata:url'],
+                $basename,
+                $imagePath = $this->projectDir . '/data/media/'
+            );
 
             // now we can upload
             $res = $this->scalarClient->upload($imagePath . $imageName);
 
             // check for error
             if (is_array($res) && !empty($res['error'])) {
-                throw new \Exception(sprintf("Error uploading %s: %s",
-                                             $basename, $res['error']));
+                throw new \Exception(sprintf('Error uploading %s: %s', $basename, $res['error']));
             }
 
             // and now create the media-page
             $page['scalar:metadata:slug'] = $mediaSlug;
 
-            $baseurlMedia = sprintf('%s%s/media/',
-                                    $this->scalarClient->getBaseurl(),
-                                    $this->scalarClient->getBook());
+            $baseurlMedia = sprintf(
+                '%s%s/media/',
+                $this->scalarClient->getBaseurl(),
+                $this->scalarClient->getBook()
+            );
             $page['scalar:metadata:url'] = $baseurlMedia . $imageName;
             $extension = pathinfo($imageName, PATHINFO_EXTENSION);
-            $page['scalar:metadata:thumb'] =  $baseurlMedia . $basename . '_thumb' . '.' . $extension;
+            $page['scalar:metadata:thumb'] =  $baseurlMedia . $basename . '_thumb.' . $extension;
 
             foreach ($mediaProperties as $key) {
                 if (!empty($pageInfo[$key])) {
@@ -231,13 +238,15 @@ extends Command
 
     /**
      * scalar embeds media in form of link tags of the form
-     * <a data-size="full" data-align="left" data-caption="description" data-annotations="" class="inline" name="scalar-inline-media" href="..." resource="media/media-1234"></a>
+     * <a data-size="full" data-align="left" data-caption="description" data-annotations="" class="inline" name="scalar-inline-media" href="..." resource="media/media-1234"></a>.
      *
      * adjustEmbeddedMedia checks for such tags and updates resource and href in these tags according to the book-specific url
      */
-    protected function adjustEmbeddedMedia(&$html,
-                                           $baseurl, $book)
-    {
+    protected function adjustEmbeddedMedia(
+        &$html,
+        $baseurl,
+        $book
+    ) {
         $resources = [];
 
         $crawler = new \Symfony\Component\DomCrawler\Crawler();
@@ -251,14 +260,16 @@ extends Command
             }
 
             if (preg_match('/^media\/((image|map)\-(\d+))$/', $resource, $matches)) {
-                $resources[] = $matches[1] ;
+                $resources[] = $matches[1];
 
                 // currently we use media-1234 as generic slug, we might keep original naming below 'media/' namespace
                 $path = 'media/media-' . $matches[3];
                 $node->getNode(0)->setAttribute('resource', $path);
                 // link points to the actual upload for the $media, currently assuming everything is .jpg
-                $node->getNode(0)->setAttribute('href',
-                                                $baseurl . $book . '/' . $path . '.jpg');
+                $node->getNode(0)->setAttribute(
+                    'href',
+                    $baseurl . $book . '/' . $path . '.jpg'
+                );
             }
         });
 
@@ -274,8 +285,7 @@ extends Command
      * A small helper function since listRelated returns
      *   http://www.openannotation.org/ns/hasBody / http://www.openannotation.org/ns/hasTarget
      * with
-     *  slug.X#index=1
-     *
+     *  slug.X#index=1.
      */
     protected function extractIndex($uri, $default = null)
     {
@@ -286,12 +296,12 @@ extends Command
             $index = $matches[2];
         }
 
-        return [ $uri, $index ];
+        return [$uri, $index];
     }
 
     /**
      * $this->scalarClient->listRelated returns absolute URIs
-     * Convert these back to relative slugs
+     * Convert these back to relative slugs.
      */
     protected function uriToSlug($uri)
     {
@@ -307,8 +317,11 @@ extends Command
     protected function addOrUpdate($volumeId, $slug, $page, $locale = 'en')
     {
         $media = !empty($page['sioc:content'])
-            ? $this->adjustEmbeddedMedia($page['sioc:content'],
-                                         $this->scalarClient->getBaseurl(), $this->scalarClient->getBook())
+            ? $this->adjustEmbeddedMedia(
+                $page['sioc:content'],
+                $this->scalarClient->getBaseurl(),
+                $this->scalarClient->getBook()
+            )
             : [];
 
         if (!empty($media)) {
@@ -323,11 +336,12 @@ extends Command
         if (!empty($pageExisting)) {
             if ($page['dcterms:title'] == $pageExisting['dcterms:title']
                 && (
-                    !empty($pageExisting['sioc:content']) && !empty($page['sioc:content']) && rtrim($page['sioc:content']) == $pageExisting['sioc:content'])
-                    || (empty($pageExisting['sioc:content']) && empty($page['sioc:content'])
+                    !empty($pageExisting['sioc:content']) && !empty($page['sioc:content']) && rtrim($page['sioc:content']) == $pageExisting['sioc:content']
                 )
-                )
-            {
+                    || (
+                        empty($pageExisting['sioc:content']) && empty($page['sioc:content'])
+                    )
+            ) {
                 return [];
             }
 
@@ -347,7 +361,7 @@ extends Command
                             $options = [];
 
                             $uriFrom = $info['http://www.openannotation.org/ns/hasBody'][0]['value'];
-                            list($uriTo, $index) = $this->extractIndex($info['http://www.openannotation.org/ns/hasTarget'][0]['value']);
+                            [$uriTo, $index] = $this->extractIndex($info['http://www.openannotation.org/ns/hasTarget'][0]['value']);
                             if (!is_null($index)) {
                                 $options['sort_number'] = $index;
                             }
@@ -356,7 +370,7 @@ extends Command
                             break;
 
                         default:
-                            die('TODO: handle type: ' . $type);
+                            exit('TODO: handle type: ' . $type);
                     }
                 }
             }
@@ -382,27 +396,32 @@ extends Command
         }
 
         // check if relation already exists
-        $parentUrl = sprintf('%s.%s',
-                             $parent['url'], $parent['ov:versionnumber']);
-        $childUrl = sprintf('%s.%s',
-                             $child['url'], $child['ov:versionnumber']);
+        $parentUrl = sprintf(
+            '%s.%s',
+            $parent['url'],
+            $parent['ov:versionnumber']
+        );
+        $childUrl = sprintf(
+            '%s.%s',
+            $child['url'],
+            $child['ov:versionnumber']
+        );
 
         switch ($type) {
             case 'contained':
                 $related = $this->scalarClient->listRelated($slug, 'path');
                 foreach ($related as $url => $info) {
                     if (array_key_exists('http://www.openannotation.org/ns/hasBody', $info)
-                        && array_key_exists('http://www.openannotation.org/ns/hasTarget', $info))
-                    {
+                        && array_key_exists('http://www.openannotation.org/ns/hasTarget', $info)) {
                         if ($parentUrl == $info['http://www.openannotation.org/ns/hasBody'][0]['value']) {
-                            list($target, $index) = $this->extractIndex($info['http://www.openannotation.org/ns/hasTarget'][0]['value'], 0);
+                            [$target, $index] = $this->extractIndex($info['http://www.openannotation.org/ns/hasTarget'][0]['value'], 0);
 
                             if ($target == $childUrl) {
                                 if ($index == $options['sort_number']) {
                                     return true;
                                 }
 
-                                die('TODO: handle change in sort_number');
+                                exit('TODO: handle change in sort_number');
                             }
                         }
                     }
@@ -413,11 +432,9 @@ extends Command
                 $related = $this->scalarClient->listRelated($slug, 'tag');
                 foreach ($related as $url => $info) {
                     if (array_key_exists('http://www.openannotation.org/ns/hasBody', $info)
-                        && array_key_exists('http://www.openannotation.org/ns/hasTarget', $info))
-                    {
+                        && array_key_exists('http://www.openannotation.org/ns/hasTarget', $info)) {
                         if ($parentUrl == $info['http://www.openannotation.org/ns/hasBody'][0]['value']
-                            && $childUrl == $info['http://www.openannotation.org/ns/hasTarget'][0]['value'])
-                        {
+                            && $childUrl == $info['http://www.openannotation.org/ns/hasTarget'][0]['value']) {
                             return true;
                         }
                     }
@@ -425,14 +442,14 @@ extends Command
                 break;
 
             default:
-                die('TODO: check for already related not implemented yet for type: ' . $type);
+                exit('TODO: check for already related not implemented yet for type: ' . $type);
                 break;
         }
 
         $res = $this->scalarClient->relate($parent['scalar:urn'], $child['scalar:urn'], $type, $options);
 
         if (!empty($res['error'])) {
-            die($res['error']['message'][0]['value']);
+            exit($res['error']['message'][0]['value']);
 
             return false;
         }
@@ -449,12 +466,20 @@ extends Command
             ]);
 
             if (true === $res) {
-                $output->writeln(sprintf('<info>Path from %s to %s (%d) already exists</info>',
-                                         $slugFrom, $slug, $sort_number));
+                $output->writeln(sprintf(
+                    '<info>Path from %s to %s (%d) already exists</info>',
+                    $slugFrom,
+                    $slug,
+                    $sort_number
+                ));
             }
             else if ($res) {
-                $output->writeln(sprintf('<info>Path from %s to %s (%d) was added</info>',
-                                         $slugFrom, $slug, $sort_number));
+                $output->writeln(sprintf(
+                    '<info>Path from %s to %s (%d) was added</info>',
+                    $slugFrom,
+                    $slug,
+                    $sort_number
+                ));
             }
         }
     }
@@ -465,12 +490,18 @@ extends Command
             $res = $this->addOrUpdateRelation($slugFrom, $slug, 'tagged');
 
             if (true === $res) {
-                $output->writeln(sprintf('<info>%s is already tagged by %s</info>',
-                                         $slug, $slugFrom));
+                $output->writeln(sprintf(
+                    '<info>%s is already tagged by %s</info>',
+                    $slug,
+                    $slugFrom
+                ));
             }
             else if ($res) {
-                $output->writeln(sprintf('<info>%s was tagged by %s</info>',
-                                         $slug, $slugFrom));
+                $output->writeln(sprintf(
+                    '<info>%s was tagged by %s</info>',
+                    $slug,
+                    $slugFrom
+                ));
             }
         }
 
@@ -485,8 +516,10 @@ extends Command
         $volumeInfo = $this->fetchJson($volumeId, null, $locale);
 
         if (false === $volumeInfo) {
-            $output->writeln(sprintf('<error>an error occured in action: %s</error>',
-                                     $input->getArgument('action')));
+            $output->writeln(sprintf(
+                '<error>an error occured in action: %s</error>',
+                $input->getArgument('action')
+            ));
 
             return 1;
         }
@@ -504,40 +537,54 @@ extends Command
                     foreach ($section['dcterms:hasPart'] as $part) {
                         $pageInfo = $this->fetchJson($volumeId, $part['scalar:metadata:slug'], $locale);
                         if (false == $pageInfo) {
-                            $output->writeln(sprintf('<error>an error occured in action: %s fetching %s</error>',
-                                                     $action, $part['scalar:metadata:slug']));
+                            $output->writeln(sprintf(
+                                '<error>an error occured in action: %s fetching %s</error>',
+                                $action,
+                                $part['scalar:metadata:slug']
+                            ));
                             continue;
                         }
 
                         $res = $this->addOrUpdate($volumeId, $slug = $pageInfo['scalar:metadata:slug'], $pageInfo, $locale);
                         if (empty($res)) {
-                            $output->writeln(sprintf('<info>page %s already exists</info>',
-                                                     $slug));
+                            $output->writeln(sprintf(
+                                '<info>page %s already exists</info>',
+                                $slug
+                            ));
                         }
                         else {
-                            $output->writeln(sprintf('<info>Add or update %s: %s</info>',
-                                                     $action,
-                                                     $this->jsonPretty($res)));
+                            $output->writeln(sprintf(
+                                '<info>Add or update %s: %s</info>',
+                                $action,
+                                $this->jsonPretty($res)
+                            ));
                         }
 
                         if (!empty($part['dcterms:hasPart'])) {
                             foreach ($part['dcterms:hasPart'] as $subPart) {
                                 $pageInfo = $this->fetchJson($volumeId, $subPart['scalar:metadata:slug'], $locale);
                                 if (false == $pageInfo) {
-                                    $output->writeln(sprintf('<error>an error occured in action: %s fetching %s</error>',
-                                                             $action, $subPart['scalar:metadata:slug']));
+                                    $output->writeln(sprintf(
+                                        '<error>an error occured in action: %s fetching %s</error>',
+                                        $action,
+                                        $subPart['scalar:metadata:slug']
+                                    ));
                                     continue;
                                 }
 
                                 $res = $this->addOrUpdate($volumeId, $slug = $pageInfo['scalar:metadata:slug'], $pageInfo, $locale);
                                 if (empty($res)) {
-                                    $output->writeln(sprintf('<info>page %s already exists</info>',
-                                                             $slug));
+                                    $output->writeln(sprintf(
+                                        '<info>page %s already exists</info>',
+                                        $slug
+                                    ));
                                 }
                                 else {
-                                    $output->writeln(sprintf('<info>Add or update %s: %s</info>',
-                                                             $action,
-                                                             $this->jsonPretty($res)));
+                                    $output->writeln(sprintf(
+                                        '<info>Add or update %s: %s</info>',
+                                        $action,
+                                        $this->jsonPretty($res)
+                                    ));
                                 }
                             }
                         }
@@ -552,21 +599,27 @@ extends Command
             case 'document-path':
             case 'image-path':
             case 'map-path':
-                $slugFrom = str_replace('-path',
-                                        in_array($action, ['index-path', 'introduction-path'])
+                $slugFrom = str_replace(
+                    '-path',
+                    in_array($action, ['index-path', 'introduction-path'])
                                         ? '' : 's',
-                                        $action);
+                    $action
+                );
 
                 if ('index' == $slugFrom) {
-                    $pages = array_map(function ($section) { return $section['scalar:metadata:slug']; },
-                                       $volumeInfo['dcterms:hasPart']);
+                    $pages = array_map(
+                        function ($section) { return $section['scalar:metadata:slug']; },
+                        $volumeInfo['dcterms:hasPart']
+                    );
 
                     $this->setPaths($output, $slugFrom, $pages);
                 }
                 else {
                     $parts = array_key_exists('dcterms:hasPart', $volumeInfo)
-                        ? array_filter($volumeInfo['dcterms:hasPart'],
-                                       function ($part) use ($slugFrom) { return $part['scalar:metadata:slug'] === $slugFrom; })
+                        ? array_filter(
+                            $volumeInfo['dcterms:hasPart'],
+                            function ($part) use ($slugFrom) { return $part['scalar:metadata:slug'] === $slugFrom; }
+                        )
                         : [];
 
                     foreach ($parts as $part) {
@@ -576,8 +629,10 @@ extends Command
                             $pages[] = $sectionFrom = $section['scalar:metadata:slug'];
 
                             if (!empty($section['dcterms:hasPart'])) {
-                                $subpages = array_map(function ($subsection) { return $subsection['scalar:metadata:slug']; },
-                                                      $section['dcterms:hasPart']);
+                                $subpages = array_map(
+                                    function ($subsection) { return $subsection['scalar:metadata:slug']; },
+                                    $section['dcterms:hasPart']
+                                );
 
                                 if (!empty($subpages)) {
                                     $this->setPaths($output, $sectionFrom, $subpages);
@@ -592,10 +647,10 @@ extends Command
                 return 0;
                 break;
 
-            // test tagging
+                // test tagging
             case 'term-4006439-6':
                 $slugFrom = $action;
-                $pages = [ 'document-9', 'image-2', 'image-27' ];
+                $pages = ['document-9', 'image-2', 'image-27'];
                 $this->setTags($output, $slugFrom, $pages);
 
                 return 0;
@@ -608,28 +663,37 @@ extends Command
                     $pageInfo = $this->fetchJson($volumeId, $action, $locale);
 
                     if (false === $pageInfo) {
-                        $output->writeln(sprintf('<error>an error occured in action: %s</error>',
-                                                 $input->getArgument('action')));
+                        $output->writeln(sprintf(
+                            '<error>an error occured in action: %s</error>',
+                            $input->getArgument('action')
+                        ));
 
                         return 1;
                     }
 
                     $res = $this->addOrUpdate($volumeId, $slug = $pageInfo['scalar:metadata:slug'], $pageInfo, $locale);
                     if (empty($res)) {
-                        $output->writeln(sprintf('<info>page %s already exists</info>',
-                                                 $slug));
+                        $output->writeln(sprintf(
+                            '<info>page %s already exists</info>',
+                            $slug
+                        ));
                     }
                     else {
-                        $output->writeln(sprintf('<info>Add or update %s: %s</info>',
-                                                 $action,
-                                                 $this->jsonPretty($res)));
+                        $output->writeln(sprintf(
+                            '<info>Add or update %s: %s</info>',
+                            $action,
+                            $this->jsonPretty($res)
+                        ));
                     }
 
                     return 0;
                 }
 
-                $output->writeln(sprintf('<error>invalid action: %s</error>',
-                                         $input->getArgument('action')));
+                $output->writeln(sprintf(
+                    '<error>invalid action: %s</error>',
+                    $input->getArgument('action')
+                ));
+
                 return 1;
         }
 

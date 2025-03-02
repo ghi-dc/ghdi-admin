@@ -1,19 +1,17 @@
 <?php
+
 // src/Controller/Organization.php
 
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * CRUD for Organization
+ * CRUD for Organization.
  */
-class OrganizationController
-extends BaseController
+class OrganizationController extends BaseController
 {
     protected $subCollection = '/data/authority/organizations';
 
@@ -43,19 +41,22 @@ extends BaseController
     }
 
     #[Route(path: '/organization/{id}', name: 'organization-detail', requirements: ['id' => 'organization\-\d+'])]
-    public function detailAction(Request $request,
-                                 TranslatorInterface $translator,
-                                 $id)
-    {
+    public function detailAction(
+        Request $request,
+        TranslatorInterface $translator,
+        $id
+    ) {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Organization::class);
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
-                                             $id))
-                ;
+                    ->add('warning', sprintf(
+                        $translator->trans('No entry found for id: %s'),
+                        $id
+                    ))
+            ;
 
             return $this->redirect($this->generateUrl('organization-list'));
         }
@@ -69,12 +70,12 @@ extends BaseController
     {
         // see https://stackoverflow.com/a/48901690
         $xql = <<<EOXQL
-    declare variable \$collection external;
-    let \$organizations := collection(\$collection)/Organization
-    return (for \$key in (1 to 9999)!format-number(., '0')
-        where empty(\$organizations[@id='organization-'||\$key])
-        return 'organization-' || \$key)[1]
-EOXQL;
+                declare variable \$collection external;
+                let \$organizations := collection(\$collection)/Organization
+                return (for \$key in (1 to 9999)!format-number(., '0')
+                    where empty(\$organizations[@id='organization-'||\$key])
+                    return 'organization-' || \$key)[1]
+            EOXQL;
 
         $query = $client->prepareQuery($xql);
         $query->bindVariable('collection', $collection);
@@ -109,9 +110,10 @@ EOXQL;
     }
 
     #[Route(path: '/organization/add-from-identifier', name: 'organization-add-from-identifier')]
-    public function addFromIdentifierAction(Request $request,
-                                            TranslatorInterface $translator)
-    {
+    public function addFromIdentifierAction(
+        Request $request,
+        TranslatorInterface $translator
+    ) {
         $types = [
             'gnd' => 'GND',
             'lcauth' => 'LoC authority ID',
@@ -157,7 +159,7 @@ EOXQL;
                 $request->getSession()
                         ->getFlashBag()
                         ->add('info', $translator->trans('There is already an entry for this identifier'))
-                    ;
+                ;
 
                 return $this->redirect($this->generateUrl('organization-detail', [
                     'id' => $id,
@@ -188,16 +190,17 @@ EOXQL;
                         }
                     }
 
-                    if (!$found && $data['type'] != 'lcauth') {
+                    if (!$found && 'lcauth' != $data['type']) {
                         $request->getSession()
                                 ->getFlashBag()
                                 ->add('warning', $translator->trans('Could not find a corresponding GND'))
-                            ;
+                        ;
 
                         break;
                     }
                     // fallthrough
 
+                    // no break
                 case 'gnd':
                     if ('gnd' == $data['type']) {
                         $identifier = new \App\Utils\Lod\Identifier\GndIdentifier($data['identifier']);
@@ -215,7 +218,7 @@ EOXQL;
                         $request->getSession()
                                 ->getFlashBag()
                                 ->add('info', $translator->trans('Please review and enhance before pressing [Save]'))
-                            ;
+                        ;
 
                         $form = $this->createForm(\App\Form\Type\OrganizationType::class, $entity, [
                             'action' => $this->generateUrl('organization-add'),
@@ -229,18 +232,22 @@ EOXQL;
                     else {
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('warning', sprintf($translator->trans('No entry found for: %s'),
-                                                         $data['identifier']))
-                            ;
+                                ->add('warning', sprintf(
+                                    $translator->trans('No entry found for: %s'),
+                                    $data['identifier']
+                                ))
+                        ;
                     }
                     break;
 
                 default:
                     $request->getSession()
                             ->getFlashBag()
-                            ->add('warning', sprintf($translator->trans('Not handling type: %s'),
-                                                     $data['type']))
-                        ;
+                            ->add('warning', sprintf(
+                                $translator->trans('Not handling type: %s'),
+                                $data['type']
+                            ))
+                    ;
             }
         }
 
@@ -252,10 +259,11 @@ EOXQL;
 
     #[Route(path: '/organization/{id}/edit', name: 'organization-edit', requirements: ['id' => 'organization\-\d+'])]
     #[Route(path: '/organization/add', name: 'organization-add')]
-    public function editAction(Request $request,
-                               TranslatorInterface $translator,
-                               $id = null)
-    {
+    public function editAction(
+        Request $request,
+        TranslatorInterface $translator,
+        $id = null
+    ) {
         $update = 'organization-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -270,9 +278,11 @@ EOXQL;
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
-                                                 $id))
-                    ;
+                        ->add('warning', sprintf(
+                            $translator->trans('No entry found for id: %s'),
+                            $id
+                        ))
+                ;
 
                 return $this->redirect($this->generateUrl('organization-list'));
             }
@@ -287,7 +297,7 @@ EOXQL;
                 $entity->setId($id);
             }
 
-            $redirectUrl = $this->generateUrl('organization-detail', [ 'id' => $id ]);
+            $redirectUrl = $this->generateUrl('organization-detail', ['id' => $id]);
 
             $serializer = $this->getSerializer();
             $content = $serializer->serialize($entity, 'xml');
@@ -296,9 +306,11 @@ EOXQL;
             if (!$res) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
-                                                 $id))
-                    ;
+                        ->add('warning', sprintf(
+                            $translator->trans('An issue occured while storing id: %s'),
+                            $id
+                        ))
+                ;
             }
             else {
                 if ($request->getSession()->has('return-after-save')) {
@@ -307,11 +319,13 @@ EOXQL;
 
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('info',
-                              $update
+                        ->add(
+                            'info',
+                            $update
                               ? $translator->trans('The entry has been updated')
-                              : $translator->trans('The entry has been created'));
-                    ;
+                              : $translator->trans('The entry has been created')
+                        );
+
             }
 
             return $this->redirect($redirectUrl);
@@ -324,10 +338,11 @@ EOXQL;
     }
 
     #[Route(path: '/organization/{id}/lookup-identifier', name: 'organization-lookup-identifier', requirements: ['id' => 'organization\-\d+'])]
-    public function enhanceAction(Request $request,
-                                  TranslatorInterface $translator,
-                                  $id)
-    {
+    public function enhanceAction(
+        Request $request,
+        TranslatorInterface $translator,
+        $id
+    ) {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Organization::class);
@@ -335,9 +350,11 @@ EOXQL;
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
-                                             $id))
-                ;
+                    ->add('warning', sprintf(
+                        $translator->trans('No entry found for id: %s'),
+                        $id
+                    ))
+            ;
 
             return $this->redirect($this->generateUrl('organization-list'));
         }
@@ -346,7 +363,7 @@ EOXQL;
             $request->getSession()
                     ->getFlashBag()
                     ->add('warning', $translator->trans('Entry has no identifier'))
-                ;
+            ;
 
             return $this->redirect($this->generateUrl('organization-detail', [
                 'id' => $id,
@@ -386,22 +403,24 @@ EOXQL;
             if (!$res) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
-                                                 $id))
-                    ;
+                        ->add('warning', sprintf(
+                            $translator->trans('An issue occured while storing id: %s'),
+                            $id
+                        ))
+                ;
             }
             else {
                 $request->getSession()
                         ->getFlashBag()
                         ->add('info', $translator->trans('The entry has been updated'));
-                    ;
+
             }
         }
         else {
             $request->getSession()
                     ->getFlashBag()
                     ->add('info', $translator->trans('No additional information could be found'));
-                ;
+
         }
 
         return $this->redirect($this->generateUrl('organization-detail', [
@@ -422,7 +441,7 @@ EOXQL;
 
         $query->setJSONReturnType();
         $query->bindVariable('organizationsCollection', $baseCollection . $this->subCollection);
-        $query->bindVariable('volumesCollection',  $baseCollection . '/data/volumes');
+        $query->bindVariable('volumesCollection', $baseCollection . '/data/volumes');
         $res = $query->execute();
         $info = $res->getNextResult();
         $res->release();

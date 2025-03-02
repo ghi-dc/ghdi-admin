@@ -1,4 +1,5 @@
 <?php
+
 // src/Controller/ProxyController.php
 
 namespace App\Controller;
@@ -6,15 +7,13 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Simple pass-through proxy since CollectiveAccess sends wrong mime-type
- * for svg
+ * for svg.
  */
-class ProxyController
-extends BaseController
+class ProxyController extends BaseController
 {
     private $client;
 

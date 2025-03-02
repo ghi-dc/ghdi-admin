@@ -1,4 +1,5 @@
 <?php
+
 // src/Controller/VolumeController.php
 
 namespace App\Controller;
@@ -6,9 +7,7 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 use OpenSpout\Writer\Common\Creator\WriterEntityFactory;
 use OpenSpout\Writer\Common\Creator\Style\StyleBuilder;
 use OpenSpout\Common\Entity\Row;
@@ -16,10 +15,9 @@ use OpenSpout\Common\Entity\Row;
 use function Symfony\Component\String\u;
 
 /**
- * List and display Volume
+ * List and display Volume.
  */
-class VolumeController
-extends ResourceController
+class VolumeController extends ResourceController
 {
     protected $subCollection = '/data/volumes';
 
@@ -83,14 +81,16 @@ extends ResourceController
         $resources = $this->buildResources($client, $id, $lang, $getTerms);
 
         // get outline from site settings
-        $ret = array_map(function ($section) {
+        $ret = array_map(
+            function ($section) {
                 if (is_array($section) && !array_key_exists('resources', $section)) {
                     $section['resources'] = [];
                 }
 
                 return $section;
             },
-            $this->getParameter('app.site.structure'));
+            $this->getParameter('app.site.structure')
+        );
 
         if (is_null($resources)) {
             return $ret;
@@ -123,7 +123,7 @@ extends ResourceController
                 case 'audio':
                 case 'video':
                     $key = $info['genre'] . 's';
-                    if (in_array($key, [ 'images', 'audios', 'videos' ])  && !array_key_exists($key, $ret)) {
+                    if (in_array($key, ['images', 'audios', 'videos'])  && !array_key_exists($key, $ret)) {
                         // GHIS doesn't separate between documents and images
                         $key = 'documents';
                     }
@@ -156,21 +156,23 @@ extends ResourceController
     }
 
     /**
-     * Write a single resource into an Excel-row
+     * Write a single resource into an Excel-row.
      */
     private function exportResource($writer, &$terms, $resource, $style = null)
     {
         $row = [
             array_key_exists('genre', $resource) ? $resource['genre'] : '',
             $resource['name'],
-            join('; ', array_map(function ($uri) use ($terms) {
+            join('; ', array_map(
+                function ($uri) use ($terms) {
                     if (array_key_exists($uri, $terms)) {
                         return $terms[$uri];
                     }
 
                     return $uri;
                 },
-                array_key_exists('terms', $resource) ? $resource['terms'] : [])),
+                array_key_exists('terms', $resource) ? $resource['terms'] : []
+            )),
         ];
 
         $writer->addRow(WriterEntityFactory::createRowFromArray($row, $style));
@@ -182,10 +184,11 @@ extends ResourceController
     #[Route(path: '/volume/{id}', name: 'volume-detail', requirements: ['id' => 'volume\-\d+'])]
     #[Route(path: '/volume/{id}/create', name: 'volume-create', requirements: ['id' => 'volume\-\d+'])]
     #[Route(path: '/volume/{id}/export', name: 'volume-export', requirements: ['id' => 'volume\-\d+'])]
-    public function volumeDetailAction(Request $request,
-                                       TranslatorInterface $translator,
-                                       $id)
-    {
+    public function volumeDetailAction(
+        Request $request,
+        TranslatorInterface $translator,
+        $id
+    ) {
         $client = $this->getExistDbClient($this->subCollection);
 
         $volume = $this->fetchVolume($client, $id, $lang = \App\Utils\Iso639::code1To3($request->getLocale()));
@@ -204,7 +207,7 @@ extends ResourceController
                     if (!empty($_POST['from-locale']) && $_POST['from-locale'] == $alternate) {
                         $from = $client->getCollection() . '/' . $id . '/' . $id . '.' . $alternateCode3 . '.xml';
 
-                        $content = $client->getDocument($from, [ 'omit-xml-declaration' => 'no' ]);
+                        $content = $client->getDocument($from, ['omit-xml-declaration' => 'no']);
 
                         if (false !== $content) {
                             $to = $client->getCollection() . '/' . $id . '/' . $id . '.' . $lang . '.xml';
@@ -221,7 +224,7 @@ extends ResourceController
                                 $request->getSession()
                                         ->getFlashBag()
                                         ->add('info', $translator->trans('The resource has been copied'))
-                                    ;
+                                ;
 
                                 return $this->redirect($this->generateUrl('volume-edit', [
                                     'id' => $id,
@@ -243,9 +246,11 @@ extends ResourceController
 
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
-                                             $id))
-                ;
+                    ->add('warning', sprintf(
+                        $translator->trans('No resource found for id: %s'),
+                        $id
+                    ))
+            ;
 
             return $this->redirect($this->generateUrl('volume-list'));
         }
@@ -272,7 +277,7 @@ extends ResourceController
                 $request->getSession()
                         ->getFlashBag()
                         ->add('info', $translator->trans('No matching resources found'))
-                    ;
+                ;
             }
 
             // check for updated order
@@ -296,17 +301,25 @@ extends ResourceController
                         $childId = $child['id'];
                         if (array_key_exists($childId, $newOrder)) {
                             $parts = explode('/', $child['shelfmark']);
-                            list($order, $ignore) = explode(':', end($parts), 2);
+                            [$order, $ignore] = explode(':', end($parts), 2);
                             if ($order != $newOrder) {
-                                $newOrderAndId = sprintf('%03d:%s',
-                                                         $newOrder[$childId], $childId);
+                                $newOrderAndId = sprintf(
+                                    '%03d:%s',
+                                    $newOrder[$childId],
+                                    $childId
+                                );
                                 $parts[count($parts) - 1] = $newOrderAndId;
                                 $newShelfmark = implode('/', $parts);
 
                                 if ($child['shelfmark'] != $newShelfmark) {
-                                    $this->updateDocumentShelfmark($client,
-                                                                   $id, $childId, $lang,
-                                                                   $newShelfmark, $child['shelfmark']);
+                                    $this->updateDocumentShelfmark(
+                                        $client,
+                                        $id,
+                                        $childId,
+                                        $lang,
+                                        $newShelfmark,
+                                        $child['shelfmark']
+                                    );
 
                                     $updated = true;
 
@@ -315,13 +328,20 @@ extends ResourceController
                                         foreach ($child['resources'] as $grandChild) {
                                             if (!u($grandChild['shelfmark'])->startsWith($newShelfmark)) {
                                                 // replace everything until $childId with $newShelfmark
-                                                $subShelfmark = preg_replace('/^(.*?)' . preg_quote($childId, '/') . '/',
-                                                                             $newShelfmark,
-                                                                             $grandChild['shelfmark']);
+                                                $subShelfmark = preg_replace(
+                                                    '/^(.*?)' . preg_quote($childId, '/') . '/',
+                                                    $newShelfmark,
+                                                    $grandChild['shelfmark']
+                                                );
                                                 if ($subShelfmark != $grandChild['shelfmark']) {
-                                                    $this->updateDocumentShelfmark($client,
-                                                                                   $id, $grandChild['id'], $lang,
-                                                                                   $subShelfmark, $grandChild['shelfmark']);
+                                                    $this->updateDocumentShelfmark(
+                                                        $client,
+                                                        $id,
+                                                        $grandChild['id'],
+                                                        $lang,
+                                                        $subShelfmark,
+                                                        $grandChild['shelfmark']
+                                                    );
 
                                                 }
                                             }
@@ -345,13 +365,16 @@ extends ResourceController
         }
 
         if ('volume-detail-scalar' == $request->get('_route')) {
-            return $this->teiToScalar($client, $volumepath,
-                                      \App\Utils\Iso639::code1To3($request->getLocale()),
-                                      $this->buildResourcesGrouped($client, $id, $lang));
+            return $this->teiToScalar(
+                $client,
+                $volumepath,
+                \App\Utils\Iso639::code1To3($request->getLocale()),
+                $this->buildResourcesGrouped($client, $id, $lang)
+            );
         }
 
         if ('volume-detail-tei' == $request->get('_route')) {
-            $tei = $client->getDocument($volumepath, [ 'omit-xml-declaration' => 'no' ]);
+            $tei = $client->getDocument($volumepath, ['omit-xml-declaration' => 'no']);
 
             $response = new Response($tei);
             $response->headers->set('Content-Type', 'xml');
@@ -363,8 +386,11 @@ extends ResourceController
             $resourcesGrouped = $this->buildResourcesGrouped($client, $id, $lang, true);
             $terms = $this->buildTermChoices($request->getLocale());
 
-            $fileName = sprintf('%s-%s.xlsx',
-                                $volume['data']['id'], $lang);
+            $fileName = sprintf(
+                '%s-%s.xlsx',
+                $volume['data']['id'],
+                $lang
+            );
 
             // Create styles with the StyleBuilder
             $titleStyle = (new StyleBuilder())
@@ -388,13 +414,13 @@ extends ResourceController
             $writer->openToBrowser($fileName);
 
             // Create a row with cells and apply the style to all cells
-            $row = WriterEntityFactory::createRowFromArray([ $volume['data']['name'] ], $titleStyle);
+            $row = WriterEntityFactory::createRowFromArray([$volume['data']['name']], $titleStyle);
             $writer->addRow($row);
 
             foreach ($resourcesGrouped as $key => $section) {
                 $this->exportResource($writer, $terms, [
-                        'name'  => /** @Ignore */$translator->trans($section['name'], [], 'additional'),
-                    ], $sectionStyle);
+                    'name'  => /* @Ignore */$translator->trans($section['name'], [], 'additional'),
+                ], $sectionStyle);
 
                 foreach ($section['resources'] as $chapterKey => $chapter) {
                     $hasResources = array_key_exists('resources', $chapter);
@@ -433,10 +459,11 @@ extends ResourceController
     }
 
     #[Route(path: '/volume/{id}/edit', name: 'volume-edit', requirements: ['id' => 'volume\-\d+'])]
-    public function volumeEditAction(Request $request,
-                                     TranslatorInterface $translator,
-                                     $id = null)
-    {
+    public function volumeEditAction(
+        Request $request,
+        TranslatorInterface $translator,
+        $id = null
+    ) {
         $update = 'volume-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -458,16 +485,18 @@ extends ResourceController
                 $request->getSession()
                         ->getFlashBag()
                         ->add('warning', $translator->trans('Creating new volumes is not implemented yet'))
-                    ;
+                ;
 
                 return $this->redirect($this->generateUrl('volume-list'));
             }
 
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
-                                             $id))
-                ;
+                    ->add('warning', sprintf(
+                        $translator->trans('No resource found for id: %s'),
+                        $id
+                    ))
+            ;
 
             return $this->redirect($this->generateUrl('volume-list'));
         }
@@ -480,7 +509,7 @@ extends ResourceController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$update) {
-                die('TODO: handle');
+                exit('TODO: handle');
                 $id = $this->nextInSequence($client, $client->getCollection(), 'volume-');
                 $entity->setId($id);
                 // TODO: createTeiHeader
@@ -493,19 +522,21 @@ extends ResourceController
                 $request->getSession()
                         ->getFlashBag()
                         ->add('warning', 'An issue occured while storing id: ' . $id)
-                    ;
+                ;
             }
             else {
                 $request->getSession()
                         ->getFlashBag()
-                                ->add('info',
-                                      $update
+                                ->add(
+                                    'info',
+                                    $update
                                       ? $translator->trans('The volume has been updated')
-                                      : $translator->trans('The volume has been created'))
-                    ;
+                                      : $translator->trans('The volume has been created')
+                                )
+                ;
             }
 
-            return $this->redirect($this->generateUrl('volume-detail', [ 'id' => $id ]));
+            return $this->redirect($this->generateUrl('volume-detail', ['id' => $id]));
         }
 
         return $this->render('Volume/edit.html.twig', [

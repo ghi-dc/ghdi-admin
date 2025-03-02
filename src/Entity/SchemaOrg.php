@@ -5,8 +5,7 @@ namespace App\Entity;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
- * Shared method for Schema.org entities
- *
+ * Shared method for Schema.org entities.
  */
 abstract class SchemaOrg
 {
@@ -19,7 +18,7 @@ abstract class SchemaOrg
             $dateStr .= '-00';
         }
         else if (preg_match('/^(\d+)\.(\d+)\.(\d{4})$/', $dateStr, $matches)) {
-            $dateStr = join('-', [ $matches[3], $matches[2], $matches[1] ]);
+            $dateStr = join('-', [$matches[3], $matches[2], $matches[1]]);
         }
 
         return $dateStr;
@@ -49,11 +48,11 @@ abstract class SchemaOrg
     protected $status;
 
     /**
-     * @var array The name of the item.
+     * @var array the name of the item
      */
     #[Serializer\XmlMap(inline: true, keyAttribute: 'lang', entry: 'name')]
     #[Serializer\Type('array<string,string>')]
-    protected $name = [ '_' => null ];
+    protected $name = ['_' => null];
 
     /**
      * @var array
@@ -70,7 +69,7 @@ abstract class SchemaOrg
     protected $identifiers = [];
 
     /**
-     * @var string URL of the item.
+     * @var string URL of the item
      */
     #[Serializer\XmlElement(cdata: false)]
     #[Serializer\Type('string')]
@@ -262,7 +261,7 @@ abstract class SchemaOrg
      */
     public function setIdentifier($name, $value)
     {
-        if (in_array($name, [ 'lcnaf', 'lcsh', 'lcagents' ])) {
+        if (in_array($name, ['lcnaf', 'lcsh', 'lcagents'])) {
             $name = 'lcauth';
         }
 
@@ -408,8 +407,8 @@ abstract class SchemaOrg
     /**
      * Gets disambiguating description.
      *
-     *
      * @param string $lang
+     *
      * @return string|null
      */
     public function getDisambiguatingDescription($lang)
@@ -434,7 +433,6 @@ abstract class SchemaOrg
 
     /**
      * Gets disambiguating description in German.
-     *
      *
      * @return string|null
      */
@@ -466,7 +464,7 @@ abstract class SchemaOrg
     }
 
     /**
-     * Sets createdAt
+     * Sets createdAt.
      *
      * @param string|\DateTime $createdAt
      */
@@ -484,7 +482,7 @@ abstract class SchemaOrg
     }
 
     /**
-     * Gets createdAt
+     * Gets createdAt.
      *
      * @return \DateTime
      */

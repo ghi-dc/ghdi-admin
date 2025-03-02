@@ -1,15 +1,15 @@
 <?php
+
 /**
  * Methods for Document Conversions.
  * Interfaces inspired by ezcDocumentConverter
  *  https://github.com/zetacomponents/Document/blob/master/src/interfaces/converter.php
- * TODO: Build a separate Component
+ * TODO: Build a separate Component.
  */
 
 namespace App\Utils;
 
-class PandocConverter
-extends DocumentConverter
+class PandocConverter extends DocumentConverter
 {
     protected $path = '';
     protected $mimeToFormat = [
@@ -49,6 +49,7 @@ extends DocumentConverter
             '|(<[^>]*)(xml\:id=(["\']))(.*?)(\3)|',
             function ($matches) {
                 $id = preg_replace('/[^a-z0-9\-_:\.]/', '', $matches[4]);
+
                 return $matches[1] . $matches[2] . $id . $matches[5];
             },
             $xml
@@ -56,7 +57,7 @@ extends DocumentConverter
     }
 
     /**
-     * Convert documents between two formats
+     * Convert documents between two formats.
      *
      * Convert documents of the given type to the requested type.
      *
@@ -67,14 +68,14 @@ extends DocumentConverter
         $arguments = [];
 
         $mimeType = $doc->getMimeType();
-        if (!empty($mimeType) && array_key_exists($mimeType, $this->mimeToFormat))  {
+        if (!empty($mimeType) && array_key_exists($mimeType, $this->mimeToFormat)) {
             $arguments[] = '-f ' . $this->mimeToFormat[$mimeType];
         }
 
         if (array_key_exists('target', $this->options)) {
             $ret = $this->options['target'];
 
-            if ($ret instanceof \App\Utils\TeiSimplePrintDocument) {
+            if ($ret instanceof TeiSimplePrintDocument) {
                 $arguments[] = '-t tei';
                 if (false !== $ret->getOption('standalone')) {
                     $arguments[] = '-s';

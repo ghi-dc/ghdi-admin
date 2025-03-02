@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Methods to enhance TEI with textrazor api
+ * Methods to enhance TEI with textrazor api.
  */
 
 namespace App\Utils;
@@ -25,7 +26,7 @@ class TeiEnhancer
         // we don't want \n within <p>
         $caller = &$this;
 
-        $tei = preg_replace_callback('|(<p\b[^>]*>)([\s\S]*?)(</p>)|m', function($matches) use ($caller) {
+        $tei = preg_replace_callback('|(<p\b[^>]*>)([\s\S]*?)(</p>)|m', function ($matches) use ($caller) {
             return $matches[1] . $caller->stripWhitespace($matches[2]) . $matches[3];
         }, $tei);
 
@@ -34,10 +35,9 @@ class TeiEnhancer
         $fluidXml->namespace('tei', 'http://www.tei-c.org/ns/1.0', \FluidXml\FluidNamespace::MODE_IMPLICIT);
 
         foreach ([
-                '/tei:TEI/tei:teiHeader/tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"]//text()',
-                '/tei:TEI/tei:text/tei:body//text()',
-            ] as $query)
-        {
+            '/tei:TEI/tei:teiHeader/tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"]//text()',
+            '/tei:TEI/tei:text/tei:body//text()',
+        ] as $query) {
 
             $plainText = $this->extractText($fluidXml, $query);
 
@@ -57,10 +57,12 @@ class TeiEnhancer
 
                     $fragment = null;
                     while ($matchPosition < $maxPosition
-                           && preg_match('/(' . preg_quote($search = $entities[$matchPosition]['matchedText'], '/') . ')/',
-                                         $rest,
-                                         $matches, PREG_OFFSET_CAPTURE))
-                    {
+                           && preg_match(
+                               '/(' . preg_quote($search = $entities[$matchPosition]['matchedText'], '/') . ')/',
+                               $rest,
+                               $matches,
+                               PREG_OFFSET_CAPTURE
+                           )) {
                         // echo htmlspecialchars('Found ' . $search . ' in ' . $rest) . '<br />';
                         // var_dump($matches[1]);
 
@@ -127,7 +129,7 @@ class TeiEnhancer
 
                 $result .= $caller->stripWhitespace($domnode->nodeValue);
 
-                if (in_array($domnode->parentNode->tagName, [ 'div', 'p' ])) {
+                if (in_array($domnode->parentNode->tagName, ['div', 'p'])) {
                     $result .= "\n";
                 }
             });
@@ -188,8 +190,7 @@ class TeiEnhancer
                     $ignore = false;
 
                     if (array_key_exists('ignore', $this->options)
-                        && array_key_exists($entity['wikidataId'], $this->options['ignore']))
-                    {
+                        && array_key_exists($entity['wikidataId'], $this->options['ignore'])) {
                         foreach ($this->options['ignore'][$entity['wikidataId']] as $regexp) {
                             if (preg_match($regexp, $matchedText)) {
                                 $ignore = true;
@@ -225,10 +226,9 @@ class TeiEnhancer
         $fluidXml->namespace('tei', 'http://www.tei-c.org/ns/1.0', \FluidXml\FluidNamespace::MODE_IMPLICIT);
 
         foreach ([
-                '/tei:TEI/tei:teiHeader/tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"]',
-                '/tei:TEI/tei:text/tei:body',
-            ] as $parentElementQuery)
-        {
+            '/tei:TEI/tei:teiHeader/tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"]',
+            '/tei:TEI/tei:text/tei:body',
+        ] as $parentElementQuery) {
             $query = $parentElementQuery . '//*[self::tei:persName or self::tei:orgName or self::tei:placeName]';
 
             $fluidXml->query($query)
@@ -264,7 +264,7 @@ class TeiEnhancer
                     }
 
                     $uris = preg_split('/\s+/', $ref);
-                    for ($i = 0; $i < count($uris); $i++) {
+                    for ($i = 0; $i < count($uris); ++$i) {
                         $uris[$i] = $callback($uris[$i], $type);
                     }
 

@@ -1,26 +1,25 @@
 <?php
+
 // src/Controller/WordToTeiController.php
 
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Upload form for Word to TEI conversion
+ * Upload form for Word to TEI conversion.
  */
-class WordToTeiController
-extends BaseController
+class WordToTeiController extends BaseController
 {
     #[Route(path: '/convert', name: 'convert')]
-    public function uploadAction(Request $request,
-                                 TranslatorInterface $translator,
-                                 \App\Utils\PandocConverter $pandocConverter)
-    {
+    public function uploadAction(
+        Request $request,
+        TranslatorInterface $translator,
+        \App\Utils\PandocConverter $pandocConverter
+    ) {
         if ($request->isMethod('post')) {
             $file = $request->files->get('file');
 
@@ -28,24 +27,21 @@ extends BaseController
                 $request->getSession()
                         ->getFlashBag()
                         ->add('warning', $translator->trans('No upload found, please try again'))
-                    ;
+                ;
             }
             else {
                 $mime = $file->getMimeType();
                 if (!in_array($mime, [
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'application/docx',
-                    ]))
-                {
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'application/docx',
+                ])) {
                     $request->getSession()
                             ->getFlashBag()
                             ->add('danger', $translator->trans("The uploaded file wasn't recognized as a Word-File (.docx)"))
-                        ;
+                    ;
                 }
                 else {
-                    $myTarget = new class()
-                    extends \App\Utils\TeiSimplePrintDocument
-                    {
+                    $myTarget = new class extends \App\Utils\TeiSimplePrintDocument {
                         // inject TeiFromWordCleaner
                         use \App\Utils\TeiFromWordCleaner;
                     };
@@ -66,7 +62,7 @@ extends BaseController
                     ]);
                     $teiDtabfDoc = $converter->convert($teiSimpleDoc);
 
-                    return new Response((string)$teiDtabfDoc, Response::HTTP_OK, [
+                    return new Response((string) $teiDtabfDoc, Response::HTTP_OK, [
                         'Content-Type' => 'text/xml',
                     ]);
                 }

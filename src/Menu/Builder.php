@@ -1,17 +1,15 @@
 <?php
+
 // src/App/Menu/Builder.php
 
 // registered in services.yml to pass $securityContext and $requestStack
 // see http://symfony.com/doc/current/bundles/KnpMenuBundle/index.html
+
 namespace App\Menu;
 
 use Knp\Menu\FactoryInterface;
-
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Builder
@@ -23,17 +21,17 @@ class Builder
     private $showBibliography = false;
 
     /**
-     * @param FactoryInterface $factory
      * @param RequestStack $requestStack
      *
      * Add any other dependency you need
      */
-    public function __construct(FactoryInterface $factory,
-                                AuthorizationCheckerInterface $authorizationChecker,
-                                TranslatorInterface $translator,
-                                RequestStack $requestStack,
-                                array $zoteroOptions)
-    {
+    public function __construct(
+        FactoryInterface $factory,
+        AuthorizationCheckerInterface $authorizationChecker,
+        TranslatorInterface $translator,
+        RequestStack $requestStack,
+        array $zoteroOptions
+    ) {
         $this->factory = $factory;
         $this->authorizationChecker = $authorizationChecker;
         $this->translator = $translator;
@@ -45,10 +43,10 @@ class Builder
     {
         $menu = $this->factory->createItem('root');
         if (array_key_exists('position', $options) && 'footer' == $options['position']) {
-            $menu->setChildrenAttributes([ 'id' => 'menu-top-footer', 'class' => 'small' ]);
+            $menu->setChildrenAttributes(['id' => 'menu-top-footer', 'class' => 'small']);
         }
         else {
-            $menu->setChildrenAttributes([ 'id' => 'menu-top', 'class' => 'list-inline' ]);
+            $menu->setChildrenAttributes(['id' => 'menu-top', 'class' => 'list-inline']);
         }
 
         return $menu;
@@ -78,10 +76,10 @@ class Builder
         ]);
 
         if (array_key_exists('position', $options) && 'footer' == $options['position']) {
-            $menu->setChildrenAttributes([ 'id' => 'menu-main-footer', 'class' => 'nav navbar-nav navbar-expand-sm' ]);
+            $menu->setChildrenAttributes(['id' => 'menu-main-footer', 'class' => 'nav navbar-nav navbar-expand-sm']);
         }
         else {
-            $menu->setChildrenAttributes([ 'id' => 'menu-main', 'class' => 'nav navbar-nav navbar-expand-sm' ]);
+            $menu->setChildrenAttributes(['id' => 'menu-main', 'class' => 'nav navbar-nav navbar-expand-sm']);
         }
 
         $menu->addChild('volume-list', [
@@ -146,7 +144,7 @@ class Builder
 
     public function createBreadcrumbMenu(array $options)
     {
-        $menu = $this->createMainMenu($options + [ 'position' => 'breadcrumb' ]);
+        $menu = $this->createMainMenu($options + ['position' => 'breadcrumb']);
 
         // try to return the active item
         $currentRoute = $this->requestStack->getCurrentRequest()->get('_route');

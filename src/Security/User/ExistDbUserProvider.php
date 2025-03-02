@@ -1,4 +1,5 @@
 <?php
+
 // src/Security/User/ExistDbUserProvider.php
 
 namespace App\Security\User;
@@ -8,8 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 
-class ExistDbUserProvider
-implements UserProviderInterface
+class ExistDbUserProvider implements UserProviderInterface
 {
     var $existDbClientService;
 
@@ -24,7 +24,7 @@ implements UserProviderInterface
     }
 
     /**
-     * Legacy
+     * Legacy.
      */
     public function loadUserByUsername($username, $password = null)
     {
@@ -64,9 +64,7 @@ implements UserProviderInterface
             return new ExistDbUser($username, is_null($password) ? '' : $password, '', $user['groups']);
         }
 
-        throw new UserNotFoundException(
-            sprintf('Username "%s" does not exist.', $username)
-        );
+        throw new UserNotFoundException(sprintf('Username "%s" does not exist.', $username));
     }
 
     public function isPasswordValid($username, $password)
@@ -86,9 +84,7 @@ implements UserProviderInterface
     public function refreshUser(UserInterface $user)
     {
         if (!$user instanceof ExistDbUser) {
-            throw new UnsupportedUserException(
-                sprintf('Instances of "%s" are not supported.', get_class($user))
-            );
+            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', get_class($user)));
         }
 
         return $this->loadUserByIdentifier($user->getUsername(), $user->getPassword());

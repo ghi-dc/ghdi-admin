@@ -3,17 +3,14 @@
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-
 use FS\SolrBundle\Doctrine\Annotation as Solr;
 
 /**
- * Entity to edit elements in teiHeader
+ * Entity to edit elements in teiHeader.
  *
  * Currently very incomplete
- *
  */
-class TeiHeader
-implements \JsonSerializable
+class TeiHeader implements \JsonSerializable
 {
     /**
      * @var string
@@ -24,19 +21,19 @@ implements \JsonSerializable
     protected $id;
 
     /**
-     * @var string The title.
+     * @var string the title
      *
      * @Solr\Field(type="string")
      */
-    #[Solr\Field(type:"string")]
+    #[Solr\Field(type: 'string')]
     protected $title;
 
     /**
-     * @var ArrayCollection<int, Person> The author of this content.
+     * @var ArrayCollection<int, Person> the author of this content
      *
      * @Solr\Field(type="strings", getter="getFullname")
      */
-    #[Solr\Field(type:"strings", getter:"getFullname")]
+    #[Solr\Field(type: 'strings', getter: 'getFullname')]
     protected $authors;
 
     protected $editors = [];
@@ -44,19 +41,19 @@ implements \JsonSerializable
     protected $responsible = [];
 
     /**
-     * @var string The licence text.
+     * @var string the licence text
      *
      * @Solr\Field(type="string")
      */
-    #[Solr\Field(type:"string")]
+    #[Solr\Field(type: 'string')]
     protected $licence;
 
     /**
-     * @var string The licence URL.
+     * @var string the licence URL
      *
      * @Solr\Field(type="string")
      */
-    #[Solr\Field(type:"string")]
+    #[Solr\Field(type: 'string')]
     protected $licenceTarget;
 
     /**
@@ -64,52 +61,52 @@ implements \JsonSerializable
      *
      * @Solr\Field(type="text")
      */
-    #[Solr\Field(type:"text")]
+    #[Solr\Field(type: 'text')]
     protected $note;
 
     /**
-     * @var string The bibliographic citation.
+     * @var string the bibliographic citation
      *
      * @Solr\Field(type="text")
      */
-    #[Solr\Field(type:"text")]
+    #[Solr\Field(type: 'text')]
     protected $sourceDescBibl;
 
     /**
-     * @var string The language code (deu or eng).
+     * @var string the language code (deu or eng)
      *
      * @Solr\Field(type="string")
      */
-    #[Solr\Field(type:"string")]
+    #[Solr\Field(type: 'string')]
     protected $language;
 
     /**
-     * @var string The language code of the original.
+     * @var string the language code of the original
      */
     private $translatedFrom;
 
     /**
-     * @var string The shelfmark.
+     * @var string the shelfmark
      *
      * @Solr\Field(type="string")
      */
-    #[Solr\Field(type:"string")]
+    #[Solr\Field(type: 'string')]
     protected $shelfmark;
 
     /**
-     * @var string The indexing date.
+     * @var string the indexing date
      *
      * @Solr\Field(type="date")
      */
-    #[Solr\Field(type:"date")]
-    protected $dateIndexed = null;
+    #[Solr\Field(type: 'date')]
+    protected $dateIndexed;
 
     /**
-     * @var string The creation date.
+     * @var string the creation date
      *
      * @Solr\Field(type="string")
      */
-    #[Solr\Field(type:"string")]
+    #[Solr\Field(type: 'string')]
     protected $dateCreated;
 
     protected $idno = [];
@@ -118,19 +115,19 @@ implements \JsonSerializable
     /* we duplicate properties from $idno / $classCodes for Solr-annotation */
 
     /**
-     * @var string The slug.
+     * @var string the slug
      *
      * @Solr\Field(type="string")
      */
-    #[Solr\Field(type:"string")]
+    #[Solr\Field(type: 'string')]
     private $slug;
 
     /**
-     * @var string The genre (introduction|document|image).
+     * @var string the genre (introduction|document|image)
      *
      * @Solr\Field(type="string")
      */
-    #[Solr\Field(type:"string")]
+    #[Solr\Field(type: 'string')]
     private $genre;
 
     protected static function normalizeWhitespace($tei)
@@ -181,7 +178,7 @@ implements \JsonSerializable
 
         $entity->setLanguage($article->language);
 
-        foreach ([ 'author', 'editor' ] as $key) {
+        foreach (['author', 'editor'] as $key) {
             if (!empty($article->$key)) {
                 $method = 'add' . ucfirst($key);
 
@@ -289,7 +286,7 @@ implements \JsonSerializable
     }
 
     /**
-     * Adds author
+     * Adds author.
      */
     public function addAuthor($author)
     {
@@ -303,7 +300,7 @@ implements \JsonSerializable
     }
 
     /**
-     * Gets authors
+     * Gets authors.
      */
     public function getAuthors()
     {
@@ -311,7 +308,7 @@ implements \JsonSerializable
     }
 
     /**
-     * Adds editor
+     * Adds editor.
      */
     public function addEditor($editor)
     {
@@ -321,7 +318,7 @@ implements \JsonSerializable
     }
 
     /**
-     * Gets editors
+     * Gets editors.
      */
     public function getEditors()
     {
@@ -353,17 +350,17 @@ implements \JsonSerializable
     }
 
     /**
-     * Adds responsible
+     * Adds responsible.
      */
     public function addResponsible($name, $role, $nameType = 'persName')
     {
-        $this->responsible[] = [ 'role' => $role, $nameType => $name ];
+        $this->responsible[] = ['role' => $role, $nameType => $name];
 
         return $this;
     }
 
     /**
-     * Gets responsible
+     * Gets responsible.
      */
     public function getResponsible()
     {
@@ -550,22 +547,29 @@ implements \JsonSerializable
 
         // centuries to range
         if (preg_match('/^(\d+)th century$/', $dateIndexed, $matches)) {
-            $dateIndexed = sprintf('[%d01 TO %d00]',
-                                   intval($matches[1]) - 1, intval($matches[1]));
+            $dateIndexed = sprintf(
+                '[%d01 TO %d00]',
+                intval($matches[1]) - 1,
+                intval($matches[1])
+            );
         }
 
         // decades like 1950s to range
         if (preg_match('/^(\d+)s$/', $dateIndexed, $matches)) {
-            $dateIndexed = sprintf('[%d TO %d]',
-                                   intval($matches[1]),
-                                   intval($matches[1]) + 9);
+            $dateIndexed = sprintf(
+                '[%d TO %d]',
+                intval($matches[1]),
+                intval($matches[1]) + 9
+            );
         }
 
         // year range like 1754 – 1761 to range [1754 TO 1761]
         if (preg_match('/^(\d{4}) – (\d{4})$/', $dateIndexed, $matches)) {
-            $dateIndexed = sprintf('[%d TO %d]',
-                                   intval($matches[1]),
-                                   intval($matches[2]));
+            $dateIndexed = sprintf(
+                '[%d TO %d]',
+                intval($matches[1]),
+                intval($matches[2])
+            );
         }
 
         $this->dateIndexed = $dateIndexed;
@@ -624,7 +628,7 @@ implements \JsonSerializable
     }
 
     /**
-     * Adds classification code
+     * Adds classification code.
      */
     public function addClassCode($scheme, $code)
     {
@@ -636,7 +640,7 @@ implements \JsonSerializable
     }
 
     /**
-     * Clears classification codes with $scheme
+     * Clears classification codes with $scheme.
      */
     public function clearClassCodes($scheme)
     {
@@ -648,7 +652,7 @@ implements \JsonSerializable
     }
 
     /**
-     * Gets classification codes
+     * Gets classification codes.
      */
     public function getClassCodes($scheme)
     {

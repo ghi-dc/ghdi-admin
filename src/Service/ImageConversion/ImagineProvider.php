@@ -1,4 +1,5 @@
 <?php
+
 // src/Service/ImageConversion/ImagineProvider.php
 
 namespace App\Service\ImageConversion;
@@ -16,11 +17,11 @@ class ImagineProvider
     {
         // set the proper driver
         if (array_key_exists('imagine', $options)) {
-          $this->imagine = $options['imagine'];
+            $this->imagine = $options['imagine'];
         }
         else {
             $driver = array_key_exists('driver', $options)
-                && in_array($options['driver'], [ 'gd', 'gmagick', 'imagick' ])
+                && in_array($options['driver'], ['gd', 'gmagick', 'imagick'])
                 ? $options['driver'] : null;
 
             if (is_null($driver)) {
@@ -82,9 +83,11 @@ class ImagineProvider
             // 640x480^! (fill and then crop gravity center, own syntax)
             // 40x30%^! (fill and then crop gravity center to certain aspect ratio, own syntax)
 
-            if (!preg_match('/^(\d*)x(\d*)([\^\!\<\>\%]*)$/',
-                            $options['geometry'], $matches))
-            {
+            if (!preg_match(
+                '/^(\d*)x(\d*)([\^\!\<\>\%]*)$/',
+                $options['geometry'],
+                $matches
+            )) {
                 throw new \InvalidArgumentException('Invalid geometry ' . $options['geometry']);
             }
 
@@ -105,8 +108,10 @@ class ImagineProvider
             else {
                 if ('' === $matches[3]) {
                     // no modifiers, so just fit into box
-                    $image = $image->thumbnail(new \Imagine\Image\Box(intval($matches[1]), intval($matches[2])),
-                                               \Imagine\Image\ImageInterface::THUMBNAIL_INSET);
+                    $image = $image->thumbnail(
+                        new \Imagine\Image\Box(intval($matches[1]), intval($matches[2])),
+                        \Imagine\Image\ImageInterface::THUMBNAIL_INSET
+                    );
                 }
                 else if ('^' === $matches[3]) {
                     // cover geometry
@@ -121,8 +126,10 @@ class ImagineProvider
                 }
                 else if ('^!' === $matches[3]) {
                     // fill and crop into box
-                    $image = $image->thumbnail(new \Imagine\Image\Box(intval($matches[1]), intval($matches[2])),
-                                               \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND);
+                    $image = $image->thumbnail(
+                        new \Imagine\Image\Box(intval($matches[1]), intval($matches[2])),
+                        \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND
+                    );
                 }
                 else if ('%^!' == $matches[3]) {
                     // crop into box with certain ratio
@@ -138,8 +145,10 @@ class ImagineProvider
                     }
                     // die($ratio . ' ' . $ratio_new . ' ' . $box->__toString());
                     // fill and crop into box
-                    $image = $image->thumbnail($box,
-                                               \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND);
+                    $image = $image->thumbnail(
+                        $box,
+                        \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND
+                    );
                 }
                 else {
                     throw new \InvalidArgumentException('Invalid geometry ' . $options['geometry']);
@@ -169,8 +178,7 @@ class ImagineProvider
 
         if ((isset($save_options['resolution-x'])
              || isset($save_options['resolution-y']))
-             && !isset($save_options['resolution-units']))
-        {
+             && !isset($save_options['resolution-units'])) {
             $save_options['resolution-units'] = \Imagine\Image\ImageInterface::RESOLUTION_PIXELSPERINCH;
         }
 

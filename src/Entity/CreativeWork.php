@@ -2,29 +2,25 @@
 
 namespace App\Entity;
 
-use \FluidXml\FluidXml;
-use \FluidXml\FluidNamespace;
-
+use FluidXml\FluidXml;
+use FluidXml\FluidNamespace;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Bibliographic Item
+ * Bibliographic Item.
  *
  * See also [blog post](http://blog.schema.org/2014/09/schemaorg-support-for-bibliographic_2.html).
  *
  * @see http://schema.org/CreativeWork and derived documents Documentation on Schema.org
- *
  */
-class CreativeWork
-extends SchemaOrg
+class CreativeWork extends SchemaOrg
 {
     protected static function buildCorresp($zoteroData, $zoteroMeta)
     {
         $slugify = new \Cocur\Slugify\Slugify();
 
         if (!empty($zoteroData['extra'])
-            && preg_match('/[a-z\-0-9]+_[0-9][0-9a-z]*/', $zoteroData['extra']))
-        {
+            && preg_match('/[a-z\-0-9]+_[0-9][0-9a-z]*/', $zoteroData['extra'])) {
             // manually set
             return $zoteroData['extra'];
         }
@@ -33,8 +29,7 @@ extends SchemaOrg
             ? $zoteroMeta['creatorSummary'] : 'NN';
 
         if (!empty($zoteroMeta['parsedDate'])
-            && preg_match('/^(\d+)/', $zoteroMeta['parsedDate'], $matches))
-        {
+            && preg_match('/^(\d+)/', $zoteroMeta['parsedDate'], $matches)) {
             $date = $matches[1];
         }
         else {
@@ -58,36 +53,35 @@ extends SchemaOrg
         }
 
         foreach ([
-                'key' => 'id',
-                'version' => 'version',
-                'itemType' => 'itemType',
-                'title' => 'name',
-                'bookTitle' => 'containerName',
-                'encyclopediaTitle' => 'containerName',
-                'publicationTitle' => 'containerName',
-                'creators' => 'creators',
-                'ISSN' => 'issn',
-                'series' => 'series',
-                'seriesNumber' => 'seriesNumber',
-                'volume' => 'volume',
-                'numberOfVolumes' => 'numberOfVolumes',
-                'issue' => 'issue',
-                'edition' => 'bookEdition',
-                'place' => 'publicationLocation',
-                'publisher' => 'publisher',
-                'date' => 'datePublished',
-                'pages' => 'pagination',
-                'numPages' => 'numberOfPages',
-                'language' => 'language',
-                'DOI' => 'doi',
-                'ISBN' => 'isbn',
-                'url' => 'url',
-                'accessDate' => 'dateAccessed',
+            'key' => 'id',
+            'version' => 'version',
+            'itemType' => 'itemType',
+            'title' => 'name',
+            'bookTitle' => 'containerName',
+            'encyclopediaTitle' => 'containerName',
+            'publicationTitle' => 'containerName',
+            'creators' => 'creators',
+            'ISSN' => 'issn',
+            'series' => 'series',
+            'seriesNumber' => 'seriesNumber',
+            'volume' => 'volume',
+            'numberOfVolumes' => 'numberOfVolumes',
+            'issue' => 'issue',
+            'edition' => 'bookEdition',
+            'place' => 'publicationLocation',
+            'publisher' => 'publisher',
+            'date' => 'datePublished',
+            'pages' => 'pagination',
+            'numPages' => 'numberOfPages',
+            'language' => 'language',
+            'DOI' => 'doi',
+            'ISBN' => 'isbn',
+            'url' => 'url',
+            'accessDate' => 'dateAccessed',
 
-                'dateAdded' => 'createdAt',
-                'dateModified' => 'changedAt',
-            ] as $src => $target)
-        {
+            'dateAdded' => 'createdAt',
+            'dateModified' => 'changedAt',
+        ] as $src => $target) {
             $val = array_key_exists($src, $zoteroData) ? $zoteroData[$src] : null;
             if (is_null($val) && 'containerName' == $target) {
                 // skip on null since multiple $src can set this
@@ -134,8 +128,7 @@ extends SchemaOrg
                                 $key = 'title';
 
                                 if ('journalArticle' == $data['itemType']
-                                    && '{}monogr' == $elem['name'])
-                                {
+                                    && '{}monogr' == $elem['name']) {
                                     $key = 'publicationTitle';
                                 }
 
@@ -154,15 +147,14 @@ extends SchemaOrg
                             case '{}editor':
                             case '{}respStatement':
                                 $creator = [
-                                    'creatorType' =>
-                                        array_key_exists('{}resp', $subelem['value'])
+                                    'creatorType' => array_key_exists('{}resp', $subelem['value'])
                                             ? $subelem['value']['{}resp']
                                             : str_replace('{}', '', $subelem['name']),
                                 ];
 
                                 $value = & $subelem['value'];
-                                if ($subelem['name'] == '{}respStatement') {
-                                   $value = & $subelem['value']['{}persName'];
+                                if ('{}respStatement' == $subelem['name']) {
+                                    $value = & $subelem['value']['{}persName'];
                                 }
 
                                 if (array_key_exists('{}forename', $value)) {
@@ -179,8 +171,7 @@ extends SchemaOrg
                                 break;
 
                             case '{}imprint':
-                                foreach ([ '{}pubPlace' => 'place', '{}publisher' => 'publisher', '{}date' => 'date' ]
-                                         as $src => $target) {
+                                foreach (['{}pubPlace' => 'place', '{}publisher' => 'publisher', '{}date' => 'date'] as $src => $target) {
                                     if (array_key_exists($src, $subelem['value'])) {
                                         $data[$target] = $subelem['value'][$src];
                                     }
@@ -192,14 +183,14 @@ extends SchemaOrg
                                 break;
 
                             default:
-                                die('TODO: handle ' . $elem['name'] . '/' . $subelem['name'] . ': ' . $data['key']);
+                                exit('TODO: handle ' . $elem['name'] . '/' . $subelem['name'] . ': ' . $data['key']);
                         }
 
                     }
                     break;
 
                 case '{}series':
-                    foreach ([ '{}title' => 'series', '{}biblScope' => 'seriesNumber' ] as $src => $target) {
+                    foreach (['{}title' => 'series', '{}biblScope' => 'seriesNumber'] as $src => $target) {
                         if (array_key_exists($src, $elem['value'])) {
                             $data[$target] = $elem['value'][$src];
                         }
@@ -207,7 +198,7 @@ extends SchemaOrg
                     break;
 
                 default:
-                    die('TODO: handle ' . $elem['name']);
+                    exit('TODO: handle ' . $elem['name']);
             }
         }
 
@@ -220,36 +211,35 @@ extends SchemaOrg
         }
 
         foreach ([
-                'key' => 'id',
-                'version' => 'version',
-                'itemType' => 'itemType',
-                'title' => 'name',
-                'bookTitle' => 'containerName',
-                'encyclopediaTitle' => 'containerName',
-                'publicationTitle' => 'containerName',
-                'creators' => 'creators',
-                'ISSN' => 'issn',
-                'series' => 'series',
-                'seriesNumber' => 'seriesNumber',
-                'volume' => 'volume',
-                'numberOfVolumes' => 'numberOfVolumes',
-                'issue' => 'issue',
-                'edition' => 'bookEdition',
-                'place' => 'publicationLocation',
-                'publisher' => 'publisher',
-                'date' => 'datePublished',
-                'pages' => 'pagination',
-                'numPages' => 'numberOfPages',
-                'language' => 'language',
-                'DOI' => 'doi',
-                'ISBN' => 'isbn',
-                'url' => 'url',
-                'accessDate' => 'dateAccessed',
+            'key' => 'id',
+            'version' => 'version',
+            'itemType' => 'itemType',
+            'title' => 'name',
+            'bookTitle' => 'containerName',
+            'encyclopediaTitle' => 'containerName',
+            'publicationTitle' => 'containerName',
+            'creators' => 'creators',
+            'ISSN' => 'issn',
+            'series' => 'series',
+            'seriesNumber' => 'seriesNumber',
+            'volume' => 'volume',
+            'numberOfVolumes' => 'numberOfVolumes',
+            'issue' => 'issue',
+            'edition' => 'bookEdition',
+            'place' => 'publicationLocation',
+            'publisher' => 'publisher',
+            'date' => 'datePublished',
+            'pages' => 'pagination',
+            'numPages' => 'numberOfPages',
+            'language' => 'language',
+            'DOI' => 'doi',
+            'ISBN' => 'isbn',
+            'url' => 'url',
+            'accessDate' => 'dateAccessed',
 
-                'dateAdded' => 'createdAt',
-                'dateModified' => 'changedAt',
-            ] as $src => $target)
-        {
+            'dateAdded' => 'createdAt',
+            'dateModified' => 'changedAt',
+        ] as $src => $target) {
             $val = array_key_exists($src, $data) ? $data[$src] : null;
             if (is_null($val) && 'containerName' == $target) {
                 // skip on null since multiple $src can set this
@@ -351,7 +341,7 @@ extends SchemaOrg
     protected $itemType;
 
     /**
-     * @var array The author/contributor/editor of this CreativeWork.
+     * @var array the author/contributor/editor of this CreativeWork
      */
     protected $creators;
 
@@ -396,7 +386,7 @@ extends SchemaOrg
     protected $publisher;
 
     /**
-     * @var string Date of first broadcast/publication.
+     * @var string date of first broadcast/publication
      */
     protected $datePublished;
 
@@ -426,12 +416,12 @@ extends SchemaOrg
     protected $additional;
 
     /**
-     * @var CreativeWork Indicates a Bibitem that this Bibitem is (in some sense) part of.
+     * @var CreativeWork indicates a Bibitem that this Bibitem is (in some sense) part of
      */
     protected $isPartOf;
 
     /**
-     * @var string The title of the book or journal for bookSection / journalArticle.
+     * @var string the title of the book or journal for bookSection / journalArticle
      */
     protected $containerName;
 
@@ -443,7 +433,7 @@ extends SchemaOrg
     protected $language;
 
     /**
-     * @var string URL of the item.
+     * @var string URL of the item
      */
     #[Assert\Url]
     protected $url;
@@ -461,7 +451,6 @@ extends SchemaOrg
 
     /**
      * @var string
-     *
      */
     protected $version;
 
@@ -720,8 +709,6 @@ extends SchemaOrg
     /**
      * Sets pagination.
      *
-     * @param string $pagination
-     *
      * @return $this
      */
     public function setPagination($pagionation = null)
@@ -850,11 +837,9 @@ extends SchemaOrg
     /**
      * Sets isPartOf.
      *
-     * @param CreativeWork $isPartOf
-     *
      * @return $this
      */
-    public function setIsPartOf(CreativeWork $isPartOf = null)
+    public function setIsPartOf(?CreativeWork $isPartOf = null)
     {
         $this->isPartOf = $isPartOf;
 
@@ -1038,13 +1023,16 @@ extends SchemaOrg
 
     public function renderCitationAsHtml($citeProc, $locale, $purgeSeparator = false)
     {
-        $ret = @$citeProc->render([ json_decode(json_encode($this->jsonSerialize($locale))) ]);
+        $ret = @$citeProc->render([json_decode(json_encode($this->jsonSerialize($locale)))]);
 
         /* vertical-align: super doesn't render nicely:
            http://stackoverflow.com/a/1530819/2114681
         */
-        $ret = preg_replace('/style="([^"]*)vertical\-align\:\s*super;([^"]*)"/',
-                            'style="\1vertical-align: top; font-size: 66%;\2"', $ret);
+        $ret = preg_replace(
+            '/style="([^"]*)vertical\-align\:\s*super;([^"]*)"/',
+            'style="\1vertical-align: top; font-size: 66%;\2"',
+            $ret
+        );
 
         if ($purgeSeparator) {
             if (preg_match('/, <span class="citeproc\-in">/', $ret, $matches)) {
@@ -1064,24 +1052,34 @@ extends SchemaOrg
             }
 
             // make links clickable
-            $ret = preg_replace_callback('/(<span class="citeproc\-URL">&lt;)(.*?)(&gt;)/',
+            $ret = preg_replace_callback(
+                '/(<span class="citeproc\-URL">&lt;)(.*?)(&gt;)/',
                 function ($matches) {
                     return $matches[1]
-                        . sprintf('<a href="%s" target="_blank">%s</a>',
-                                  $matches[2], $matches[2])
+                        . sprintf(
+                            '<a href="%s" target="_blank">%s</a>',
+                            $matches[2],
+                            $matches[2]
+                        )
                         . $matches[3];
                 },
-                $ret);
+                $ret
+            );
 
             // make doi: clickable
-            $ret = preg_replace_callback('/(<span class="citeproc\-DOI">&lt;)doi\:(.*?)(&gt;)/',
+            $ret = preg_replace_callback(
+                '/(<span class="citeproc\-DOI">&lt;)doi\:(.*?)(&gt;)/',
                 function ($matches) {
                     return $matches[1]
-                        . sprintf('<a href="https://dx.doi.org/%s" target="_blank">doi:%s</a>',
-                                  $matches[2], $matches[2])
+                        . sprintf(
+                            '<a href="https://dx.doi.org/%s" target="_blank">doi:%s</a>',
+                            $matches[2],
+                            $matches[2]
+                        )
                         . $matches[3];
                 },
-                $ret);
+                $ret
+            );
         }
 
         return $ret;
@@ -1101,7 +1099,7 @@ extends SchemaOrg
         if (!is_null($title) && preg_match('/\s*\:\s+/', $title)) {
             // we don't separate subtitle by ': ' but by '. ';
             $titleParts = preg_split('/\s*\:\s+/', $title, 2);
-            $title = implode('. ', [ $titleParts[0], self::mb_ucfirst($titleParts[1]) ]);
+            $title = implode('. ', [$titleParts[0], self::mb_ucfirst($titleParts[1])]);
         }
 
         return $title;
@@ -1125,9 +1123,9 @@ extends SchemaOrg
             $dateObj = \DateTime::createFromFormat('U', $formatter->parse($dateStr));
             if (false !== $dateObj) {
                 return [
-                    'year' => (int)$dateObj->format('Y'),
-                    'month' =>  (int)$dateObj->format('m'),
-                    'day' => (int)$dateObj->format('d'),
+                    'year' => (int) $dateObj->format('Y'),
+                    'month' =>  (int) $dateObj->format('m'),
+                    'day' => (int) $dateObj->format('d'),
                 ];
             }
         }
@@ -1141,7 +1139,7 @@ extends SchemaOrg
             if (!array_key_exists('en_US', $monthNamesLocalized)) {
                 $months = [];
                 $currentLocale = setlocale(LC_TIME, 'en_US');
-                for ($month = 0; $month < 12; $month++) {
+                for ($month = 0; $month < 12; ++$month) {
                     $months[] =  strftime('%B', mktime(0, 0, 0, $month + 1));
                 }
                 $monthNamesLocalized['en_US'] = $months;
@@ -1151,7 +1149,7 @@ extends SchemaOrg
             if (!array_key_exists($locale, $monthNamesLocalized)) {
                 $months = [];
                 $currentLocale = setlocale(LC_TIME, $locale . '.utf8');
-                for ($month = 0; $month < 12; $month++) {
+                for ($month = 0; $month < 12; ++$month) {
                     $months[] = strftime('%B', mktime(0, 0, 0, $month + 1));
                 }
                 $monthNamesLocalized[$locale] = $months;
@@ -1174,8 +1172,8 @@ extends SchemaOrg
             return $parts;
         }
 
-        if (!filter_var($dateStr, FILTER_VALIDATE_INT) === false) {
-            $parts[] = (int)$dateStr;
+        if (false === !filter_var($dateStr, FILTER_VALIDATE_INT)) {
+            $parts[] = (int) $dateStr;
 
             return $parts;
         }
@@ -1188,7 +1186,7 @@ extends SchemaOrg
             return $parts;
         }
 
-        foreach ([ 'year', 'month', 'day' ] as $key) {
+        foreach (['year', 'month', 'day'] as $key) {
             if (empty($date[$key])) {
                 return $parts;
             }
@@ -1231,13 +1229,13 @@ extends SchemaOrg
             'collection-number' => $this->seriesNumber,
             'volume' => $this->volume,
             'number-of-volumes' => $this->numberOfVolumes,
-            'edition' => !is_null($this->bookEdition) && $this->bookEdition != 1
+            'edition' => !is_null($this->bookEdition) && 1 != $this->bookEdition
                 ? $this->bookEdition : null,
             'publisher-place' => self::adjustPublisherPlace($this->publicationLocation, $locale),
             'publisher' => $this->publisher,
             'issued' => [
-                "date-parts" => [ $this->buildDateParts($this->datePublished) ],
-                "literal" => $this->datePublished,
+                'date-parts' => [$this->buildDateParts($this->datePublished)],
+                'literal' => $this->datePublished,
             ],
             'page' => $this->pagination,
             'number-of-pages' => $this->numberOfPages,
@@ -1246,8 +1244,8 @@ extends SchemaOrg
             'ISSN' => $this->getIssn(),
             'URL' => $this->url,
             'accessed' => [
-                "date-parts" => [ $this->buildDateParts($this->dateAccessed) ],
-                "literal" => $this->dateAccessed,
+                'date-parts' => [$this->buildDateParts($this->dateAccessed)],
+                'literal' => $this->dateAccessed,
             ],
             'language' => $this->language,
         ];
@@ -1265,9 +1263,7 @@ extends SchemaOrg
                     $targetEntry['family'] = $creator['name'];
                 }
                 else {
-                    foreach ([ 'firstName' => 'given', 'lastName' => 'family']
-                             as $src => $dst)
-                    {
+                    foreach (['firstName' => 'given', 'lastName' => 'family'] as $src => $dst) {
                         if (array_key_exists($src, $creator)) {
                             $targetEntry[$dst] = $creator[$src];
                         }
@@ -1324,7 +1320,7 @@ extends SchemaOrg
                 $type = 'CreativeWork';
                 break;
 
-            // just for building isPartOf
+                // just for building isPartOf
             case 'issue':
                 $type = 'PublicationIssue';
                 break;
@@ -1338,7 +1334,7 @@ extends SchemaOrg
             '@type' => $type,
         ];
 
-        if ($type == 'PublicationIssue') {
+        if ('PublicationIssue' == $type) {
             // issues on't have a name, but might have an issue-number
             if (!empty($this->volume)) {
                 $ret['issueNumber'] = $this->volume;
@@ -1359,13 +1355,12 @@ extends SchemaOrg
         if (!empty($this->creators)) {
             $target = [];
             foreach ($this->creators as $creator) {
-                if (array_key_exists('creatorType', $creator) && in_array($creator['creatorType'], [ 'author', 'editor', 'translator' ])) {
+                if (array_key_exists('creatorType', $creator) && in_array($creator['creatorType'], ['author', 'editor', 'translator'])) {
                     if ('author' == $creator['creatorType']
-                        && in_array($type, [ 'PublicationIssue', 'Periodical' ]))
-                    {
+                        && in_array($type, ['PublicationIssue', 'Periodical'])) {
                         continue;
                     }
-                    else if ('editor' == $creator['creatorType'] && in_array($type, [ 'Chapter' ])) {
+                    else if ('editor' == $creator['creatorType'] && in_array($type, ['Chapter'])) {
                         continue;
                     }
 
@@ -1400,8 +1395,8 @@ extends SchemaOrg
             }
         }
 
-        if (in_array($type, [ 'Book', 'ScholarlyArticle', 'WebPage' ])) {
-            foreach ([ 'url' ] as $property) {
+        if (in_array($type, ['Book', 'ScholarlyArticle', 'WebPage'])) {
+            foreach (['url'] as $property) {
                 if (!empty($this->$property)) {
                     $ret[$property] = $this->$property;
                 }
@@ -1412,7 +1407,7 @@ extends SchemaOrg
             }
         }
 
-        if (in_array($type, [ 'Book' ])) {
+        if (in_array($type, ['Book'])) {
             $isbns = $this->getIsbnListNormalized(false);
             $numIsbns = count($isbns);
 
@@ -1424,11 +1419,11 @@ extends SchemaOrg
             }
 
             if (!empty($this->numberOfPages) && preg_match('/^\d+$/', $this->numberOfPages)) {
-                $ret['numberOfPages'] = (int)$this->numberOfPages;
+                $ret['numberOfPages'] = (int) $this->numberOfPages;
             }
         }
-        else if (in_array($type, [ 'ScholarlyArticle', 'Chapter' ])) {
-            foreach ([ 'pagination' ] as $property) {
+        else if (in_array($type, ['ScholarlyArticle', 'Chapter'])) {
+            foreach (['pagination'] as $property) {
                 if (!empty($this->$property)) {
                     $ret[$property] = $this->$property;
                 }
@@ -1453,7 +1448,7 @@ extends SchemaOrg
                     if ('Chapter' == $type && !empty($this->creators)) {
                         $creatorsParent = [];
                         foreach ($this->creators as $creator) {
-                            if (!in_array($creator['creatorType'], [ 'author', 'translator'])) {
+                            if (!in_array($creator['creatorType'], ['author', 'translator'])) {
                                 $creatorsParent[] = $creator;
                             }
                         }
@@ -1464,8 +1459,8 @@ extends SchemaOrg
             }
         }
 
-        if (in_array($type, [ 'Periodical', 'Book' ])) {
-            foreach ([ 'issn' ] as $property) {
+        if (in_array($type, ['Periodical', 'Book'])) {
+            foreach (['issn'] as $property) {
                 if (!empty($this->$property)) {
                     $ret[$property] = $this->$property;
                 }
@@ -1484,8 +1479,7 @@ extends SchemaOrg
         }
 
         if (!is_null($this->datePublished)
-            && !in_array($type, [ 'ScholarlyArticle', 'Chapter', 'Periodical' ]))
-        {
+            && !in_array($type, ['ScholarlyArticle', 'Chapter', 'Periodical'])) {
             $ret['datePublished'] = \App\Utils\JsonLd::formatDate8601($this->datePublished);
         }
 
@@ -1575,9 +1569,9 @@ extends SchemaOrg
                 break;
 
             case 'journalArticle':
-            case 'bookSection';
+            case 'bookSection':
                 $analytic = $root->addChild('analytic', true);
-                $analytic->addChild('title', self::xmlSpecialchars($this->getName()), [ 'level' => 'a' ]);
+                $analytic->addChild('title', self::xmlSpecialchars($this->getName()), ['level' => 'a']);
 
                 $titleMonogr = $this->getContainerName();
                 $levelMonogr = 'journalArticle' == $this->itemType ? 'j' : 'm';
@@ -1585,23 +1579,23 @@ extends SchemaOrg
                 break;
 
             default:
-                die('Not handling ' . $this->itemType . ' yet');
+                exit('Not handling ' . $this->itemType . ' yet');
         }
 
         $monogr = $root->addChild('monogr', true);
-        $monogr->addChild('title', self::xmlSpecialchars($titleMonogr), [ 'level' => $levelMonogr ]);
+        $monogr->addChild('title', self::xmlSpecialchars($titleMonogr), ['level' => $levelMonogr]);
 
         $issn = $this->getIssn();
         if (!empty($issn)) {
-            $monogr->addChild('idno', self::xmlSpecialchars($issn), [ 'type' => 'ISSN' ]);
+            $monogr->addChild('idno', self::xmlSpecialchars($issn), ['type' => 'ISSN']);
         }
 
         if (!empty($this->isbn)) {
-            $monogr->addChild('idno', self::xmlSpecialchars($this->isbn), [ 'type' => 'ISBN' ]);
+            $monogr->addChild('idno', self::xmlSpecialchars($this->isbn), ['type' => 'ISBN']);
         }
 
         foreach ($this->creators as $creator) {
-            if (!in_array($creator['creatorType'], [ 'author', 'editor' ])) {
+            if (!in_array($creator['creatorType'], ['author', 'editor'])) {
                 $respStatement = !is_null($analytic)
                     ? $analytic->addChild('respStatement', true)
                     : $monogr->addChild('respStatement', true);
@@ -1614,7 +1608,7 @@ extends SchemaOrg
                     : $monogr->addChild($creator['creatorType'], true);
             }
 
-            foreach ([ 'firstName' => 'forename', 'lastName' => 'surname', 'name' => 'name' ] as $src => $target) {
+            foreach (['firstName' => 'forename', 'lastName' => 'surname', 'name' => 'name'] as $src => $target) {
                 if (!empty($creator[$src])) {
                     $tag = $target;
                     if ('surname' == $tag && empty($creator['firstName'])) {
@@ -1633,16 +1627,15 @@ extends SchemaOrg
 
         $imprint = null;
         foreach ([
-                'volume' => [ 'biblScope' => [ 'unit' => 'volume' ] ],
-                'issue' => [ 'biblScope' => [ 'unit' => 'issue' ] ],
-                'pagination' => [ 'biblScope' => [ 'unit' => 'page' ] ],
-                'publicationLocation' => 'pubPlace',
-                'publisher' => 'publisher',
-                'datePublished' => 'date',
-                'dateAccessed' => [ 'note' => [ 'type' => 'accessed' ] ],
-                'url' => [ 'note' => [ 'type' => 'url' ] ],
-            ] as $src => $target)
-        {
+            'volume' => ['biblScope' => ['unit' => 'volume']],
+            'issue' => ['biblScope' => ['unit' => 'issue']],
+            'pagination' => ['biblScope' => ['unit' => 'page']],
+            'publicationLocation' => 'pubPlace',
+            'publisher' => 'publisher',
+            'datePublished' => 'date',
+            'dateAccessed' => ['note' => ['type' => 'accessed']],
+            'url' => ['note' => ['type' => 'url']],
+        ] as $src => $target) {
             if (!empty($this->$src)) {
                 if (is_null($imprint)) {
                     $imprint = $monogr->addChild('imprint', true);
@@ -1660,16 +1653,16 @@ extends SchemaOrg
             }
         }
 
-        if (in_array($this->itemType, [ 'book', 'bookSection' ])) {
+        if (in_array($this->itemType, ['book', 'bookSection'])) {
             if (!empty($this->series)) {
                 $series = $root->addChild('series', true);
-                $series->addChild('title', self::xmlSpecialchars($this->series), [ 'level' => 's' ]);
+                $series->addChild('title', self::xmlSpecialchars($this->series), ['level' => 's']);
                 if (!empty($this->seriesNumber)) {
-                    $series->addChild('biblScope', self::xmlSpecialchars($this->seriesNumber), [ 'unit' => 'volume' ]);
+                    $series->addChild('biblScope', self::xmlSpecialchars($this->seriesNumber), ['unit' => 'volume']);
                 }
             }
         }
 
-        return (string)$biblStruct;
+        return (string) $biblStruct;
     }
 }

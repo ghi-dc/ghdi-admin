@@ -2,9 +2,6 @@
 
 namespace App\Utils;
 
-/*
- *
- */
 class PandocProcessor
 {
     protected $path = '';
@@ -39,7 +36,7 @@ class PandocProcessor
 
         // reading from stdin messes up encoding, so write into tmp
         $tempFileOut = tempnam(sys_get_temp_dir(), 'TMP_');
-        $this->exec([ '-f html', '-t tei', '-o ' . $tempFileOut, $tempFileIn ]);
+        $this->exec(['-f html', '-t tei', '-o ' . $tempFileOut, $tempFileIn]);
         @unlink($tempFileIn);
         $ret = trim(file_get_contents($tempFileOut)); // remove trailing newline
         @unlink($tempFileOut);
@@ -51,14 +48,14 @@ class PandocProcessor
     {
         $format = 'docx';
         $ext = pathinfo($fileIn, PATHINFO_EXTENSION);
-        if (in_array($ext, [ 'odt' ])) {
+        if (in_array($ext, ['odt'])) {
             $format = $ext;
         }
 
         // reading from stdin messes up encoding, so write into tmp
         $tempFileOut = tempnam(sys_get_temp_dir(), 'TMP_');
 
-        $options = [ '-f ' . $format, '-t tei', '-o ' . $tempFileOut ];
+        $options = ['-f ' . $format, '-t tei', '-o ' . $tempFileOut];
 
         if ($standalone) {
             $options[] = '-s';

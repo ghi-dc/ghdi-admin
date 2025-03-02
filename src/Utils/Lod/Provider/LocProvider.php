@@ -10,9 +10,7 @@ use App\Utils\Lod\Identifier\LocLdsSubjectsIdentifier;
 use App\Utils\Lod\Identifier\ViafIdentifier;
 use App\Utils\Lod\Identifier\WikidataIdentifier;
 
-class LocProvider
-extends AbstractProvider
-implements TermProvider
+class LocProvider extends AbstractProvider implements TermProvider
 {
     protected $name = 'loc';
 
@@ -52,7 +50,7 @@ implements TermProvider
 
         $resource = $graph->resource($uri);
 
-        $types = array_map(function ($val) { return (string)$val; }, $resource->all('rdf:type'));
+        $types = array_map(function ($val) { return (string) $val; }, $resource->all('rdf:type'));
 
         if (in_array('http://www.loc.gov/mads/rdf/v1#PersonalName', $types)) {
             return $this->instantiatePersonFromResource($resource);
@@ -93,7 +91,7 @@ implements TermProvider
         $identifier = new LocLdsNamesIdentifier($resource->getUri());
         $entity->setIdentifier($identifier->getName(), $identifier->getValue());
 
-        $label = (string)$resource->get('madsrdf:authoritativeLabel');
+        $label = (string) $resource->get('madsrdf:authoritativeLabel');
         $parts = preg_split('/,\s+/', $label);
 
         if (count($parts) > 0) {
@@ -117,14 +115,14 @@ implements TermProvider
         $this->processSameAs($entity, $resource);
         $this->processSameAs($entity, $resource, 'madsrdf:hasCloseExternalAuthority');
 
-        /**
+        /*
          * TODO: get more info from related Real World Object
          *
-        $uriRwo = $resource->getResource('madsrdf:identifiesRWO');
-        if (!is_null($uriRwo)) {
-            die('TODO: get additional information from ' . (string)$uriRwo);
-        }
-        */
+         * $uriRwo = $resource->getResource('madsrdf:identifiesRWO');
+         * if (!is_null($uriRwo)) {
+         * die('TODO: get additional information from ' . (string)$uriRwo);
+         * }
+         */
 
         return $entity;
     }
@@ -142,14 +140,14 @@ implements TermProvider
         $this->processSameAs($entity, $resource);
         $this->processSameAs($entity, $resource, 'madsrdf:hasCloseExternalAuthority');
 
-        /**
+        /*
          * TODO: get more info from related Real World Object
          *
-        $uriRwo = $resource->getResource('madsrdf:identifiesRWO');
-        if (!is_null($uriRwo)) {
-            die('TODO: get additional information from ' . (string)$uriRwo);
-        }
-        */
+         * $uriRwo = $resource->getResource('madsrdf:identifiesRWO');
+         * if (!is_null($uriRwo)) {
+         * die('TODO: get additional information from ' . (string)$uriRwo);
+         * }
+         */
 
         return $entity;
     }

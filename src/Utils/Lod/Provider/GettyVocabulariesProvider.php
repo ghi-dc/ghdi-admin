@@ -5,9 +5,7 @@ namespace App\Utils\Lod\Provider;
 use App\Utils\Lod\Identifier\Identifier;
 use App\Utils\Lod\Identifier\TgnIdentifier;
 
-class GettyVocabulariesProvider
-extends AbstractProvider
-implements PlaceProvider
+class GettyVocabulariesProvider extends AbstractProvider implements PlaceProvider
 {
     const ENDPOINT = 'http://vocab.getty.edu/sparql.json';
 
@@ -32,64 +30,64 @@ implements PlaceProvider
         // TODO: get sameAs
 
         $query = <<<EOT
-SELECT ?Subject ?name ?nameEn ?nameDe ?type ?isoalpha3 ?parent ?parentString ?ancestor ?ancestorIsoalpha3 ?latitude ?longitude
-{
-    BIND({$uri} as ?Subject)
+            SELECT ?Subject ?name ?nameEn ?nameDe ?type ?isoalpha3 ?parent ?parentString ?ancestor ?ancestorIsoalpha3 ?latitude ?longitude
+            {
+                BIND({$uri} as ?Subject)
 
-    ?Subject a gvp:Subject;
+                ?Subject a gvp:Subject;
 
-    gvp:prefLabelGVP/xl:literalForm ?name;
+                gvp:prefLabelGVP/xl:literalForm ?name;
 
-    gvp:placeTypePreferred/gvp:prefLabelGVP/xl:literalForm ?type;
+                gvp:placeTypePreferred/gvp:prefLabelGVP/xl:literalForm ?type;
 
-    gvp:parentString ?parentString.
+                gvp:parentString ?parentString.
 
-    OPTIONAL {
-        ?Subject
-            xl:prefLabel [
-                xl:literalForm ?nameEn;
-                dct:language gvp_lang:en
-            ]
-    }
+                OPTIONAL {
+                    ?Subject
+                        xl:prefLabel [
+                            xl:literalForm ?nameEn;
+                            dct:language gvp_lang:en
+                        ]
+                }
 
-    OPTIONAL {
-        ?Subject
-            xl:prefLabel [
-                xl:literalForm ?nameDe;
-                dct:language gvp_lang:de
-            ]
-    }
+                OPTIONAL {
+                    ?Subject
+                        xl:prefLabel [
+                            xl:literalForm ?nameDe;
+                            dct:language gvp_lang:de
+                        ]
+                }
 
-    OPTIONAL {
-        ?Subject
-            foaf:focus [
-                wgs:lat ?latitude;
-                wgs:long ?longitude
-            ]
-    }.
+                OPTIONAL {
+                    ?Subject
+                        foaf:focus [
+                            wgs:lat ?latitude;
+                            wgs:long ?longitude
+                        ]
+                }.
 
-    OPTIONAL {
-        ?Subject xl:altLabel ?altLabel.
-        ?altLabel gvp:termKind <http://vocab.getty.edu/term/kind/ISOalpha3>;
-            gvp:term ?isoalpha3.
-    }.
+                OPTIONAL {
+                    ?Subject xl:altLabel ?altLabel.
+                    ?altLabel gvp:termKind <http://vocab.getty.edu/term/kind/ISOalpha3>;
+                        gvp:term ?isoalpha3.
+                }.
 
-    OPTIONAL {
-        ?Subject
-            gvp:broaderPreferred ?parent.
-    }.
+                OPTIONAL {
+                    ?Subject
+                        gvp:broaderPreferred ?parent.
+                }.
 
-    OPTIONAL {
-        ?Subject gvp:broaderPreferred+ ?ancestor.
+                OPTIONAL {
+                    ?Subject gvp:broaderPreferred+ ?ancestor.
 
-        ?ancestor xl:altLabel ?altLabel.
+                    ?ancestor xl:altLabel ?altLabel.
 
-        ?altLabel gvp:termKind <http://vocab.getty.edu/term/kind/ISOalpha3>;
-            gvp:term ?ancestorIsoalpha3.
-    }
-}
+                    ?altLabel gvp:termKind <http://vocab.getty.edu/term/kind/ISOalpha3>;
+                        gvp:term ?ancestorIsoalpha3.
+                }
+            }
 
-EOT;
+            EOT;
 
         $entity = null;
 
@@ -110,8 +108,7 @@ EOT;
                     // 'parentString' => 'parentString',
                     'latitude' => 'latitude',
                     'longitude' => 'longitude',
-                ] as $src => $target)
-                {
+                ] as $src => $target) {
                     if (property_exists($row, $src)) {
                         $property = $row->$src;
                         $method = 'set' . ucfirst($target);
@@ -119,18 +116,18 @@ EOT;
                         switch ($target) {
                             case 'longitude':
                             case 'latitude':
-                                $geoCoordinates->$method((string)$property);
+                                $geoCoordinates->$method((string) $property);
                                 $geoCoordinatesSet = true;
                                 break;
 
                             default:
-                                $entity->$method((string)$property);
+                                $entity->$method((string) $property);
                         }
                     }
                 }
 
                 if (property_exists($row, 'parent')) {
-                    $parentIdentifier = new TgnIdentifier((string)($row->parent));
+                    $parentIdentifier = new TgnIdentifier((string) $row->parent);
 
                     $parent = new \App\Entity\Place();
                     $parent->setTgn($parentIdentifier->getValue());
@@ -141,11 +138,11 @@ EOT;
                 $code = null;
                 $isoAlpha2 = null;
                 if (property_exists($row, 'isoalpha3')) {
-                    $code = (string)($row->isoalpha3);
+                    $code = (string) $row->isoalpha3;
                 }
 
                 if (empty($code) && property_exists($row, 'ancestorIsoalpha3')) {
-                    $code = (string)($row->ancestorIsoalpha3);
+                    $code = (string) $row->ancestorIsoalpha3;
                 }
 
                 if (!empty($code)) {
@@ -157,7 +154,7 @@ EOT;
                         }
                     }
                     catch (\Exception $e) {
-                        ; // ignore
+                        // ignore
                     }
                 }
 

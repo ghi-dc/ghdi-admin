@@ -1,4 +1,5 @@
 <?php
+
 // src/Controller/DtsApiController.php
 
 namespace App\Controller;
@@ -7,17 +8,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Start implementing DTS API https://w3id.org/dts
+ * Start implementing DTS API https://w3id.org/dts.
  *
  * Currently leaving out navigation and collections
  * only for drilling down (no parent-collection queries)
  */
-class DtsApiController
-extends ResourceController
+class DtsApiController extends ResourceController
 {
     protected $defaultContext = [
         '@vocab' => 'http://www.w3.org/ns/hydra/core#', // @vocab: make hydra: default prefix
@@ -76,7 +75,7 @@ extends ResourceController
         $locale = $request->getLocale();
 
         if ($id == $this->siteKey) {
-            $title = /** @Ignore */$translator->trans($this->getParameter('app.site.name'), [], 'additional');
+            $title = /* @Ignore */$translator->trans($this->getParameter('app.site.name'), [], 'additional');
             $response = [
                 '@context' => $this->defaultContext + [
                     'dc' => 'http://purl.org/dc/terms/',
@@ -92,7 +91,7 @@ extends ResourceController
                     'dc:title' => [
                         [
                             '@language' => $locale,
-                            '@value' => $title
+                            '@value' => $title,
                         ],
                     ],
                 ],
@@ -119,7 +118,7 @@ extends ResourceController
                 $response['dts:total'] = $response['dts:totalChildren'] = count($result['data']);
                 foreach ($result['data'] as $resource) {
                     $response['member'][] = [
-                        '@id' => join(':', [ $this->siteKey, $resource['id'] ]),
+                        '@id' => join(':', [$this->siteKey, $resource['id']]),
                         'title' => $resource['name'],
                         '@type' => 'Collection',
                         // TODO: description
@@ -179,7 +178,7 @@ extends ResourceController
                 }
                 else {
                     $volumeParts = explode(':', $path[1], 2);
-                    $volumeId = join(':', [ $path[0], $volumeParts[1] ]);
+                    $volumeId = join(':', [$path[0], $volumeParts[1]]);
                 }
 
                 $resources = $this->buildResources($client, $volumeId, $lang);
@@ -194,7 +193,7 @@ extends ResourceController
                             }
                         }
 
-                        for ($i = 0; $i < count($path); $i++) {
+                        for ($i = 0; $i < count($path); ++$i) {
                             if ($path[$i] != $parts[$i]) {
                                 // not the same parent
                                 continue 2;
@@ -202,7 +201,7 @@ extends ResourceController
                         }
 
                         $response['member'][] = [
-                            '@id' => join(':', [ $this->siteKey, $resource['id'] ]),
+                            '@id' => join(':', [$this->siteKey, $resource['id']]),
                             'title' => $resource['name'],
                             '@type' => preg_match('/\-collection$/', $resource['genre'])
                                 ? 'Collection' : 'Resource',
@@ -228,12 +227,12 @@ extends ResourceController
     protected function xmlErrorResponse()
     {
         $xml = <<<EOT
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<error statusCode="400" xmlns="https://w3id.org/dts/api">
-  <title>Invalid request parameters</title>
-  <description>The query parameters were not correct.</description>
-</error>
-EOT;
+            <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+            <error statusCode="400" xmlns="https://w3id.org/dts/api">
+              <title>Invalid request parameters</title>
+              <description>The query parameters were not correct.</description>
+            </error>
+            EOT;
 
         $response = new Response($xml);
         $response->headers->set('Content-Type', 'xml');
@@ -278,11 +277,11 @@ EOT;
             }
 
             $resourcePath = $client->getCollection() . '/' . $volumeId . '/' . $resource['id'];
-            $tei = $client->getDocument(join('.', [ $resourcePath , $lang, 'xml' ]), [
+            $tei = $client->getDocument(join('.', [$resourcePath, $lang, 'xml']), [
                 'omit-xml-declaration' => 'no',
             ]);
 
-            $response = new Response((string)$this->prettyPrintTei($tei));
+            $response = new Response((string) $this->prettyPrintTei($tei));
             $response->headers->set('Content-Type', 'xml');
 
             return $response;

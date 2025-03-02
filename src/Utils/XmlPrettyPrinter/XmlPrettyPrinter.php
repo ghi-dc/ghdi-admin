@@ -5,7 +5,7 @@ namespace App\Utils\XmlPrettyPrinter;
 class XmlPrettyPrinter
 {
     var $config = [];
-    var $adapter = null;
+    var $adapter;
 
     public function __construct($config = null)
     {

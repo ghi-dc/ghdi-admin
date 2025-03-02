@@ -1,17 +1,17 @@
 <?php
+
 // src/Service/ImageConversion/ImageConversion.php
 
 namespace App\Service\ImageConversion;
 
 /**
- * Call command-line rsvg-convert
+ * Call command-line rsvg-convert.
  *
  * You can install it through
  *  sudo apt-get install librsvg2-bin
  *
  * On Windows, you can download from
  *  https://github.com/miyako/console-rsvg-convert/releases/tag/2.1.3
- *
  */
 class RsvgConvertProvider
 {
@@ -55,9 +55,11 @@ class RsvgConvertProvider
             // 640x (set first dimension)
             // x480 (set second dimension)
 
-            if (!preg_match('/^(\d*)x(\d*)([\^\!\<\>\%]*)$/',
-                            $options['geometry'], $matches))
-            {
+            if (!preg_match(
+                '/^(\d*)x(\d*)([\^\!\<\>\%]*)$/',
+                $options['geometry'],
+                $matches
+            )) {
                 throw new \InvalidArgumentException('Invalid geometry ' . $options['geometry']);
             }
 

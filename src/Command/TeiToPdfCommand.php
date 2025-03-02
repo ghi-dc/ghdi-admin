@@ -1,4 +1,5 @@
 <?php
+
 // src/Command/TeiToPdfCommand.php
 
 namespace App\Command;
@@ -6,16 +7,12 @@ namespace App\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 /**
- * Standalone conversion of TEI to PDF
+ * Standalone conversion of TEI to PDF.
  */
-class TeiToPdfCommand
-extends Command
+class TeiToPdfCommand extends Command
 {
     protected $pdfConverter;
     /**
@@ -42,15 +39,17 @@ extends Command
                 'What file do you want to convert'
             )
             ->setDescription('Convert TEI-File to PDF')
-            ;
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $file = $input->getArgument('file');;
+        $file = $input->getArgument('file');
         if (!file_exists($file)) {
-            $output->writeln(sprintf('<error>File does not exist (%s)</error>',
-                                     $file));
+            $output->writeln(sprintf(
+                '<error>File does not exist (%s)</error>',
+                $file
+            ));
 
             return -1;
         }
@@ -66,7 +65,7 @@ extends Command
 
         $pdfDoc = $this->pdfConverter->convert($htmlDoc);
 
-        echo (string)$pdfDoc;
+        echo (string) $pdfDoc;
 
         return 0;
     }

@@ -2,10 +2,9 @@
 
 namespace App\Utils\Lod\Identifier;
 
-class UriIdentifier
-extends AbstractIdentifier
+class UriIdentifier extends AbstractIdentifier
 {
-    protected $baseUri = null;
+    protected $baseUri;
     protected $baseUriVariants = []; // GNDs come both with http and https
 
     public function toUri()
@@ -22,7 +21,7 @@ extends AbstractIdentifier
         $baseUris = array_merge($baseUris, $this->baseUriVariants);
 
         foreach ($baseUris as $baseUri) {
-            if (strpos($uri, $baseUri) === 0) {
+            if (0 === strpos($uri, $baseUri)) {
                 $value = substr($uri, strlen($baseUri));
 
                 return $this->setValue($value);

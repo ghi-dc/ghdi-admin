@@ -1,23 +1,19 @@
 <?php
+
 // src/Command/ExistDbIndexCommand.php
 
 namespace App\Command;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 /**
  * Implement
  *  existdb:import
- * for adding fitting collection.xconf and generating corresponding indexes
+ * for adding fitting collection.xconf and generating corresponding indexes.
  */
-class ExistDbIndexCommand
-extends ExistDbCommand
+class ExistDbIndexCommand extends ExistDbCommand
 {
     protected function configure()
     {
@@ -29,7 +25,7 @@ extends ExistDbCommand
                 'What collection (volumes|persons|organization|places|terms) do you want to index'
             )
             ->setDescription('Import collection.xconf and re-index')
-            ;
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -37,8 +33,10 @@ extends ExistDbCommand
         $existDbClient = $this->getExistDbClient();
         $existDbBase = $existDbClient->getCollection();
         if (!$existDbClient->existsAndCanOpenCollection()) {
-            $output->writeln(sprintf('<error>Base-Collection does not exist or cannot be opened (%s)</error>',
-                                     $existDbBase));
+            $output->writeln(sprintf(
+                '<error>Base-Collection does not exist or cannot be opened (%s)</error>',
+                $existDbBase
+            ));
 
             return -3;
         }
@@ -60,14 +58,20 @@ extends ExistDbCommand
                 break;
 
             default:
-                $output->writeln(sprintf('<error>Invalid collection (%s)</error>',
-                                         $collection));
+                $output->writeln(sprintf(
+                    '<error>Invalid collection (%s)</error>',
+                    $collection
+                ));
+
                 return -1;
         }
 
         if (!file_exists($filenameFull)) {
-            $output->writeln(sprintf('<error>File does not exist (%s)</error>',
-                                     $filenameFull));
+            $output->writeln(sprintf(
+                '<error>File does not exist (%s)</error>',
+                $filenameFull
+            ));
+
             return -3;
         }
 
@@ -76,8 +80,10 @@ extends ExistDbCommand
 
         $overwrite = false; // TODO: get from options
         if ($existDbClient->hasDocument($configFull) && !$overwrite) {
-            $output->writeln(sprintf('<info>Config already exists (%s)</info>',
-                                     $configFull));
+            $output->writeln(sprintf(
+                '<info>Config already exists (%s)</info>',
+                $configFull
+            ));
 
             return 0;
         }
@@ -86,30 +92,44 @@ extends ExistDbCommand
         if (!$existDbClient->existsAndCanOpenCollection($configCollection)) {
             $res = $existDbClient->createCollection($configCollection);
             if (!$existDbClient->existsAndCanOpenCollection($configCollection)) {
-                $output->writeln(sprintf('<error>System Collection could not be created or cannot be opened (%s)</error>',
-                                         $configCollection));
+                $output->writeln(sprintf(
+                    '<error>System Collection could not be created or cannot be opened (%s)</error>',
+                    $configCollection
+                ));
+
                 return -3;
             }
         }
 
         $res = $existDbClient->storeDocument(file_get_contents($filenameFull), $configFull, $overwrite);
         if (!$res) {
-            $output->writeln(sprintf('<error>Error adding %s</error>',
-                                     $configFull));
+            $output->writeln(sprintf(
+                '<error>Error adding %s</error>',
+                $configFull
+            ));
+
             return -4;
         }
 
-        $output->writeln(sprintf('<info>Config added (%s)</info>',
-                                 $configFull));
+        $output->writeln(sprintf(
+            '<info>Config added (%s)</info>',
+            $configFull
+        ));
 
         if (!$existDbClient->reindexCollection($subCollection)) {
-            $output->writeln(sprintf('<error>Error re-indexing %s</error>',
-                                     $subCollection));
+            $output->writeln(sprintf(
+                '<error>Error re-indexing %s</error>',
+                $subCollection
+            ));
+
             return -5;
         }
 
-        $output->writeln(sprintf('<info>Re-indexed %s</info>',
-                                 $subCollection));
+        $output->writeln(sprintf(
+            '<info>Re-indexed %s</info>',
+            $subCollection
+        ));
+
         return 0;
     }
 }

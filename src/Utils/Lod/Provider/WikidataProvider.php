@@ -10,8 +10,7 @@ use App\Utils\Lod\Identifier\LocLdsSubjectsIdentifier;
 use App\Utils\Lod\Identifier\ViafIdentifier;
 use App\Utils\Lod\Identifier\WikidataIdentifier;
 
-class WikidataProvider
-extends AbstractProvider
+class WikidataProvider extends AbstractProvider
 {
     static $WIKIDATA_IDENTIFIERS = [
         'P227' => 'gnd',
@@ -54,14 +53,17 @@ extends AbstractProvider
 
     protected function lookupQidByProperty($pid, $value, $sparqlClient = null)
     {
-        $query = sprintf("SELECT ?wd WHERE { ?wd wdt:%s '%s'. }",
-                         $pid, addslashes($value));
+        $query = sprintf(
+            "SELECT ?wd WHERE { ?wd wdt:%s '%s'. }",
+            $pid,
+            addslashes($value)
+        );
 
         $result = $this->executeSparqlQuery($query, $sparqlClient);
 
         $ret = [];
         foreach ($result as $row) {
-            $uri = (string)$row->wd;
+            $uri = (string) $row->wd;
 
             if (preg_match('~/(Q\d+)$~', $uri, $matches)) {
                 $ret[] = $matches[1];
@@ -95,8 +97,12 @@ extends AbstractProvider
         if (!empty($qid)) {
             $unionParts = [];
             foreach (self::$WIKIDATA_IDENTIFIERS as $pid => $name) {
-                $unionParts[] = sprintf('{ wd:%s wdt:%s ?property. BIND("%s" as ?propertyId) }',
-                                        $qid, $pid, $pid);
+                $unionParts[] = sprintf(
+                    '{ wd:%s wdt:%s ?property. BIND("%s" as ?propertyId) }',
+                    $qid,
+                    $pid,
+                    $pid
+                );
             }
 
             $query = 'SELECT ?property ?propertyId WHERE {'
@@ -106,9 +112,9 @@ extends AbstractProvider
             $result = $this->executeSparqlQuery($query);
 
             foreach ($result as $row) {
-                $propertyId = (string)$row->propertyId;
+                $propertyId = (string) $row->propertyId;
                 $propertyValue = $row->property;
-                if ($propertyValue instanceOf \EasyRdf\Literal) {
+                if ($propertyValue instanceof \EasyRdf\Literal) {
                     $propertyValue = $propertyValue->getValue();
                 }
 

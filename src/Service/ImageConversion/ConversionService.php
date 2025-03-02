@@ -1,4 +1,5 @@
 <?php
+
 // src/Service/ImageConversion/ImageConversion.php
 
 namespace App\Service\ImageConversion;
@@ -27,7 +28,6 @@ use Symfony\Component\HttpFoundation\File\File;
  *
  *  In addition, you need symfony/http-foundation which extends
  *  \SplFileInfo with methods for mime-type detection
- *
  */
 class ConversionService
 {
@@ -760,7 +760,7 @@ class ConversionService
 
         if (!empty($providers)) {
             if (!is_array($providers)) {
-                $providers = [ $providers ];
+                $providers = [$providers];
             }
 
             $this->addProviders($providers);
@@ -800,7 +800,7 @@ class ConversionService
                 }
             }
             else {
-                die('TODO: handle complex dst');
+                exit('TODO: handle complex dst');
             }
         }
     }
@@ -815,7 +815,7 @@ class ConversionService
     {
         $info = pathinfo($fname);
         $extension_old = pathinfo($fname, PATHINFO_EXTENSION);
-        if (!empty($mime_type_src) && $mime_type_src == $mime_type)  {
+        if (!empty($mime_type_src) && $mime_type_src == $mime_type) {
             $extension_new = $extension_old;
         }
         else {
@@ -830,7 +830,7 @@ class ConversionService
 
     protected function findProvider($src_type, $target_type)
     {
-        $cache_key = implode('|', [ $src_type, $target_type ]);
+        $cache_key = implode('|', [$src_type, $target_type]);
         if (array_key_exists($cache_key, $this->providerCache)) {
             return $this->providerCache[$cache_key];
         }
@@ -908,13 +908,12 @@ class ConversionService
         $realpath_src = $file->getRealpath();
         $info_src = pathinfo($realpath_src);
         $info_target = [];
-        foreach ([ 'dirname', 'basename', 'filename', 'extension' ] as $key) {
+        foreach (['dirname', 'basename', 'filename', 'extension'] as $key) {
             if (array_key_exists('target_' . $key, $options)) {
                 $info_target[$key] = $options['target_' . $key];
             }
-            else if (in_array($key, [ 'dirname', 'filename' ])
-                     && array_key_exists($key, $info_src))
-            {
+            else if (in_array($key, ['dirname', 'filename'])
+                     && array_key_exists($key, $info_src)) {
                 $info_target[$key] = $info_src[$key];
             }
         }
@@ -926,7 +925,7 @@ class ConversionService
         }
         else if (!empty($info_target['filename'])) {
             // if mime-type doesn't change, keep extension
-            if (!empty($info_src['extension']) && !empty($options['src_type']) && $options['src_type'] == $target_type)  {
+            if (!empty($info_src['extension']) && !empty($options['src_type']) && $options['src_type'] == $target_type) {
                 $extension = $info_src['extension'];
             }
             else {
@@ -954,15 +953,15 @@ class ConversionService
         }
         $src_type = $options['src_type'];
 
-        $target_type = isset($options['target_type']) ? $options['target_type'] : null;
+        $target_type = $options['target_type'] ?? null;
         if (empty($target_type)) {
             // TODO: try to guess from extension
-            throw new \InvalidArgumentException("No target_type specified");
+            throw new \InvalidArgumentException('No target_type specified');
         }
 
         $provider = $this->findBestProvider($src_type, $target_type);
         if (!isset($provider)) {
-            throw new \RuntimeException("No provider found for conversion from " . $src_type . ' to ' . $target_type);
+            throw new \RuntimeException('No provider found for conversion from ' . $src_type . ' to ' . $target_type);
         }
 
         $fname_target = $this->buildFnameTarget($file, $target_type, $options);
@@ -971,16 +970,16 @@ class ConversionService
         $dirnameTarget = pathinfo($fname_target, PATHINFO_DIRNAME);
         if (!file_exists($dirnameTarget)) {
             // TODO: use bitmask of parent directory
-            mkdir($dirnameTarget, 0777, true);
+            mkdir($dirnameTarget, 0o777, true);
         }
 
         $success = $provider->convert($file->getRealpath(), $fname_target, $options);
 
         if (!$success) {
-            throw new \RuntimeException("Error converting from " . $file->getRealpath() . ' to ' . $fname_target . ' using provider ' . $provider->getName());
+            throw new \RuntimeException('Error converting from ' . $file->getRealpath() . ' to ' . $fname_target . ' using provider ' . $provider->getName());
         }
 
-        return new \Symfony\Component\HttpFoundation\File\File($fname_target);
+        return new File($fname_target);
     }
 
     public function identify(File $file, $options = [])

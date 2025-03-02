@@ -51,7 +51,7 @@ class CommandlineAdapter
             'additional' => $this->buildAdditional($options),
         ]));
 
-        $res = `$cmd`;
+        $res = shell_exec($cmd);
 
         // TODO: implement some form of error-handling
         if (empty($res)) {

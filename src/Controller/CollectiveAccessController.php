@@ -1,4 +1,5 @@
 <?php
+
 // src/Controller/CollectiveAccessController.php
 
 namespace App\Controller;
@@ -7,13 +8,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 use Symfony\Bundle\SecurityBundle\Security;
-
 use Cocur\Slugify\SlugifyInterface;
-
 use App\Service\CollectiveAccessService;
 use App\Service\ExistDbClientService;
 use App\Service\SanitizationService;
@@ -21,10 +18,9 @@ use App\Utils\PandocProcessor;
 use App\Utils\XmlPrettyPrinter\XmlPrettyPrinter;
 
 /**
- * List and and display CollectiveAccess entries including TEI-representation
+ * List and and display CollectiveAccess entries including TEI-representation.
  */
-class CollectiveAccessController
-extends BaseController
+class CollectiveAccessController extends BaseController
 {
     static $LOCALE_MAP = [
         'de' => 'de_DE',
@@ -35,16 +31,24 @@ extends BaseController
     protected $sanitizationService;
     protected $termChoicesByUri = [];
 
-    public function __construct(ExistDbClientService $existDbClientService,
-                                KernelInterface $kernel,
-                                Security $security,
-                                XmlPrettyPrinter $teiPrettyPrinter,
-                                string $siteKey, string $sequenceStart,
-                                PandocProcessor $pandocProcessor,
-                                SanitizationService $sanitizationService)
-    {
-        parent::__construct($existDbClientService, $kernel, $security, $teiPrettyPrinter,
-                            $siteKey, $sequenceStart);
+    public function __construct(
+        ExistDbClientService $existDbClientService,
+        KernelInterface $kernel,
+        Security $security,
+        XmlPrettyPrinter $teiPrettyPrinter,
+        string $siteKey,
+        string $sequenceStart,
+        PandocProcessor $pandocProcessor,
+        SanitizationService $sanitizationService
+    ) {
+        parent::__construct(
+            $existDbClientService,
+            $kernel,
+            $security,
+            $teiPrettyPrinter,
+            $siteKey,
+            $sequenceStart
+        );
 
         $this->pandocProcessor = $pandocProcessor;
         $this->sanitizationService = $sanitizationService;
@@ -60,9 +64,10 @@ extends BaseController
     }
 
     #[Route(path: '/collective-access', name: 'ca-list')]
-    public function homeAction(Request $request,
-                               CollectiveAccessService $caService)
-    {
+    public function homeAction(
+        Request $request,
+        CollectiveAccessService $caService
+    ) {
         $collections = $caService->getCollections();
 
         $collection = trim($request->request->get('collection'));
@@ -70,9 +75,10 @@ extends BaseController
         $result = null;
 
         if (!empty($collection)
-            && !empty(array_filter($collections,
-                                 function ($aCollection) use ($collection) { return $collection === $aCollection['idno']; } )))
-        {
+            && !empty(array_filter(
+                $collections,
+                function ($aCollection) use ($collection) { return $collection === $aCollection['idno']; }
+            ))) {
             $locale = $request->getLocale();
 
             $condition = sprintf('ca_collections:"%s"', $collection);
@@ -119,7 +125,7 @@ extends BaseController
             $tidy = tidy_parse_string($xhtml, $tidyConfig, 'UTF8');
             $tidy->cleanRepair();
 
-            $xhtml = (string)$tidy;
+            $xhtml = (string) $tidy;
         }
 
         if ($omitPara) {
@@ -129,8 +135,6 @@ extends BaseController
         return trim($xhtml);
     }
 
-    /**
-     */
     protected function htmlFragmentToTei($htmlFragment, $omitPara = false, $autolink = false)
     {
         $xhtml = $this->htmlFragmentToXhtml($htmlFragment, $omitPara, $autolink);
@@ -144,9 +148,10 @@ extends BaseController
         // for <hi> - should be solved in xml-processing or tei
         // for <hi> - should be solved in xml-processing or tei
         $teiDtabf = str_replace(
-            [ 'simple:bold', 'simple:italic', 'simple:strikethrough', 'simple:superscript', 'simple:subscript', 'simple:smallcaps', 'simple:letterspace', 'simple:underline' ],
-            [ '#b', '#i', '#s', '#sup', '#sub', '#k', '#g', '#u' ],
-            $tei);
+            ['simple:bold', 'simple:italic', 'simple:strikethrough', 'simple:superscript', 'simple:subscript', 'simple:smallcaps', 'simple:letterspace', 'simple:underline'],
+            ['#b', '#i', '#s', '#sup', '#sub', '#k', '#g', '#u'],
+            $tei
+        );
 
         // don't allow role="c1" on ref
         $teiDtabf = preg_replace('/(<ref\s+[^>]*)role="[^"]*"([^>]*>)/', '\1\2', $teiDtabf);
@@ -155,7 +160,7 @@ extends BaseController
     }
 
     /**
-     * Try to guess if a string is plain text or HTML
+     * Try to guess if a string is plain text or HTML.
      */
     protected function hasHtmlTag($val)
     {
@@ -168,21 +173,22 @@ extends BaseController
     }
 
     /**
-     * Add <a> or <ref> around plain-text URLs
+     * Add <a> or <ref> around plain-text URLs.
      */
     protected function autolink($markup, $mode = 'html')
     {
-        $tag = 'a'; $attribute = 'href';
+        $tag = 'a';
+        $attribute = 'href';
         if ('tei' == $mode) {
             $tag = 'ref';
             $attribute = 'target';
         }
 
-        $autolinker = new \Asika\Autolink\Autolink;
+        $autolinker = new \Asika\Autolink\Autolink();
 
         // see https://github.com/asika32764/php-autolink/#link-builder
-        $autolinker->setLinkBuilder(function($url, $attribs) use ($tag, $attribute) {
-            $attribs = [ $attribute => $url ];
+        $autolinker->setLinkBuilder(function ($url, $attribs) use ($tag, $attribute) {
+            $attribs = [$attribute => $url];
 
             return (string) new \Windwalker\Dom\HtmlElement($tag, $url, $attribs);
         });
@@ -197,35 +203,35 @@ extends BaseController
         $regex = '/(([a-zA-Z]*=")*' . $schemeRegex . "[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}({$reRegularOrDiacritic}*)?)/u";
 
         $markup = preg_replace_callback($regex, function ($matches) use ($reDiacritic) {
-                $url = $matches[0];
+            $url = $matches[0];
 
-                if (preg_match('/' . $reDiacritic . '/u', $url)) {
-                    $parts = parse_url($url);
+            if (preg_match('/' . $reDiacritic . '/u', $url)) {
+                $parts = parse_url($url);
 
-                    $parts['path'] = implode('/', array_map(function ($v) {
-                        return rawurlencode($v);
-                    }, explode('/', $parts['path'])));
+                $parts['path'] = implode('/', array_map(function ($v) {
+                    return rawurlencode($v);
+                }, explode('/', $parts['path'])));
 
-                    // reverse parse_url: https://gist.github.com/Ellrion/f51ba0d40ae1d62eeae44fd1adf7b704
-                    $scheme   = isset($parts['scheme']) ? ($parts['scheme'] . '://') : '';
+                // reverse parse_url: https://gist.github.com/Ellrion/f51ba0d40ae1d62eeae44fd1adf7b704
+                $scheme   = isset($parts['scheme']) ? ($parts['scheme'] . '://') : '';
 
-                    $host     = ($parts['host'] ?? '');
-                    $port     = isset($parts['port']) ? (':' . $parts['port']) : '';
+                $host     = ($parts['host'] ?? '');
+                $port     = isset($parts['port']) ? (':' . $parts['port']) : '';
 
-                    $user     = ($parts['user'] ?? '');
+                $user     = ($parts['user'] ?? '');
 
-                    $pass     = isset($parts['pass']) ? (':' . $parts['pass'])  : '';
-                    $pass     = ($user || $pass) ? "$pass@" : '';
+                $pass     = isset($parts['pass']) ? (':' . $parts['pass']) : '';
+                $pass     = ($user || $pass) ? "$pass@" : '';
 
-                    $path     = ($parts['path'] ?? '');
-                    $query    = isset($parts['query']) ? ('?' . $parts['query']) : '';
-                    $fragment = isset($parts['fragment']) ? ('#' . $parts['fragment']) : '';
+                $path     = ($parts['path'] ?? '');
+                $query    = isset($parts['query']) ? ('?' . $parts['query']) : '';
+                $fragment = isset($parts['fragment']) ? ('#' . $parts['fragment']) : '';
 
-                    return implode('', [$scheme, $user, $pass, $host, $port, $path, $query, $fragment]);
-                }
+                return implode('', [$scheme, $user, $pass, $host, $port, $path, $query, $fragment]);
+            }
 
-                return $url;
-            }, $markup);
+            return $url;
+        }, $markup);
 
         return $autolinker->convert($markup);
     }
@@ -333,14 +339,15 @@ extends BaseController
     }
 
     /**
-     * Build a TEI representation from the Collective Access Entry
+     * Build a TEI representation from the Collective Access Entry.
      */
-    protected function buildTei($data,
-                                TranslatorInterface $translator,
-                                CollectiveAccessService $caService,
-                                $locale,
-                                $addMissingTerm = false)
-    {
+    protected function buildTei(
+        $data,
+        TranslatorInterface $translator,
+        CollectiveAccessService $caService,
+        $locale,
+        $addMissingTerm = false
+    ) {
         $languages = [];
         foreach (self::$LOCALE_MAP as $aLocale => $lang) {
             if ($locale == $aLocale) {
@@ -356,8 +363,7 @@ extends BaseController
         $genre = 'image';
         if (array_key_exists('type_id', $data)
             && array_key_exists('display_text', $data['type_id'])
-            && array_key_exists('en_US', $data['type_id']['display_text']))
-        {
+            && array_key_exists('en_US', $data['type_id']['display_text'])) {
             switch ($data['type_id']['display_text']['en_US']) {
                 case 'Sound':
                     $genre = 'audio';
@@ -374,7 +380,7 @@ extends BaseController
 
         $parsedown = new \Parsedown();
 
-        foreach ([ 'preferred_labels' => 'title' ] as $src => $dst) {
+        foreach (['preferred_labels' => 'title'] as $src => $dst) {
             if (array_key_exists($src, $data)) {
                 $struct = & $data[$src];
                 foreach ($languages as $lang) {
@@ -391,10 +397,9 @@ extends BaseController
         }
 
         foreach ([
-                'ca_objects.description' => 'note',
-                'ca_objects.description_source' => 'body',
-            ] as $src => $dst)
-        {
+            'ca_objects.description' => 'note',
+            'ca_objects.description_source' => 'body',
+        ] as $src => $dst) {
             if (array_key_exists($src, $data)) {
                 foreach ($languages as $lang) {
                     foreach ($data[$src] as $struct) {
@@ -417,7 +422,7 @@ extends BaseController
         }
 
         if (!empty($data['related'])) {
-            foreach ([ 'ca_entities', 'ca_list_items' ] as $relation) {
+            foreach (['ca_entities', 'ca_list_items'] as $relation) {
                 if (array_key_exists($relation, $data['related'])) {
                     foreach ($data['related'][$relation] as $entity) {
                         // TODO: maybe lookup related entities indididually since
@@ -455,7 +460,7 @@ extends BaseController
                                 if (array_key_exists('forename', $entity) || array_key_exists('surname', $entity)) {
                                     // assume a structured name
                                     $nameParts = [];
-                                    foreach ([ 'forename', 'surname' ] as $key) {
+                                    foreach (['forename', 'surname'] as $key) {
                                         if (!empty($entity[$key])) {
                                             $val = $this->buildTeiValue($entity[$key], true);
                                             $nameParts[] = $val; // if you want to wrap into extra tags: sprintf('<%s>%s</%s>', $key, $val, $key);
@@ -494,7 +499,7 @@ extends BaseController
                                 break;
 
                             default:
-                                die('TODO: handle relationship_typename ' . $entity['relationship_typename']);
+                                exit('TODO: handle relationship_typename ' . $entity['relationship_typename']);
                         }
                     }
                 }
@@ -502,10 +507,9 @@ extends BaseController
         }
 
         foreach ([
-                'ca_objects.date' => 'dates_value',
-                'ca_objects.coverageDates' => 'coverageDates',
-            ] as $src => $dst)
-        {
+            'ca_objects.date' => 'dates_value',
+            'ca_objects.coverageDates' => 'coverageDates',
+        ] as $src => $dst) {
             if (array_key_exists($src, $data)) {
                 foreach ($languages as $lang) {
                     foreach ($data[$src] as $struct) {
@@ -515,8 +519,12 @@ extends BaseController
                                 // let's see if it is a date string like February 23 1893
                                 $dateInfo = date_parse($val);
                                 if (0 == $dateInfo['error_count'] && 0 != $dateInfo['month']) {
-                                    $val = sprintf('%04d-%02d-%02d',
-                                                   $dateInfo['year'], $dateInfo['month'], $dateInfo['day']);
+                                    $val = sprintf(
+                                        '%04d-%02d-%02d',
+                                        $dateInfo['year'],
+                                        $dateInfo['month'],
+                                        $dateInfo['day']
+                                    );
                                 }
                                 else {
                                     // catch things like 18th century
@@ -560,14 +568,13 @@ extends BaseController
             }
         }
 
-        foreach ([ 'ca_objects.rights' => 'rightsText' ] as $src => $dst) {
+        foreach (['ca_objects.rights' => 'rightsText'] as $src => $dst) {
             if (array_key_exists($src, $data)) {
                 foreach ($languages as $lang) {
                     foreach ($data[$src] as $struct) {
-                        if (array_key_exists($lang, $struct) &&
-                            !empty($struct[$lang])
-                            && (array_key_exists($dst, $struct[$lang]) || array_key_exists('rightsHolder', $struct[$lang])))
-                        {
+                        if (array_key_exists($lang, $struct)
+                            && !empty($struct[$lang])
+                            && (array_key_exists($dst, $struct[$lang]) || array_key_exists('rightsHolder', $struct[$lang]))) {
                             if (!empty($struct[$lang][$dst])) {
                                 $raw = $struct[$lang][$dst];
 
@@ -602,32 +609,32 @@ extends BaseController
                                                 $teiHeader->setLicence($translator->trans('This work has been identified as being free of known restrictions under copyright law, including all related and neighboring rights.'));
                                                 break;
 
-                                            case 'https://creativecommons.org/licenses/by/3.0/';
+                                            case 'https://creativecommons.org/licenses/by/3.0/':
                                                 $teiHeader->setLicence($translator->trans('This work is licensed under the Creative Commons Attribution 3.0 License.'));
                                                 break;
 
-                                            case 'https://creativecommons.org/licenses/by/4.0/';
+                                            case 'https://creativecommons.org/licenses/by/4.0/':
                                                 $teiHeader->setLicence($translator->trans('This work is licensed under the Creative Commons Attribution 4.0 License.'));
                                                 break;
 
-                                            case 'https://creativecommons.org/licenses/by-sa/3.0/';
+                                            case 'https://creativecommons.org/licenses/by-sa/3.0/':
                                                 $teiHeader->setLicence($translator->trans('This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 License.'));
                                                 break;
 
-                                            case 'https://creativecommons.org/licenses/by-sa/4.0/';
+                                            case 'https://creativecommons.org/licenses/by-sa/4.0/':
                                                 $teiHeader->setLicence($translator->trans('This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 License.'));
                                                 break;
 
-                                            case 'https://creativecommons.org/licenses/by-nc-sa/4.0/';
+                                            case 'https://creativecommons.org/licenses/by-nc-sa/4.0/':
                                                 $teiHeader->setLicence($translator->trans('This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 License. Only noncommercial uses of the work are permitted.'));
                                                 break;
 
-                                            case 'https://creativecommons.org/licenses/by-nc-nd/4.0/';
+                                            case 'https://creativecommons.org/licenses/by-nc-nd/4.0/':
                                                 $teiHeader->setLicence($translator->trans('This work is licensed under the Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 License. Only noncommercial uses of the work are permitted. You may not distribute modified versions.'));
                                                 break;
 
                                             default:
-                                                die('TODO: license text for ' . $target);
+                                                exit('TODO: license text for ' . $target);
                                         }
                                     }
                                 }
@@ -667,7 +674,7 @@ extends BaseController
         $data = $result->getRawData();
 
         if (!empty($data['ca_object_representations.description'])) {
-            $ret['caption'] = $this->htmlFragmentToTei($data['ca_object_representations.description']);;
+            $ret['caption'] = $this->htmlFragmentToTei($data['ca_object_representations.description']);
         }
 
         if (!empty($data['ca_object_representations.external_link'])) {
@@ -677,8 +684,7 @@ extends BaseController
                 if (str_contains($url, 'ardaudiothek.de/embed/')
                     || str_contains($url, 'ardmediathek.de/embed/')
                     || str_contains($url, 'youtube.com/embed/')
-                    || str_contains($url, 'player.vimeo.com/video/'))
-                {
+                    || str_contains($url, 'player.vimeo.com/video/')) {
                     $ret['embed_url'] = $url;
                 }
             }
@@ -688,7 +694,7 @@ extends BaseController
     }
 
     /**
-     * Loop through representations and look-up additional information where needed
+     * Loop through representations and look-up additional information where needed.
      */
     protected function buildFigures(CollectiveAccessService $caService, $data, $locale, $primaryOnly = false)
     {
@@ -713,7 +719,7 @@ extends BaseController
 
             $additional = $this->lookupFigureAdditional($caService, $representation, $locale);
 
-            if (in_array($representation['mimetype'], [ 'audio/mpeg', 'video/mp4' ])) {
+            if (in_array($representation['mimetype'], ['audio/mpeg', 'video/mp4'])) {
                 // set $idxAV if there is exactly one AV so we might merge possible poster-figure into single figure
                 if (-1 == $idxAV) {
                     $idxAV = count($figures);
@@ -723,7 +729,7 @@ extends BaseController
                     $idxAV = -1;
                 }
             }
-            else if (in_array($representation['mimetype'], [ 'image/jpeg', 'text/xml' ])) {
+            else if (in_array($representation['mimetype'], ['image/jpeg', 'text/xml'])) {
                 // Map SVG as well as JPEGs can be localized
                 if (preg_match('/\.(deu|eng)\.(jpe?g|svg)$/', $representation['original_filename'], $matches)) {
                     if ($matches[1] != \App\Utils\Iso639::code1To3($locale)) {
@@ -736,7 +742,7 @@ extends BaseController
         }
 
         // if there is exactly one AV and one image, assign image to AV as poster
-        if ($idxAV != -1 && count($figures) == 2) {
+        if (-1 != $idxAV && 2 == count($figures)) {
             $av = $figures[$idxAV];
 
             $idxFigure = 0 == $idxAV ? 1 : 0; // it is the other one
@@ -746,7 +752,7 @@ extends BaseController
                     . $figure['caption'];
             }
 
-            $figures = [ $av +  [ 'poster' => $figure ] ];
+            $figures = [$av +  ['poster' => $figure]];
         }
 
         return $figures;
@@ -769,12 +775,11 @@ extends BaseController
         ];
     }
 
-    /**
-     *
-     */
-    protected function lookupPerson(CollectiveAccessService $caService,
-                                    $entity, $locale)
-    {
+    protected function lookupPerson(
+        CollectiveAccessService $caService,
+        $entity,
+        $locale
+    ) {
         // TODO: add some caching
         $caItemService = $caService->getItemService($entity['entity_id'], 'ca_entities');
 
@@ -801,10 +806,10 @@ extends BaseController
 
         $givenNameParts = [];
         $familyNameParts = [];
-        foreach ([ 'prefix', 'forename', 'other_forname', 'middlename', 'surname', 'suffix' ] as $lookup) {
+        foreach (['prefix', 'forename', 'other_forname', 'middlename', 'surname', 'suffix'] as $lookup) {
             $key = 'ca_entities.preferred_labels.' . $lookup;
             if (!empty($data[$key])) {
-                if (in_array($lookup, [ 'surname', 'suffix' ])) {
+                if (in_array($lookup, ['surname', 'suffix'])) {
                     $familyNameParts[] = $data[$key];
                 }
                 else {
@@ -830,12 +835,11 @@ extends BaseController
         return $person;
     }
 
-    /**
-     *
-     */
-    protected function lookupTerm(CollectiveAccessService $caService,
-                                  $entity, $locale)
-    {
+    protected function lookupTerm(
+        CollectiveAccessService $caService,
+        $entity,
+        $locale
+    ) {
         // TODO: add some caching
         $caItemService = $caService->getItemService($entity['item_id'], 'ca_list_items');
 
@@ -858,13 +862,12 @@ extends BaseController
         $data = $result->getRawData();
 
         if (array_key_exists('ca_lists.list_code', $data)
-            && $data['ca_lists.list_code'] == 'is-knowledge-sections')
-        {
+            && 'is-knowledge-sections' == $data['ca_lists.list_code']) {
             return;
         }
 
         $label = null;
-        foreach ([ 'name_plural', 'name_singular' ] as $lookup) {
+        foreach (['name_plural', 'name_singular'] as $lookup) {
             $key = 'ca_list_items.preferred_labels.' . $lookup;
             if (!empty($data[$key])) {
                 // call decodeHtmlEntity to handle $data[$key] like 'Pogrom Night &lt;1938&gt;'
@@ -872,7 +875,7 @@ extends BaseController
 
                 $choice = array_search($value, $this->getTermChoicesByUri($locale));
                 if (false !== $choice) {
-                    return [ $choice => $value ];
+                    return [$choice => $value];
                 }
 
                 if (is_null($label)) {
@@ -882,7 +885,7 @@ extends BaseController
         }
 
         if (!is_null($label)) {
-            return [ '' => $label ];
+            return ['' => $label];
         }
     }
 
@@ -909,8 +912,7 @@ extends BaseController
                     && (str_contains($figure['embed_url'], 'ardmediathek.de/embed/')
                         || str_contains($figure['embed_url'], 'youtube.com/embed/')
                         || str_contains($figure['embed_url'], 'player.vimeo.com/video/'))
-                    )
-                {
+                ) {
                     return true;
                 }
 
@@ -922,12 +924,13 @@ extends BaseController
 
     #[Route(path: '/collective-access/{id}.tei.xml', name: 'ca-detail-tei', requirements: ['id' => '[0-9]+'])]
     #[Route(path: '/collective-access/{id}', name: 'ca-detail', requirements: ['id' => '[0-9]+'])]
-    public function detailAction(Request $request,
-                                 TranslatorInterface $translator,
-                                 CollectiveAccessService $caService,
-                                 SlugifyInterface $slugify,
-                                 $id)
-    {
+    public function detailAction(
+        Request $request,
+        TranslatorInterface $translator,
+        CollectiveAccessService $caService,
+        SlugifyInterface $slugify,
+        $id
+    ) {
         $caItemService = $caService->getItemService($id);
 
         $result = $caItemService->request();
@@ -935,20 +938,22 @@ extends BaseController
             return $this->redirect($this->generateUrl('ca-list'));
         }
 
-        $teiFull = $this->buildTei($result->getRawData(),
-                                   $translator,
-                                   $caService,
-                                   $request->getLocale(),
-                                   'ca-detail' == $request->get('_route'));
+        $teiFull = $this->buildTei(
+            $result->getRawData(),
+            $translator,
+            $caService,
+            $request->getLocale(),
+            'ca-detail' == $request->get('_route')
+        );
 
         $figures = $this->buildFigures($caService, $result->getRawData(), $request->getLocale());
 
-        if ($teiFull->getGenre() == 'image' && !empty($figures)) {
+        if ('image' == $teiFull->getGenre() && !empty($figures)) {
             // genre might not be set correctly in CollectiveAccess
             // possibly re-assign from figures
             if ($this->checkGenreFromFigure($figures[0], 'audio')) {
                 $isAudio = true;
-                for ($i = 1; $i < count($figures); $i++) {
+                for ($i = 1; $i < count($figures); ++$i) {
                     if (!$this->checkGenreFromFigure($figures[$i], 'audio')) {
                         $isAudio = false;
                         break;
@@ -962,7 +967,7 @@ extends BaseController
 
             if ($this->checkGenreFromFigure($figures[0], 'video')) {
                 $isVideo = true;
-                for ($i = 1; $i < count($figures); $i++) {
+                for ($i = 1; $i < count($figures); ++$i) {
                     if (!$this->checkGenreFromFigure($figures[$i], 'video')) {
                         $isVideo = false;
                         break;
@@ -994,44 +999,54 @@ extends BaseController
                         foreach ($figures as $figure) {
                             $facsInfo = $this->buildFigureFacs($figure);
 
-                            if (in_array($figure['mimetype'], [ 'audio/mpeg', 'video/mp4' ])) {
+                            if (in_array($figure['mimetype'], ['audio/mpeg', 'video/mp4'])) {
                                 $attrFigure = '';
 
                                 if (!empty($figure['poster'])) {
                                     $posterInfo = $this->buildFigureFacs($figure['poster']);
-                                    $attrFigure = sprintf(' facs="%s" corresp="%s"',
-                                                        htmlspecialchars($posterInfo['facs'], ENT_XML1, 'utf-8'),
-                                                        htmlspecialchars($posterInfo['corresp'], ENT_XML1, 'utf-8'));
+                                    $attrFigure = sprintf(
+                                        ' facs="%s" corresp="%s"',
+                                        htmlspecialchars($posterInfo['facs'], ENT_XML1, 'utf-8'),
+                                        htmlspecialchars($posterInfo['corresp'], ENT_XML1, 'utf-8')
+                                    );
                                 }
 
-                                $figureTags[] = sprintf('<figure%s><media mimeType="%s" url="%s" corresp="%s" />%s</figure>',
-                                                        $attrFigure,
-                                                        htmlspecialchars($figure['mimetype'], ENT_XML1, 'utf-8'),
-                                                        htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
-                                                        htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8'),
-                                                        !empty($figure['caption']) ? $figure['caption'] : '');
+                                $figureTags[] = sprintf(
+                                    '<figure%s><media mimeType="%s" url="%s" corresp="%s" />%s</figure>',
+                                    $attrFigure,
+                                    htmlspecialchars($figure['mimetype'], ENT_XML1, 'utf-8'),
+                                    htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
+                                    htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8'),
+                                    !empty($figure['caption']) ? $figure['caption'] : ''
+                                );
                             }
                             else if (array_key_exists('embed_url', $figure)) {
                                 $attrFigure = '';
 
                                 if (!empty($figure['poster'])) {
                                     $posterInfo = $this->buildFigureFacs($figure['poster']);
-                                    $attrFigure = sprintf(' facs="%s" corresp="%s"',
-                                                        htmlspecialchars($posterInfo['facs'], ENT_XML1, 'utf-8'),
-                                                        htmlspecialchars($posterInfo['corresp'], ENT_XML1, 'utf-8'));
+                                    $attrFigure = sprintf(
+                                        ' facs="%s" corresp="%s"',
+                                        htmlspecialchars($posterInfo['facs'], ENT_XML1, 'utf-8'),
+                                        htmlspecialchars($posterInfo['corresp'], ENT_XML1, 'utf-8')
+                                    );
                                 }
 
-                                $figureTags[] = sprintf('<figure%s><media mimeType="%s" url="%s" />%s</figure>',
-                                                        $attrFigure,
-                                                        'text/html',
-                                                        htmlspecialchars($figure['embed_url'], ENT_XML1, 'utf-8'),
-                                                        !empty($figure['caption']) ? $figure['caption'] : '');
+                                $figureTags[] = sprintf(
+                                    '<figure%s><media mimeType="%s" url="%s" />%s</figure>',
+                                    $attrFigure,
+                                    'text/html',
+                                    htmlspecialchars($figure['embed_url'], ENT_XML1, 'utf-8'),
+                                    !empty($figure['caption']) ? $figure['caption'] : ''
+                                );
                             }
                             else {
-                                $figureTags[] = sprintf('<figure facs="%s" corresp="%s">%s</figure>',
-                                                        htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
-                                                        htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8'),
-                                                        !empty($figure['caption']) ? $figure['caption'] : '');
+                                $figureTags[] = sprintf(
+                                    '<figure facs="%s" corresp="%s">%s</figure>',
+                                    htmlspecialchars($facsInfo['facs'], ENT_XML1, 'utf-8'),
+                                    htmlspecialchars($facsInfo['corresp'], ENT_XML1, 'utf-8'),
+                                    !empty($figure['caption']) ? $figure['caption'] : ''
+                                );
 
                             }
                         }
@@ -1045,13 +1060,15 @@ extends BaseController
 
                     if (!empty($body)) {
                         // further reading
-                        $fragment->appendXML(sprintf('<div xml:id="%s" n="2">' . "\n"
+                        $fragment->appendXML(sprintf(
+                            '<div xml:id="%s" n="2">' . "\n"
                                                      . '<head>%s</head>' . "\n"
                                                      . '%s'
                                                      . "\n" . '</div>',
-                                                     $slugify->slugify($translator->trans('Further Reading')),
-                                                     $translator->trans('Further Reading'),
-                                                     $body));
+                            $slugify->slugify($translator->trans('Further Reading')),
+                            $translator->trans('Further Reading'),
+                            $body
+                        ));
                     }
 
                     (new \FluentDOM\Nodes\Modifier($bodyNode))

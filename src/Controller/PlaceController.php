@@ -1,19 +1,17 @@
 <?php
+
 // src/Controller/PlaceController.php
 
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * CRUD for Place
+ * CRUD for Place.
  */
-class PlaceController
-extends BaseController
+class PlaceController extends BaseController
 {
     protected $subCollection = '/data/authority/places';
 
@@ -43,19 +41,22 @@ extends BaseController
     }
 
     #[Route(path: '/place/{id}', name: 'place-detail', requirements: ['id' => 'place\-\d+'])]
-    public function detailAction(Request $request,
-                                 TranslatorInterface $translator,
-                                 $id)
-    {
+    public function detailAction(
+        Request $request,
+        TranslatorInterface $translator,
+        $id
+    ) {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Place::class);
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
-                                             $id))
-                ;
+                    ->add('warning', sprintf(
+                        $translator->trans('No entry found for id: %s'),
+                        $id
+                    ))
+            ;
 
             return $this->redirect($this->generateUrl('place-list'));
         }
@@ -77,12 +78,12 @@ extends BaseController
     {
         // see https://stackoverflow.com/a/48901690
         $xql = <<<EOXQL
-    declare variable \$collection external;
-    let \$places := collection(\$collection)/Place
-    return (for \$key in (1 to 9999)!format-number(., '0')
-        where empty(\$places[@id='place-'||\$key])
-        return 'place-' || \$key)[1]
-EOXQL;
+                declare variable \$collection external;
+                let \$places := collection(\$collection)/Place
+                return (for \$key in (1 to 9999)!format-number(., '0')
+                    where empty(\$places[@id='place-'||\$key])
+                    return 'place-' || \$key)[1]
+            EOXQL;
 
         $query = $client->prepareQuery($xql);
         $query->bindVariable('collection', $collection);
@@ -146,7 +147,7 @@ EOXQL;
         return $info;
     }
 
-    protected function lookupContainedInPlace (\ExistDbRpc\Client $client, $place, $lodService)
+    protected function lookupContainedInPlace(\ExistDbRpc\Client $client, $place, $lodService)
     {
         $containedInPlace = $place->getContainedInPlace();
 
@@ -168,9 +169,10 @@ EOXQL;
     }
 
     #[Route(path: '/place/add-from-identifier', name: 'place-add-from-identifier')]
-    public function addFromIdentifierAction(Request $request,
-                                            TranslatorInterface $translator)
-    {
+    public function addFromIdentifierAction(
+        Request $request,
+        TranslatorInterface $translator
+    ) {
         $types = [
             'tgn' => 'Getty TGN',
         ];
@@ -193,7 +195,7 @@ EOXQL;
                     $request->getSession()
                             ->getFlashBag()
                             ->add('info', $translator->trans('There is already an entry for this identifier'))
-                        ;
+                    ;
 
                     return $this->redirect($this->generateUrl('place-detail', [
                         'id' => $id,
@@ -242,9 +244,11 @@ EOXQL;
                     default:
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('warning', sprintf($translator->trans('Not handling type: %s'),
-                                                         $data['type']))
-                            ;
+                                ->add('warning', sprintf(
+                                    $translator->trans('Not handling type: %s'),
+                                    $data['type']
+                                ))
+                        ;
                 }
             }
         }
@@ -257,10 +261,11 @@ EOXQL;
 
     #[Route(path: '/place/{id}/edit', name: 'place-edit', requirements: ['id' => 'place\-\d+'])]
     #[Route(path: '/place/add', name: 'place-add')]
-    public function editAction(Request $request,
-                               TranslatorInterface $translator,
-                               $id = null)
-    {
+    public function editAction(
+        Request $request,
+        TranslatorInterface $translator,
+        $id = null
+    ) {
         $update = 'place-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -279,9 +284,11 @@ EOXQL;
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
-                                                 $id))
-                    ;
+                        ->add('warning', sprintf(
+                            $translator->trans('No entry found for id: %s'),
+                            $id
+                        ))
+                ;
 
                 return $this->redirect($this->generateUrl('place-list'));
             }
@@ -295,21 +302,25 @@ EOXQL;
             if (!$res) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
-                                                 $id))
-                    ;
+                        ->add('warning', sprintf(
+                            $translator->trans('An issue occured while storing id: %s'),
+                            $id
+                        ))
+                ;
             }
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('info',
-                              $update
+                        ->add(
+                            'info',
+                            $update
                               ? $translator->trans('The entry has been updated')
-                              : $translator->trans('The entry has been created'));
-                    ;
+                              : $translator->trans('The entry has been created')
+                        );
+
             }
 
-            return $this->redirect($this->generateUrl('place-detail', [ 'id' => $id ]));
+            return $this->redirect($this->generateUrl('place-detail', ['id' => $id]));
         }
 
         return $this->render('Place/edit.html.twig', [
@@ -319,10 +330,11 @@ EOXQL;
     }
 
     #[Route(path: '/place/{id}/lookup-identifier', name: 'place-lookup-identifier', requirements: ['id' => 'place\-\d+'])]
-    public function enhanceAction(Request $request,
-                                  TranslatorInterface $translator,
-                                  $id)
-    {
+    public function enhanceAction(
+        Request $request,
+        TranslatorInterface $translator,
+        $id
+    ) {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Place::class);
@@ -330,9 +342,11 @@ EOXQL;
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
-                                             $id))
-                ;
+                    ->add('warning', sprintf(
+                        $translator->trans('No entry found for id: %s'),
+                        $id
+                    ))
+            ;
 
             return $this->redirect($this->generateUrl('person-list'));
         }
@@ -341,7 +355,7 @@ EOXQL;
             $request->getSession()
                     ->getFlashBag()
                     ->add('warning', $translator->trans('Entry has no identifier'))
-                ;
+            ;
 
             return $this->redirect($this->generateUrl('place-detail', [
                 'id' => $id,
@@ -381,22 +395,24 @@ EOXQL;
             if (!$res) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
-                                                 $id))
-                    ;
+                        ->add('warning', sprintf(
+                            $translator->trans('An issue occured while storing id: %s'),
+                            $id
+                        ))
+                ;
             }
             else {
                 $request->getSession()
                         ->getFlashBag()
                         ->add('info', $translator->trans('The entry has been updated'));
-                    ;
+
             }
         }
         else {
             $request->getSession()
                     ->getFlashBag()
                     ->add('info', $translator->trans('No additional information could be found'));
-                ;
+
         }
 
         return $this->redirect($this->generateUrl('place-detail', [

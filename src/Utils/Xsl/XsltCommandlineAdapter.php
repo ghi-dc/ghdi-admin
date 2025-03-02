@@ -60,7 +60,7 @@ class XsltCommandlineAdapter
             'additional' => $this->buildAdditional(is_null($options) ? [] : $options),
         ]));
 
-        $res = `$cmd`;
+        $res = shell_exec($cmd);
 
         // TODO: implement error-handling
         return $res;

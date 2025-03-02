@@ -1,4 +1,5 @@
 <?php
+
 // src/Controller/UserController.php
 
 namespace App\Controller;
@@ -8,25 +9,24 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
- * Login and logout actions
+ * Login and logout actions.
  */
-class UserController
-extends AbstractController
+class UserController extends AbstractController
 {
     #[Route(path: '/login', name: 'login')]
-    public function loginAction(Request $request,
-                                TranslatorInterface $translator,
-                                ?AuthenticationUtils $authenticationUtils = null)
-    {
+    public function loginAction(
+        Request $request,
+        TranslatorInterface $translator,
+        ?AuthenticationUtils $authenticationUtils = null
+    ) {
         // last username entered by the user
-        $defaultData = [ '_username' => $authenticationUtils->getLastUsername() ];
+        $defaultData = ['_username' => $authenticationUtils->getLastUsername()];
 
         // csrf_token_id needs to match with the id in LoginFormAuthenticator
-        $form = $this->createFormBuilder($defaultData, [ 'csrf_token_id' => 'authenticate' ])
+        $form = $this->createFormBuilder($defaultData, ['csrf_token_id' => 'authenticate'])
             ->add('_username', \Symfony\Component\Form\Extension\Core\Type\TextType::class, [
                 'label' => 'Username',
             ])
@@ -37,13 +37,14 @@ extends AbstractController
                 'label' => 'Login',
             ])
             ->getForm()
-            ;
+        ;
 
         // set the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         if (!empty($error)) {
             $form->addError(new \Symfony\Component\Form\FormError(
-                /** @Ignore */$translator->trans($error->getMessageKey(), [], 'additional')
+                /* @Ignore */
+                $translator->trans($error->getMessageKey(), [], 'additional')
             ));
         }
 

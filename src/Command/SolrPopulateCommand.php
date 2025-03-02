@@ -1,22 +1,19 @@
 <?php
+
 // src/Command/SolrCommand.php
 
 namespace App\Command;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
-
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class SolrPopulateCommand
-extends ExistDbCommand
+class SolrPopulateCommand extends ExistDbCommand
 {
     /**
      * @var \FS\SolrBundle\SolrInterface
@@ -30,17 +27,18 @@ extends ExistDbCommand
     private $frontendDataDir;
     private $frontendMediaDir;
 
-    public function __construct(string $siteKey,
-                                ParameterBagInterface $params,
-                                KernelInterface $kernel,
-                                \App\Service\ExistDbClientService $existDbClientService,
-                                HttpClientInterface $adminClient,
-                                \FS\SolrBundle\SolrInterface $solr,
-                                \App\Service\ImageConversion\ConversionService $conversionService,
-                                \App\Service\ImageHeader\ImageHeaderService $imageHeaderService,
-                                \Twig\Environment $twig,
-                                \Cocur\Slugify\SlugifyInterface $slugify)
-    {
+    public function __construct(
+        string $siteKey,
+        ParameterBagInterface $params,
+        KernelInterface $kernel,
+        \App\Service\ExistDbClientService $existDbClientService,
+        HttpClientInterface $adminClient,
+        \FS\SolrBundle\SolrInterface $solr,
+        \App\Service\ImageConversion\ConversionService $conversionService,
+        \App\Service\ImageHeader\ImageHeaderService $imageHeaderService,
+        \Twig\Environment $twig,
+        \Cocur\Slugify\SlugifyInterface $slugify
+    ) {
         // you *must* call the parent constructor
         parent::__construct($siteKey, $params, $kernel, $existDbClientService);
 
@@ -53,14 +51,18 @@ extends ExistDbCommand
 
         $this->frontendDataDir = realpath($this->params->get('app.frontend.data_dir'));
         if (empty($this->frontendDataDir)) {
-            die(sprintf('app.frontend.data_dir (%s) does not exist',
-                        $this->params->get('app.frontend.data_dir')));
+            exit(sprintf(
+                'app.frontend.data_dir (%s) does not exist',
+                $this->params->get('app.frontend.data_dir')
+            ));
         }
 
         $this->frontendMediaDir = realpath($this->params->get('app.frontend.media_dir'));
         if (empty($this->frontendMediaDir)) {
-            die(sprintf('app.frontend.media_dir (%s) does not exist',
-                        $this->params->get('app.frontend.media_dir')));
+            exit(sprintf(
+                'app.frontend.media_dir (%s) does not exist',
+                $this->params->get('app.frontend.media_dir')
+            ));
         }
     }
 
@@ -99,7 +101,7 @@ extends ExistDbCommand
                 InputOption::VALUE_REQUIRED,
                 'Specify a specific resource'
             )
-            ;
+        ;
     }
 
     /* TODO: share with ResourceController, either through trait or class */
@@ -119,7 +121,7 @@ extends ExistDbCommand
     }
 
     /**
-     * Prepare $entity for indexing
+     * Prepare $entity for indexing.
      */
     protected function prepareEntity($entity)
     {
@@ -176,9 +178,8 @@ extends ExistDbCommand
         $teiHelper = new \App\Utils\TeiHelper();
 
         return $teiHelper->adjustMediaUrlString($content, function ($url) {
-            if (strpos($url, 'https://ghdi-ca.ghi-dc.org') === 0
-                || strpos($url, 'https://germanhistorydocs.ghi-dc.org/images/') === 0)
-            {
+            if (0 === strpos($url, 'https://ghdi-ca.ghi-dc.org')
+                || 0 === strpos($url, 'https://germanhistorydocs.ghi-dc.org/images/')) {
                 // it is a Collective Access or a GHDI legacy link
                 $path = parse_url($url, PHP_URL_PATH);
                 $fname = basename($path);
@@ -200,7 +201,7 @@ extends ExistDbCommand
     }
 
     /**
-     * Fetches an image stores it into $imagePath
+     * Fetches an image stores it into $imagePath.
      */
     protected function fetchRemoteImage($url, $mediaPath, $fname)
     {
@@ -227,12 +228,12 @@ extends ExistDbCommand
                         break;
 
                     default:
-                        die('TODO: handle extension for ' . $url);
+                        exit('TODO: handle extension for ' . $url);
 
                 }
             }
             else {
-                die('TODO: handle extension for ' . $url);
+                exit('TODO: handle extension for ' . $url);
             }
         }
 
@@ -266,8 +267,7 @@ extends ExistDbCommand
                 $info = $this->conversionService->identify($file);
 
                 if ((!empty($info['width']) && $info['width'] > $maxDimension)
-                    || (!empty($info['height']) && $info['height'] > $maxDimension))
-                {
+                    || (!empty($info['height']) && $info['height'] > $maxDimension)) {
                     $converted = $this->conversionService->convert($file, [
                         'geometry' => $maxDimension . 'x' . $maxDimension,
                         'target_type' => $targetType,
@@ -279,7 +279,7 @@ extends ExistDbCommand
                 $info = $this->imageHeaderService->getResolution($file = new \Symfony\Component\HttpFoundation\File\File($mediaPath . '/' . $imageName));
 
                 if (!empty($info) && ($info['xresolution'] > $maxResolution || $info['yresolution'] > $maxResolution)) {
-                    $res = $this->imageHeaderService->setResolution($file, [ 'xresolution' => $maxResolution, 'yresolution' => $maxResolution ]);
+                    $res = $this->imageHeaderService->setResolution($file, ['xresolution' => $maxResolution, 'yresolution' => $maxResolution]);
                 }
             }
         }
@@ -297,12 +297,12 @@ extends ExistDbCommand
 
         if (!is_null($entity)) {
             $fname = sprintf('%s.%s.xml', $entity->getId(true), $entity->getLanguage());
-            $teiPath = join('/', [ $this->frontendDataDir, 'volumes', $entity->getVolumeId(), $fname ]);
+            $teiPath = join('/', [$this->frontendDataDir, 'volumes', $entity->getVolumeId(), $fname]);
 
             $res = $this->adjustMediaUrl($xml);
             $mediaUrls = [];
             if (is_array($res) && !empty($res['urls'])) {
-                $xml = (string)($res['document']); // since urls have changed
+                $xml = (string) $res['document']; // since urls have changed
                 $mediaUrls = $res['urls'];
             }
 
@@ -316,7 +316,7 @@ extends ExistDbCommand
             }
 
             if ($reindex || $forceReindex) {
-                $mediaPath = join('/', [ $this->frontendMediaDir, $entity->getVolumeId(), $entity->getId(true) ]);
+                $mediaPath = join('/', [$this->frontendMediaDir, $entity->getVolumeId(), $entity->getId(true)]);
 
                 foreach ($mediaUrls as $url => $fname) {
                     if (!file_exists($mediaPath)) {
@@ -324,7 +324,7 @@ extends ExistDbCommand
                     }
 
                     if (!file_exists($mediaPath) || !is_writable($mediaPath)) {
-                        die($mediaPath . ' does not exist or is not writable');
+                        exit($mediaPath . ' does not exist or is not writable');
                     }
 
                     $imageName = $this->fetchRemoteImage($url, $mediaPath, $fname);
@@ -392,7 +392,7 @@ extends ExistDbCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $volume = $input->getArgument('volume');;
+        $volume = $input->getArgument('volume');
         if (empty($volume)) {
             $output->writeln(sprintf('<error>missing volume</error>'));
 
@@ -416,7 +416,7 @@ extends ExistDbCommand
         }
         else {
             $remove = false; // currently only allowed with a specific id
-            $entities = $this->buildEntities($locale, join(':', [ $this->siteKey, $volume ]), $forceReindex);
+            $entities = $this->buildEntities($locale, join(':', [$this->siteKey, $volume]), $forceReindex);
         }
 
         try {

@@ -1,10 +1,11 @@
 <?php
+
 // src/Service/ExistDbClientService.php
 
 namespace App\Service;
 
 /**
- * Wrapper around \ExistDbRpc\Client
+ * Wrapper around \ExistDbRpc\Client.
  */
 class ExistDbClientService
 {
@@ -19,13 +20,12 @@ class ExistDbClientService
     }
 
     /**
-     * Instantiate a client
+     * Instantiate a client.
      *
      * @param string user
      * @param string password
-     * @return \ExistDbRpc\Client
      */
-    public function getClient($user = null, $password = null) : \ExistDbRpc\Client
+    public function getClient($user = null, $password = null): \ExistDbRpc\Client
     {
         $options = $this->options;
         if (!is_null($user)) {

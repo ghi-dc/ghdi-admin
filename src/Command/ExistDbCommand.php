@@ -1,33 +1,28 @@
 <?php
+
 // src/Command/ExistDbCommand.php
 
 namespace App\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
- * Common base providing and ExistDbClientService
+ * Common base providing and ExistDbClientService.
  */
-abstract class ExistDbCommand
-extends BaseCommand
+abstract class ExistDbCommand extends BaseCommand
 {
     /**
      * @var \App\Service\ExistDbClientService
      */
     private $existDbClientService;
 
-    public function __construct(string $siteKey,
-                                ParameterBagInterface $params,
-                                KernelInterface $kernel,
-                                \App\Service\ExistDbClientService $existDbClientService)
-    {
+    public function __construct(
+        string $siteKey,
+        ParameterBagInterface $params,
+        KernelInterface $kernel,
+        \App\Service\ExistDbClientService $existDbClientService
+    ) {
         $this->existDbClientService = $existDbClientService;
 
         // you *must* call the parent constructor

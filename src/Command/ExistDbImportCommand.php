@@ -1,4 +1,5 @@
 <?php
+
 // src/Command/ExistDbImportCommand.php
 
 namespace App\Command;
@@ -7,18 +8,15 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 use function Symfony\Component\String\u;
 
 /**
  * Implement
  *  existdb:import
- * for pre-populationg existdb
+ * for pre-populationg existdb.
  */
-class ExistDbImportCommand
-extends ExistDbCommand
+class ExistDbImportCommand extends ExistDbCommand
 {
     protected function configure()
     {
@@ -41,7 +39,7 @@ extends ExistDbCommand
                 'Specify to overwrite existing resources'
             )
             ->setDescription('Import collection (base|volumes|persons|organization|places|terms|styles|assets) into app.existdb.base')
-            ;
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -57,21 +55,27 @@ extends ExistDbCommand
             if (!$existDbClient->existsAndCanOpenCollection()) {
                 $res = $existDbClient->createCollection();
 
-                $output->writeln(sprintf('<info>Base-Collection was created (%s)</info>',
-                                         $existDbBase));
+                $output->writeln(sprintf(
+                    '<info>Base-Collection was created (%s)</info>',
+                    $existDbBase
+                ));
 
                 return 0;
             }
 
-            $output->writeln(sprintf('<info>Base-Collection already exists (%s)</info>',
-                                     $existDbBase));
+            $output->writeln(sprintf(
+                '<info>Base-Collection already exists (%s)</info>',
+                $existDbBase
+            ));
 
             return 0;
         }
 
         if (!$existDbClient->existsAndCanOpenCollection()) {
-            $output->writeln(sprintf('<error>Base-Collection does not exist or cannot be opened (%s)</error>',
-                                     $existDbBase));
+            $output->writeln(sprintf(
+                '<error>Base-Collection does not exist or cannot be opened (%s)</error>',
+                $existDbBase
+            ));
 
             return -3;
         }
@@ -95,20 +99,24 @@ extends ExistDbCommand
             case 'organizations':
             case 'places':
             case 'terms':
-                $filename = !empty($resource) ? $resource :  '';
+                $filename = !empty($resource) ? $resource : '';
                 break;
 
             default:
-                $output->writeln(sprintf('<error>Invalid collection (%s)</error>',
-                                         $collection));
+                $output->writeln(sprintf(
+                    '<error>Invalid collection (%s)</error>',
+                    $collection
+                ));
 
                 return -1;
         }
 
         $filenameFull = $this->projectDir . '/data/authority/' . $collection . '/' . $filename;
         if ('' !== $filename && !file_exists($filenameFull)) {
-            $output->writeln(sprintf('<error>File does not exist (%s)</error>',
-                                     $filenameFull));
+            $output->writeln(sprintf(
+                '<error>File does not exist (%s)</error>',
+                $filenameFull
+            ));
 
             return -3;
         }
@@ -116,22 +124,33 @@ extends ExistDbCommand
         return (int) $this->checkCollectionAndStore($output, $existDbClient, $existDbBase . '/data/authority/' . $collection, $filename, $filenameFull, $overwrite);
     }
 
-    protected function checkCollectionAndStore(OutputInterface $output, $existDbClient, $subCollection,
-                                               $resource, $filenameFull, $overwrite, $createCollection = true, $isBinary = false)
-    {
+    protected function checkCollectionAndStore(
+        OutputInterface $output,
+        $existDbClient,
+        $subCollection,
+        $resource,
+        $filenameFull,
+        $overwrite,
+        $createCollection = true,
+        $isBinary = false
+    ) {
         $existDbClient->setCollection($subCollection);
         if (!$existDbClient->existsAndCanOpenCollection()) {
             if (!$createCollection) {
-                $output->writeln(sprintf('<error>Collection does not exist or cannot be opened (%s)</error>',
-                                         $subCollection));
+                $output->writeln(sprintf(
+                    '<error>Collection does not exist or cannot be opened (%s)</error>',
+                    $subCollection
+                ));
 
                 return -3;
             }
 
             $res = $existDbClient->createCollection();
             if (!$existDbClient->existsAndCanOpenCollection()) {
-                $output->writeln(sprintf('<error>Collection could not be created or cannot be opened (%s)</error>',
-                                         $subCollection));
+                $output->writeln(sprintf(
+                    '<error>Collection could not be created or cannot be opened (%s)</error>',
+                    $subCollection
+                ));
 
                 return -3;
             }
@@ -142,8 +161,10 @@ extends ExistDbCommand
         }
 
         if ($existDbClient->hasDocument($resource) && !$overwrite) {
-            $output->writeln(sprintf('<info>Resource already exists (%s)</info>',
-                                     $subCollection . '/' . $resource));
+            $output->writeln(sprintf(
+                '<info>Resource already exists (%s)</info>',
+                $subCollection . '/' . $resource
+            ));
 
             return 0;
         }
@@ -158,14 +179,18 @@ extends ExistDbCommand
         }
 
         if (!$res) {
-            $output->writeln(sprintf('<info>Error adding %s</info>',
-                                     $subCollection . '/' . $resource));
+            $output->writeln(sprintf(
+                '<info>Error adding %s</info>',
+                $subCollection . '/' . $resource
+            ));
 
             return -4;
         }
 
-        $output->writeln(sprintf('<info>Resource added (%s)</info>',
-                                 $subCollection . '/' . $resource));
+        $output->writeln(sprintf(
+            '<info>Resource added (%s)</info>',
+            $subCollection . '/' . $resource
+        ));
 
         return 0;
     }
@@ -183,7 +208,7 @@ extends ExistDbCommand
                 $resource = basename($filenameFull);
                 if (!empty($resource)) {
                     $subRes = $this->importStyles($output, $resource, $overwrite);
-                    if ($subRes != 0) {
+                    if (0 != $subRes) {
                         return $subRes;
                     }
 
@@ -192,8 +217,10 @@ extends ExistDbCommand
             }
 
             if (is_null($res)) {
-                $output->writeln(sprintf('<error>No xsl-files found (%s)</error>',
-                                         $inputDir));
+                $output->writeln(sprintf(
+                    '<error>No xsl-files found (%s)</error>',
+                    $inputDir
+                ));
 
                 return -6;
             }
@@ -203,8 +230,10 @@ extends ExistDbCommand
 
         $filenameFull = $inputDir . '/' . $resource;
         if (!file_exists($filenameFull)) {
-            $output->writeln(sprintf('<error>File does not exist (%s)</error>',
-                                     $filenameFull));
+            $output->writeln(sprintf(
+                '<error>File does not exist (%s)</error>',
+                $filenameFull
+            ));
 
             return -3;
         }
@@ -212,9 +241,14 @@ extends ExistDbCommand
         $existDbClient = $this->getExistDbClient();
         $existDbBase = $existDbClient->getCollection();
 
-        return $this->checkCollectionAndStore($output, $existDbClient,
-                                              $subCollection = $existDbBase . '/' . $collection,
-                                              $resource, $filenameFull, $overwrite);
+        return $this->checkCollectionAndStore(
+            $output,
+            $existDbClient,
+            $subCollection = $existDbBase . '/' . $collection,
+            $resource,
+            $filenameFull,
+            $overwrite
+        );
     }
 
     protected function importAssets(OutputInterface $output, $resource, $overwrite = false)
@@ -225,16 +259,20 @@ extends ExistDbCommand
             . '/data/' . $collection;
 
         if (empty($resource)) {
-            $output->writeln(sprintf('<error>Please pass the name of the resource</error>',
-                                     $inputDir));
+            $output->writeln(sprintf(
+                '<error>Please pass the name of the resource</error>',
+                $inputDir
+            ));
 
             return -6;
         }
 
         $filenameFull = $inputDir . '/' . $resource;
         if (!file_exists($filenameFull)) {
-            $output->writeln(sprintf('<error>File does not exist (%s)</error>',
-                                     $filenameFull));
+            $output->writeln(sprintf(
+                '<error>File does not exist (%s)</error>',
+                $filenameFull
+            ));
 
             return -3;
         }
@@ -243,18 +281,25 @@ extends ExistDbCommand
         $existDbBase = $existDbClient->getCollection();
 
         // TODO: pass $isBinary depending of the type of the actual file
-        return $this->checkCollectionAndStore($output, $existDbClient,
-                                              $subCollection = $existDbBase . '/' . $collection,
-                                              $resource, $filenameFull, $overwrite, true, $isBinary = true);
+        return $this->checkCollectionAndStore(
+            $output,
+            $existDbClient,
+            $subCollection = $existDbBase . '/' . $collection,
+            $resource,
+            $filenameFull,
+            $overwrite,
+            true,
+            $isBinary = true
+        );
     }
 
     /**
      * Returns whether a path is absolute.
      *
-     * @param string $path A path string.
+     * @param string $path a path string
      *
-     * @return bool Returns true if the path is absolute, false if it is
-     *              relative or empty.
+     * @return bool returns true if the path is absolute, false if it is
+     *              relative or empty
      *
      * @since 1.0 Added method.
      * @since 2.0 Method now fails if $path is not a string.
@@ -308,8 +353,10 @@ extends ExistDbCommand
         }
 
         if (!file_exists($filenameFull)) {
-            $output->writeln(sprintf('<error>File does not exist (%s)</error>',
-                                     $filenameFull));
+            $output->writeln(sprintf(
+                '<error>File does not exist (%s)</error>',
+                $filenameFull
+            ));
 
             return -3;
         }
@@ -317,47 +364,61 @@ extends ExistDbCommand
         $entity = \App\Entity\TeiHeader::fromXml($filenameFull);
 
         if (is_null($entity)) {
-            $output->writeln(sprintf('<error>%s could not be loaded</error>',
-                                     $filenameFull));
+            $output->writeln(sprintf(
+                '<error>%s could not be loaded</error>',
+                $filenameFull
+            ));
+
             return -2;
         }
 
         if (empty($entity->getGenre()) || empty($entity->getId())) {
-            $output->writeln(sprintf('<error>DTAID or classCode for genre missing (%s)</error>',
-                                     $resource));
+            $output->writeln(sprintf(
+                '<error>DTAID or classCode for genre missing (%s)</error>',
+                $resource
+            ));
 
             return -1;
         }
 
         if (empty($entity->getLanguage())
-            || !in_array($entity->getLanguage(), [ 'eng', 'deu' ]))
-        {
-            $output->writeln(sprintf('<error>Invalid language %s (%s)</error>',
-                                     $resource));
+            || !in_array($entity->getLanguage(), ['eng', 'deu'])) {
+            $output->writeln(sprintf(
+                '<error>Invalid language %s (%s)</error>',
+                $resource
+            ));
 
             return -1;
         }
 
-        $dtaidStem = in_array($entity->getGenre(), [ 'document-collection', 'image-collection' ])
+        $dtaidStem = in_array($entity->getGenre(), ['document-collection', 'image-collection'])
             ? 'chapter' : $entity->getGenre();
 
         $reDtaid = sprintf('/^%s:%s\-\d+$/', $this->siteKey, $dtaidStem);
         if (!preg_match($reDtaid, $entity->getId())) {
-            $output->writeln(sprintf('<error>DTAID %s does not match the pattern %s</error>',
-                                     $entity->getId(), $reDtaid));
+            $output->writeln(sprintf(
+                '<error>DTAID %s does not match the pattern %s</error>',
+                $entity->getId(),
+                $reDtaid
+            ));
 
             return -1;
         }
 
         $articleUidLocal = preg_replace(sprintf('/^%s:/', $this->siteKey), '', $entity->getId());
 
-        $resourceNameExpected = sprintf('%s.%s.xml',
-                                        $articleUidLocal,
-                                        $entity->getLanguage());
+        $resourceNameExpected = sprintf(
+            '%s.%s.xml',
+            $articleUidLocal,
+            $entity->getLanguage()
+        );
 
         if ($resourceNameExpected != $resource) {
-            $output->writeln(sprintf('<error>resource %s does not match the expected value %s</error>',
-                                     $resource, $resourceNameExpected));
+            $output->writeln(sprintf(
+                '<error>resource %s does not match the expected value %s</error>',
+                $resource,
+                $resourceNameExpected
+            ));
 
             return -1;
         }
@@ -384,8 +445,11 @@ extends ExistDbCommand
             case 'map':
                 $parts = explode('/', $entity->getShelfmark());
                 if ($this->siteKey != $parts[0] || !preg_match('/^\d+\:(volume\-\d+)$/', $parts[1], $matches)) {
-                    $output->writeln(sprintf('<error>Could not determine volume from shelfmark %s/error>',
-                                             $entity->getShelfmark()));
+                    $output->writeln(sprintf(
+                        '<error>Could not determine volume from shelfmark %s/error>',
+                        $entity->getShelfmark()
+                    ));
+
                     return -1;
                 }
 
@@ -395,8 +459,10 @@ extends ExistDbCommand
                 break;
         }
 
-        $output->writeln(sprintf('<error>Not handling genre %s</error>',
-                                 $entity->getGenre()));
+        $output->writeln(sprintf(
+            '<error>Not handling genre %s</error>',
+            $entity->getGenre()
+        ));
 
         return -1;
     }

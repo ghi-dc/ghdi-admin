@@ -1,4 +1,5 @@
 <?php
+
 // src/Microkernel.php
 
 namespace App;
@@ -10,8 +11,7 @@ use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 // see https://symfony.com/doc/current/configuration/micro_kernel_trait.html
-final class MicroKernel
-extends Kernel
+final class MicroKernel extends Kernel
 {
     use MicroKernelTrait;
 
@@ -36,9 +36,6 @@ extends Kernel
         return new self($env, $debug);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function registerBundles(): array
     {
         $bundles = [
@@ -69,7 +66,7 @@ extends Kernel
             new \FS\SolrBundle\FSSolrBundle(),
         ];
 
-        if (in_array($this->getEnvironment(), [ 'dev', 'test' ], true)) {
+        if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
             $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
             $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
         }
@@ -110,9 +107,6 @@ extends Kernel
         return $this->getProjectDir() . '/config';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
     {
         $loader->load($this->getConfigDir() . '/config_' . $this->getEnvironment() . '.yaml');
@@ -134,11 +128,10 @@ extends Kernel
      * use
      *      bin/console debug:router
      * to show all your routes
-     *
      */
     protected function configureRoutes(RoutingConfigurator $routes)
     {
-        if (in_array($this->getEnvironment(), [ 'dev', 'test' ], true)) {
+        if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
             $routes->import('@WebProfilerBundle/Resources/config/routing/wdt.xml')->prefix('/_wdt');
             $routes->import('@WebProfilerBundle/Resources/config/routing/profiler.xml')->prefix('/_profiler');
 

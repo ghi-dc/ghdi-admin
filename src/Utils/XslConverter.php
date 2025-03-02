@@ -1,15 +1,15 @@
 <?php
+
 /**
  * Methods for Document Conversions.
  * Interfaces inspired by ezcDocumentConverter
  *  https://github.com/zetacomponents/Document/blob/master/src/interfaces/converter.php
- * TODO: Build a separate Component
+ * TODO: Build a separate Component.
  */
 
 namespace App\Utils;
 
-class XslConverter
-extends DocumentConverter
+class XslConverter extends DocumentConverter
 {
     public function __construct(array $options = [])
     {
@@ -24,7 +24,7 @@ extends DocumentConverter
     }
 
     /**
-     * Convert documents between two formats
+     * Convert documents between two formats.
      *
      * Convert documents of the given type to the requested type.
      *
@@ -46,19 +46,20 @@ extends DocumentConverter
             // native XsltProcessor doesn't handle XSLT 2.0
             // load xsl
             libxml_use_internal_errors(true);
-            $xsl = new \DomDocument('1.0', 'UTF-8');
+            $xsl = new \DOMDocument('1.0', 'UTF-8');
             $success = $xsl->load($this->options['xsl']);
             if (!$success) {
                 $this->errors = libxml_get_errors();
                 libxml_use_internal_errors(false);
+
                 return false;
             }
 
             // Create the XSLT processor
-            $proc = new \XsltProcessor();
+            $proc = new \XSLTProcessor();
             $proc->importStylesheet($xsl);
 
-            $dom = new \DomDocument('1.0', 'UTF-8');
+            $dom = new \DOMDocument('1.0', 'UTF-8');
             $success = $dom->load($doc->saveString());
 
             // Transform
@@ -66,6 +67,7 @@ extends DocumentConverter
             if (false === $res) {
                 $this->errors = libxml_get_errors();
                 libxml_use_internal_errors(false);
+
                 return false;
             }
 

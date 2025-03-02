@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Helper Class to work with TEI / DTA-Basisformat DTABf
+ * Helper Class to work with TEI / DTA-Basisformat DTABf.
  */
 
 namespace App\Utils;
@@ -32,13 +33,13 @@ class TeiHelper
         static $registered = false;
 
         if (!$registered) {
-            \App\Utils\Lod\Identifier\Factory::register(\App\Utils\Lod\Identifier\GndIdentifier::class);
-            \App\Utils\Lod\Identifier\Factory::register(\App\Utils\Lod\Identifier\WikidataIdentifier::class);
+            Lod\Identifier\Factory::register(Lod\Identifier\GndIdentifier::class);
+            Lod\Identifier\Factory::register(Lod\Identifier\WikidataIdentifier::class);
 
             $registered = true;
         }
 
-        return \App\Utils\Lod\Identifier\Factory::fromUri($uri);
+        return Lod\Identifier\Factory::fromUri($uri);
     }
 
     private function buildPerson($element, $givenNameFirst = false)
@@ -46,7 +47,7 @@ class TeiHelper
         $person = new \App\Entity\Person();
 
         if (!empty($element['corresp'])) {
-            $person->setSlug((string)$element['corresp']);
+            $person->setSlug((string) $element['corresp']);
         }
 
         if (!empty($element['ref'])) {
@@ -60,20 +61,20 @@ class TeiHelper
         }
 
         // unstructured
-        $person->setName((string)$element);
+        $person->setName((string) $element);
 
         // see if there is further structure we can use
         $result = $element('./tei:*');
         if ($result->length > 0) {
             // see http://www.deutschestextarchiv.de/doku/basisformat/mdPersName.html
-            $nodeMap = [ 'forename' => 'givenName', 'surname' => 'familyName' ];
+            $nodeMap = ['forename' => 'givenName', 'surname' => 'familyName'];
             $setStructured = false;
 
             foreach ($result as $node) {
                 if (array_key_exists($node->localName, $nodeMap)) {
                     $accessor = $nodeMap[$node->localName];
                     $method = 'set' . ucfirst($accessor);
-                    $person->$method((string)$node);
+                    $person->$method((string) $node);
                     $setStructured = true;
                 }
             }
@@ -87,7 +88,7 @@ class TeiHelper
     }
 
     /**
-     * Register http://www.tei-c.org/ns/1.0 as default and tei namespace
+     * Register http://www.tei-c.org/ns/1.0 as default and tei namespace.
      */
     protected function registerNamespaces(FluentDOMDocument $dom)
     {
@@ -96,10 +97,9 @@ class TeiHelper
     }
 
     /**
-     * Load file into \FluentDOM\DOM\Document
+     * Load file into \FluentDOM\DOM\Document.
      *
-     * @param string $fname
-     * @return \FluentDOM\DOM\Document|false
+     * @return FluentDOMDocument|false
      */
     protected function loadXml(string $fname)
     {
@@ -119,10 +119,9 @@ class TeiHelper
     }
 
     /**
-     * Load string into \FluentDOM\DOM\Document
+     * Load string into \FluentDOM\DOM\Document.
      *
      * @param string $content
-     * @return \FluentDOM\DOM\Document
      */
     protected function loadXmlString($content): FluentDOMDocument
     {
@@ -136,13 +135,14 @@ class TeiHelper
     }
 
     /**
-     * Extract XML document properties into Object
+     * Extract XML document properties into Object.
      *
-     * @param string $fname
-     * @param bool $asXml   Returns result properties like title as xml fragment if true
-     * @return Object|false
+     * @param bool $asXml Returns result properties like title as xml fragment if true
+     *
+     * @return object|false
      */
-    public function analyzeDocument(string $fname, bool $asXml = false) {
+    public function analyzeDocument(string $fname, bool $asXml = false)
+    {
         $dom = $this->loadXml($fname);
         if (false === $dom) {
             return false;
@@ -152,11 +152,11 @@ class TeiHelper
     }
 
     /**
-     * Extract XML document properties into Object
+     * Extract XML document properties into Object.
      *
-     * @param string $content
-     * @param bool $asXml   Returns result properties like title as xml fragment if true
-     * @return Object|false
+     * @param bool $asXml Returns result properties like title as xml fragment if true
+     *
+     * @return object|false
      */
     public function analyzeDocumentString(string $content, bool $asXml = false)
     {
@@ -169,19 +169,19 @@ class TeiHelper
     }
 
     /**
-     * Extract XML document properties into Object
+     * Extract XML document properties into Object.
      *
-     * @param \FluentDOM\DOM\Document $dom
-     * @param bool $asXml       Returns result properties like title as xml fragment if true
-     * @param bool $headerOnly  If set to true, ignore <body>
-     * @return Object|false
+     * @param bool $asXml      Returns result properties like title as xml fragment if true
+     * @param bool $headerOnly If set to true, ignore <body>
+     *
+     * @return object|false
      */
     protected function analyzeTeiStructure(FluentDOMDocument $dom, bool $asXml = false, bool $headerOnly = false)
     {
         $result = $dom('/tei:TEI/tei:teiHeader');
         if (0 == $result->length) {
             $this->errors = [
-                (object) [ 'message' => 'No teiHeader found' ],
+                (object) ['message' => 'No teiHeader found'],
             ];
 
             return false;
@@ -200,7 +200,7 @@ class TeiHelper
         }
 
         // author / editor
-        foreach ([ 'author' => 'tei:author', 'editor' => 'tei:editor[not(@role="translator")]' ] as $tagName => $tagExpression) {
+        foreach (['author' => 'tei:author', 'editor' => 'tei:editor[not(@role="translator")]'] as $tagName => $tagExpression) {
             $result = $header('./tei:fileDesc/tei:titleStmt/' . $tagExpression . '/tei:persName');
             foreach ($result as $element) {
                 $person = $this->buildPerson($element);
@@ -237,7 +237,7 @@ class TeiHelper
                         $responsible['role'] = $this->extractTextContent($childNode);
                         break;
 
-                    case '#text';
+                    case '#text':
                         $responsible['role'] .= $this->extractTextContent($childNode);
                         break;
 
@@ -262,11 +262,11 @@ class TeiHelper
         foreach ($result as $element) {
             switch ($element['type']) {
                 case 'firstPublication':
-                    $article->datePublished = new \DateTime((string)$element);
+                    $article->datePublished = new \DateTime((string) $element);
                     break;
 
                 case 'publication':
-                    $article->dateModified = new \DateTime((string)$element);
+                    $article->dateModified = new \DateTime((string) $element);
                     break;
             }
         }
@@ -276,8 +276,7 @@ class TeiHelper
         }
 
         if (!empty($article->datePublished) && !empty($article->dateModified)
-            && $article->datePublished->format('Y-m-d') == $article->dateModified->format('Y-m-d'))
-        {
+            && $article->datePublished->format('Y-m-d') == $article->dateModified->format('Y-m-d')) {
             unset($article->dateModified);
         }
 
@@ -285,31 +284,30 @@ class TeiHelper
         $article->rights = null;
         $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence');
         if ($result->length > 0) {
-            $article->licence = (string)$result[0]['target'];
+            $article->licence = (string) $result[0]['target'];
             $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:licence/tei:p');
             if (!empty($result)) {
-                $article->rights = (string)$result[0];
+                $article->rights = (string) $result[0];
             }
         }
         else {
             $article->licence = null;
             $result = $header('./tei:fileDesc/tei:publicationStmt/tei:availability/tei:p');
             if ($result->length > 0) {
-                $article->rights = (string)$result[0];
+                $article->rights = (string) $result[0];
             }
         }
 
         // uid, slug, shelfmark and doi
         foreach ([
-                'DTAID' => 'uid',
-                'DTADirName' => 'slug',
-                'shelfmark' => 'shelfmark',
-                'doi' => 'doi',
-            ] as $type => $target)
-        {
+            'DTAID' => 'uid',
+            'DTADirName' => 'slug',
+            'shelfmark' => 'shelfmark',
+            'doi' => 'doi',
+        ] as $type => $target) {
             $result = $header('(./tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="' . $type . '"])[1]');
             if ($result->length > 0) {
-                $article->$target = (string)$result[0];
+                $article->$target = (string) $result[0];
             }
         }
 
@@ -339,7 +337,7 @@ class TeiHelper
         $article->url = null;
         $result = $header('(./tei:fileDesc/tei:sourceDesc/tei:msDesc/tei:msIdentifier/tei:idno/tei:idno[@type="URLImages"])[1]');
         if ($result->length > 0) {
-            $article->url = (string)$result[0];
+            $article->url = (string) $result[0];
         }
 
         // dateCreated
@@ -357,7 +355,7 @@ class TeiHelper
 
         $result = $header('./tei:profileDesc/tei:textClass/tei:classCode');
         foreach ($result as $element) {
-            $text = (string)$element;
+            $text = (string) $element;
 
             switch ($element['scheme']) {
                 case $this->schemePrefix . 'genre':
@@ -401,7 +399,7 @@ class TeiHelper
         $result = $header('./tei:profileDesc/tei:langUsage/tei:language');
         foreach ($result as $element) {
             if (!empty($element['ident'])) {
-                $langIdents[] = (string)$element['ident'];
+                $langIdents[] = (string) $element['ident'];
             }
         }
         $article->language = join(', ', $langIdents);
@@ -410,7 +408,7 @@ class TeiHelper
             $result = $dom('/tei:TEI/tei:text/tei:body');
             if ($result->length < 1) {
                 $this->errors = [
-                    (object) [ 'message' => 'No body found' ],
+                    (object) ['message' => 'No body found'],
                 ];
 
                 return false;
@@ -426,12 +424,12 @@ class TeiHelper
 
     private function createElement($doc, $name, $content = null, ?array $attributes = null)
     {
-        list($prefix, $localName) = \FluentDOM\Utility\QualifiedName::split($name);
+        [$prefix, $localName] = \FluentDOM\Utility\QualifiedName::split($name);
 
         if (!empty($prefix)) {
             // check if prefix is equal to the default prefix, then we drop it
-            $namespaceURI = (string)$doc->namespaces()->resolveNamespace($prefix);
-            if (!empty($namespaceURI) && $namespaceURI === (string)$doc->namespaces()->resolveNamespace('#default')) {
+            $namespaceURI = (string) $doc->namespaces()->resolveNamespace($prefix);
+            if (!empty($namespaceURI) && $namespaceURI === (string) $doc->namespaces()->resolveNamespace('#default')) {
                 $name = $localName;
             }
         }
@@ -445,7 +443,7 @@ class TeiHelper
         $updateExisting = false;
 
         // if missing, we need to iteratively add
-        for ($depth = 0; $depth < count($pathParts); $depth++) {
+        for ($depth = 0; $depth < count($pathParts); ++$depth) {
             $name = $pathParts[$depth];
             $subPath = './' . $name;
             $result = $parent($subPath);
@@ -522,11 +520,11 @@ class TeiHelper
     }
 
     /**
-     * Load XML from file and adjust header according to $data
+     * Load XML from file and adjust header according to $data.
      *
      * @param string $fname
-     * @param array $data
-     * @return \FluentDOM\DOM\Document|false
+     *
+     * @return FluentDOMDocument|false
      */
     public function patchHeader($fname, array $data)
     {
@@ -539,11 +537,9 @@ class TeiHelper
     }
 
     /**
-     * Load XML from string and adjust header according to $data
+     * Load XML from string and adjust header according to $data.
      *
-     * @param string $fname
-     * @param array $data
-     * @return \FluentDOM\DOM\Document|false
+     * @return FluentDOMDocument|false
      */
     public function patchHeaderString($content, array $data)
     {
@@ -556,11 +552,9 @@ class TeiHelper
     }
 
     /**
-     * Adjust header in $dom according to $data
+     * Adjust header in $dom according to $data.
      *
-     * @param \FluentDOM\DOM\Document $dom
-     * @param array $data
-     * @return \FluentDOM\DOM\Document|false
+     * @return FluentDOMDocument|false
      */
     public function patchHeaderStructure(FluentDOMDocument $dom, array $data): FluentDOMDocument
     {
@@ -596,11 +590,10 @@ class TeiHelper
         }
 
         foreach ([
-                'title' => 'tei:fileDesc/tei:titleStmt/tei:title[@type="main"]',
-                'translator' => 'tei:fileDesc/tei:titleStmt/tei:editor[@role="translator"]',
-                'note' => 'tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"]',
-            ] as $key => $xpath)
-        {
+            'title' => 'tei:fileDesc/tei:titleStmt/tei:title[@type="main"]',
+            'translator' => 'tei:fileDesc/tei:titleStmt/tei:editor[@role="translator"]',
+            'note' => 'tei:fileDesc/tei:notesStmt/tei:note[@type="remarkDocument"]',
+        ] as $key => $xpath) {
             if (array_key_exists($key, $data)) {
                 if (self::isNullOrEmpty($data[$key])) {
                     // remove
@@ -642,20 +635,20 @@ class TeiHelper
                                 $ref = [];
 
                                 foreach ($author->getIdentifiers() as $name => $value) {
-                                    $identifier = \App\Utils\Lod\Identifier\Factory::byName($name);
+                                    $identifier = Lod\Identifier\Factory::byName($name);
                                     if (!is_null($identifier) && !empty($value)) {
                                         $identifier->setValue($value);
-                                        $ref[] = (string)$identifier;
+                                        $ref[] = (string) $identifier;
                                     }
                                 }
 
                                 $attributes = '';
                                 if (!empty($ref)) {
-                                    $attributes = sprintf (' ref="%s"', join(' ', $ref));
+                                    $attributes = sprintf(' ref="%s"', join(' ', $ref));
                                 }
 
                                 $nameParts = [];
-                                foreach ([ 'givenName' => 'forename', 'familyName' => 'surname' ] as $property => $tag) {
+                                foreach (['givenName' => 'forename', 'familyName' => 'surname'] as $property => $tag) {
                                     $method = 'get' . ucfirst($property);
                                     $val = $author->$method();
                                     if (!empty($val)) {
@@ -666,10 +659,12 @@ class TeiHelper
                                     // structured
                                     $tags = [];
                                     foreach ($nameParts as $tag => $val) {
-                                        $tags[] = sprintf('<%s>%s</%s>',
-                                                        $tag,
-                                                        \App\Entity\Person::xmlSpecialchars($val),
-                                                        $tag);
+                                        $tags[] = sprintf(
+                                            '<%s>%s</%s>',
+                                            $tag,
+                                            \App\Entity\Person::xmlSpecialchars($val),
+                                            $tag
+                                        );
                                     }
 
                                     $name = implode(' ', $tags);
@@ -679,9 +674,11 @@ class TeiHelper
                                 }
 
 
-                                $author = sprintf('<persName%s>%s</persName>',
-                                                  $attributes,
-                                                  $name);
+                                $author = sprintf(
+                                    '<persName%s>%s</persName>',
+                                    $attributes,
+                                    $name
+                                );
                             }
 
                             $fragment->appendXML($author);
@@ -739,7 +736,7 @@ class TeiHelper
                             return;
                         }
 
-                        list($prefix, $localName) = \FluentDOM\Utility\QualifiedName::split($name);
+                        [$prefix, $localName] = \FluentDOM\Utility\QualifiedName::split($name);
 
                         $self = $parent->appendElement($localName);
                     }
@@ -785,13 +782,11 @@ class TeiHelper
         }
 
         foreach ([
-                'id' => 'DTAID',
-                'shelfmark' => 'shelfmark',
-                'slug' => 'DTADirName',
-                'doi' => 'doi',
-            ]
-            as $key => $type)
-        {
+            'id' => 'DTAID',
+            'shelfmark' => 'shelfmark',
+            'slug' => 'DTADirName',
+            'doi' => 'doi',
+        ] as $key => $type) {
             if (array_key_exists($key, $data)) {
                 $xpath = sprintf('tei:fileDesc/tei:publicationStmt/tei:idno/tei:idno[@type="%s"]', $type);
 
@@ -803,7 +798,7 @@ class TeiHelper
                     $this->addDescendants($header, $xpath, [
                         sprintf('tei:idno[@type="%s"]', $type) => function ($parent, $name, $updateExisting) use ($data, $key, $type) {
                             if (!$updateExisting) {
-                                $self = $parent->appendElement('idno', $data[$key], [ 'type' => $type ]);
+                                $self = $parent->appendElement('idno', $data[$key], ['type' => $type]);
                             }
                             else {
                                 $self = $parent;
@@ -820,9 +815,8 @@ class TeiHelper
 
         // sourceDesc
         foreach ([
-                'sourceDescBibl' => 'tei:fileDesc/tei:sourceDesc/tei:bibl',
-            ] as $key => $xpath)
-        {
+            'sourceDescBibl' => 'tei:fileDesc/tei:sourceDesc/tei:bibl',
+        ] as $key => $xpath) {
             if (array_key_exists($key, $data)) {
                 if (self::isNullOrEmpty($data[$key])) {
                     // remove
@@ -844,12 +838,12 @@ class TeiHelper
         if (array_key_exists('dateCreated', $data)) {
             if (!empty($data['dateCreated'])) {
                 $this->addDescendants($header, 'tei:fileDesc/tei:sourceDesc/tei:biblFull/tei:publicationStmt/tei:date', [
-                    'tei:biblFull' => function ($parent, $name, $updateExisting) use ($dom, $data) {
+                    'tei:biblFull' => function ($parent, $name, $updateExisting) use ($dom) {
                         if (!$updateExisting) {
                             $self = $parent->appendChild($this->createElement($parent->ownerDocument, $name));
                             $documentFragment = '<titleStmt><title type="main"></title></titleStmt>'
                                 . '<publicationStmt><publisher></publisher></publicationStmt>'
-                                ;
+                            ;
                             $fragment = $dom->createDocumentFragment();
                             $fragment->appendXML($documentFragment);
 
@@ -892,7 +886,7 @@ class TeiHelper
 
         // profileDesc
         if (!empty($data['language'])) {
-            $languageName = \App\Utils\Iso639::nameByCode3($data['language']);
+            $languageName = Iso639::nameByCode3($data['language']);
             $this->addDescendants($header, 'tei:profileDesc/tei:langUsage/tei:language', [
                 'tei:language' => function ($parent, $name, $updateExisting) use ($data, $languageName) {
                     if (!$updateExisting) {
@@ -911,7 +905,7 @@ class TeiHelper
         }
 
 
-        foreach ([ 'genre' => 'genre', 'translatedFrom' => 'translated-from' ] as $key => $scheme) {
+        foreach (['genre' => 'genre', 'translatedFrom' => 'translated-from'] as $key => $scheme) {
             if (array_key_exists($key, $data)) {
                 $code = $data[$key];
                 $this->addDescendants($header, 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "' . $scheme . '")]', [
@@ -932,7 +926,7 @@ class TeiHelper
             }
         }
 
-        foreach ([ 'terms' => 'term', 'meta' => 'meta', 'lcsh' => 'lcsh' ] as $key => $scheme) {
+        foreach (['terms' => 'term', 'meta' => 'meta', 'lcsh' => 'lcsh'] as $key => $scheme) {
             if (array_key_exists($key, $data)) {
                 $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "' . $scheme . '")]';
                 // since there can be multiple, first clear and then add
@@ -982,11 +976,9 @@ class TeiHelper
     }
 
     /**
-     * Load XML from string and adjust urls in media/figure tags
+     * Load XML from string and adjust urls in media/figure tags.
      *
-     * @param string $content
-     * @param callable $urlAdjustCallback
-     * @return array|false  Structure with document and urls or false
+     * @return array|false Structure with document and urls or false
      */
     public function adjustMediaUrlString(string $content, callable $urlAdjustCallback)
     {
@@ -1010,20 +1002,19 @@ class TeiHelper
     }
 
     /**
-     * Take \FluentDOM\DOM\Document and adjust urls in media/figure tags
+     * Take \FluentDOM\DOM\Document and adjust urls in media/figure tags.
      *
-     * @param \FluentDOM\DOM\Document $dom
      * @param callable $urlAdjustCallback
+     *
      * @return array Structure with document and urls
      */
-    protected function adjustMediaUrlStructure(FluentDOMDocument $dom, $urlAdjustCallback) : array
+    protected function adjustMediaUrlStructure(FluentDOMDocument $dom, $urlAdjustCallback): array
     {
         $urlMap = [];
 
         foreach ($dom('//tei:media[@url]') as $mediaTag) {
             if (!empty($mediaTag['mimeType'])
-                && in_array($mediaTag['mimeType'], [ 'audio/mpeg', 'video/mp4' ]))
-            {
+                && in_array($mediaTag['mimeType'], ['audio/mpeg', 'video/mp4'])) {
                 // we currently leave AV as is
                 continue;
             }
@@ -1035,7 +1026,7 @@ class TeiHelper
             $this->adjustUrl($urlMap, $figureTag, $urlAdjustCallback, 'facs');
         }
 
-        return [ 'document' => $dom, 'urls' => $urlMap ];
+        return ['document' => $dom, 'urls' => $urlMap];
     }
 
     protected function extractInnerContent($node)
@@ -1082,7 +1073,7 @@ class TeiHelper
                     ? 'corresp' : 'ref';
 
                 if (empty($entity['attributes'][$attribute])) {
-                  continue;
+                    continue;
                 }
 
                 $uri = trim($entity['attributes'][$attribute]);
@@ -1092,9 +1083,8 @@ class TeiHelper
                         $type = 'place';
                         if (preg_match('/^'
                                        . preg_quote('http://vocab.getty.edu/tgn/', '/')
-                                       . '\d+$/', $uri))
-                        {
-                            ;
+                                       . '\d+$/', $uri)) {
+
                         }
                         else if (preg_match('/geo\:(-?\d+\.\d*),\s*(-?\d+\.\d*)/', $uri, $matches)) {
                             $uri = sprintf('geo:%s,%s', $matches[1], $matches[2]);
@@ -1105,7 +1095,7 @@ class TeiHelper
                         }
                         break;
 
-                      case '{http://www.tei-c.org/ns/1.0}persName':
+                    case '{http://www.tei-c.org/ns/1.0}persName':
                         $type = 'person';
                         if (preg_match('/^https?'
                                        . preg_quote('://d-nb.info/gnd/', '/')
@@ -1118,9 +1108,8 @@ class TeiHelper
                             || preg_match('/^'
                                             . preg_quote('http://www.stolpersteine-hamburg.de/', '/')
                                             . '.*?BIO_ID=(\d+)/', $uri)
-                        )
-                        {
-                            ;
+                        ) {
+
                         }
                         else {
                             // die($uri);
@@ -1128,13 +1117,12 @@ class TeiHelper
                         }
                         break;
 
-                      case '{http://www.tei-c.org/ns/1.0}orgName':
+                    case '{http://www.tei-c.org/ns/1.0}orgName':
                         $type = 'organization';
                         if (preg_match('/^https?'
                                        . preg_quote('://d-nb.info/gnd/', '/')
-                                       . '\d+\-?[\dxX]?$/', $uri))
-                        {
-                            ;
+                                       . '\d+\-?[\dxX]?$/', $uri)) {
+
                         }
                         else {
                             // die($uri);
@@ -1142,13 +1130,12 @@ class TeiHelper
                         }
                         break;
 
-                      case '{http://www.tei-c.org/ns/1.0}date':
+                    case '{http://www.tei-c.org/ns/1.0}date':
                         $type = 'event';
                         if (preg_match('/^https?'
                                        . preg_quote('://d-nb.info/gnd/', '/')
-                                       . '\d+\-?[\dxX]?$/', $uri))
-                        {
-                            ;
+                                       . '\d+\-?[\dxX]?$/', $uri)) {
+
                         }
                         else {
                             // die($uri);
@@ -1156,7 +1143,7 @@ class TeiHelper
                         }
                         break;
 
-                      default:
+                    default:
                         unset($uri);
                 }
 
@@ -1197,7 +1184,7 @@ class TeiHelper
             $output = $reader->parse();
             foreach ($output as $item) {
                 if (empty($item['attributes']['corresp'])) {
-                  continue;
+                    continue;
                 }
 
                 $key = trim($item['attributes']['corresp']);
@@ -1224,8 +1211,7 @@ class TeiHelper
     }
 }
 
-class CollectingReader
-extends \Sabre\Xml\Reader
+class CollectingReader extends \Sabre\Xml\Reader
 {
     protected $collected;
 
@@ -1234,7 +1220,7 @@ extends \Sabre\Xml\Reader
         $this->collected[] = $output;
     }
 
-    function parse() : array
+    function parse(): array
     {
         $this->collected = [];
         parent::parse();

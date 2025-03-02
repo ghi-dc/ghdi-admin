@@ -9,10 +9,8 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
-use Symfony\Component\Validator\Constraints as Assert;
 
-class OrganizationType
-extends AbstractType
+class OrganizationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -92,7 +90,7 @@ extends AbstractType
                     'required' => false,
                 ])
             )
-            ;
+        ;
 
         $builder->add('save', SubmitType::class, [
             'label' => 'Save',

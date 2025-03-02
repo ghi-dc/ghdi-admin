@@ -2,16 +2,12 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
 /**
- * Periodical
+ * Periodical.
  *
  * @see https://schema.org/Periodical
- *
  */
-class Periodical
-extends CreativeWork
+class Periodical extends CreativeWork
 {
     /**
      * @var string The International Standard Serial Number (ISSN) that identifies this serial publication

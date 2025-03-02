@@ -2,7 +2,4 @@
 
 namespace App\Utils\Lod\Provider;
 
-interface TermProvider
-extends Provider
-{
-}
+interface TermProvider extends Provider {}

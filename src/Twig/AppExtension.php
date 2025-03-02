@@ -1,25 +1,27 @@
 <?php
+
 // src/Twig/AppExtension.php
 
 /**
- * see https://symfony.com/doc/current/templating/twig_extension.html
+ * see https://symfony.com/doc/current/templating/twig_extension.html.
  */
+
 namespace App\Twig;
 
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AppExtension
-extends \Twig\Extension\AbstractExtension
+class AppExtension extends \Twig\Extension\AbstractExtension
 {
     private $kernel;
     private $translator;
     private $slugifyer;
 
-    public function __construct(?KernelInterface $kernel = null,
-                                ?TranslatorInterface $translator = null,
-                                $slugifyer = null)
-    {
+    public function __construct(
+        ?KernelInterface $kernel = null,
+        ?TranslatorInterface $translator = null,
+        $slugifyer = null
+    ) {
         $this->kernel = $kernel;
         $this->translator = $translator;
         $this->slugifyer = $slugifyer;
@@ -40,9 +42,9 @@ extends \Twig\Extension\AbstractExtension
     {
         return [
             // general
-            new \Twig\TwigFilter('dateincomplete', [ $this, 'dateincompleteFilter' ]),
-            new \Twig\TwigFilter('remove_by_key', [ $this, 'removeElementByKey' ]),
-            new \Twig\TwigFilter('prettifyurl', [ $this, 'prettifyurlFilter' ]),
+            new \Twig\TwigFilter('dateincomplete', [$this, 'dateincompleteFilter']),
+            new \Twig\TwigFilter('remove_by_key', [$this, 'removeElementByKey']),
+            new \Twig\TwigFilter('prettifyurl', [$this, 'prettifyurlFilter']),
 
             // app specific
         ];

@@ -2,21 +2,16 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
 use JMS\Serializer\Annotation as Serializer;
 
 /**
  * The geographic coordinates of a place or event.
  *
  * @see http://schema.org/GeoCoordinates Documentation on Schema.org
- *
- *
  */
 #[Serializer\XmlRoot('GeoCoordinates')]
 #[Serializer\XmlNamespace(uri: 'http://www.w3.org/XML/1998/namespace', prefix: 'xml')]
-class GeoCoordinates
-extends SchemaOrg
+class GeoCoordinates extends SchemaOrg
 {
     /**
      * @var string
@@ -119,6 +114,6 @@ extends SchemaOrg
             return null;
         }
 
-        return implode(',', [ $this->latitude, $this->longitude ]);
+        return implode(',', [$this->latitude, $this->longitude]);
     }
 }

@@ -8,12 +8,9 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TermType
-extends AbstractType
+class TermType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -82,7 +79,7 @@ extends AbstractType
                     'required' => false,
                 ])
             )
-            ;
+        ;
 
         $builder->add('save', SubmitType::class, [
             'label' => 'Save',
@@ -92,7 +89,7 @@ extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-          'choices' => null,
+            'choices' => null,
         ]);
     }
 

@@ -1,22 +1,18 @@
 <?php
-/*
- *
- */
+
 namespace App\Utils;
 
-/**
- *
- */
 class JsonLd
 {
     /** No instances */
     private function __construct() {}
 
     /**
-     * Convert
+     * Convert.
      *
-     * @param  String|\DateTime $date  date string
-     * @return String        formatted date string (either YYYY or YYYY-MM-DD)
+     * @param string|\DateTime $date date string
+     *
+     * @return string formatted date string (either YYYY or YYYY-MM-DD)
      */
     public static function formatDate8601($date)
     {
@@ -31,10 +27,12 @@ class JsonLd
 
         $ret = [];
         $parts = date_parse($date);
-        foreach ([ 'year', 'month', 'day' ] as $part) {
+        foreach (['year', 'month', 'day'] as $part) {
             if (0 != $parts[$part]) {
-                $ret[] = sprintf('year' == $part ? '%04d' : '%02d',
-                                 $parts[$part]);
+                $ret[] = sprintf(
+                    'year' == $part ? '%04d' : '%02d',
+                    $parts[$part]
+                );
             }
         }
         if (empty($ret)) {

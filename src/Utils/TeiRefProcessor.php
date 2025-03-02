@@ -2,9 +2,6 @@
 
 namespace App\Utils;
 
-/**
- *
- */
 class TeiRefProcessor
 {
     protected $client;
@@ -21,12 +18,12 @@ class TeiRefProcessor
     protected function unparse_url($parsed_url)
     {
         $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        $host     = $parsed_url['host'] ?? '';
         $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+        $user     = $parsed_url['user'] ?? '';
+        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
         $pass     = ($user || $pass) ? "$pass@" : '';
-        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $path     = $parsed_url['path'] ?? '';
         $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
@@ -51,11 +48,11 @@ class TeiRefProcessor
 
         if (array_key_exists('scheme', $components) && 'javascript' == $components['scheme']) {
             if (preg_match('/^bioinfo\((\d+)\)$/', $components['path'], $matches)) {
-                return [ 'bio', [ 'id' => $matches[1] ]];
+                return ['bio', ['id' => $matches[1]]];
             }
 
             var_dump($components);
-            die('TODO: handle');
+            exit('TODO: handle');
         }
 
         $queryParts = [];
@@ -94,19 +91,19 @@ class TeiRefProcessor
                 $routeParams['id'] = $queryParts['map_id'];
                 break;
 
-            // shows in section_id:12
+                // shows in section_id:12
             case '/bioinfo.cfm':
                 $route = 'bio';
                 $routeParams['id'] = $queryParts['bio_id'];
                 break;
 
-            // special for section_id:15
+                // special for section_id:15
             case '/sub_docs.cfm':
                 $route = 'subsections-documents';
                 $routeParams['id'] = $queryParts['section_id'];
                 break;
 
-            // special for section_id:15
+                // special for section_id:15
             case '/sub_doclist.cfm':
             case '/sub_imglist.cfm':
                 $route = 'subsection-documents';
@@ -114,7 +111,7 @@ class TeiRefProcessor
                 $routeParams['sub_id'] = $queryParts['sub_id'];
                 break;
 
-            // special for section_id:9
+                // special for section_id:9
             case '/facsimile.cfm':
                 $route = 'document';
                 $routeParams['id'] = $queryParts['document_id'];
@@ -127,19 +124,19 @@ class TeiRefProcessor
                 }
                 else {
                     var_dump($components);
-                    die('TODO: handle');
+                    exit('TODO: handle');
                 }
         }
 
-        return [ $route, $routeParams ];
+        return [$route, $routeParams];
     }
 
     protected function documentAvailable($uri)
     {
         $xql = <<<EOXQL
-    declare variable \$uri external;
-    fn:doc-available(\$uri)
-EOXQL;
+                declare variable \$uri external;
+                fn:doc-available(\$uri)
+            EOXQL;
 
         $query = $this->client->prepareQuery($xql);
         $query->bindVariable('uri', $uri);
@@ -159,7 +156,7 @@ EOXQL;
                 $target = sprintf('%s-%d', $route, $routeParams['id']);
                 if (!is_null($this->client)) {
                     // check if available within this volume
-                    $lang =  \App\Utils\Iso639::code1To3($this->locale);
+                    $lang =  Iso639::code1To3($this->locale);
                     $resourcePath = $this->client->getCollection() . '/' . $this->volume . '/' . $target . '.' . $lang . '.xml';
 
                     if (!$this->documentAvailable($resourcePath)) {
@@ -184,12 +181,12 @@ EOXQL;
 
             $components = parse_url($target);
             if ((array_key_exists('scheme', $components) && 'javascript' == $components['scheme'])
-                || (array_key_exists('host', $components)
-                    && (strpos($components['host'], 'germanhistorydocs') !== false
-                        || strpos($components['host'], 'ghdi.ghi-dc.org') !== false)
-                ))
-            {
-                list($route, $routeParameters) = $this->buildRouteVariables($components);
+                || (
+                    array_key_exists('host', $components)
+                    && (false !== strpos($components['host'], 'germanhistorydocs')
+                        || false !== strpos($components['host'], 'ghdi.ghi-dc.org'))
+                )) {
+                [$route, $routeParameters] = $this->buildRouteVariables($components);
                 if (!empty($route)) {
                     $adjusted = $this->buildTarget($route, $routeParameters);
                     if (false !== $adjusted) {
@@ -197,6 +194,6 @@ EOXQL;
                     }
                 }
             }
-        };
+        }
     }
 }

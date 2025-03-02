@@ -1,4 +1,5 @@
 <?php
+
 // src/Command/WordToTeiCommand.php
 
 namespace App\Command;
@@ -9,26 +10,24 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Implement
  *  convert:word2tei
- * for stand-alone conversions of .docx files
+ * for stand-alone conversions of .docx files.
  */
-class WordToTeiCommand
-extends Command
+class WordToTeiCommand extends Command
 {
     protected $projectDir;
     protected $pandocConverter;
     protected $teiPrettyPrinter;
 
-    public function __construct(KernelInterface $kernel,
-                                \App\Utils\PandocConverter $pandocConverter,
-                                \App\Utils\XmlPrettyPrinter\XmlPrettyPrinter $teiPrettyPrinter)
-    {
+    public function __construct(
+        KernelInterface $kernel,
+        \App\Utils\PandocConverter $pandocConverter,
+        \App\Utils\XmlPrettyPrinter\XmlPrettyPrinter $teiPrettyPrinter
+    ) {
         parent::__construct();
 
         $this->projectDir = $kernel->getProjectDir();
@@ -71,9 +70,9 @@ extends Command
                 'Specify to force reindexing existing resources'
             )
             ->setDescription('Convert Word-File (docx or odt) to TEI')
-            ;
+        ;
 
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        if ('WIN' === strtoupper(substr(PHP_OS, 0, 3))) {
             // the following is currently windows only and needs perl and word installed
             $this
                 ->addOption(
@@ -82,15 +81,17 @@ extends Command
                     InputOption::VALUE_NONE,
                     'Replaces underline with strikethrough'
                 );
-            }
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $file = $input->getArgument('file');;
+        $file = $input->getArgument('file');
         if (!file_exists($file)) {
-            $output->writeln(sprintf('<error>File does not exist (%s)</error>',
-                                     $file));
+            $output->writeln(sprintf(
+                '<error>File does not exist (%s)</error>',
+                $file
+            ));
 
             return -1;
         }
@@ -101,7 +102,7 @@ extends Command
             // TODO: make perl-path configurable
             $scriptName = $this->projectDir . '/data/bin/word-search-replace.pl';
 
-            $process = new \Symfony\Component\Process\Process(["C:\\Run\\Perl\\perl\\bin\\perl.exe", $scriptName, $file]);
+            $process = new \Symfony\Component\Process\Process(['C:\\Run\\Perl\\perl\\bin\\perl.exe', $scriptName, $file]);
             $process->run();
 
             // executes after the command finishes
@@ -116,9 +117,7 @@ extends Command
         }
 
         // inject TeiFromWordCleaner
-        $myTarget = new class()
-        extends \App\Utils\TeiSimplePrintDocument
-        {
+        $myTarget = new class extends \App\Utils\TeiSimplePrintDocument {
             use \App\Utils\TeiFromWordCleaner;
         };
 
@@ -172,16 +171,18 @@ extends Command
 
         // validate except for validate=false
         $validate = is_null($input->getOption('validate'))
-            || !in_array($input->getOption('validate'), [ '0', 'false' ]);
+            || !in_array($input->getOption('validate'), ['0', 'false']);
 
         if ($validate) {
             $valid = $teiDtabfDoc->validate($this->projectDir . '/data/schema/basisformat.rng');
             if (!$valid) {
-                 $errOutput = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+                $errOutput = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
 
                 foreach ($teiDtabfDoc->getErrors() as $error) {
-                    $errOutput->writeln(sprintf('<error>Validation error: %s</error>',
-                                                $error->message));
+                    $errOutput->writeln(sprintf(
+                        '<error>Validation error: %s</error>',
+                        $error->message
+                    ));
                 }
 
                 return -2;

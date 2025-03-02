@@ -1,27 +1,22 @@
 <?php
+
 // src/Controller/BaseController.php
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
-
 use App\Service\ExistDbClientService;
 use App\Utils\XmlPrettyPrinter\XmlPrettyPrinter;
 
 /**
- * Base class setting up various paths and services
+ * Base class setting up various paths and services.
  */
-abstract class BaseController
-extends AbstractController
+abstract class BaseController extends AbstractController
 {
     use \App\Utils\RenderTeiTrait;
 
@@ -40,13 +35,14 @@ extends AbstractController
         'terms' => '/data/authority/terms',
     ];
 
-    public function __construct(ExistDbClientService $existDbClientService,
-                                KernelInterface $kernel,
-                                Security $security,
-                                XmlPrettyPrinter $teiPrettyPrinter,
-                                string $siteKey,
-                                int $sequenceStart)
-    {
+    public function __construct(
+        ExistDbClientService $existDbClientService,
+        KernelInterface $kernel,
+        Security $security,
+        XmlPrettyPrinter $teiPrettyPrinter,
+        string $siteKey,
+        int $sequenceStart
+    ) {
         $this->existDbClientService = $existDbClientService;
         $this->kernel = $kernel;
         $this->security = $security;
@@ -115,12 +111,12 @@ extends AbstractController
     private function unparse_url($parsed_url)
     {
         $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+        $host     = $parsed_url['host'] ?? '';
         $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+        $user     = $parsed_url['user'] ?? '';
+        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
         $pass     = ($user || $pass) ? "$pass@" : '';
-        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+        $path     = $parsed_url['path'] ?? '';
         $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
@@ -159,7 +155,7 @@ extends AbstractController
         $query = $client->prepareQuery($xql);
         $query->setJSONReturnType();
         $query->bindVariable('collection', $client->getCollection());
-        $query->bindVariable('id', implode(':', [ $this->siteKey,  $id ]));
+        $query->bindVariable('id', implode(':', [$this->siteKey,  $id]));
         $query->bindVariable('lang', $lang);
         $res = $query->execute();
         $volume = $res->getNextResult();
@@ -177,7 +173,7 @@ extends AbstractController
         $query = $client->prepareQuery($xql);
         $query->setJSONReturnType();
         $query->bindVariable('collection', $client->getCollection());
-        $query->bindVariable('id', implode(':', [ $this->siteKey,  $id ]));
+        $query->bindVariable('id', implode(':', [$this->siteKey,  $id]));
         $query->bindVariable('lang', $lang);
         $res = $query->execute();
         $resource = $res->getNextResult();
@@ -212,7 +208,7 @@ extends AbstractController
             $name = $term['name'];
             $value = null;
 
-            foreach ([ 'gnd', 'lcauth', 'wikidata' ] as $vocabulary) {
+            foreach (['gnd', 'lcauth', 'wikidata'] as $vocabulary) {
                 $identifier = null;
 
                 if (!empty($term[$vocabulary])) {
@@ -274,13 +270,15 @@ extends AbstractController
         return file_get_contents($fnameSkeleton);
     }
 
-    protected function teiToDublinCore(TranslatorInterface $translator,
-                                       $client, $resourcePath)
-    {
+    protected function teiToDublinCore(
+        TranslatorInterface $translator,
+        $client,
+        $resourcePath
+    ) {
         $xql = $this->renderView('XQuery/tei2dc.xql.twig', []);
 
         $query = $client->prepareQuery($xql);
-        $query->bindVariable('site', /** @Ignore */$translator->trans($this->getParameter('app.site.name'), [], 'additional'));
+        $query->bindVariable('site', /* @Ignore */$translator->trans($this->getParameter('app.site.name'), [], 'additional'));
 
         $query->bindVariable('resource', $resourcePath);
 
@@ -298,9 +296,8 @@ extends AbstractController
     }
 
     /**
-     * Takes a TEI string and tries to adjust indenting
+     * Takes a TEI string and tries to adjust indenting.
      *
-     * @param string $tei
      * @return string|\App\Utils\TeiDocument
      */
     protected function prettyPrintTei(string $tei)
@@ -319,10 +316,13 @@ extends AbstractController
         return $teiDtabfDoc;
     }
 
-    protected function teiToHtml(\ExistDbRpc\Client $client,
-                                 $resourcePath, $lang,
-                                 $path = null, $unwrapArticleDiv = false)
-    {
+    protected function teiToHtml(
+        \ExistDbRpc\Client $client,
+        $resourcePath,
+        $lang,
+        $path = null,
+        $unwrapArticleDiv = false
+    ) {
         $xql = $this->renderView('Resource/tei2html.xql.twig', [
             'path' => $path,
         ]);
@@ -346,10 +346,9 @@ extends AbstractController
     }
 
     /**
-     * anvc/scalar is picky about newlines and whitespaces in html content
+     * anvc/scalar is picky about newlines and whitespaces in html content.
      *
      * The following is an attempt to tweak so the display looks good
-     *
      */
     protected function minify($html, $inlineContent = false)
     {
@@ -403,9 +402,13 @@ extends AbstractController
         return $hasPart;
     }
 
-    protected function teiToScalar($client, $resourcePath, $lang,
-                                   $children = null, $embeddedFigure = false)
-    {
+    protected function teiToScalar(
+        $client,
+        $resourcePath,
+        $lang,
+        $children = null,
+        $embeddedFigure = false
+    ) {
         $ret = [];
 
         // access metadata
@@ -416,8 +419,8 @@ extends AbstractController
         $ret['scalar:metadata:slug'] = $uid[1];
 
         $fieldDescr = [
-            'dcterms:title' => [ 'xpath' => '//tei:titleStmt/tei:title', 'inlineContent' => true ],
-            'sioc:content' => [ 'xpath' => '']
+            'dcterms:title' => ['xpath' => '//tei:titleStmt/tei:title', 'inlineContent' => true],
+            'sioc:content' => ['xpath' => ''],
         ];
 
         if ($embeddedFigure) {
@@ -448,9 +451,9 @@ extends AbstractController
                 }
 
                 $ret['scalar:metadata:url'] = $url;
-                foreach ([ 'description', 'creator', 'date' ] as $key) {
+                foreach (['description', 'creator', 'date'] as $key) {
                     if (!empty($media[$key])) {
-                        $ret['dcterms:' . $key ] = $this->minify($media[$key], 'description' != $key);
+                        $ret['dcterms:' . $key] = $this->minify($media[$key], 'description' != $key);
                     }
                 }
             }
@@ -469,9 +472,11 @@ extends AbstractController
             $html = $res->getNextResult();
             $res->release();
 
-            $ret[$key] = $this->minify($this->markCombiningE($html),
-                                       array_key_exists('inlineContent', $descr)
-                                       ? $descr['inlineContent'] : false);
+            $ret[$key] = $this->minify(
+                $this->markCombiningE($html),
+                array_key_exists('inlineContent', $descr)
+                                       ? $descr['inlineContent'] : false
+            );
         }
 
         if (!empty($children)) {
@@ -549,7 +554,7 @@ extends AbstractController
             }
 
             if (!array_key_exists($entity['uri'], $entitiesByType[$entity['type']])) {
-                $entitiesByType[$entity['type']][$entity['uri']] = [ 'count' => 0 ];
+                $entitiesByType[$entity['type']][$entity['uri']] = ['count' => 0];
             }
 
             ++$entitiesByType[$entity['type']][$entity['uri']]['count'];
@@ -561,7 +566,7 @@ extends AbstractController
             }
 
             if (!array_key_exists($entity['uri'], $entitiesByType[$entity['type']])) {
-                $entitiesByType[$entity['type']][$entity['uri']] = [ 'count' => 0 ];
+                $entitiesByType[$entity['type']][$entity['uri']] = ['count' => 0];
             }
 
             ++$entitiesByType[$entity['type']][$entity['uri']]['count'];
@@ -647,8 +652,7 @@ extends AbstractController
 
             if (!empty($info)) {
                 if (array_key_exists($resultKey, $info['data'])
-                    && !empty($info['data'][$resultKey]))
-                {
+                    && !empty($info['data'][$resultKey])) {
                     switch ($resultKey) {
                         case 'tgn':
                             $tgn = $info['data'][$resultKey];

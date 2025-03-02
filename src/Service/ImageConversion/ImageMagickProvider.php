@@ -1,4 +1,5 @@
 <?php
+
 // src/Service/ImageConversion/ImageConversion.php
 
 namespace App\Service\ImageConversion;
@@ -38,7 +39,7 @@ class ImageMagickProvider
         $type_src = $options['src_type'];
         $type_target = $options['target_type'];
 
-        if (in_array($type_src, [ 'application/pdf' ])) {
+        if (in_array($type_src, ['application/pdf'])) {
             $fname_src .= '[0]'; // only first page, maybe use this also for tiff and similar type_target with multiple images
         }
 
@@ -59,7 +60,7 @@ class ImageMagickProvider
             }
         }
 
-        if ($type_src == 'application/pdf') {
+        if ('application/pdf' == $type_src) {
             $arguments[] = '-flatten';
         }
 

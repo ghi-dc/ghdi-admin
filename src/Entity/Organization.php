@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
 use JMS\Serializer\Annotation as Serializer;
 
 /**
@@ -13,43 +11,42 @@ use JMS\Serializer\Annotation as Serializer;
  */
 #[Serializer\XmlRoot('Organization')]
 #[Serializer\XmlNamespace(uri: 'http://www.w3.org/XML/1998/namespace', prefix: 'xml')]
-class Organization
-extends SchemaOrg
+class Organization extends SchemaOrg
 {
     /**
-     * @var string The date that this organization was dissolved.
+     * @var string the date that this organization was dissolved
      */
     #[Serializer\XmlElement(cdata: false)]
     #[Serializer\Type('string')]
     protected $dissolutionDate;
 
     /**
-     * @var string The date that this organization was founded.
+     * @var string the date that this organization was founded
      */
     #[Serializer\XmlElement(cdata: false)]
     #[Serializer\Type('string')]
     protected $foundingDate;
 
     /**
-     * @var Place The place where the organization was founded.
+     * @var Place the place where the organization was founded
      */
     #[Serializer\Type('string')]
     protected $foundingLocation;
 
     /**
-     * @var Place The location where the organization is located.
+     * @var Place the location where the organization is located
      */
     #[Serializer\Type('string')]
     protected $location;
 
     /**
-     * @var Organization The organization that preceded this on.
+     * @var Organization the organization that preceded this on
      */
     #[Serializer\Type('string')]
     protected $precedingOrganization;
 
     /**
-     * @var Organization The organization that suceeded this on.
+     * @var Organization the organization that suceeded this on
      */
     #[Serializer\Type('string')]
     protected $succeedingOrganization;
@@ -105,8 +102,6 @@ extends SchemaOrg
     /**
      * Sets foundingLocation.
      *
-     * @param Place|null $foundingLocation
-     *
      * @return $this
      */
     public function setFoundingLocation(?Place $foundingLocation = null)
@@ -129,8 +124,6 @@ extends SchemaOrg
     /**
      * Sets location.
      *
-     * @param Place|null $location
-     *
      * @return $this
      */
     public function setLocation(?Place $location = null)
@@ -152,8 +145,6 @@ extends SchemaOrg
 
     /**
      * Sets precedingOrganization.
-     *
-     * @param Organization|null $precedingOrganization
      *
      * @return $this
      */

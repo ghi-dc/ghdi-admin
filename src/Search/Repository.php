@@ -9,10 +9,7 @@ use FS\SolrBundle\SolrInterface;
 class Repository extends \FS\SolrBundle\Repository\Repository
 {
     /**
-     * Custom constructor to adjust HydrationMode
-     *
-     * @param SolrInterface            $solr
-     * @param MetaInformationInterface $metaInformation
+     * Custom constructor to adjust HydrationMode.
      */
     public function __construct(SolrInterface $solr, MetaInformationInterface $metaInformation)
     {
@@ -22,9 +19,6 @@ class Repository extends \FS\SolrBundle\Repository\Repository
     }
 
     /* debugging */
-    /**
-     * {@inheritdoc}
-     */
     public function findBy(array $args)
     {
         $query = $this->solr->createQuery($this->metaInformation->getEntity());

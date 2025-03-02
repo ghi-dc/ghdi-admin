@@ -1,4 +1,5 @@
 <?php
+
 // src/Controller/ResourceController.php
 
 namespace App\Controller;
@@ -6,40 +7,37 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
-
 use App\Service\CollectiveAccessService;
 use App\Utils\MpdfConverter;
 
 /**
- * List and display section and resource
+ * List and display section and resource.
  */
-class ResourceController
-extends BaseController
+class ResourceController extends BaseController
 {
     /**
-     * Make unique across language so we can line-up different languages under same id
+     * Make unique across language so we can line-up different languages under same id.
      */
     protected function nextInSequence(\ExistDbRpc\Client $client, $collection, $prefix, int $start = 1)
     {
         // see https://stackoverflow.com/a/48901690
         $xql = <<<EOXQL
-    declare default element namespace "http://www.tei-c.org/ns/1.0";
+                declare default element namespace "http://www.tei-c.org/ns/1.0";
 
-    declare variable \$collection external;
-    declare variable \$prefix external;
+                declare variable \$collection external;
+                declare variable \$prefix external;
 
-    let \$resources :=
-        for \$resource in collection(\$collection)/TEI
-        where fn:starts-with(util:document-name(\$resource), \$prefix)
-        return fn:head(fn:tokenize(util:document-name(\$resource), '\.'))
+                let \$resources :=
+                    for \$resource in collection(\$collection)/TEI
+                    where fn:starts-with(util:document-name(\$resource), \$prefix)
+                    return fn:head(fn:tokenize(util:document-name(\$resource), '\.'))
 
-    return (for \$key in (\$start to 9999)!format-number(., '0')
-        where not(\$prefix||\$key = \$resources)
-        return \$prefix || \$key)[1]
+                return (for \$key in (\$start to 9999)!format-number(., '0')
+                    where not(\$prefix||\$key = \$resources)
+                    return \$prefix || \$key)[1]
 
-EOXQL;
+            EOXQL;
 
         $query = $client->prepareQuery($xql);
         $query->bindVariable('collection', $collection);
@@ -58,7 +56,7 @@ EOXQL;
     }
 
     /**
-     * $shelfmark contains both path and order
+     * $shelfmark contains both path and order.
      *
      * Split into components and chop off order
      */
@@ -69,7 +67,7 @@ EOXQL;
 
         // chop order within each path component
         $parts = array_map(function ($orderId) {
-            list($order, $id) = explode(':', $orderId, 2);
+            [$order, $id] = explode(':', $orderId, 2);
 
             return $id;
         }, $parts);
@@ -141,7 +139,7 @@ EOXQL;
         $volume = $parts[0];
 
         // ignore self, unless it is the volume
-        for ($i = 0; $i < max(count($parts) - 1, 1); $i++) {
+        for ($i = 0; $i < max(count($parts) - 1, 1); ++$i) {
             $id = $parts[$i];
 
             $resourcePath = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
@@ -155,8 +153,7 @@ EOXQL;
     protected function updateDocumentShelfmark(\ExistDbRpc\Client $client, $volume, $id, $lang, $shelfmark, $oldShelfmark = null)
     {
         $updates = [
-            $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml'
-                => $shelfmark,
+            $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml' => $shelfmark,
         ];
 
         $children = $this->listChildResources($client, $volume, $id, $lang);
@@ -185,7 +182,7 @@ EOXQL;
     }
 
     /**
-     * Reorder child resources according to $order
+     * Reorder child resources according to $order.
      */
     protected function reorderChildResources(\ExistDbRpc\Client $client, $volume, $lang, $hasPart, $order)
     {
@@ -201,17 +198,25 @@ EOXQL;
                 $childId = $child['id'];
                 if (array_key_exists($childId, $newOrder)) {
                     $parts = explode('/', $shelfmark = $child['shelfmark']);
-                    list($order, $ignore) = explode(':', end($parts), 2);
+                    [$order, $ignore] = explode(':', end($parts), 2);
                     if ($order != $newOrder) {
-                        $newOrderAndId = sprintf('%03d:%s',
-                                                 $newOrder[$childId], $childId);
+                        $newOrderAndId = sprintf(
+                            '%03d:%s',
+                            $newOrder[$childId],
+                            $childId
+                        );
                         $parts[count($parts) - 1] = $newOrderAndId;
                         $newShelfmark = implode('/', $parts);
 
                         if ($child['shelfmark'] != $newShelfmark) {
-                            $this->updateDocumentShelfmark($client,
-                                                           $volume, $childId, $lang,
-                                                           $newShelfmark, $shelfmark);
+                            $this->updateDocumentShelfmark(
+                                $client,
+                                $volume,
+                                $childId,
+                                $lang,
+                                $newShelfmark,
+                                $shelfmark
+                            );
 
                             $updated = true;
                         }
@@ -224,11 +229,13 @@ EOXQL;
     }
 
     /**
-     * Check if current resource can be regenerated from CollectiveAccess
+     * Check if current resource can be regenerated from CollectiveAccess.
      */
-    private function checkUpdateFromCollectiveAccess(CollectiveAccessService $caService,
-                                                     $html, $resourceId = null)
-    {
+    private function checkUpdateFromCollectiveAccess(
+        CollectiveAccessService $caService,
+        $html,
+        $resourceId = null
+    ) {
         if (!empty($resourceId)) {
             $caObject = $caService->lookupByIdno($resourceId);
             if (!empty($caObject)) {
@@ -309,12 +316,14 @@ EOXQL;
     #[Route(path: '/resource/{volume}/{id}.html', name: 'resource-detail-html', requirements: ['volume' => 'volume\-\d+', 'id' => '(introduction|chapter|document|image|audio|video|map)\-\d+'])]
     #[Route(path: '/resource/{volume}/{id}', name: 'resource-detail', requirements: ['volume' => 'volume\-\d+', 'id' => '(introduction|chapter|document|image|audio|video|map)\-\d+'])]
     #[Route(path: '/resource/{volume}/{id}', name: 'resource-create', requirements: ['volume' => 'volume\-\d+', 'id' => '(introduction|chapter|document|image|audio|video|map)\-\d+'])]
-    public function detailAction(Request $request,
-                                 TranslatorInterface $translator,
-                                 MpdfConverter $pdfConverter,
-                                 CollectiveAccessService $caService,
-                                 $volume, $id)
-    {
+    public function detailAction(
+        Request $request,
+        TranslatorInterface $translator,
+        MpdfConverter $pdfConverter,
+        CollectiveAccessService $caService,
+        $volume,
+        $id
+    ) {
         // TODO: Move to generic EntityLinking Service
         $textRazorApiKey = null;
 
@@ -353,18 +362,18 @@ EOXQL;
                             // we have to create this first
                             if ($parentId == $volume) {
                                 // either the volume
-                                return  $this->redirect($this->generateUrl('volume-detail', [ 'id' => $volume ]));
+                                return  $this->redirect($this->generateUrl('volume-detail', ['id' => $volume]));
                             }
 
                             // or the chapter
-                            return  $this->redirect($this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $parentId ]));
+                            return  $this->redirect($this->generateUrl('resource-detail', ['volume' => $volume, 'id' => $parentId]));
                         }
                     }
 
                     if (!empty($_POST['from-locale']) && $_POST['from-locale'] == $alternate) {
                         $from = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $alternateCode3 . '.xml';
 
-                        $content = $client->getDocument($from, [ 'omit-xml-declaration' => 'no' ]);
+                        $content = $client->getDocument($from, ['omit-xml-declaration' => 'no']);
 
                         if (false !== $content) {
                             $to = $client->getCollection() . '/' . $volume . '/' . $id . '.' . $lang . '.xml';
@@ -381,15 +390,15 @@ EOXQL;
                                 $request->getSession()
                                         ->getFlashBag()
                                         ->add('info', $translator->trans('The resource has been copied'))
-                                    ;
+                                ;
 
-                                if (in_array($resourceAlternate['data']['genre'], [ 'document-collection', 'image-collection' ])) {
+                                if (in_array($resourceAlternate['data']['genre'], ['document-collection', 'image-collection'])) {
                                     // go to edit
-                                    return $this->redirect($this->generateUrl('resource-edit', [ 'volume' => $volume, 'id' => $id ]));
+                                    return $this->redirect($this->generateUrl('resource-edit', ['volume' => $volume, 'id' => $id]));
                                 }
 
                                 // go to upload
-                                return $this->redirect($this->generateUrl('resource-upload', [ 'volume' => $volume, 'id' => $id ]));
+                                return $this->redirect($this->generateUrl('resource-upload', ['volume' => $volume, 'id' => $id]));
                             }
                         }
                     }
@@ -408,9 +417,11 @@ EOXQL;
 
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
-                                             $id))
-                ;
+                    ->add('warning', sprintf(
+                        $translator->trans('No resource found for id: %s'),
+                        $id
+                    ))
+            ;
 
             return $this->redirect($this->generateUrl('volume-detail', [
                 'id' => $volume,
@@ -423,14 +434,18 @@ EOXQL;
             return $this->teiToDublinCore($translator, $client, $resourcePath);
         }
 
-        if (in_array($request->get('_route'), [ 'resource-detail-scalar', 'resource-embedded-media-scalar' ])) {
-            return $this->teiToScalar($client, $resourcePath,
-                                      $lang,
-                                      null, 'resource-embedded-media-scalar' == $request->get('_route'));
+        if (in_array($request->get('_route'), ['resource-detail-scalar', 'resource-embedded-media-scalar'])) {
+            return $this->teiToScalar(
+                $client,
+                $resourcePath,
+                $lang,
+                null,
+                'resource-embedded-media-scalar' == $request->get('_route')
+            );
         }
 
         if ('resource-detail-tei' == $request->get('_route')) {
-            $tei = $client->getDocument($resourcePath, [ 'omit-xml-declaration' => 'no' ]);
+            $tei = $client->getDocument($resourcePath, ['omit-xml-declaration' => 'no']);
 
             $response = new Response($tei);
             $response->headers->set('Content-Type', 'xml');
@@ -441,14 +456,14 @@ EOXQL;
         $html = null;
         $action = $request->request->get('action');
 
-        if ($showAddEntities && isset($action) && in_array($action, [ 'link-entities', 'link-entities-save' ])) {
+        if ($showAddEntities && isset($action) && in_array($action, ['link-entities', 'link-entities-save'])) {
             if ($client->hasDocument($resourcePath)) {
                 $tei = $client->getDocument($resourcePath);
 
                 $teiEnhancer = new \App\Utils\TeiEnhancer([
                     'textRazorApiKey' => $textRazorApiKey,
                     'ignore' => [
-                        'Q183' => [ '/^deutsch[esnr]*$/i', '/^german[s]*$/i' ],
+                        'Q183' => ['/^deutsch[esnr]*$/i', '/^german[s]*$/i'],
                     ],
                 ]);
 
@@ -457,7 +472,7 @@ EOXQL;
                 if ('link-entities-save' == $action) {
                     $showAddEntities = 0;
 
-                    $tei = $teiEnhancer->normalizeEntities($tei, function ($uri, $type) use ($client) {
+                    $tei = $teiEnhancer->normalizeEntities($tei, function ($uri, $type) {
                         return $this->normalizeEntityUri($this->getExistDbClient(), $uri, $type);
                     });
 
@@ -487,7 +502,7 @@ EOXQL;
 
         // check whether TEI can be regenerated from CollectiveAccess
         $updateFromCollectiveAccess = $this->checkUpdateFromCollectiveAccess($caService, $html, $id);
-        if (!is_null($updateFromCollectiveAccess) && isset($action) && in_array($action, [ 'overwrite' ])) {
+        if (!is_null($updateFromCollectiveAccess) && isset($action) && in_array($action, ['overwrite'])) {
             $teiResponse = $this->forward('App\Controller\CollectiveAccessController::detailAction', [
                 'id'  => $updateFromCollectiveAccess,
                 '_route' => 'ca-detail-tei', // so we get TEI and not HTML
@@ -566,12 +581,11 @@ EOXQL;
                 $alternateLocale = $request->get('reorder-from');
 
                 if (in_array($alternateLocale, $this->getParameter('locales'))
-                    && $alternateLocale != $request->getLocale())
-                {
+                    && $alternateLocale != $request->getLocale()) {
                     $alternateCode3 = \App\Utils\Iso639::code1To3($alternateLocale);
                     $hasPartAlternate = $this->buildChildResources($client, $volume, $id, $alternateCode3);
                     if (!empty($hasPartAlternate)) {
-                        $newOrder = array_map(function($resource) { return $resource['id']; }, $hasPartAlternate);
+                        $newOrder = array_map(function ($resource) { return $resource['id']; }, $hasPartAlternate);
                     }
                 }
             }
@@ -611,7 +625,7 @@ EOXQL;
                             $entity = $this->fetchTeiHeader($client, $resourcePath);
 
                             $uris = !empty($resourceAlternate['data']['term'])
-                                ? (is_scalar($resourceAlternate['data']['term']) ? [ $resourceAlternate['data']['term'] ] : $resourceAlternate['data']['term'])
+                                ? (is_scalar($resourceAlternate['data']['term']) ? [$resourceAlternate['data']['term']] : $resourceAlternate['data']['term'])
                                 : [];
 
                             $entity->setTerms($uris);
@@ -622,13 +636,13 @@ EOXQL;
                                 $request->getSession()
                                         ->getFlashBag()
                                         ->add('info', $translator->trans('The subject headings have been set'));
-                                    ;
+
                             }
                             else {
                                 $request->getSession()
                                         ->getFlashBag()
                                         ->add('warning', $translator->trans('The subject headings could not be set'));
-                                    ;
+
                             }
                         }
                         else {
@@ -645,9 +659,11 @@ EOXQL;
         if (!empty($caUrl) && preg_match($reCaSvgUrl = '/src="([^"]*' . preg_quote($caUrl, '/') . '[^"]*\.xml)"/', $html, $matches)) {
             // we need to proxy url to svg files from collective access for correct mime type
             $svgProxy = $this->generateUrl('svgproxy');
-            $html = preg_replace($reCaSvgUrl,
-                                 'src="' . $svgProxy . '?url=\1' . '"',
-                                 $html);
+            $html = preg_replace(
+                $reCaSvgUrl,
+                'src="' . $svgProxy . '?url=\1"',
+                $html
+            );
         }
 
         return $this->render('Resource/detail.html.twig', [
@@ -670,7 +686,7 @@ EOXQL;
     protected function fetchTeiHeader(\ExistDbRpc\Client $client, $resourcePath)
     {
         if ($client->hasDocument($resourcePath)) {
-            $content = $client->getDocument($resourcePath, [ 'omit-xml-declaration' => 'no' ]);
+            $content = $client->getDocument($resourcePath, ['omit-xml-declaration' => 'no']);
 
             return \App\Entity\TeiHeader::fromXmlString($content);
         }
@@ -685,19 +701,20 @@ EOXQL;
 
         $xml = $this->prettyPrintTei($tei->saveXML());
 
-        return $client->parse((string)$xml, $resourcePath, $update);
+        return $client->parse((string) $xml, $resourcePath, $update);
     }
 
     /**
      * Naive implementation - fetches XML and updates it
-     * Goal would be to use https://exist-db.org/exist/apps/doc/update_ext.xml instead
+     * Goal would be to use https://exist-db.org/exist/apps/doc/update_ext.xml instead.
      */
-    protected function updateTeiHeader(\ExistDbRpc\Client $client,
-                                       $resourcePath,
-                                       \App\Entity\TeiHeader $entity)
-    {
+    protected function updateTeiHeader(
+        \ExistDbRpc\Client $client,
+        $resourcePath,
+        \App\Entity\TeiHeader $entity
+    ) {
         if ($client->hasDocument($resourcePath)) {
-            $content = $client->getDocument($resourcePath, [ 'omit-xml-declaration' => 'no' ]);
+            $content = $client->getDocument($resourcePath, ['omit-xml-declaration' => 'no']);
 
             $data = [
                 'title' => $entity->getTitle(),
@@ -714,7 +731,7 @@ EOXQL;
     }
 
     /**
-     * Naive implementation - takes XML skeleton and updates it
+     * Naive implementation - takes XML skeleton and updates it.
      */
     protected function createTeiHeader(\ExistDbRpc\Client $client, $resourcePath, \App\Entity\TeiHeader $entity)
     {
@@ -733,20 +750,20 @@ EOXQL;
         $collection = $client->getCollection();
 
         $xql = <<<EOXQL
-    declare default element namespace "http://www.tei-c.org/ns/1.0";
+                declare default element namespace "http://www.tei-c.org/ns/1.0";
 
-    declare variable \$collection external;
-    declare variable \$volume external;
-    declare variable \$prefix external;
+                declare variable \$collection external;
+                declare variable \$volume external;
+                declare variable \$prefix external;
 
-    fn:head(
-        for \$resource in collection(\$collection)/TEI
-        where fn:starts-with(util:document-name(\$resource), \$prefix)
-        and fn:contains(\$resource//idno['shelfmark' = @type]/text(), \$volume)
-        order by \$resource//idno['shelfmark' = @type]/text() descending
-        return \$resource//idno['shelfmark' = @type]/text())
+                fn:head(
+                    for \$resource in collection(\$collection)/TEI
+                    where fn:starts-with(util:document-name(\$resource), \$prefix)
+                    and fn:contains(\$resource//idno['shelfmark' = @type]/text(), \$volume)
+                    order by \$resource//idno['shelfmark' = @type]/text() descending
+                    return \$resource//idno['shelfmark' = @type]/text())
 
-EOXQL;
+            EOXQL;
 
         $query = $client->prepareQuery($xql);
         $query->bindVariable('collection', $collection);
@@ -762,13 +779,17 @@ EOXQL;
 
         $counter = 1;
         if (!is_null($shelfmarkHighest) && preg_match('/(.*)\/(\d+)(\:[^\/]+)$/', $shelfmarkHighest, $matches)) {
-            $counter = (int)$matches[2] + 1;
+            $counter = (int) $matches[2] + 1;
         }
 
         $volume = $this->fetchVolume($client, $volumeId, $lang);
 
-        $shelfmark = sprintf('%s/%03d:%s',
-                             $volume['data']['shelfmark'], $counter, $id);
+        $shelfmark = sprintf(
+            '%s/%03d:%s',
+            $volume['data']['shelfmark'],
+            $counter,
+            $id
+        );
 
         return $shelfmark;
     }
@@ -797,7 +818,7 @@ EOXQL;
         $terms = [];
 
         $uris = !empty($resource['data']['term'])
-            ? (is_scalar($resource['data']['term']) ? [ $resource['data']['term'] ] : $resource['data']['term'])
+            ? (is_scalar($resource['data']['term']) ? [$resource['data']['term']] : $resource['data']['term'])
             : [];
 
         foreach ($uris as $uri) {
@@ -812,10 +833,13 @@ EOXQL;
 
     #[Route(path: '/resource/{volume}/{id}/edit', name: 'resource-edit', requirements: ['volume' => 'volume\-\d+', 'id' => '(introduction|chapter|document|image|audio|video|map)\-\d+'])]
     #[Route(path: '/resource/{volume}/add/{genre}', name: 'collection-add', requirements: ['volume' => 'volume\-\d+', 'genre' => '(document-collection|image-collection)'])]
-    public function editAction(Request $request,
-                               TranslatorInterface $translator,
-                               $volume, $id = null, $genre = null)
-    {
+    public function editAction(
+        Request $request,
+        TranslatorInterface $translator,
+        $volume,
+        $id = null,
+        $genre = null
+    ) {
         $update = 'resource-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -840,11 +864,13 @@ EOXQL;
             else {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
-                                                 $id))
-                    ;
+                        ->add('warning', sprintf(
+                            $translator->trans('No resource found for id: %s'),
+                            $id
+                        ))
+                ;
 
-                return $this->redirect($this->generateUrl('resource-detail', [ 'volume' => $volume, 'id' => $id ]));
+                return $this->redirect($this->generateUrl('resource-detail', ['volume' => $volume, 'id' => $id]));
             }
         }
 
@@ -888,9 +914,11 @@ EOXQL;
             if (!$res) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
-                                                 $id))
-                    ;
+                        ->add('warning', sprintf(
+                            $translator->trans('An issue occured while storing id: %s'),
+                            $id
+                        ))
+                ;
             }
             else {
                 if ($request->getSession()->has('return-after-save')) {
@@ -902,7 +930,7 @@ EOXQL;
                         ->add('info', $update
                               ? $translator->trans('The resource has been updated')
                               : $translator->trans('The resource has been created'));
-                    ;
+
             }
 
             return $this->redirect($redirectUrl);
@@ -913,22 +941,22 @@ EOXQL;
             'id' => $id,
             'entity' => $entity,
             'volume' => $this->fetchVolume($client, $volume, $lang),
-            'parentPath' => $this->buildParentPath($client,  $this->fetchResource($client, isset($id) ? $id : $volume, $lang), $lang),
+            'parentPath' => $this->buildParentPath($client, $this->fetchResource($client, $id ?? $volume, $lang), $lang),
             'titleHtml' => $titleHtml,
         ]);
     }
 
     /**
-     * Use $pandocConverter to convert Word file into TeiDtabfDocument
+     * Use $pandocConverter to convert Word file into TeiDtabfDocument.
      */
-    private function word2doc(\App\Utils\PandocConverter $pandocConverter,
-                              \ExistDbRpc\Client $client,
-                              $fname,
-                              $volume, $locale)
-    {
-        $myTarget = new class()
-        extends \App\Utils\TeiSimplePrintDocument
-        {
+    private function word2doc(
+        \App\Utils\PandocConverter $pandocConverter,
+        \ExistDbRpc\Client $client,
+        $fname,
+        $volume,
+        $locale
+    ) {
+        $myTarget = new class extends \App\Utils\TeiSimplePrintDocument {
             // inject TeiFromWordCleaner
             use \App\Utils\TeiFromWordCleaner;
         };
@@ -955,11 +983,13 @@ EOXQL;
     #[Route(path: '/resource/{volume}/{id}/add', name: 'resource-upload-child', requirements: ['volume' => 'volume\-\d+', 'id' => '(chapter|document|image|audio|video|map)\-\d+'])]
     #[Route(path: '/resource/{volume}/add/{id}', name: 'resource-add-introduction-or-map', requirements: ['volume' => 'volume\-\d+', 'id' => '(introduction|map)'])]
     #[Route(path: '/resource/{volume}/{id}/upload', name: 'resource-upload', requirements: ['volume' => 'volume\-\d+', 'id' => '(introduction|document|image|audio|video|map)\-\d+'])]
-    public function uploadAction(Request $request,
-                                 TranslatorInterface $translator,
-                                 \App\Utils\PandocConverter $pandocConverter,
-                                 $volume, $id)
-    {
+    public function uploadAction(
+        Request $request,
+        TranslatorInterface $translator,
+        \App\Utils\PandocConverter $pandocConverter,
+        $volume,
+        $id
+    ) {
         $update = 'resource-upload' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -982,11 +1012,13 @@ EOXQL;
         if (is_null($entity)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No resource found for id: %s'),
-                                             $resourceId))
-                ;
+                    ->add('warning', sprintf(
+                        $translator->trans('No resource found for id: %s'),
+                        $resourceId
+                    ))
+            ;
 
-            return $this->redirect($this->generateUrl('volume-detail', [ 'id' => $volume ]));
+            return $this->redirect($this->generateUrl('volume-detail', ['id' => $volume]));
         }
 
         if ($request->isMethod('post')) {
@@ -995,20 +1027,19 @@ EOXQL;
                 $request->getSession()
                         ->getFlashBag()
                         ->add('warning', $translator->trans('No upload found, please try again'))
-                        ;
+                ;
             }
             else {
                 $mime = $file->getMimeType();
                 if (!in_array($mime, [
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'application/docx',
-                        'text/xml',
-                    ]))
-                {
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'application/docx',
+                    'text/xml',
+                ])) {
                     $request->getSession()
                             ->getFlashBag()
                             ->add('danger', $translator->trans("Uploaded file wasn't recognized as a Word-File (.docx) or as a TEI-File (.xml)"))
-                            ;
+                    ;
                 }
                 else {
                     $genre = 'document';
@@ -1035,7 +1066,7 @@ EOXQL;
                             $request->getSession()
                                     ->getFlashBag()
                                     ->add('danger', $translator->trans('There was an error loading the upload'))
-                                ;
+                            ;
                             $teiDtabfDoc = false;
                         }
                         else {
@@ -1046,7 +1077,7 @@ EOXQL;
                             }
 
                             // genre can be document, image or map
-                            $newEntity = \App\Entity\TeiHeader::fromXmlString((string)$teiDtabfDoc);
+                            $newEntity = \App\Entity\TeiHeader::fromXmlString((string) $teiDtabfDoc);
                             if (!is_null($newEntity)) {
                                 $genre = $newEntity->getGenre();
                                 $newTerms = $newEntity->getTerms();
@@ -1058,16 +1089,19 @@ EOXQL;
                         }
                     }
                     else {
-                        $teiDtabfDoc = $this->word2doc($pandocConverter,
-                                                       $client,
-                                                       $file->getRealPath(),
-                                                       $volume, $request->getLocale());
+                        $teiDtabfDoc = $this->word2doc(
+                            $pandocConverter,
+                            $client,
+                            $file->getRealPath(),
+                            $volume,
+                            $request->getLocale()
+                        );
 
                         if (false === $teiDtabfDoc) {
                             $request->getSession()
                                     ->getFlashBag()
                                     ->add('danger', $translator->trans('There was an error converting the upload'))
-                                    ;
+                            ;
                         }
 
                         if ($update) {
@@ -1086,7 +1120,7 @@ EOXQL;
                             $request->getSession()
                                     ->getFlashBag()
                                     ->add('warning', $translator->trans('The conversion was successful, but there might be an issue with the structure of the result'))
-                                    ;
+                            ;
                         }
 
                         $meta = [];
@@ -1115,8 +1149,11 @@ EOXQL;
 
                             $shelfmark = implode('/', [
                                 $entity->getShelfmark(),
-                                sprintf('%03d:%s',
-                                        $counter, $resourceId),
+                                sprintf(
+                                    '%03d:%s',
+                                    $counter,
+                                    $resourceId
+                                ),
                             ]);
                         }
 
@@ -1146,16 +1183,18 @@ EOXQL;
 
                         $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resourceId . '.' . $lang . '.xml';
 
-                        $res = $client->parse((string)$teiDtabfDoc, $resourcePath, $update);
+                        $res = $client->parse((string) $teiDtabfDoc, $resourcePath, $update);
 
                         if ($res) {
                             $request->getSession()
                                     ->getFlashBag()
-                                    ->add('info',
-                                          $update
+                                    ->add(
+                                        'info',
+                                        $update
                                           ? $translator->trans('The resource has been updated')
-                                          : $translator->trans('The resource has been created'))
-                                    ;
+                                          : $translator->trans('The resource has been created')
+                                    )
+                            ;
 
                             return $this->redirect($this->generateUrl('resource-detail', [
                                 'volume' => $volume,
@@ -1166,7 +1205,7 @@ EOXQL;
                         $request->getSession()
                                 ->getFlashBag()
                                 ->add('danger', $translator->trans('The new resource could not be created'))
-                            ;
+                        ;
                     }
                 }
             }
@@ -1177,7 +1216,7 @@ EOXQL;
             'titleHtml' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
             'volume' => $volume,
             'id' => $id,
-            'parentPath' => $this->buildParentPath($client,  $this->fetchResource($client, $resourceId, $lang), $lang),
+            'parentPath' => $this->buildParentPath($client, $this->fetchResource($client, $resourceId, $lang), $lang),
         ]);
     }
 }

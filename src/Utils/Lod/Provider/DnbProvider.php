@@ -9,9 +9,7 @@ use App\Utils\Lod\Identifier\LocLdsAgentsIdentifier;
 use App\Utils\Lod\Identifier\ViafIdentifier;
 use App\Utils\Lod\Identifier\WikidataIdentifier;
 
-class DnbProvider
-extends AbstractProvider
-implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
+class DnbProvider extends AbstractProvider implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
 {
     protected $name = 'dnb';
 
@@ -67,7 +65,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
 
             case 'https://d-nb.info/standards/elementset/gnd#SubjectHeading':
             case 'https://d-nb.info/standards/elementset/gnd#SubjectHeadingSensoStricto':
-            case 'https://d-nb.info/standards/elementset/gnd#HistoricSingleEventOrEra';
+            case 'https://d-nb.info/standards/elementset/gnd#HistoricSingleEventOrEra':
             case 'https://d-nb.info/standards/elementset/gnd#EthnographicName':
             case 'https://d-nb.info/standards/elementset/gnd#GroupOfPersons':
             case 'https://d-nb.info/standards/elementset/gnd#NomenclatureInBiologyOrChemistry':
@@ -82,7 +80,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
     protected function instantiatePersonFromResource($resource)
     {
         $entity = new \App\Entity\Person();
-        $entity->setIdentifier('gnd', (string)$resource->get('gndo:gndIdentifier'));
+        $entity->setIdentifier('gnd', (string) $resource->get('gndo:gndIdentifier'));
 
         $preferredName = $resource->get('gndo:preferredNameEntityForThePerson');
         if (!is_null($preferredName)) {
@@ -101,11 +99,11 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
         if (!is_null($gender)) {
             switch ($gender->getUri()) {
                 case 'https://d-nb.info/standards/vocab/gnd/gender#female':
-                    $this->setEntityValues($entity, [ 'gender' => 'Female' ]);
+                    $this->setEntityValues($entity, ['gender' => 'Female']);
                     break;
 
                 case 'https://d-nb.info/standards/vocab/gnd/gender#male':
-                    $this->setEntityValues($entity, [ 'gender' => 'Male' ]);
+                    $this->setEntityValues($entity, ['gender' => 'Male']);
                     break;
             }
         }
@@ -113,15 +111,14 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
         foreach ([
             'gndo:placeOfBirth' => 'birthPlace',
             'gndo:placeOfDeath' => 'deathPlace',
-            ] as $key => $property)
-        {
+        ] as $key => $property) {
             $subresource = $resource->get($key);
             if (!is_null($subresource)) {
                 if ($subresource instanceof \EasyRdf\Resource) {
                     try {
                         $subentity = $this->buildEntityFromUri($subresource->getUri());
                         if (!is_null($entity)) {
-                            $this->setEntityValues($entity, [ $property => $subentity ]);
+                            $this->setEntityValues($entity, [$property => $subentity]);
                         }
                     }
                     catch (\Exception $e) {
@@ -141,7 +138,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
     protected function instantiateOrganizationFromResource($resource)
     {
         $entity = new \App\Entity\Organization();
-        $entity->setIdentifier('gnd', (string)$resource->get('gndo:gndIdentifier'));
+        $entity->setIdentifier('gnd', (string) $resource->get('gndo:gndIdentifier'));
 
         $this->setEntityFromResource($entity, $resource, [
             'gndo:preferredNameForTheCorporateBody' => 'name',
@@ -152,15 +149,14 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
 
         foreach ([
             'gndo:placeOfBusiness' => 'location',
-            ] as $key => $property)
-        {
+        ] as $key => $property) {
             $subresource = $resource->get($key);
             if (!is_null($subresource)) {
                 if ($subresource instanceof \EasyRdf\Resource) {
                     try {
                         $subentity = $this->buildEntityFromUri($subresource->getUri());
                         if (!is_null($subentity)) {
-                            $this->setEntityValues($entity, [ $property => $subentity ]);
+                            $this->setEntityValues($entity, [$property => $subentity]);
                         }
                     }
                     catch (\Exception $e) {
@@ -180,7 +176,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
     protected function instantiatePlaceFromResource($resource)
     {
         $entity = new \App\Entity\Place();
-        $entity->setIdentifier('gnd', (string)$resource->get('gndo:gndIdentifier'));
+        $entity->setIdentifier('gnd', (string) $resource->get('gndo:gndIdentifier'));
 
         $this->setEntityFromResource($entity, $resource, [
             'gndo:preferredNameForThePlaceOrGeographicName' => 'name',
@@ -196,7 +192,7 @@ implements PersonProvider, OrganizationProvider, PlaceProvider, TermProvider
     protected function instantiateTermFromResource($resource)
     {
         $entity = new \App\Entity\Term();
-        $entity->setIdentifier('gnd', (string)$resource->get('gndo:gndIdentifier'));
+        $entity->setIdentifier('gnd', (string) $resource->get('gndo:gndIdentifier'));
 
         $this->setEntityFromResource($entity, $resource, [
             'gndo:preferredNameForTheSubjectHeading' => 'name',

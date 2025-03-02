@@ -1,15 +1,15 @@
 <?php
+
 /**
  * Methods for Document Conversions.
  * Interfaces inspired by ezcDocument
  *  https://github.com/zetacomponents/Document/blob/master/src/interfaces/document.php
- * TODO: Build a separate Component
+ * TODO: Build a separate Component.
  */
 
 namespace App\Utils;
 
-class TeiDocument
-extends XmlDocument
+class TeiDocument extends XmlDocument
 {
     protected function registerNamespaces()
     {
@@ -47,14 +47,15 @@ extends XmlDocument
             $xpath = $this->getXPath();
             $nodes = $xpath->query('//tei:body//*[not(child::*) and not(normalize-space())]');
             foreach ($nodes as $node) {
-                if (in_array($node->nodeName, [ 'div', 'head', 'p' ])) {
+                if (in_array($node->nodeName, ['div', 'head', 'p'])) {
                     $found = true;
                     $parent = $node->parentNode;
                     $parent->removeChild($node);
                     $this->dom->normalize();
                 }
             }
-        } while ($found);
+        }
+        while ($found);
 
         // replace [...] with <gap />
         $count = 0;
@@ -65,8 +66,7 @@ extends XmlDocument
             $nodes = $xpath->query('//tei:body//text()');
             foreach ($nodes as $node) {
                 if (preg_match('/(.*?)(\[\s*\.\s*\.\s*\.\s*\])(.*)/s', // single line mode /s is import since we might have multiple lines before gap
-                               $node->textContent, $matches))
-                {
+                    $node->textContent, $matches)) {
                     $found = true;
                     $gapNode = $node;
 
@@ -84,6 +84,7 @@ extends XmlDocument
                     $node->parentNode->replaceChild($this->dom->createElement('gap'), $gapNode);
                 }
             }
-        } while ($found);
+        }
+        while ($found);
     }
 }

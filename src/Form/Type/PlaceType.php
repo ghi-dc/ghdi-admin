@@ -7,12 +7,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
-use Symfony\Component\Form\Extension\Core\Type\CountryType;
-use Symfony\Component\Validator\Constraints as Assert;
 
-class PlaceType
-extends AbstractType
+class PlaceType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -60,7 +56,7 @@ extends AbstractType
                     'required' => false,
                 ])
             )
-            ;
+        ;
 
         $builder->add('save', SubmitType::class, [
             'label' => 'Save',

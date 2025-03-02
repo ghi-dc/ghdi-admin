@@ -1,10 +1,10 @@
 <?php
+
 // src/Security/HttpBasicAuthenticator
 
 namespace App\Security;
 
 use App\Security\User\ExistDbUser;
-
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -12,15 +12,12 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
-use Symfony\Component\Security\Http\Authenticator\Passport\Badge\PasswordUpgradeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\CustomCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-/**
- */
 class HttpBasicAuthenticator implements AuthenticatorInterface, AuthenticationEntryPointInterface
 {
     private $realmName = 'Basic-Auth';
@@ -60,7 +57,7 @@ class HttpBasicAuthenticator implements AuthenticatorInterface, AuthenticationEn
 
         $passport = new Passport(
             new UserBadge($username, [$this->userProvider, $method]),
-            new CustomCredentials(function($credentials, ExistDbUser $user) {
+            new CustomCredentials(function ($credentials, ExistDbUser $user) {
                 $user->setPassword($credentials); // since userProvider doesn't fetch password
 
                 return $this->userProvider->isPasswordValid($user->getUsername(), $credentials);

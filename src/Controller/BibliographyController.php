@@ -5,16 +5,14 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Handle Bibliography items
  * Currently unused, since handling of individual items is done directly
- * in per volume Zotero collections
+ * in per volume Zotero collections.
  */
-class BibliographyController
-extends BaseController
+class BibliographyController extends BaseController
 {
     const API_PAGE_SIZE = 50; // for sync
 
@@ -57,11 +55,12 @@ extends BaseController
 
     #[Route(path: '/bibliography/{id}.tei.xml', name: 'bibliography-detail-tei', requirements: ['id' => '[0-9A-Z]+'])]
     #[Route(path: '/bibliography/{id}', name: 'bibliography-detail', requirements: ['id' => '[0-9A-Z]+'])]
-    public function detailAction(Request $request,
-                                 TranslatorInterface $translator,
-                                 \App\Service\ZoteroApiService $zoteroApiService,
-                                 $id)
-    {
+    public function detailAction(
+        Request $request,
+        TranslatorInterface $translator,
+        \App\Service\ZoteroApiService $zoteroApiService,
+        $id
+    ) {
         $client = $this->getExistDbClient($this->subCollection);
 
         $xql = $this->renderView('Bibliography/list-bibl.xql.twig', [
@@ -80,9 +79,11 @@ extends BaseController
         if (0 == count($simplexml)) {
             $request->getSession()
                     ->getFlashBag()
-                    ->add('warning', sprintf($translator->trans('No entry found for id: %s'),
-                                             $id))
-                ;
+                    ->add('warning', sprintf(
+                        $translator->trans('No entry found for id: %s'),
+                        $id
+                    ))
+            ;
 
             return $this->redirect($this->generateUrl('bibliography-list'));
         }
@@ -92,11 +93,13 @@ extends BaseController
         }
 
         if ('bibliography-detail-tei' == $request->get('_route')) {
-            $listBibl = sprintf('<?' . 'xml version="1.0" encoding="UTF-8"?>
+            $listBibl = sprintf(
+                '<?' . 'xml version="1.0" encoding="UTF-8"?>
 <listBibl xmlns="http://www.tei-c.org/ns/1.0">%s</listBibl>' . "\n",
-                                "\n"
+                "\n"
                                 . preg_replace('/ n="\d+"/', '', str_replace(' id="' . $id . '"', '', $elem->asXML()))
-                                . "\n");
+                                . "\n"
+            );
 
             $response = new Response($listBibl);
             $response->headers->set('Content-Type', 'xml');
@@ -118,10 +121,11 @@ extends BaseController
     }
 
     #[Route(path: '/bibliography/sync', name: 'bibliography-sync')]
-    public function syncAction(Request $request,
-                               TranslatorInterface $translator,
-                               \App\Service\ZoteroApiService $zoteroApiService)
-    {
+    public function syncAction(
+        Request $request,
+        TranslatorInterface $translator,
+        \App\Service\ZoteroApiService $zoteroApiService
+    ) {
         // TODO: get maxModified as by
         // https://hcmc.uvic.ca/blogs/index.php?blog=11&p=8947
         $maxModified = null;
@@ -154,9 +158,12 @@ extends BaseController
             catch (\GuzzleHttp\Exception\ClientException $e) {
                 $request->getSession()
                         ->getFlashBag()
-                        ->add('danger', sprintf($translator->trans('Error requesting item %s (%s)'),
-                                                $start, $e->getResponse()->getStatusCode()))
-                    ;
+                        ->add('danger', sprintf(
+                            $translator->trans('Error requesting item %s (%s)'),
+                            $start,
+                            $e->getResponse()->getStatusCode()
+                        ))
+                ;
 
                 return $this->redirect($this->generateUrl('bibliography-list'));
             }
@@ -181,7 +188,7 @@ extends BaseController
                     break;
                 }
 
-                if (!empty($item['key']) && !in_array($item['data']['itemType'], [ 'note', 'attachment' ])) {
+                if (!empty($item['key']) && !in_array($item['data']['itemType'], ['note', 'attachment'])) {
                     $creativeWork = \App\Entity\CreativeWork::fromZotero($item['data'], $item['meta']);
 
                     $id = $creativeWork->getId();
@@ -194,7 +201,7 @@ extends BaseController
 
                     $store = true;
                     if (!is_null($info) && array_key_exists('data', $info)) {
-                        if(!empty($info['data']['n']) && $info['data']['n'] >= $creativeWork->getVersion()) {
+                        if (!empty($info['data']['n']) && $info['data']['n'] >= $creativeWork->getVersion()) {
                             $store = false;
                         }
                     }
@@ -213,9 +220,11 @@ extends BaseController
                     if (!$res) {
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('warning', sprintf($translator->trans('An issue occured while storing id: %s'),
-                                                         $id))
-                            ;
+                                ->add('warning', sprintf(
+                                    $translator->trans('An issue occured while storing id: %s'),
+                                    $id
+                                ))
+                        ;
                     }
                     else {
                         if ($update) {
@@ -224,11 +233,13 @@ extends BaseController
 
                         $request->getSession()
                                 ->getFlashBag()
-                                ->add('info',
-                                      $update
+                                ->add(
+                                    'info',
+                                    $update
                                       ? $translator->trans('The entry has been updated')
-                                      : $translator->trans('Entry created'))
-                            ;
+                                      : $translator->trans('Entry created')
+                                )
+                        ;
                     }
                 }
             }
@@ -236,9 +247,12 @@ extends BaseController
 
         $request->getSession()
                 ->getFlashBag()
-                ->add('info', sprintf($translator->trans('Fetched %s items (%s updated)'),
-                                      $fetched, $updated))
-            ;
+                ->add('info', sprintf(
+                    $translator->trans('Fetched %s items (%s updated)'),
+                    $fetched,
+                    $updated
+                ))
+        ;
 
         return $this->redirect($this->generateUrl('bibliography-list'));
     }

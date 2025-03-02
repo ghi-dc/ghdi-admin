@@ -1,15 +1,15 @@
 <?php
+
 /**
  * Methods for Document Conversions.
  * Interfaces inspired by ezcDocument
  *  https://github.com/zetacomponents/Document/blob/master/src/interfaces/document.php
- * TODO: Build a separate Component
+ * TODO: Build a separate Component.
  */
 
 namespace App\Utils;
 
-class TeiDtabfDocument
-extends TeiDocument
+class TeiDtabfDocument extends TeiDocument
 {
     public function addAuthor(\App\Entity\Person $person)
     {
@@ -17,22 +17,28 @@ extends TeiDocument
         if (!empty($givenName)) {
             // assume a structured name
             $nameParts = [
-                sprintf('<%s>%s</%s>',
-                        'forename',
-                        $this->xmlSpecialchars($givenName),
-                        'forename'),
+                sprintf(
+                    '<%s>%s</%s>',
+                    'forename',
+                    $this->xmlSpecialchars($givenName),
+                    'forename'
+                ),
             ];
 
             $familyName = $person->getFamilyName();
             if (!empty($familyName)) {
-                $nameParts[] = sprintf('<%s>%s</%s>',
-                                       'surname',
-                                       $this->xmlSpecialchars($familyName),
-                                       'surname');
+                $nameParts[] = sprintf(
+                    '<%s>%s</%s>',
+                    'surname',
+                    $this->xmlSpecialchars($familyName),
+                    'surname'
+                );
             }
 
-            $name = sprintf('<persName>%s</persName>',
-                            join(' ', $nameParts));
+            $name = sprintf(
+                '<persName>%s</persName>',
+                join(' ', $nameParts)
+            );
         }
         else {
             $fullname = $person->getFullname();

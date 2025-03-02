@@ -2,11 +2,10 @@
 
 namespace App\Utils\Lod\Identifier;
 
-class AbstractIdentifier
-implements Identifier
+class AbstractIdentifier implements Identifier
 {
     protected $name;
-    protected $prefix = null;
+    protected $prefix;
     protected $value;
 
     public function __construct($value = null)
@@ -27,7 +26,7 @@ implements Identifier
     }
 
     /**
-     * We want different names like lcsh, lccn map to the same prefix lcauth
+     * We want different names like lcsh, lccn map to the same prefix lcauth.
      */
     public function getPrefix()
     {
@@ -52,6 +51,6 @@ implements Identifier
 
     public function __toString()
     {
-        return join(':', [ $this->name, $this->value ]);
+        return join(':', [$this->name, $this->value]);
     }
 }
