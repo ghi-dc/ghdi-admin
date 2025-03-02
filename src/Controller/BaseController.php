@@ -472,8 +472,12 @@ abstract class BaseController extends AbstractController
             $html = $res->getNextResult();
             $res->release();
 
+            if (method_exists($this, 'markCombiningE')) {
+                $html = $this->markCombiningE($html); // defined in RenderTeiTrait
+            }
+
             $ret[$key] = $this->minify(
-                $this->markCombiningE($html),
+                $html,
                 array_key_exists('inlineContent', $descr)
                                        ? $descr['inlineContent'] : false
             );
