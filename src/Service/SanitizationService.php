@@ -11,7 +11,7 @@ use HTMLPurifier;
  */
 class SanitizationService
 {
-    /** @var HTMLPurifier */
+    /** @var \HTMLPurifier */
     private $htmlPurifier;
 
     public function __construct(string $cacheDirectory)

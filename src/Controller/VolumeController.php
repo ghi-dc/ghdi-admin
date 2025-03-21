@@ -395,18 +395,18 @@ class VolumeController extends ResourceController
                        ->setFontBold()
                        ->setFontSize(20)
                        // ->setShouldWrapText()
-                       ;
+            ;
 
             $sectionStyle = (new Style())
                        ->setFontBold()
                        ->setFontSize(18)
                        // ->setShouldWrapText()
-                       ;
+            ;
 
             $chapterStyle = (new Style())
                        ->setFontBold()
                        // ->setShouldWrapText()
-                       ;
+            ;
 
             $writer = new \OpenSpout\Writer\XLSX\Writer();
             $writer->openToBrowser($fileName);
