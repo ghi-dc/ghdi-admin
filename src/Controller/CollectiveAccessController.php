@@ -683,6 +683,7 @@ class CollectiveAccessController extends BaseController
                 $url = $linkDescriptionUrl[1];
                 if (str_contains($url, 'ardaudiothek.de/embed/')
                     || str_contains($url, 'ardmediathek.de/embed/')
+                    || str_contains($url, 'mediathek.at/embed/')
                     || str_contains($url, 'youtube.com/embed/')
                     || str_contains($url, 'player.vimeo.com/video/')) {
                     $ret['embed_url'] = $url;
