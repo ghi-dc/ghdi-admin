@@ -7,7 +7,7 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -24,7 +24,7 @@ class DtsApiController extends ResourceController
     ];
 
     #[Route(path: '/api/dts', name: 'dts-entry-point')]
-    public function entryPointAction(Request $request)
+    public function entryPointAction(Request $request): JsonResponse
     {
         return new JsonResponse([
             '@context' => $this->generateUrl('dts-entry-point-context'),
@@ -37,7 +37,7 @@ class DtsApiController extends ResourceController
     }
 
     #[Route(path: '/api/dts/contexts/EntryPoint.jsonld', name: 'dts-entry-point-context')]
-    public function entryPointContextAction(Request $request)
+    public function entryPointContextAction(Request $request): JsonResponse
     {
         return new JsonResponse([
             '@context' => $this->defaultContext,
@@ -64,7 +64,7 @@ class DtsApiController extends ResourceController
     }
 
     #[Route(path: '/api/dts/collections', name: 'dts-collections')] // TODO: https://distributed-text-services.github.io/specifications/Collections-Endpoint.html#parent-collection-query
-    public function collectionsAction(Request $request, TranslatorInterface $translator)
+    public function collectionsAction(Request $request, TranslatorInterface $translator): JsonResponse
     {
         $id = $request->get('id');
 
@@ -241,7 +241,7 @@ class DtsApiController extends ResourceController
     }
 
     #[Route(path: '/api/dts/document', name: 'dts-document')]
-    public function documentAction(Request $request)
+    public function documentAction(Request $request): Response
     {
         $id = $request->get('id');
 

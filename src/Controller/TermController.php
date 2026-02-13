@@ -5,7 +5,8 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use JMS\Serializer\SerializationContext;
 
@@ -17,7 +18,7 @@ class TermController extends BaseController
     protected $subCollection = '/data/authority/terms';
 
     #[Route(path: '/term', name: 'term-list')]
-    public function listAction(Request $request)
+    public function listAction(Request $request): Response
     {
         $client = $this->getExistDbClient($this->subCollection);
 
@@ -46,7 +47,7 @@ class TermController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $id
-    ) {
+    ): Response {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Term::class);
@@ -126,7 +127,7 @@ class TermController extends BaseController
     public function addFromIdentifierAction(
         Request $request,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $types = [
             'gnd' => 'GND',
             'lcauth' => 'LoC authority ID',
@@ -226,15 +227,15 @@ class TermController extends BaseController
                             'entity' => $entity,
                         ]);
                     }
-                    else {
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add('warning', sprintf(
-                                    $translator->trans('No entry found for: %s'),
-                                    $data['identifier']
-                                ))
-                        ;
-                    }
+
+                    $request->getSession()
+                            ->getFlashBag()
+                            ->add('warning', sprintf(
+                                $translator->trans('No entry found for: %s'),
+                                $data['identifier']
+                            ))
+                    ;
+
                     break;
 
                 default:
@@ -290,7 +291,7 @@ class TermController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $id = null
-    ) {
+    ): Response {
         $update = 'term-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -370,7 +371,7 @@ class TermController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $id
-    ) {
+    ): Response {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Term::class);
@@ -457,7 +458,7 @@ class TermController extends BaseController
     }
 
     #[Route(path: '/term/test', name: 'term-test')]
-    public function testAction(Request $request)
+    public function testAction(Request $request): Response
     {
         $term = new \App\Entity\Term();
 

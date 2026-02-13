@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Basic controller to deliver binary images stored in exist to the browser.
@@ -20,7 +20,7 @@ class MediaController extends BaseController
      * This means that all characters are allowed except /.
      */
     #[Route(path: '/media/{path}', requirements: ['path' => '.+'])]
-    public function sendAction(Request $request, $path)
+    public function sendAction(Request $request, $path): Response
     {
         try {
             // try to get media from repository

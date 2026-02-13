@@ -5,7 +5,8 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -16,7 +17,7 @@ class PlaceController extends BaseController
     protected $subCollection = '/data/authority/places';
 
     #[Route(path: '/place', name: 'place-list')]
-    public function listAction(Request $request)
+    public function listAction(Request $request): Response
     {
         $client = $this->getExistDbClient($this->subCollection);
 
@@ -45,7 +46,7 @@ class PlaceController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $id
-    ) {
+    ): Response {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Place::class);
@@ -172,7 +173,7 @@ class PlaceController extends BaseController
     public function addFromIdentifierAction(
         Request $request,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $types = [
             'tgn' => 'Getty TGN',
         ];
@@ -265,7 +266,7 @@ class PlaceController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $id = null
-    ) {
+    ): Response {
         $update = 'place-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -334,7 +335,7 @@ class PlaceController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $id
-    ) {
+    ): Response {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Place::class);

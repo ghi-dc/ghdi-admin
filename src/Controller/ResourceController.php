@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use App\Service\CollectiveAccessService;
 use App\Utils\MpdfConverter;
@@ -323,7 +323,7 @@ class ResourceController extends BaseController
         CollectiveAccessService $caService,
         $volume,
         $id
-    ) {
+    ): Response {
         // TODO: Move to generic EntityLinking Service
         $textRazorApiKey = null;
 
@@ -585,7 +585,9 @@ class ResourceController extends BaseController
                     $alternateCode3 = \App\Utils\Iso639::code1To3($alternateLocale);
                     $hasPartAlternate = $this->buildChildResources($client, $volume, $id, $alternateCode3);
                     if (!empty($hasPartAlternate)) {
-                        $newOrder = array_map(function ($resource) { return $resource['id']; }, $hasPartAlternate);
+                        $newOrder = array_map(function ($resource) {
+                            return $resource['id'];
+                        }, $hasPartAlternate);
                     }
                 }
             }
@@ -839,7 +841,7 @@ class ResourceController extends BaseController
         $volume,
         $id = null,
         $genre = null
-    ) {
+    ): Response {
         $update = 'resource-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -989,7 +991,7 @@ class ResourceController extends BaseController
         \App\Utils\PandocConverter $pandocConverter,
         $volume,
         $id
-    ) {
+    ): Response {
         $update = 'resource-upload' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);

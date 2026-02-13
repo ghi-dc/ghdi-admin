@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
@@ -19,7 +19,7 @@ class ApiController extends AbstractController
         Request $request,
         \Cocur\Slugify\SlugifyInterface $slugify,
         $text
-    ) {
+    ): JsonResponse {
         return new JsonResponse([
             'text' => $text,
             'slug' => $slugify->slugify($text),

@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -19,7 +19,7 @@ class BibliographyController extends BaseController
     protected $subCollection = '/data/bibliography';
 
     #[Route(path: '/bibliography', name: 'bibliography-list')]
-    public function listAction(Request $request)
+    public function listAction(Request $request): Response
     {
         $client = $this->getExistDbClient($this->subCollection);
 
@@ -60,7 +60,7 @@ class BibliographyController extends BaseController
         TranslatorInterface $translator,
         \App\Service\ZoteroApiService $zoteroApiService,
         $id
-    ) {
+    ): Response {
         $client = $this->getExistDbClient($this->subCollection);
 
         $xql = $this->renderView('Bibliography/list-bibl.xql.twig', [
@@ -125,7 +125,7 @@ class BibliographyController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         \App\Service\ZoteroApiService $zoteroApiService
-    ) {
+    ): Response {
         // TODO: get maxModified as by
         // https://hcmc.uvic.ca/blogs/index.php?blog=11&p=8947
         $maxModified = null;

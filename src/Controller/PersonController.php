@@ -5,7 +5,8 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -16,7 +17,7 @@ class PersonController extends BaseController
     protected $subCollection = '/data/authority/persons';
 
     #[Route(path: '/person', name: 'person-list')]
-    public function listAction(Request $request)
+    public function listAction(Request $request): Response
     {
         $client = $this->getExistDbClient($this->subCollection);
 
@@ -45,7 +46,7 @@ class PersonController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $id
-    ) {
+    ): Response {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Person::class);
@@ -113,7 +114,7 @@ class PersonController extends BaseController
     public function addFromIdentifierAction(
         Request $request,
         TranslatorInterface $translator
-    ) {
+    ): Response {
         $types = [
             'gnd' => 'GND',
             'lcauth' => 'LoC authority ID',
@@ -228,15 +229,15 @@ class PersonController extends BaseController
                             'entity' => $entity,
                         ]);
                     }
-                    else {
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add('warning', sprintf(
-                                    $translator->trans('No entry found for: %s'),
-                                    $data['identifier']
-                                ))
-                        ;
-                    }
+
+                    $request->getSession()
+                            ->getFlashBag()
+                            ->add('warning', sprintf(
+                                $translator->trans('No entry found for: %s'),
+                                $data['identifier']
+                            ))
+                    ;
+
                     break;
 
                 default:
@@ -262,7 +263,7 @@ class PersonController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $id = null
-    ) {
+    ): Response {
         $update = 'person-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -341,7 +342,7 @@ class PersonController extends BaseController
         Request $request,
         TranslatorInterface $translator,
         $id
-    ) {
+    ): Response {
         $client = $this->getExistDbClient($this->subCollection);
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Person::class);
@@ -428,7 +429,7 @@ class PersonController extends BaseController
     }
 
     #[Route(path: '/person/import-missing', name: 'person-import-missing')]
-    public function importMissing(Request $request)
+    public function importMissing(Request $request): Response
     {
         $xql = $this->renderView('Person/lookup-missing-json.xql.twig', [
         ]);
@@ -451,7 +452,7 @@ class PersonController extends BaseController
     }
 
     #[Route(path: '/person/test', name: 'person-test')]
-    public function testAction(Request $request)
+    public function testAction(Request $request): Response
     {
         $person = new \App\Entity\Person();
 

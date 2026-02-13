@@ -5,7 +5,8 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -21,7 +22,7 @@ class UserController extends AbstractController
         Request $request,
         TranslatorInterface $translator,
         ?AuthenticationUtils $authenticationUtils = null
-    ) {
+    ): Response {
         // last username entered by the user
         $defaultData = ['_username' => $authenticationUtils->getLastUsername()];
 

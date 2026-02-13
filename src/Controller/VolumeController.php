@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use OpenSpout\Common\Entity\Style\Style;
 
@@ -46,7 +46,7 @@ class VolumeController extends ResourceController
     }
 
     #[Route(path: '/volume', name: 'volume-list')]
-    public function listAction(Request $request)
+    public function listAction(Request $request): Response
     {
         $q = trim($request->request->get('q'));
 
@@ -186,7 +186,7 @@ class VolumeController extends ResourceController
         Request $request,
         TranslatorInterface $translator,
         $id
-    ) {
+    ): Response {
         $client = $this->getExistDbClient($this->subCollection);
 
         $volume = $this->fetchVolume($client, $id, $lang = \App\Utils\Iso639::code1To3($request->getLocale()));
@@ -461,7 +461,7 @@ class VolumeController extends ResourceController
         Request $request,
         TranslatorInterface $translator,
         $id = null
-    ) {
+    ): Response {
         $update = 'volume-edit' == $request->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
@@ -498,9 +498,9 @@ class VolumeController extends ResourceController
 
             return $this->redirect($this->generateUrl('volume-list'));
         }
-        else {
-            $titleHtml = $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title', true);
-        }
+
+        $titleHtml = $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title', true);
+
 
         $form = $this->createForm(\App\Form\Type\TeiHeaderType::class, $entity);
 

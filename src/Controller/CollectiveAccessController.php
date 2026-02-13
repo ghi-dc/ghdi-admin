@@ -7,7 +7,7 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Cocur\Slugify\SlugifyInterface;
@@ -67,7 +67,7 @@ class CollectiveAccessController extends BaseController
     public function homeAction(
         Request $request,
         CollectiveAccessService $caService
-    ) {
+    ): Response {
         $collections = $caService->getCollections();
 
         $collection = trim($request->request->get('collection'));
@@ -77,7 +77,9 @@ class CollectiveAccessController extends BaseController
         if (!empty($collection)
             && !empty(array_filter(
                 $collections,
-                function ($aCollection) use ($collection) { return $collection === $aCollection['idno']; }
+                function ($aCollection) use ($collection) {
+                    return $collection === $aCollection['idno'];
+                }
             ))) {
             $locale = $request->getLocale();
 
@@ -332,7 +334,7 @@ class CollectiveAccessController extends BaseController
             $target = 'https://creativecommons.org/publicdomain/mark/1.0/';
         }
         else {
-            // var_dump($raw);
+            ;  // var_dump($raw);
         }
 
         return $target;
@@ -931,7 +933,7 @@ class CollectiveAccessController extends BaseController
         CollectiveAccessService $caService,
         SlugifyInterface $slugify,
         $id
-    ) {
+    ): Response {
         $caItemService = $caService->getItemService($id);
 
         $result = $caItemService->request();
