@@ -27,7 +27,7 @@ class DnbProvider extends AbstractProvider implements PersonProvider, Organizati
 
     public function lookup(Identifier $identifier)
     {
-        if (!($identifier instanceof GndIdentifier)) {
+        if (!$identifier instanceof GndIdentifier) {
             throw new \InvalidArgumentException('Expecting a GndIdentifier');
         }
 

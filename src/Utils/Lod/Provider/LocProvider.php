@@ -50,7 +50,9 @@ class LocProvider extends AbstractProvider implements TermProvider
 
         $resource = $graph->resource($uri);
 
-        $types = array_map(function ($val) { return (string) $val; }, $resource->all('rdf:type'));
+        $types = array_map(function ($val) {
+            return (string) $val;
+        }, $resource->all('rdf:type'));
 
         if (in_array('http://www.loc.gov/mads/rdf/v1#PersonalName', $types)) {
             return $this->instantiatePersonFromResource($resource);

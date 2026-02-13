@@ -334,7 +334,7 @@ class CollectiveAccessController extends BaseController
             $target = 'https://creativecommons.org/publicdomain/mark/1.0/';
         }
         else {
-            ;  // var_dump($raw);
+            // var_dump($raw);
         }
 
         return $target;

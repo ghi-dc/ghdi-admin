@@ -530,7 +530,9 @@ class ScalarCommand extends Command
             case 'images':
             case 'maps':
                 $parts = array_key_exists('dcterms:hasPart', $volumeInfo)
-                    ? array_filter($volumeInfo['dcterms:hasPart'], function ($part) use ($action) { return $part['scalar:metadata:slug'] === $action; })
+                    ? array_filter($volumeInfo['dcterms:hasPart'], function ($part) use ($action) {
+                        return $part['scalar:metadata:slug'] === $action;
+                    })
                     : [];
 
                 foreach ($parts as $section) {
@@ -608,7 +610,9 @@ class ScalarCommand extends Command
 
                 if ('index' == $slugFrom) {
                     $pages = array_map(
-                        function ($section) { return $section['scalar:metadata:slug']; },
+                        function ($section) {
+                            return $section['scalar:metadata:slug'];
+                        },
                         $volumeInfo['dcterms:hasPart']
                     );
 
@@ -618,7 +622,9 @@ class ScalarCommand extends Command
                     $parts = array_key_exists('dcterms:hasPart', $volumeInfo)
                         ? array_filter(
                             $volumeInfo['dcterms:hasPart'],
-                            function ($part) use ($slugFrom) { return $part['scalar:metadata:slug'] === $slugFrom; }
+                            function ($part) use ($slugFrom) {
+                                return $part['scalar:metadata:slug'] === $slugFrom;
+                            }
                         )
                         : [];
 
@@ -630,7 +636,9 @@ class ScalarCommand extends Command
 
                             if (!empty($section['dcterms:hasPart'])) {
                                 $subpages = array_map(
-                                    function ($subsection) { return $subsection['scalar:metadata:slug']; },
+                                    function ($subsection) {
+                                        return $subsection['scalar:metadata:slug'];
+                                    },
                                     $section['dcterms:hasPart']
                                 );
 
