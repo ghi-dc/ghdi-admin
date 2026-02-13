@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6a475593e51e9d5a097f80a59922018a",
+    "content-hash": "3823b7c412d0f4fd3a0db950d05bdba8",
     "packages": [
         {
             "name": "armin/scssphp-bundle",
@@ -2051,16 +2051,16 @@
         },
         {
             "name": "jms/translation-bundle",
-            "version": "2.6.0",
+            "version": "2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/JMSTranslationBundle.git",
-                "reference": "2a51f8a4c17422ad36bc408e0b286aa2d5e5c003"
+                "reference": "826b29282b1d784cba362a7b98236dfb6fe8a9da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/JMSTranslationBundle/zipball/2a51f8a4c17422ad36bc408e0b286aa2d5e5c003",
-                "reference": "2a51f8a4c17422ad36bc408e0b286aa2d5e5c003",
+                "url": "https://api.github.com/repos/schmittjoh/JMSTranslationBundle/zipball/826b29282b1d784cba362a7b98236dfb6fe8a9da",
+                "reference": "826b29282b1d784cba362a7b98236dfb6fe8a9da",
                 "shasum": ""
             },
             "require": {
@@ -2080,6 +2080,7 @@
                 "doctrine/coding-standard": "^9.0",
                 "matthiasnoback/symfony-dependency-injection-test": "^6.0",
                 "nyholm/nsa": "^1.0.1",
+                "phpunit/phpunit": "^11.5",
                 "sensio/framework-extra-bundle": "^6.2.4",
                 "symfony/asset": "^5.4 || ^6.4 || ^7.1",
                 "symfony/browser-kit": "^5.4 || ^6.4 || ^7.1",
@@ -2130,9 +2131,9 @@
             ],
             "support": {
                 "issues": "https://github.com/schmittjoh/JMSTranslationBundle/issues",
-                "source": "https://github.com/schmittjoh/JMSTranslationBundle/tree/2.6.0"
+                "source": "https://github.com/schmittjoh/JMSTranslationBundle/tree/2.x"
             },
-            "time": "2025-02-09T16:27:51+00:00"
+            "time": "2025-12-20T19:44:43+00:00"
         },
         {
             "name": "knplabs/knp-menu",
@@ -12273,6 +12274,12 @@
             "version": "9999999-dev",
             "alias": "8.0",
             "alias_normalized": "8.0.0.0"
+        },
+        {
+            "package": "jms/translation-bundle",
+            "version": "2.9999999.9999999.9999999-dev",
+            "alias": "2.6",
+            "alias_normalized": "2.6.0.0"
         }
     ],
     "minimum-stability": "stable",
@@ -12283,6 +12290,7 @@
         "fluentdom/fluentdom": 20,
         "ghi-dc/exist-db-rpc-client": 20,
         "hedii/zotero-api": 20,
+        "jms/translation-bundle": 20,
         "lstrojny/fxmlrpc": 20,
         "textrazor/textrazor-php": 20,
         "trisoftro/collective-access-client": 20
