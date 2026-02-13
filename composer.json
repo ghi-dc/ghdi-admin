@@ -22,10 +22,6 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/jtl-software/connector-iso-639"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/burki/scssphp-bundle"
         },
         {
@@ -97,7 +93,6 @@
 
         "jms/serializer": "^3.32",
 
-        "gmo/iso-639": "dev-master#4834357 as 1.0",
         "league/iso3166": "^4.3",
 
         "mpdf/mpdf": "^8.2",
