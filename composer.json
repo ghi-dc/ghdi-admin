@@ -55,10 +55,10 @@
         "symfony/options-resolver": "^7.4",
 
         "symfony/translation": "^7.4",
-        "twig/twig": "^3.11",
-        "twig/markdown-extra": "^3.11",
+        "twig/twig": "^3.23",
+        "twig/markdown-extra": "^3.23",
         "erusev/parsedown": "dev-master#6ae01284b835bddc0264a2ac4e63f570b9457357",
-        "twig/extra-bundle": "^3.11",
+        "twig/extra-bundle": "^3.23",
         "jasny/twig-extensions": "^1.3",
         "symfony/twig-bridge": "^7.4",
         "symfony/twig-bundle": "^7.4",
@@ -85,7 +85,7 @@
 
         "symfony/http-client": "^7.4",
 
-        "knplabs/knp-menu-bundle": "^3.5",
+        "knplabs/knp-menu-bundle": "^3.7",
 
         "symfony/web-profiler-bundle": "^7.4",
         "symfony/debug-bundle": "^7.4",
@@ -93,7 +93,7 @@
 
         "jms/serializer": "^3.32",
 
-        "league/iso3166": "^4.3",
+        "league/iso3166": "^4.4",
 
         "mpdf/mpdf": "^8.2",
 
@@ -102,7 +102,7 @@
         "fluentdom/fluentdom": "dev-master as 8.0",
         "brunty/relax-ng-domdocument": "^0.2",
 
-        "masterminds/html5": "^2.9",
+        "masterminds/html5": "^2.10",
         "symfony/string": "^7.4",
 
         "hedii/zotero-api": "dev-master#c296090",
@@ -110,7 +110,7 @@
         "seboettg/citeproc-php": "^2.6",
         "fale/isbn": "^3.1",
 
-        "sweetrdf/easyrdf": "^1.16",
+        "sweetrdf/easyrdf": "^1.19",
         "ml/json-ld": "^1.2",
 
         "ghi-dc/exist-db-rpc-client": "dev-psr17",
@@ -119,7 +119,7 @@
         "cocur/slugify": "^4.5",
 
         "trisoftro/collective-access-client": "dev-master#f19e54a",
-        "ezyang/htmlpurifier": "^4.18",
+        "ezyang/htmlpurifier": "^4.19",
         "asika/autolink": "^1.1",
         "voku/html-min": "^4.5",
         "imagine/imagine": "^1.5",
@@ -130,7 +130,7 @@
         "openspout/openspout": "^4.28",
         "phpoffice/phpword": "^0.18",
 
-        "symfony/polyfill-intl-normalizer": "^1.31",
+        "symfony/polyfill-intl-normalizer": "^1.33",
 
         "boppy/solr-bundle": "dev-attributes",
         "doctrine/collections": "^1.8"

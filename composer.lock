@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3823b7c412d0f4fd3a0db950d05bdba8",
+    "content-hash": "aae01a4e01bcc9520c9b0c472e8b428c",
     "packages": [
         {
             "name": "armin/scssphp-bundle",
@@ -12,21 +12,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/burki/scssphp-bundle.git",
-                "reference": "e2f2aec9181c1bb0e8bda6c415fa33335f601f49"
+                "reference": "6dc501fc45e3f66bfdaab6e64a408cb2757720dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/burki/scssphp-bundle/zipball/e2f2aec9181c1bb0e8bda6c415fa33335f601f49",
-                "reference": "e2f2aec9181c1bb0e8bda6c415fa33335f601f49",
+                "url": "https://api.github.com/repos/burki/scssphp-bundle/zipball/6dc501fc45e3f66bfdaab6e64a408cb2757720dd",
+                "reference": "6dc501fc45e3f66bfdaab6e64a408cb2757720dd",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "php": ">=7.2.0",
                 "scssphp/scssphp": "^1.10",
-                "symfony/asset": "^4.0 | ^5.0 | ^6.0 | ^7.0",
-                "symfony/framework-bundle": "^4.0 | ^5.0 | ^6.0 | ^7.0",
-                "symfony/twig-bridge": "^4.0 | ^5.0 | ^6.0 | ^7.0"
+                "symfony/asset": "^5.4 | ^6.4 | ^7.0 | ^8.0",
+                "symfony/framework-bundle": "^5.4 | ^6.4 | ^7.0 | ^8.0",
+                "symfony/twig-bridge": "^5.4 | ^6.4 | ^7.0 | ^8.0"
             },
             "default-branch": true,
             "type": "symfony-bundle",
@@ -54,7 +54,7 @@
             "support": {
                 "source": "https://github.com/burki/scssphp-bundle/tree/master"
             },
-            "time": "2024-12-18T07:13:24+00:00"
+            "time": "2026-02-22T21:02:46+00:00"
         },
         {
             "name": "asika/autolink",
@@ -281,16 +281,16 @@
         },
         {
             "name": "citation-style-language/locales",
-            "version": "v0.0.86",
+            "version": "v0.0.87",
             "source": {
                 "type": "git",
                 "url": "https://github.com/citation-style-language/locales.git",
-                "reference": "cc53ee1fb4bc425898329b112b34aff250f43321"
+                "reference": "d7da45fc8b1b86c445c5019af5b95b8293748ffd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/citation-style-language/locales/zipball/cc53ee1fb4bc425898329b112b34aff250f43321",
-                "reference": "cc53ee1fb4bc425898329b112b34aff250f43321",
+                "url": "https://api.github.com/repos/citation-style-language/locales/zipball/d7da45fc8b1b86c445c5019af5b95b8293748ffd",
+                "reference": "d7da45fc8b1b86c445c5019af5b95b8293748ffd",
                 "shasum": ""
             },
             "type": "library",
@@ -313,7 +313,7 @@
             "homepage": "http://citationstyles.org/",
             "support": {
                 "issues": "https://github.com/citation-style-language/locales/issues",
-                "source": "https://github.com/citation-style-language/locales/tree/v0.0.86"
+                "source": "https://github.com/citation-style-language/locales/tree/v0.0.87"
             },
             "funding": [
                 {
@@ -321,7 +321,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-01-20T20:25:21+00:00"
+            "time": "2026-02-18T14:57:48+00:00"
         },
         {
             "name": "citation-style-language/styles",
@@ -1045,10 +1045,10 @@
             },
             "require": {
                 "ext-mbstring": "*",
-                "php": ">=7.1"
+                "php": ">=7.2"
             },
             "require-dev": {
-                "phpunit/phpunit": "^7.5|^8.5|^9.6"
+                "phpunit/phpunit": "^8.5.52|^9.6.33"
             },
             "default-branch": true,
             "type": "library",
@@ -1078,7 +1078,13 @@
                 "issues": "https://github.com/erusev/parsedown/issues",
                 "source": "https://github.com/erusev/parsedown/tree/master"
             },
-            "time": "2025-08-31T07:57:44+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/erusev",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-02-18T15:50:20+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -11289,16 +11295,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.94.0",
+            "version": "v3.94.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "883b20fb38c7866de9844ab6d0a205c423bde2d4"
+                "reference": "7787ceff91365ba7d623ec410b8f429cdebb4f63"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/883b20fb38c7866de9844ab6d0a205c423bde2d4",
-                "reference": "883b20fb38c7866de9844ab6d0a205c423bde2d4",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/7787ceff91365ba7d623ec410b8f429cdebb4f63",
+                "reference": "7787ceff91365ba7d623ec410b8f429cdebb4f63",
                 "shasum": ""
             },
             "require": {
@@ -11381,7 +11387,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.94.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.94.2"
             },
             "funding": [
                 {
@@ -11389,7 +11395,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-11T16:44:33+00:00"
+            "time": "2026-02-20T16:13:53+00:00"
         },
         {
             "name": "phpstan/phpstan",
