@@ -73,7 +73,7 @@
         "symfony/validator": "^7.4",
         "ninsuo/symfony-collection": "^2.1",
 
-        "symfony/monolog-bundle": "^3.10",
+        "symfony/monolog-bundle": "^4.0",
         "symfony/monolog-bridge": "^7.4",
 
         "symfony/asset": "^7.4",
