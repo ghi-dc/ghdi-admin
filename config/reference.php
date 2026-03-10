@@ -913,6 +913,28 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         },
  *     }>,
  * }
+ * @psalm-type JmsTranslationConfig = array{
+ *     locales?: list<scalar|Param|null>,
+ *     dumper?: array{
+ *         add_date?: bool|Param, // Default: true
+ *         add_references?: bool|Param, // Default: true
+ *     },
+ *     source_language?: scalar|Param|null, // Default: "en"
+ *     configs?: array<string, array{ // Default: []
+ *         extractors?: list<scalar|Param|null>,
+ *         dirs?: list<scalar|Param|null>,
+ *         excluded_dirs?: list<scalar|Param|null>,
+ *         excluded_names?: list<scalar|Param|null>,
+ *         external_translations_dirs?: list<scalar|Param|null>,
+ *         output_format?: scalar|Param|null,
+ *         default_output_format?: scalar|Param|null,
+ *         intl_icu?: scalar|Param|null, // Default: false
+ *         ignored_domains?: list<scalar|Param|null>,
+ *         domains?: list<scalar|Param|null>,
+ *         output_dir?: scalar|Param|null,
+ *         keep?: scalar|Param|null, // Default: false
+ *     }>,
+ * }
  * @psalm-type SecurityConfig = array{
  *     access_denied_url?: scalar|Param|null, // Default: null
  *     session_fixation_strategy?: "none"|"migrate"|"invalidate"|Param, // Default: "migrate"
@@ -1287,6 +1309,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     twig?: TwigConfig,
  *     twig_extra?: TwigExtraConfig,
  *     monolog?: MonologConfig,
+ *     jms_translation?: JmsTranslationConfig,
  *     security?: SecurityConfig,
  *     knp_menu?: KnpMenuConfig,
  *     cocur_slugify?: CocurSlugifyConfig,
