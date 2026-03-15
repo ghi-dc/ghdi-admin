@@ -687,7 +687,8 @@ class CollectiveAccessController extends BaseController
                     || str_contains($url, 'ardmediathek.de/embed/')
                     || str_contains($url, 'mediathek.at/embed/')
                     || str_contains($url, 'youtube.com/embed/')
-                    || str_contains($url, 'player.vimeo.com/video/')) {
+                    || str_contains($url, 'player.vimeo.com/video/')
+                    || str_contains($url, 'germanhistorydocs.org/weimar_elections/')) {
                     $ret['embed_url'] = $url;
                 }
             }
