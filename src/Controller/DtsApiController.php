@@ -66,7 +66,7 @@ class DtsApiController extends ResourceController
     #[Route(path: '/api/dts/collections', name: 'dts-collections')] // TODO: https://distributed-text-services.github.io/specifications/Collections-Endpoint.html#parent-collection-query
     public function collectionsAction(Request $request, TranslatorInterface $translator): JsonResponse
     {
-        $id = $request->get('id');
+        $id = $request->query->get('id');
 
         if (empty($id)) {
             $id = $this->siteKey;
@@ -243,7 +243,7 @@ class DtsApiController extends ResourceController
     #[Route(path: '/api/dts/document', name: 'dts-document')]
     public function documentAction(Request $request): Response
     {
-        $id = $request->get('id');
+        $id = $request->query->get('id');
 
         if (empty($id)) {
             return $this->xmlErrorResponse();

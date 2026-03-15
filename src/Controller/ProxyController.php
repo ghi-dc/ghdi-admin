@@ -26,7 +26,7 @@ class ProxyController extends BaseController
     #[Route(path: '/helper/svgproxy', name: 'svgproxy')]
     public function svgProxyAction(Request $request): Response
     {
-        $url = $request->get('url');
+        $url = $request->query->get('url');
         $clientResponse = $this->client->request('GET', $url);
 
         // Responses are lazy: this code is executed as soon as headers are received

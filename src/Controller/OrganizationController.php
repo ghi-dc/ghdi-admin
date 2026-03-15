@@ -135,9 +135,9 @@ class OrganizationController extends BaseController
             }
         }
         else {
-            $type = $request->get('type');
+            $type = $request->query->get('type');
             if (!empty($type) && array_key_exists($type, $types)) {
-                $identifier = $request->get('identifier');
+                $identifier = $request->query->get('identifier');
                 if (!empty($identifier)) {
                     $data = [
                         'type' => $type,
