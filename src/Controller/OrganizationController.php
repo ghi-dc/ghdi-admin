@@ -265,7 +265,7 @@ class OrganizationController extends BaseController
         TranslatorInterface $translator,
         $id = null
     ): Response {
-        $update = 'organization-edit' == $request->get('_route');
+        $update = 'organization-edit' == $request->attributes->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
 

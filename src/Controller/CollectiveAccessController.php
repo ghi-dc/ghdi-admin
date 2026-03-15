@@ -946,7 +946,7 @@ class CollectiveAccessController extends BaseController
             $translator,
             $caService,
             $request->getLocale(),
-            'ca-detail' == $request->get('_route')
+            'ca-detail' == $request->attributes->get('_route')
         );
 
         $figures = $this->buildFigures($caService, $result->getRawData(), $request->getLocale());
@@ -983,7 +983,7 @@ class CollectiveAccessController extends BaseController
             }
         }
 
-        if ('ca-detail-tei' == $request->get('_route')) {
+        if ('ca-detail-tei' == $request->attributes->get('_route')) {
             $skeleton = $this->getTeiSkeleton();
 
             if (false !== $skeleton) {

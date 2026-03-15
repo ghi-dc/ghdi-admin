@@ -28,7 +28,7 @@ class DtsApiController extends ResourceController
     {
         return new JsonResponse([
             '@context' => $this->generateUrl('dts-entry-point-context'),
-            '@id' => $this->generateUrl($request->get('_route')),
+            '@id' => $this->generateUrl($request->attributes->get('_route')),
             '@type' => 'EntryPoint',
             'collections' => $this->generateUrl('dts-collections'),
             'documents' => $this->generateUrl('dts-document'),

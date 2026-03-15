@@ -430,21 +430,21 @@ class ResourceController extends BaseController
 
         $resourcePath = $client->getCollection() . '/' . $volume . '/' . $resource['data']['fname'];
 
-        if ('resource-detail-dc' == $request->get('_route')) {
+        if ('resource-detail-dc' == $request->attributes->get('_route')) {
             return $this->teiToDublinCore($translator, $client, $resourcePath);
         }
 
-        if (in_array($request->get('_route'), ['resource-detail-scalar', 'resource-embedded-media-scalar'])) {
+        if (in_array($request->attributes->get('_route'), ['resource-detail-scalar', 'resource-embedded-media-scalar'])) {
             return $this->teiToScalar(
                 $client,
                 $resourcePath,
                 $lang,
                 null,
-                'resource-embedded-media-scalar' == $request->get('_route')
+                'resource-embedded-media-scalar' == $request->attributes->get('_route')
             );
         }
 
-        if ('resource-detail-tei' == $request->get('_route')) {
+        if ('resource-detail-tei' == $request->attributes->get('_route')) {
             $tei = $client->getDocument($resourcePath, ['omit-xml-declaration' => 'no']);
 
             $response = new Response($tei);
@@ -537,7 +537,7 @@ class ResourceController extends BaseController
 
         $html = $this->adjustHtml($html, $this->buildBaseUriMedia($volume, $id));
 
-        if ('resource-detail-pdf' == $request->get('_route')) {
+        if ('resource-detail-pdf' == $request->attributes->get('_route')) {
             $html = $this->render('Resource/printview.html.twig', [
                 'name' => $this->teiToHtml($client, $resourcePath, $lang, '//tei:titleStmt/tei:title'),
                 'volume' => $this->fetchVolume($client, $volume, $lang),
@@ -548,7 +548,7 @@ class ResourceController extends BaseController
             return $this->renderPdf($pdfConverter, $html, str_replace('.xml', '.pdf', $resource['data']['fname']), $request->getLocale());
         }
 
-        if ('resource-detail-html' == $request->get('_route')) {
+        if ('resource-detail-html' == $request->attributes->get('_route')) {
             // simple html for scalar export
             return $this->render('Resource/detail-no-chrome.html.twig', [
                 'pageTitle' => $resource['data']['name'],
@@ -842,7 +842,7 @@ class ResourceController extends BaseController
         $id = null,
         $genre = null
     ): Response {
-        $update = 'resource-edit' == $request->get('_route');
+        $update = 'resource-edit' == $request->attributes->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
         $lang = \App\Utils\Iso639::code1To3($request->getLocale());
@@ -878,7 +878,7 @@ class ResourceController extends BaseController
 
         $formOptions = [];
         // no terms for collections
-        if ('collection-add' != $request->get('_route')) {
+        if ('collection-add' != $request->attributes->get('_route')) {
             $formOptions['choices'] = [
                 'terms' => array_flip($this->buildTermChoices($request->getLocale(), $entity)),
                 'meta' => array_flip($this->buildMetaChoices($translator, $entity)),
@@ -992,7 +992,7 @@ class ResourceController extends BaseController
         $volume,
         $id
     ): Response {
-        $update = 'resource-upload' == $request->get('_route');
+        $update = 'resource-upload' == $request->attributes->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
 

@@ -358,11 +358,11 @@ class VolumeController extends ResourceController
         }
 
         $volumepath = $client->getCollection() . '/' . $id . '/' . $volume['data']['fname'];
-        if ('volume-detail-dc' == $request->get('_route')) {
+        if ('volume-detail-dc' == $request->attributes->get('_route')) {
             return $this->teiToDublinCore($translator, $client, $volumepath);
         }
 
-        if ('volume-detail-scalar' == $request->get('_route')) {
+        if ('volume-detail-scalar' == $request->attributes->get('_route')) {
             return $this->teiToScalar(
                 $client,
                 $volumepath,
@@ -371,7 +371,7 @@ class VolumeController extends ResourceController
             );
         }
 
-        if ('volume-detail-tei' == $request->get('_route')) {
+        if ('volume-detail-tei' == $request->attributes->get('_route')) {
             $tei = $client->getDocument($volumepath, ['omit-xml-declaration' => 'no']);
 
             $response = new Response($tei);
@@ -380,7 +380,7 @@ class VolumeController extends ResourceController
             return $response;
         }
 
-        if ('volume-export' == $request->get('_route')) {
+        if ('volume-export' == $request->attributes->get('_route')) {
             $resourcesGrouped = $this->buildResourcesGrouped($client, $id, $lang, true);
             $terms = $this->buildTermChoices($request->getLocale());
 
@@ -462,7 +462,7 @@ class VolumeController extends ResourceController
         TranslatorInterface $translator,
         $id = null
     ): Response {
-        $update = 'volume-edit' == $request->get('_route');
+        $update = 'volume-edit' == $request->attributes->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
 

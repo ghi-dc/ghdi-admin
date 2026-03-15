@@ -267,7 +267,7 @@ class PlaceController extends BaseController
         TranslatorInterface $translator,
         $id = null
     ): Response {
-        $update = 'place-edit' == $request->get('_route');
+        $update = 'place-edit' == $request->attributes->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
 

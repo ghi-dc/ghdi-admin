@@ -264,7 +264,7 @@ class PersonController extends BaseController
         TranslatorInterface $translator,
         $id = null
     ): Response {
-        $update = 'person-edit' == $request->get('_route');
+        $update = 'person-edit' == $request->attributes->get('_route');
 
         $client = $this->getExistDbClient($this->subCollection);
 

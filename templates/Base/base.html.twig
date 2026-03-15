@@ -65,7 +65,7 @@
         {% block head %}{% endblock %}
     </head>
 
-    <body role="document" class="route-{{ app.request.get('_route') | replace({'_' : '-'}) }}">
+    <body role="document" class="route-{{ app.request.attributes.get('_route') | replace({'_' : '-'}) }}">
         <nav class="navbar sticky-top bg-dark flex-column p-0">
             <div class="d-flex w-100">
                 <div class="mr-auto p-2">

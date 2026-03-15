@@ -147,7 +147,7 @@ class Builder
         $menu = $this->createMainMenu($options + ['position' => 'breadcrumb']);
 
         // try to return the active item
-        $currentRoute = $this->requestStack->getCurrentRequest()->get('_route');
+        $currentRoute = $this->requestStack->getCurrentRequest()->attributes->get('_route');
 
         if ('home' == $currentRoute) {
             return $menu;

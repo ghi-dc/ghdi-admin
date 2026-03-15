@@ -61,7 +61,7 @@
 
     <h1 class="richtext">
         {% if id is empty %}
-            {% if 'collection-add' == app.request.get('_route') %}
+            {% if 'collection-add' == app.request.attributes.get('_route') %}
             {{ 'Add Collection'|trans }}
             {% else %}
             {{ 'Add Resource'|trans }}

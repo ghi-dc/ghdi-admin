@@ -92,7 +92,7 @@ class BibliographyController extends BaseController
             break;
         }
 
-        if ('bibliography-detail-tei' == $request->get('_route')) {
+        if ('bibliography-detail-tei' == $request->attributes->get('_route')) {
             $listBibl = sprintf(
                 '<?' . 'xml version="1.0" encoding="UTF-8"?>
 <listBibl xmlns="http://www.tei-c.org/ns/1.0">%s</listBibl>' . "\n",
