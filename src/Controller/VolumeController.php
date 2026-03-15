@@ -284,8 +284,8 @@ class VolumeController extends ResourceController
                 $order = json_decode($postData, true);
                 if (false !== $order) {
                     $resourcesGrouped = $this->buildResourcesGrouped($client, $id, $lang);
-                    if (array_key_exists($request->get('resource_group'), $resourcesGrouped)) {
-                        $hasPart = $resourcesGrouped[$request->get('resource_group')]['resources'];
+                    if (array_key_exists($request->request->get('resource_group'), $resourcesGrouped)) {
+                        $hasPart = $resourcesGrouped[$request->request->get('resource_group')]['resources'];
                     }
 
                     $newOrder = [];
