@@ -576,9 +576,9 @@ class ResourceController extends BaseController
                     $newOrder = json_decode($postData, true);
                 }
             }
-            else if (!empty($request->get('reorder-from'))) {
+            else if (!empty($request->query->get('reorder-from'))) {
                 // sync order with order from alternate locale
-                $alternateLocale = $request->get('reorder-from');
+                $alternateLocale = $request->query->get('reorder-from');
 
                 if (in_array($alternateLocale, $this->getParameter('locales'))
                     && $alternateLocale != $request->getLocale()) {
