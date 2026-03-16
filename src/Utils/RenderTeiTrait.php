@@ -133,6 +133,10 @@ trait RenderTeiTrait
 
     protected function adjustHtml($html, $baseUrlMedia)
     {
+        // xslt creates self-closing tags like <iframe/>
+        // which cause problems with DomCrawler, so we need to replace them with <iframe></iframe>
+        $html = preg_replace('/<iframe([^>]*)\/>/s', '<iframe\1></iframe>', $html);
+
         // run even if there is nothing to remove since xslt creates
         // self-closing tags like <div/> which are not valid in HTML5
         $html = $this->removeByCssSelector($html, [
