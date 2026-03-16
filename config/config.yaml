@@ -27,7 +27,6 @@ framework:
     http_method_override: false
     # Not setting the "framework.handle_all_throwables" config option is deprecated. It will default to "true" in 7.0.
     handle_all_throwables: true
-    annotations: false
     # JMS\TranslationBundle\JMSTranslationBundle needs validation
     validation:
         # Not setting the "framework.validation.email_validation_mode" config option is deprecated. It will default to "html5" in 7.0.

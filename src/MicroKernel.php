@@ -132,12 +132,12 @@ final class MicroKernel extends Kernel
     protected function configureRoutes(RoutingConfigurator $routes)
     {
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
-            $routes->import('@WebProfilerBundle/Resources/config/routing/wdt.xml')->prefix('/_wdt');
-            $routes->import('@WebProfilerBundle/Resources/config/routing/profiler.xml')->prefix('/_profiler');
+            $routes->import('@WebProfilerBundle/Resources/config/routing/wdt.php')->prefix('/_wdt');
+            $routes->import('@WebProfilerBundle/Resources/config/routing/profiler.php')->prefix('/_profiler');
 
             // Preview error pages through /_error/{statusCode}
             //   see http://symfony.com/doc/current/cookbook/controller/error_pages.html
-            $routes->import('@FrameworkBundle/Resources/config/routing/errors.xml')->prefix('/_error');
+            $routes->import('@FrameworkBundle/Resources/config/routing/errors.php')->prefix('/_error');
         }
 
         // App controllers
