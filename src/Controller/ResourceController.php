@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use App\Service\CollectiveAccessService;
@@ -323,7 +324,7 @@ class ResourceController extends BaseController
         CollectiveAccessService $caService,
         $volume,
         $id
-    ): Response {
+    ): Response|JsonResponse {
         // TODO: Move to generic EntityLinking Service
         $textRazorApiKey = null;
 
