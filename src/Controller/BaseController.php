@@ -92,10 +92,13 @@ abstract class BaseController extends AbstractController
         static $initialized = false;
 
         if (!$initialized) {
-            // If you are using the standalone library and you want to use annotations,
-            // the annotation registry must be initialized,
-            // https://github.com/schmittjoh/serializer/blob/master/doc/configuration.rst
-            \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
+            if (method_exists(\Doctrine\Common\Annotations\AnnotationRegistry::class, 'registerLoader')) {
+                // If you are using the standalone library and you want to use annotations,
+                // the annotation registry must be initialized,
+                // https://github.com/schmittjoh/serializer/blob/master/doc/configuration.rst
+                \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
+            }
+
             $initialized = true;
         }
 
