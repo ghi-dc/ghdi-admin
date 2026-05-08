@@ -65,7 +65,7 @@
         "symfony/translation": "^8.0",
         "twig/twig": "^3.23",
         "twig/markdown-extra": "^3.23",
-        "erusev/parsedown": "dev-master#6ae01284b835bddc0264a2ac4e63f570b9457357",
+        "erusev/parsedown": "^1.8",
         "twig/extra-bundle": "^3.23",
         "jasny/twig-extensions": "^1.3",
         "symfony/twig-bridge": "^8.0",

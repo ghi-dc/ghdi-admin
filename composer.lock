@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "430836a8c74500a76f35a5ced4c1956e",
+    "content-hash": "3e0f1a3dd693f6cac790bb625147ca4d",
     "packages": [
         {
             "name": "armin/scssphp-bundle",
@@ -1081,26 +1081,25 @@
         },
         {
             "name": "erusev/parsedown",
-            "version": "dev-master",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erusev/parsedown.git",
-                "reference": "6ae01284b835bddc0264a2ac4e63f570b9457357"
+                "reference": "96baaad00f71ba04d76e45b4620f54d3beabd6f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown/zipball/6ae01284b835bddc0264a2ac4e63f570b9457357",
-                "reference": "6ae01284b835bddc0264a2ac4e63f570b9457357",
+                "url": "https://api.github.com/repos/erusev/parsedown/zipball/96baaad00f71ba04d76e45b4620f54d3beabd6f7",
+                "reference": "96baaad00f71ba04d76e45b4620f54d3beabd6f7",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "php": ">=7.2"
+                "php": ">=7.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^8.5.52|^9.6.33"
+                "phpunit/phpunit": "^7.5|^8.5|^9.6"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-0": {
@@ -1126,7 +1125,7 @@
             ],
             "support": {
                 "issues": "https://github.com/erusev/parsedown/issues",
-                "source": "https://github.com/erusev/parsedown/tree/master"
+                "source": "https://github.com/erusev/parsedown/tree/1.8.0"
             },
             "funding": [
                 {
@@ -1134,7 +1133,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-18T15:50:20+00:00"
+            "time": "2026-02-16T11:41:01+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -12249,7 +12248,6 @@
     "stability-flags": {
         "armin/scssphp-bundle": 20,
         "boppy/solr-bundle": 20,
-        "erusev/parsedown": 20,
         "fluentdom/fluentdom": 20,
         "ghi-dc/exist-db-rpc-client": 20,
         "hedii/zotero-api": 20,
