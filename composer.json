@@ -35,10 +35,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/burki/JMSTranslationBundle"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/devteam-emroc/simple_html_dom"
         }
     ],
     "require": {
@@ -129,8 +125,7 @@
         "trisoftro/collective-access-client": "dev-master#f19e54a",
         "ezyang/htmlpurifier": "^4.19",
         "asika/autolink": "^1.1",
-        "voku/html-min": "*",
-        "voku/simple_html_dom": "dev-master#1ccc849d5a374147f7c1593d0ecaff851cbc6758 as 4.8.6",
+        "voku/html-min": "^5.0",
         "imagine/imagine": "^1.5",
 
         "textrazor/textrazor-php": "*@dev",
