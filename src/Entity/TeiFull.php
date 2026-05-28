@@ -2,14 +2,10 @@
 
 namespace App\Entity;
 
-use FS\SolrBundle\Doctrine\Annotation as Solr;
+use FS\SolrBundle\Attribute as Solr;
 
 /**
  * Entity to index TeiHeader and text.
- *
- * @Solr\Document(indexHandler="indexHandler", repository="App\Search\Repository")
- *
- * @Solr\SynchronizationFilter(callback="shouldBeIndexed")
  */
 #[Solr\Document(indexHandler: 'indexHandler', repository: "App\Search\Repository")]
 #[Solr\SynchronizationFilter(callback: 'shouldBeIndexed')]
@@ -17,24 +13,19 @@ class TeiFull extends TeiHeader
 {
     /**
      * @var string the textual content
-     *
-     * @Solr\Field(type="text")
      */
     #[Solr\Field(type: 'text')]
     protected $body;
 
     /**
      * @var array additional tags for solr indexing
-     *
-     * @Solr\Field(type="strings", nestedClass="App\Entity\Tag")
      */
     #[Solr\Field(type: 'strings', nestedClass: "App\Entity\Tag")]
     protected $tags = [];
 
     /**
      * @var string the Volume id for facetting
-     *
-     * @Solr\Field(type="string")
+
      */
     #[Solr\Field(type: 'string')]
     private $volumeId;

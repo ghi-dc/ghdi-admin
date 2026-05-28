@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5d376bb980aba79a2321447b59c558b1",
+    "content-hash": "64dc59a5f6649ea5969d194066cd04f1",
     "packages": [
         {
             "name": "armin/scssphp-bundle",
@@ -110,22 +110,21 @@
         },
         {
             "name": "boppy/solr-bundle",
-            "version": "dev-symfony-8",
+            "version": "dev-attributes-only",
             "target-dir": "FS/SolrBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/burki/SolrBundle.git",
-                "reference": "b10f95be87f3914974b4f1a0412f425769771193"
+                "reference": "9037d66bbbc470284790c3624ab489dbcd2158bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/burki/SolrBundle/zipball/b10f95be87f3914974b4f1a0412f425769771193",
-                "reference": "b10f95be87f3914974b4f1a0412f425769771193",
+                "url": "https://api.github.com/repos/burki/SolrBundle/zipball/9037d66bbbc470284790c3624ab489dbcd2158bc",
+                "reference": "9037d66bbbc470284790c3624ab489dbcd2158bc",
                 "shasum": ""
             },
             "require": {
                 "burki/minimalcode-search": "^1.0",
-                "doctrine/annotations": "^1.7|^2.0",
                 "myclabs/deep-copy": "^1.6",
                 "php": "^8.1",
                 "ramsey/uuid": "^3.5|^4.1",
@@ -136,7 +135,6 @@
                 "symfony/http-kernel": "^5.4|^6.4|^7.0|^8.0"
             },
             "require-dev": {
-                "doctrine/mongodb-odm-bundle": "^5.0",
                 "doctrine/orm": "^2.9",
                 "phpunit/phpunit": "^9.0"
             },
@@ -149,16 +147,11 @@
                     "FS\\SolrBundle": ""
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Doctrine\\ODM\\MongoDB\\": "vendor/doctrine/mongodb-odm/lib/Doctrine/ODM/MongoDB/"
-                }
-            },
             "license": [
                 "MIT"
             ],
             "description": "Forked from floriansemm/solr-bundle - Symfony >= 5.4 Solr integration bundle",
-            "homepage": "https://github.com/boppy/SolrBundle",
+            "homepage": "https://github.com/burki/SolrBundle",
             "keywords": [
                 "index",
                 "search",
@@ -166,9 +159,9 @@
                 "symfony"
             ],
             "support": {
-                "source": "https://github.com/burki/SolrBundle/tree/symfony-8"
+                "source": "https://github.com/burki/SolrBundle/tree/attributes-only"
             },
-            "time": "2026-04-10T16:53:46+00:00"
+            "time": "2026-05-07T14:20:15+00:00"
         },
         {
             "name": "brick/math",
@@ -552,83 +545,6 @@
                 "source": "https://github.com/cocur/slugify/tree/v4.7.1"
             },
             "time": "2025-11-27T18:57:36+00:00"
-        },
-        {
-            "name": "doctrine/annotations",
-            "version": "2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/annotations.git",
-                "reference": "901c2ee5d26eb64ff43c47976e114bf00843acf7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/901c2ee5d26eb64ff43c47976e114bf00843acf7",
-                "reference": "901c2ee5d26eb64ff43c47976e114bf00843acf7",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/lexer": "^2 || ^3",
-                "ext-tokenizer": "*",
-                "php": "^7.2 || ^8.0",
-                "psr/cache": "^1 || ^2 || ^3"
-            },
-            "require-dev": {
-                "doctrine/cache": "^2.0",
-                "doctrine/coding-standard": "^10",
-                "phpstan/phpstan": "^1.10.28",
-                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
-                "symfony/cache": "^5.4 || ^6.4 || ^7",
-                "vimeo/psalm": "^4.30 || ^5.14"
-            },
-            "suggest": {
-                "php": "PHP 8.0 or higher comes with attributes, a native replacement for annotations"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Doctrine\\Common\\Annotations\\": "lib/Doctrine/Common/Annotations"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Guilherme Blanco",
-                    "email": "guilhermeblanco@gmail.com"
-                },
-                {
-                    "name": "Roman Borschel",
-                    "email": "roman@code-factory.org"
-                },
-                {
-                    "name": "Benjamin Eberlei",
-                    "email": "kontakt@beberlei.de"
-                },
-                {
-                    "name": "Jonathan Wage",
-                    "email": "jonwage@gmail.com"
-                },
-                {
-                    "name": "Johannes Schmitt",
-                    "email": "schmittjoh@gmail.com"
-                }
-            ],
-            "description": "Docblock Annotations Parser",
-            "homepage": "https://www.doctrine-project.org/projects/annotations.html",
-            "keywords": [
-                "annotations",
-                "docblock",
-                "parser"
-            ],
-            "support": {
-                "issues": "https://github.com/doctrine/annotations/issues",
-                "source": "https://github.com/doctrine/annotations/tree/2.0.2"
-            },
-            "abandoned": true,
-            "time": "2024-09-05T10:17:24+00:00"
         },
         {
             "name": "doctrine/collections",
@@ -8471,16 +8387,16 @@
         },
         {
             "name": "symfony/polyfill-php86",
-            "version": "v1.37.0",
+            "version": "v1.38.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php86.git",
-                "reference": "33d8fc5a705481e21fe3a81212b26f9b1f61749c"
+                "reference": "fcec68d64f46dc84e1f6ffcf2c6dda40ff3143ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php86/zipball/33d8fc5a705481e21fe3a81212b26f9b1f61749c",
-                "reference": "33d8fc5a705481e21fe3a81212b26f9b1f61749c",
+                "url": "https://api.github.com/repos/symfony/polyfill-php86/zipball/fcec68d64f46dc84e1f6ffcf2c6dda40ff3143ad",
+                "reference": "fcec68d64f46dc84e1f6ffcf2c6dda40ff3143ad",
                 "shasum": ""
             },
             "require": {
@@ -8527,7 +8443,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php86/tree/v1.37.0"
+                "source": "https://github.com/symfony/polyfill-php86/tree/v1.38.0"
             },
             "funding": [
                 {
@@ -8547,7 +8463,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-26T13:13:48+00:00"
+            "time": "2026-05-25T11:52:35+00:00"
         },
         {
             "name": "symfony/process",

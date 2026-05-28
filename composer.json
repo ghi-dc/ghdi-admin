@@ -136,7 +136,7 @@
 
         "symfony/polyfill-intl-normalizer": "^1.37",
 
-        "boppy/solr-bundle": "dev-symfony-8",
+        "boppy/solr-bundle": "dev-attributes-only",
         "doctrine/collections": "^3.1"
     },
     "autoload": {

@@ -2,42 +2,31 @@
 
 namespace App\Entity;
 
-use FS\SolrBundle\Doctrine\Annotation as Solr;
+use FS\SolrBundle\Attribute as Solr;
 
-/**
- * @Solr\Nested()
- */
 #[Solr\Nested]
 class Tag
 {
     /**
      * @var string
-     *
-     * @Solr\Id
      */
     #[Solr\Id]
     protected $id;
 
     /**
      * @var string the path (/ separated, for hierarchical tag sets)
-     *
-     * @Solr\Field(type="string")
      */
     #[Solr\Field(type: 'string')]
     protected $path;
 
     /**
      * @var string the type (so we can have multiple tag sets)
-     *
-     * @Solr\Field(type="string")
      */
     #[Solr\Field(type: 'string')]
     protected $type;
 
     /**
      * @var string the name
-     *
-     * @Solr\Field(type="string")
      */
     #[Solr\Field(type: 'string')]
     protected $name;
