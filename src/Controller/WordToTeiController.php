@@ -24,10 +24,11 @@ class WordToTeiController extends BaseController
             $file = $request->files->get('file');
 
             if (is_null($file)) {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', $translator->trans('No upload found, please try again'))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    $translator->trans('No upload found, please try again')
+                );
             }
             else {
                 $mime = $file->getMimeType();
@@ -35,10 +36,11 @@ class WordToTeiController extends BaseController
                     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                     'application/docx',
                 ])) {
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('danger', $translator->trans("The uploaded file wasn't recognized as a Word-File (.docx)"))
-                    ;
+                    $this->addFlashBag(
+                        $request,
+                        'warning',
+                        $translator->trans("The uploaded file wasn't recognized as a Word-File (.docx)")
+                    );
                 }
                 else {
                     $myTarget = new class extends \App\Utils\TeiSimplePrintDocument {

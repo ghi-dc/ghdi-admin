@@ -51,13 +51,14 @@ class PlaceController extends BaseController
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Place::class);
         if (is_null($entity)) {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', sprintf(
-                        $translator->trans('No entry found for id: %s'),
-                        $id
-                    ))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                sprintf(
+                    $translator->trans('No entry found for id: %s'),
+                    $id
+                )
+            );
 
             return $this->redirect($this->generateUrl('place-list'));
         }
@@ -193,10 +194,11 @@ class PlaceController extends BaseController
                     $id = array_key_exists('id', $info['data'])
                         ? $info['data']['id'] : $info['data'][0]['id'];
 
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('info', $translator->trans('There is already an entry for this identifier'))
-                    ;
+                    $this->addFlashBag(
+                        $request,
+                        'info',
+                        $translator->trans('There is already an entry for this identifier')
+                    );
 
                     return $this->redirect($this->generateUrl('place-detail', [
                         'id' => $id,
@@ -218,10 +220,11 @@ class PlaceController extends BaseController
 
                             /* currently no review since we can't handle containedInPlace in Form
                             // display for review
-                            $request->getSession()
-                                    ->getFlashBag()
-                                    ->add('info', $translator->trans('Please review and enhance before pressing [Save]'))
-                                ;
+                            $this->addFlashBag(
+                                $request,
+                                'info',
+                                $translator->trans('Please review and enhance before pressing [Save]')
+                            );
 
                             $form = $this->createForm(\App\Form\Type\PlaceType::class, $place, [
                                 'action' => $this->generateUrl('place-add'),
@@ -243,13 +246,14 @@ class PlaceController extends BaseController
                         break;
 
                     default:
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add('warning', sprintf(
-                                    $translator->trans('Not handling type: %s'),
-                                    $data['type']
-                                ))
-                        ;
+                        $this->addFlashBag(
+                            $request,
+                            'warning',
+                            sprintf(
+                                $translator->trans('Not handling type: %s'),
+                                $data['type']
+                            )
+                        );
                 }
             }
         }
@@ -283,13 +287,14 @@ class PlaceController extends BaseController
                 $entity = new \App\Entity\Place();
             }
             else {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', sprintf(
-                            $translator->trans('No entry found for id: %s'),
-                            $id
-                        ))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    sprintf(
+                        $translator->trans('No entry found for id: %s'),
+                        $id
+                    )
+                );
 
                 return $this->redirect($this->generateUrl('place-list'));
             }
@@ -301,24 +306,23 @@ class PlaceController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             $res = $this->persist($client, $entity, $update);
             if (!$res) {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', sprintf(
-                            $translator->trans('An issue occured while storing id: %s'),
-                            $id
-                        ))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    sprintf(
+                        $translator->trans('An issue occured while storing id: %s'),
+                        $id
+                    )
+                );
             }
             else {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add(
-                            'info',
-                            $update
-                              ? $translator->trans('The entry has been updated')
-                              : $translator->trans('The entry has been created')
-                        );
-
+                $this->addFlashBag(
+                    $request,
+                    'info',
+                    $update
+                        ? $translator->trans('The entry has been updated')
+                        : $translator->trans('The entry has been created')
+                );
             }
 
             return $this->redirect($this->generateUrl('place-detail', ['id' => $id]));
@@ -341,22 +345,24 @@ class PlaceController extends BaseController
         $entity = $this->fetchEntity($client, $id, \App\Entity\Place::class);
 
         if (is_null($entity)) {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', sprintf(
-                        $translator->trans('No entry found for id: %s'),
-                        $id
-                    ))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                sprintf(
+                    $translator->trans('No entry found for id: %s'),
+                    $id
+                )
+            );
 
             return $this->redirect($this->generateUrl('person-list'));
         }
 
         if (!$entity->hasIdentifiers()) {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', $translator->trans('Entry has no identifier'))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                $translator->trans('Entry has no identifier')
+            );
 
             return $this->redirect($this->generateUrl('place-detail', [
                 'id' => $id,
@@ -394,26 +400,29 @@ class PlaceController extends BaseController
             $name = $id . '.xml';
             $res = $client->parse($content, $name, $update);
             if (!$res) {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', sprintf(
-                            $translator->trans('An issue occured while storing id: %s'),
-                            $id
-                        ))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    sprintf(
+                        $translator->trans('An issue occured while storing id: %s'),
+                        $id
+                    )
+                );
             }
             else {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('info', $translator->trans('The entry has been updated'));
-
+                $this->addFlashBag(
+                    $request,
+                    'info',
+                    $translator->trans('The entry has been updated')
+                );
             }
         }
         else {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('info', $translator->trans('No additional information could be found'));
-
+            $this->addFlashBag(
+                $request,
+                'info',
+                $translator->trans('No additional information could be found')
+            );
         }
 
         return $this->redirect($this->generateUrl('place-detail', [

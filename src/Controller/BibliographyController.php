@@ -77,17 +77,20 @@ class BibliographyController extends BaseController
 
         $simplexml = simplexml_load_string($listBibl);
         if (0 == count($simplexml)) {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', sprintf(
-                        $translator->trans('No entry found for id: %s'),
-                        $id
-                    ))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                sprintf(
+                    $translator->trans('No entry found for id: %s'),
+                    $id
+                )
+            );
 
             return $this->redirect($this->generateUrl('bibliography-list'));
         }
 
+        // here we have at least one child element, we pick the first one
+        $elem = null;
         foreach ($simplexml as $elem) {
             break;
         }
@@ -156,14 +159,11 @@ class BibliographyController extends BaseController
                 $response = $apiRequest->send();
             }
             catch (\GuzzleHttp\Exception\ClientException $e) {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('danger', sprintf(
-                            $translator->trans('Error requesting item %s (%s)'),
-                            $start,
-                            $e->getResponse()->getStatusCode()
-                        ))
-                ;
+                $this->addFlashBag($request, 'danger', sprintf(
+                    $translator->trans('Error requesting item %s (%s)'),
+                    $start,
+                    $e->getResponse()->getStatusCode()
+                ));
 
                 return $this->redirect($this->generateUrl('bibliography-list'));
             }
@@ -218,41 +218,33 @@ class BibliographyController extends BaseController
                     $update = !is_null($info);
                     $res = $client->parse($content, $name, $update);
                     if (!$res) {
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add('warning', sprintf(
-                                    $translator->trans('An issue occured while storing id: %s'),
-                                    $id
-                                ))
-                        ;
+                        $this->addFlashBag($request, 'warning', sprintf(
+                            $translator->trans('An issue occured while storing id: %s'),
+                            $id
+                        ));
                     }
                     else {
                         if ($update) {
                             ++$updated;
                         }
 
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add(
-                                    'info',
-                                    $update
-                                      ? $translator->trans('The entry has been updated')
-                                      : $translator->trans('Entry created')
-                                )
-                        ;
+                        $this->addFlashBag(
+                            $request,
+                            'info',
+                            $update
+                                ? $translator->trans('The entry has been updated')
+                                : $translator->trans('Entry created')
+                        );
                     }
                 }
             }
         }
 
-        $request->getSession()
-                ->getFlashBag()
-                ->add('info', sprintf(
-                    $translator->trans('Fetched %s items (%s updated)'),
-                    $fetched,
-                    $updated
-                ))
-        ;
+        $this->addFlashBag($request, 'info', sprintf(
+            $translator->trans('Fetched %s items (%s updated)'),
+            $fetched,
+            $updated
+        ));
 
         return $this->redirect($this->generateUrl('bibliography-list'));
     }

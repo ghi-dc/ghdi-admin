@@ -5,6 +5,7 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -89,8 +90,6 @@ abstract class BaseController extends AbstractController
 
     protected function getSerializer()
     {
-        static $initialized = false;
-
         return \JMS\Serializer\SerializerBuilder::create()
             ->setPropertyNamingStrategy(
                 new \JMS\Serializer\Naming\SerializedNameAnnotationStrategy(
@@ -136,6 +135,18 @@ abstract class BaseController extends AbstractController
             . $client->getCollection();
 
         return $this->unparse_url($parts);
+    }
+
+    protected function addFlashBag(Request $request, string $type, mixed $message)
+    {
+        $session = $request->getSession();
+
+        if (!$session instanceof \Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface) {
+            return;
+        }
+
+        $session->getFlashBag()
+            ->add($type, $message);
     }
 
     protected function fetchVolume(\ExistDbRpc\Client $client, $id, $lang)
@@ -598,6 +609,7 @@ abstract class BaseController extends AbstractController
         $uriSrc = $uri;
 
         $xql = null;
+        $qid = null;
         $params = null;
         $resultKey = 'gnd';
 

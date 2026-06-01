@@ -388,10 +388,11 @@ class ResourceController extends BaseController
                             $res = $this->updateTeiHeaderContent($client, $to, $content, $data, false);
 
                             if ($res) {
-                                $request->getSession()
-                                        ->getFlashBag()
-                                        ->add('info', $translator->trans('The resource has been copied'))
-                                ;
+                                $this->addFlashBag(
+                                    $request,
+                                    'info',
+                                    $translator->trans('The resource has been copied')
+                                );
 
                                 if (in_array($resourceAlternate['data']['genre'], ['document-collection', 'image-collection'])) {
                                     // go to edit
@@ -416,13 +417,14 @@ class ResourceController extends BaseController
                 ]);
             }
 
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', sprintf(
-                        $translator->trans('No resource found for id: %s'),
-                        $id
-                    ))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                sprintf(
+                    $translator->trans('No resource found for id: %s'),
+                    $id
+                )
+            );
 
             return $this->redirect($this->generateUrl('volume-detail', [
                 'id' => $volume,
@@ -636,16 +638,19 @@ class ResourceController extends BaseController
                             $res = $this->updateTeiHeader($client, $resourcePath, $entity);
                             if ($res) {
                                 $terms = $this->buildTermsFromResourceData($resourceAlternate);
-                                $request->getSession()
-                                        ->getFlashBag()
-                                        ->add('info', $translator->trans('The subject headings have been set'));
+                                $this->addFlashBag(
+                                    $request,
+                                    'info',
+                                    $translator->trans('The subject headings have been set')
+                                );
 
                             }
                             else {
-                                $request->getSession()
-                                        ->getFlashBag()
-                                        ->add('warning', $translator->trans('The subject headings could not be set'));
-
+                                $this->addFlashBag(
+                                    $request,
+                                    'warning',
+                                    $translator->trans('The subject headings could not be set')
+                                );
                             }
                         }
                         else {
@@ -865,13 +870,14 @@ class ResourceController extends BaseController
                 $entity = new \App\Entity\TeiHeader();
             }
             else {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', sprintf(
-                            $translator->trans('No resource found for id: %s'),
-                            $id
-                        ))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    sprintf(
+                        $translator->trans('No resource found for id: %s'),
+                        $id
+                    )
+                );
 
                 return $this->redirect($this->generateUrl('resource-detail', ['volume' => $volume, 'id' => $id]));
             }
@@ -915,25 +921,27 @@ class ResourceController extends BaseController
             ]);
 
             if (!$res) {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', sprintf(
-                            $translator->trans('An issue occured while storing id: %s'),
-                            $id
-                        ))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    sprintf(
+                        $translator->trans('An issue occured while storing id: %s'),
+                        $id
+                    )
+                );
             }
             else {
                 if ($request->getSession()->has('return-after-save')) {
                     $redirectUrl = $this->generateUrl($request->getSession()->remove('return-after-save'));
                 }
 
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('info', $update
-                              ? $translator->trans('The resource has been updated')
-                              : $translator->trans('The resource has been created'));
-
+                $this->addFlashBag(
+                    $request,
+                    'info',
+                    $update
+                        ? $translator->trans('The resource has been updated')
+                        : $translator->trans('The resource has been created')
+                );
             }
 
             return $this->redirect($redirectUrl);
@@ -1013,13 +1021,14 @@ class ResourceController extends BaseController
 
         $entity = $this->fetchTeiHeader($client, $resourcePath);
         if (is_null($entity)) {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', sprintf(
-                        $translator->trans('No resource found for id: %s'),
-                        $resourceId
-                    ))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                sprintf(
+                    $translator->trans('No resource found for id: %s'),
+                    $resourceId
+                )
+            );
 
             return $this->redirect($this->generateUrl('volume-detail', ['id' => $volume]));
         }
@@ -1027,10 +1036,11 @@ class ResourceController extends BaseController
         if ($request->isMethod('post')) {
             $file = $request->files->get('file');
             if (is_null($file)) {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', $translator->trans('No upload found, please try again'))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    $translator->trans('No upload found, please try again')
+                );
             }
             else {
                 $mime = $file->getMimeType();
@@ -1039,10 +1049,11 @@ class ResourceController extends BaseController
                     'application/docx',
                     'text/xml',
                 ])) {
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('danger', $translator->trans("Uploaded file wasn't recognized as a Word-File (.docx) or as a TEI-File (.xml)"))
-                    ;
+                    $this->addFlashBag(
+                        $request,
+                        'danger',
+                        $translator->trans("Uploaded file wasn't recognized as a Word-File (.docx) or as a TEI-File (.xml)")
+                    );
                 }
                 else {
                     $genre = 'document';
@@ -1066,10 +1077,11 @@ class ResourceController extends BaseController
 
                         $success = $teiDtabfDoc->load($file->getRealPath());
                         if (!$success) {
-                            $request->getSession()
-                                    ->getFlashBag()
-                                    ->add('danger', $translator->trans('There was an error loading the upload'))
-                            ;
+                            $this->addFlashBag(
+                                $request,
+                                'danger',
+                                $translator->trans('There was an error loading the upload')
+                            );
                             $teiDtabfDoc = false;
                         }
                         else {
@@ -1101,10 +1113,11 @@ class ResourceController extends BaseController
                         );
 
                         if (false === $teiDtabfDoc) {
-                            $request->getSession()
-                                    ->getFlashBag()
-                                    ->add('danger', $translator->trans('There was an error converting the upload'))
-                            ;
+                            $this->addFlashBag(
+                                $request,
+                                'danger',
+                                $translator->trans('There was an error converting the upload')
+                            );
                         }
 
                         if ($update) {
@@ -1120,10 +1133,11 @@ class ResourceController extends BaseController
                         $valid = $teiDtabfDoc->validate($this->getProjectDir() . '/data/schema/basisformat.rng');
 
                         if (!$valid) {
-                            $request->getSession()
-                                    ->getFlashBag()
-                                    ->add('warning', $translator->trans('The conversion was successful, but there might be an issue with the structure of the result'))
-                            ;
+                            $this->addFlashBag(
+                                $request,
+                                'warning',
+                                $translator->trans('The conversion was successful, but there might be an issue with the structure of the result')
+                            );
                         }
 
                         $meta = [];
@@ -1189,15 +1203,13 @@ class ResourceController extends BaseController
                         $res = $client->parse((string) $teiDtabfDoc, $resourcePath, $update);
 
                         if ($res) {
-                            $request->getSession()
-                                    ->getFlashBag()
-                                    ->add(
-                                        'info',
-                                        $update
-                                          ? $translator->trans('The resource has been updated')
-                                          : $translator->trans('The resource has been created')
-                                    )
-                            ;
+                            $this->addFlashBag(
+                                $request,
+                                'info',
+                                $update
+                                    ? $translator->trans('The resource has been updated')
+                                    : $translator->trans('The resource has been created')
+                            );
 
                             return $this->redirect($this->generateUrl('resource-detail', [
                                 'volume' => $volume,
@@ -1205,10 +1217,11 @@ class ResourceController extends BaseController
                             ]));
                         }
 
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add('danger', $translator->trans('The new resource could not be created'))
-                        ;
+                        $this->addFlashBag(
+                            $request,
+                            'danger',
+                            $translator->trans('The new resource could not be created')
+                        );
                     }
                 }
             }

@@ -219,10 +219,11 @@ class VolumeController extends ResourceController
                             $res = $this->updateTeiHeaderContent($client, $to, $content, $data, false);
 
                             if ($res) {
-                                $request->getSession()
-                                        ->getFlashBag()
-                                        ->add('info', $translator->trans('The resource has been copied'))
-                                ;
+                                $this->addFlashBag(
+                                    $request,
+                                    'info',
+                                    $translator->trans('The resource has been copied')
+                                );
 
                                 return $this->redirect($this->generateUrl('volume-edit', [
                                     'id' => $id,
@@ -242,13 +243,14 @@ class VolumeController extends ResourceController
                 ]);
             }
 
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', sprintf(
-                        $translator->trans('No resource found for id: %s'),
-                        $id
-                    ))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                sprintf(
+                    $translator->trans('No resource found for id: %s'),
+                    $id
+                )
+            );
 
             return $this->redirect($this->generateUrl('volume-list'));
         }
@@ -272,10 +274,11 @@ class VolumeController extends ResourceController
                     ]);
                 }
 
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('info', $translator->trans('No matching resources found'))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'info',
+                    $translator->trans('No matching resources found')
+                );
             }
 
             // check for updated order
@@ -480,21 +483,23 @@ class VolumeController extends ResourceController
         if (is_null($entity)) {
             if (is_null($id)) {
                 // add new not implemented yet
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', $translator->trans('Creating new volumes is not implemented yet'))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    $translator->trans('Creating new volumes is not implemented yet')
+                );
 
                 return $this->redirect($this->generateUrl('volume-list'));
             }
 
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', sprintf(
-                        $translator->trans('No resource found for id: %s'),
-                        $id
-                    ))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                sprintf(
+                    $translator->trans('No resource found for id: %s'),
+                    $id
+                )
+            );
 
             return $this->redirect($this->generateUrl('volume-list'));
         }
@@ -517,21 +522,20 @@ class VolumeController extends ResourceController
             }
 
             if (!$res) {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', 'An issue occured while storing id: ' . $id)
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    'An issue occured while storing id: ' . $id
+                );
             }
             else {
-                $request->getSession()
-                        ->getFlashBag()
-                                ->add(
-                                    'info',
-                                    $update
-                                      ? $translator->trans('The volume has been updated')
-                                      : $translator->trans('The volume has been created')
-                                )
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'info',
+                    $update
+                        ? $translator->trans('The volume has been updated')
+                        : $translator->trans('The volume has been created')
+                );
             }
 
             return $this->redirect($this->generateUrl('volume-detail', ['id' => $id]));

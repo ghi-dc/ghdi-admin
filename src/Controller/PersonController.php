@@ -51,13 +51,14 @@ class PersonController extends BaseController
 
         $entity = $this->fetchEntity($client, $id, \App\Entity\Person::class);
         if (is_null($entity)) {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', sprintf(
-                        $translator->trans('No entry found for id: %s'),
-                        $id
-                    ))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                sprintf(
+                    $translator->trans('No entry found for id: %s'),
+                    $id
+                )
+            );
 
             return $this->redirect($this->generateUrl('person-list'));
         }
@@ -156,10 +157,11 @@ class PersonController extends BaseController
                 $id = array_key_exists('id', $info['data'])
                     ? $info['data']['id'] : $info['data'][0]['id'];
 
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('info', $translator->trans('There is already an entry for this identifier'))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'info',
+                    $translator->trans('There is already an entry for this identifier')
+                );
 
                 return $this->redirect($this->generateUrl('person-detail', [
                     'id' => $id,
@@ -191,10 +193,11 @@ class PersonController extends BaseController
                     }
 
                     if (!$found && 'lcauth' != $data['type']) {
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add('warning', $translator->trans('Could not find a corresponding GND'))
-                        ;
+                        $this->addFlashBag(
+                            $request,
+                            'warning',
+                            $translator->trans('Could not find a corresponding GND')
+                        );
 
                         break;
                     }
@@ -215,10 +218,11 @@ class PersonController extends BaseController
 
                     if (!is_null($entity) && $entity instanceof \App\Entity\Person) {
                         // display for review
-                        $request->getSession()
-                                ->getFlashBag()
-                                ->add('info', $translator->trans('Please review and enhance before pressing [Save]'))
-                        ;
+                        $this->addFlashBag(
+                            $request,
+                            'info',
+                            $translator->trans('Please review and enhance before pressing [Save]')
+                        );
 
                         $form = $this->createForm(\App\Form\Type\PersonType::class, $entity, [
                             'action' => $this->generateUrl('person-add'),
@@ -230,24 +234,26 @@ class PersonController extends BaseController
                         ]);
                     }
 
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('warning', sprintf(
-                                $translator->trans('No entry found for: %s'),
-                                $data['identifier']
-                            ))
-                    ;
+                    $this->addFlashBag(
+                        $request,
+                        'warning',
+                        sprintf(
+                            $translator->trans('No entry found for: %s'),
+                            $data['identifier']
+                        )
+                    );
 
                     break;
 
                 default:
-                    $request->getSession()
-                            ->getFlashBag()
-                            ->add('warning', sprintf(
-                                $translator->trans('Not handling type: %s'),
-                                $data['type']
-                            ))
-                    ;
+                    $this->addFlashBag(
+                        $request,
+                        'warning',
+                        sprintf(
+                            $translator->trans('Not handling type: %s'),
+                            $data['type']
+                        )
+                    );
             }
         }
 
@@ -276,13 +282,14 @@ class PersonController extends BaseController
                 $entity = new \App\Entity\Person();
             }
             else {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', sprintf(
-                            $translator->trans('No entry found for id: %s'),
-                            $id
-                        ))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    sprintf(
+                        $translator->trans('No entry found for id: %s'),
+                        $id
+                    )
+                );
 
                 return $this->redirect($this->generateUrl('person-list'));
             }
@@ -304,28 +311,27 @@ class PersonController extends BaseController
             $name = $id . '.xml';
             $res = $client->parse($content, $name, $update);
             if (!$res) {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', sprintf(
-                            $translator->trans('An issue occured while storing id: %s'),
-                            $id
-                        ))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    sprintf(
+                        $translator->trans('An issue occured while storing id: %s'),
+                        $id
+                    )
+                );
             }
             else {
                 if ($request->getSession()->has('return-after-save')) {
                     $redirectUrl = $this->generateUrl($request->getSession()->remove('return-after-save'));
                 }
 
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add(
-                            'info',
-                            $update
-                              ? $translator->trans('The entry has been updated')
-                              : $translator->trans('The entry has been created')
-                        );
-
+                $this->addFlashBag(
+                    $request,
+                    'info',
+                    $update
+                        ? $translator->trans('The entry has been updated')
+                        : $translator->trans('The entry has been created')
+                );
             }
 
             return $this->redirect($redirectUrl);
@@ -348,22 +354,24 @@ class PersonController extends BaseController
         $entity = $this->fetchEntity($client, $id, \App\Entity\Person::class);
 
         if (is_null($entity)) {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', sprintf(
-                        $translator->trans('No entry found for id: %s'),
-                        $id
-                    ))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                sprintf(
+                    $translator->trans('No entry found for id: %s'),
+                    $id
+                )
+            );
 
             return $this->redirect($this->generateUrl('person-list'));
         }
 
         if (!$entity->hasIdentifiers()) {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('warning', $translator->trans('Entry has no identifier'))
-            ;
+            $this->addFlashBag(
+                $request,
+                'warning',
+                $translator->trans('Entry has no identifier')
+            );
 
             return $this->redirect($this->generateUrl('person-detail', [
                 'id' => $id,
@@ -401,26 +409,29 @@ class PersonController extends BaseController
             $name = $id . '.xml';
             $res = $client->parse($content, $name, $update);
             if (!$res) {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('warning', sprintf(
-                            $translator->trans('An issue occured while storing id: %s'),
-                            $id
-                        ))
-                ;
+                $this->addFlashBag(
+                    $request,
+                    'warning',
+                    sprintf(
+                        $translator->trans('An issue occured while storing id: %s'),
+                        $id
+                    )
+                );
             }
             else {
-                $request->getSession()
-                        ->getFlashBag()
-                        ->add('info', $translator->trans('The entry has been updated'));
-
+                $this->addFlashBag(
+                    $request,
+                    'info',
+                    $translator->trans('The entry has been updated')
+                );
             }
         }
         else {
-            $request->getSession()
-                    ->getFlashBag()
-                    ->add('info', $translator->trans('No additional information could be found'));
-
+            $this->addFlashBag(
+                $request,
+                'info',
+                $translator->trans('No additional information could be found')
+            );
         }
 
         return $this->redirect($this->generateUrl('person-detail', [
