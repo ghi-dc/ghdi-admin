@@ -4,6 +4,7 @@
 
 namespace App\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -216,7 +217,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
         if (empty($volume)) {
             $output->writeln(sprintf('<error>Missing volume</error>'));
 
-            return -1;
+            return Command::INVALID;
         }
 
         if (!preg_match('/^volume\-\d+$/', $volume)) {
@@ -225,7 +226,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
                 $volume
             ));
 
-            return -1;
+            return Command::INVALID;
         }
 
         $fnameOut = $this->frontendDataDir
@@ -236,7 +237,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
         if (empty($key)) {
             $output->writeln(sprintf('<error>Missing collection</error>'));
 
-            return -2;
+            return Command::INVALID;
         }
 
         $groupByChapter = $input->getOption('group-by-chapter');
@@ -259,7 +260,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
                 return false;
             }
             */
-            return -1;
+            return Command::FAILURE;
         }
 
         if ($groupByChapter) {
@@ -295,7 +296,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
                     return false;
                 }
                 */
-                return -1;
+                return Command::FAILURE;
             }
 
             $collections = [];
@@ -359,7 +360,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
                 | JSON_UNESCAPED_UNICODE));
 
             if (false !== $res) {
-                return 0;
+                return Command::SUCCESS;
             }
 
             $output->writeln(sprintf(
@@ -367,11 +368,11 @@ class ZoteroFetchCollectionCommand extends BaseCommand
                 $fnameOut
             ));
 
-            return -2;
+            return Command::FAILURE;
         }
 
         $output->writeln(sprintf('<info>Empty collection</info>'));
 
-        return -3;
+        return Command::FAILURE;
     }
 }

@@ -93,7 +93,7 @@ class WordToTeiCommand extends Command
                 $file
             ));
 
-            return -1;
+            return Command::INVALID;
         }
 
         $officeDoc = new \App\Utils\BinaryDocument();
@@ -185,12 +185,12 @@ class WordToTeiCommand extends Command
                     ));
                 }
 
-                return -2;
+                return Command::FAILURE;
             }
         }
 
         echo $teiDtabfDoc->saveString();
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

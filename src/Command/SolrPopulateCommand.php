@@ -4,6 +4,7 @@
 
 namespace App\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -394,7 +395,7 @@ class SolrPopulateCommand extends ExistDbCommand
         if (empty($volume)) {
             $output->writeln(sprintf('<error>missing volume</error>'));
 
-            return -1;
+            return Command::INVALID;
         }
 
         $locale = $input->getOption('locale');
@@ -433,9 +434,9 @@ class SolrPopulateCommand extends ExistDbCommand
         catch (\Exception $e) {
             $output->writeln(sprintf('A error occurs: %s', $e->getMessage()));
 
-            return -1;
+            return Command::FAILURE;
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

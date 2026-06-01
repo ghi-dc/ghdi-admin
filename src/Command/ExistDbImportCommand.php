@@ -4,6 +4,7 @@
 
 namespace App\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -60,7 +61,7 @@ class ExistDbImportCommand extends ExistDbCommand
                     $existDbBase
                 ));
 
-                return 0;
+                return Command::SUCCESS;
             }
 
             $output->writeln(sprintf(
@@ -68,7 +69,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $existDbBase
             ));
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         if (!$existDbClient->existsAndCanOpenCollection()) {
@@ -77,7 +78,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $existDbBase
             ));
 
-            return -3;
+            return Command::FAILURE;
         }
 
         $resource = $input->getArgument('resource');
@@ -108,7 +109,7 @@ class ExistDbImportCommand extends ExistDbCommand
                     $collection
                 ));
 
-                return -1;
+                return Command::INVALID;
         }
 
         $filenameFull = $this->projectDir . '/data/authority/' . $collection . '/' . $filename;
@@ -118,7 +119,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $filenameFull
             ));
 
-            return -3;
+            return Command::FAILURE;
         }
 
         return (int) $this->checkCollectionAndStore($output, $existDbClient, $existDbBase . '/data/authority/' . $collection, $filename, $filenameFull, $overwrite);
@@ -142,7 +143,7 @@ class ExistDbImportCommand extends ExistDbCommand
                     $subCollection
                 ));
 
-                return -3;
+                return Command::FAILURE;
             }
 
             $res = $existDbClient->createCollection();
@@ -152,12 +153,12 @@ class ExistDbImportCommand extends ExistDbCommand
                     $subCollection
                 ));
 
-                return -3;
+                return Command::FAILURE;
             }
         }
 
         if (u($filenameFull)->endsWith('/')) {
-            return 0;
+            return Command::SUCCESS;
         }
 
         if ($existDbClient->hasDocument($resource) && !$overwrite) {
@@ -166,7 +167,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $subCollection . '/' . $resource
             ));
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         if ($isBinary) {
@@ -184,7 +185,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $subCollection . '/' . $resource
             ));
 
-            return -4;
+            return Command::FAILURE;
         }
 
         $output->writeln(sprintf(
@@ -192,7 +193,7 @@ class ExistDbImportCommand extends ExistDbCommand
             $subCollection . '/' . $resource
         ));
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     protected function importStyles(OutputInterface $output, $resource, $overwrite = false)
@@ -208,11 +209,11 @@ class ExistDbImportCommand extends ExistDbCommand
                 $resource = basename($filenameFull);
                 if (!empty($resource)) {
                     $subRes = $this->importStyles($output, $resource, $overwrite);
-                    if (0 != $subRes) {
+                    if (Command::SUCCESS != $subRes) {
                         return $subRes;
                     }
 
-                    $res = 0;
+                    $res = Command::SUCCESS;
                 }
             }
 
@@ -222,7 +223,7 @@ class ExistDbImportCommand extends ExistDbCommand
                     $inputDir
                 ));
 
-                return -6;
+                return Command::FAILURE;
             }
 
             return $res;
@@ -235,7 +236,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $filenameFull
             ));
 
-            return -3;
+            return Command::FAILURE;
         }
 
         $existDbClient = $this->getExistDbClient();
@@ -263,7 +264,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 '<error>Please pass the name of the resource</error>'
             ));
 
-            return -6;
+            return Command::INVALID;
         }
 
         $filenameFull = $inputDir . '/' . $resource;
@@ -273,7 +274,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $filenameFull
             ));
 
-            return -3;
+            return Command::FAILURE;
         }
 
         $existDbClient = $this->getExistDbClient();
@@ -340,7 +341,7 @@ class ExistDbImportCommand extends ExistDbCommand
         if (empty($resource)) {
             $output->writeln(sprintf('<error>Resource not specified</error>'));
 
-            return -3;
+            return Command::INVALID;
         }
 
         if ($this->isAbsolutePath($resource)) {
@@ -357,7 +358,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $filenameFull
             ));
 
-            return -3;
+            return Command::FAILURE;
         }
 
         $entity = \App\Entity\TeiHeader::fromXml($filenameFull);
@@ -368,7 +369,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $filenameFull
             ));
 
-            return -2;
+            return Command::FAILURE;
         }
 
         if (empty($entity->getGenre()) || empty($entity->getId())) {
@@ -377,7 +378,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $resource
             ));
 
-            return -1;
+            return Command::INVALID;
         }
 
         if (empty($entity->getLanguage())
@@ -388,7 +389,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $resource
             ));
 
-            return -1;
+            return Command::INVALID;
         }
 
         $dtaidStem = in_array($entity->getGenre(), ['document-collection', 'image-collection'])
@@ -402,7 +403,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $reDtaid
             ));
 
-            return -1;
+            return Command::INVALID;
         }
 
         $articleUidLocal = preg_replace(sprintf('/^%s:/', $this->siteKey), '', $entity->getId());
@@ -420,7 +421,7 @@ class ExistDbImportCommand extends ExistDbCommand
                 $resourceNameExpected
             ));
 
-            return -1;
+            return Command::INVALID;
         }
 
         $existDbClient = $this->getExistDbClient();
@@ -450,7 +451,7 @@ class ExistDbImportCommand extends ExistDbCommand
                         $entity->getShelfmark()
                     ));
 
-                    return -1;
+                    return Command::INVALID;
                 }
 
                 $collection = $matches[1];
@@ -464,6 +465,6 @@ class ExistDbImportCommand extends ExistDbCommand
             $entity->getGenre()
         ));
 
-        return -1;
+        return Command::INVALID;
     }
 }

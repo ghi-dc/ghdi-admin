@@ -4,6 +4,7 @@
 
 namespace App\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -57,7 +58,7 @@ class ExistDbTestCommand extends ExistDbCommand
                 $query->setCollection($this->collection);
                 $response = $query->put();
 
-                return (int) (false === $response ? -3 : 0);
+                return (int) (false === $response ? Command::FAILURE : Command::SUCCESS);
 
                 break;
 
@@ -73,10 +74,10 @@ class ExistDbTestCommand extends ExistDbCommand
                         . '/data/bild_get.jpg';
                     file_put_contents($filename, $response->getRawResult());
 
-                    return 0;
+                    return Command::SUCCESS;
                 }
 
-                return (int) -4;
+                return Command::FAILURE;
                 break;
 
             case 'get-resource-info':
@@ -86,13 +87,13 @@ class ExistDbTestCommand extends ExistDbCommand
                 $response = $query->head();
                 var_dump($response);
 
-                return 0;
+                return Command::SUCCESS;
                 break;
 
             case 'get-collection-desc':
                 var_dump($existDbClient->getCollectionDesc($this->collection));
 
-                return 0;
+                return Command::SUCCESS;
                 break;
 
             case 'import':
@@ -135,7 +136,7 @@ class ExistDbTestCommand extends ExistDbCommand
                     }
                 }
 
-                return 0;
+                return Command::SUCCESS;
                 break;
 
             case 'analyze':
@@ -203,32 +204,48 @@ class ExistDbTestCommand extends ExistDbCommand
                 $response = $query->get();
                 echo $response->getRawResult();
 
-                return 0;
+                return Command::SUCCESS;
                 break;
 
             case 'collection':
                 $xql = <<<EOXQL
                     xquery version "3.0";
-                    <plays>
+
+                    declare namespace tei="http://www.tei-c.org/ns/1.0";
+
+                    <resources>
                     {
                         for \$resource in collection("{$this->collection}")
+                            order by
+                                \$resource//tei:teiHeader//tei:idno[@type='shelfmark']/text() || '',
+                                base-uri(\$resource)
+                            collation "http://www.w3.org/2013/collation/UCA"
+
                         return
-                        <play uri="{base-uri(\$resource)}">
+                        <resource uri="{base-uri(\$resource)}">
                         {
-                            \$resource/PLAY/TITLE/text()
+                            fn:normalize-space((\$resource//tei:teiHeader//tei:title[@type='main']/text())[1])
                         }
-                        </play>
+                        </resource>
                     }
-                    </plays>
+                    </resources>
                     EOXQL;
                 break;
 
             case 'search':
                 $xql = <<<EOXQL
-                    for \$line in
-                        collection('{$this->collection}')//SPEECH/LINE[contains(., 'fantasy')]
-                    return
-                    <LINE play="{base-uri(\$line)}">{string(\$line)}</LINE>
+                    xquery version "3.1";
+
+                    declare default element namespace "http://www.tei-c.org/ns/1.0";
+
+                    <matches>
+                    {
+                        for \$line in
+                            collection('{$this->collection}')/TEI[ft:query(.//titleStmt/*, 'Washington')]
+                        return
+                        <match play="{base-uri(\$line)}">{fn:substring(fn:normalize-space(string(\$line)), 1, 40)}...</match>
+                    }
+                    </matches>
                     EOXQL;
                 break;
 
@@ -242,13 +259,13 @@ class ExistDbTestCommand extends ExistDbCommand
 
         $result = $res->getNextResult();
         if (false === $result) {
-            $output->writeln('<error>Query faile</error>');
+            $output->writeln('<error>Query failed</error>');
 
-            return (int) -1;
+            return Command::FAILURE;
         }
 
         var_dump($result);
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

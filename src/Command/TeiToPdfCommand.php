@@ -51,7 +51,7 @@ class TeiToPdfCommand extends Command
                 $file
             ));
 
-            return -1;
+            return Command::INVALID;
         }
 
         $teiDoc = new \App\Utils\TeiDocument();
@@ -67,6 +67,6 @@ class TeiToPdfCommand extends Command
 
         echo (string) $pdfDoc;
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

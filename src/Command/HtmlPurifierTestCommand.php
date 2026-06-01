@@ -35,6 +35,6 @@ class HtmlPurifierTestCommand extends Command
 
         echo $clean_html;
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

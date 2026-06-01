@@ -4,14 +4,13 @@
 
 namespace App\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Implement
- *  existdb:import
- * for adding fitting collection.xconf and generating corresponding indexes.
+ * Import collection.xconf depending on collection and generating corresponding indexes.
  */
 class ExistDbIndexCommand extends ExistDbCommand
 {
@@ -38,7 +37,7 @@ class ExistDbIndexCommand extends ExistDbCommand
                 $existDbBase
             ));
 
-            return -3;
+            return Command::INVALID;
         }
 
         switch ($collection = $input->getArgument('collection')) {
@@ -63,7 +62,7 @@ class ExistDbIndexCommand extends ExistDbCommand
                     $collection
                 ));
 
-                return -1;
+                return Command::INVALID;
         }
 
         if (!file_exists($filenameFull)) {
@@ -72,7 +71,7 @@ class ExistDbIndexCommand extends ExistDbCommand
                 $filenameFull
             ));
 
-            return -3;
+            return Command::INVALID;
         }
 
         $configCollection = '/db/system/config' . $subCollection;
@@ -85,7 +84,7 @@ class ExistDbIndexCommand extends ExistDbCommand
                 $configFull
             ));
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         // create collection if needed
@@ -97,7 +96,7 @@ class ExistDbIndexCommand extends ExistDbCommand
                     $configCollection
                 ));
 
-                return -3;
+                return Command::FAILURE;
             }
         }
 
@@ -108,7 +107,7 @@ class ExistDbIndexCommand extends ExistDbCommand
                 $configFull
             ));
 
-            return -4;
+            return Command::FAILURE;
         }
 
         $output->writeln(sprintf(
@@ -122,7 +121,7 @@ class ExistDbIndexCommand extends ExistDbCommand
                 $subCollection
             ));
 
-            return -5;
+            return Command::FAILURE;
         }
 
         $output->writeln(sprintf(
@@ -130,6 +129,6 @@ class ExistDbIndexCommand extends ExistDbCommand
             $subCollection
         ));
 
-        return 0;
+        return Command::SUCCESS;
     }
 }
