@@ -33,7 +33,7 @@ framework:
         email_validation_mode: html5
     # knp_paginator needs translate bundle
     translator: { fallbacks: ['%default_locale%'], logging: false }
-    profiler: { only_exceptions: false, collect_serializer_data: true }
+    profiler: true
     property_info:
         with_constructor_extractor: true
     router:
