@@ -1,14 +1,13 @@
 <?php
 
-/**
- * Helper Class to work with TEI / DTA-Basisformat DTABf.
- */
-
 namespace App\Utils;
 
 use FluentDOM\DOM\Document as FluentDOMDocument;
-use FluentDOM\Exceptions\LoadingError\FileNotLoaded;
+use FluentDOM\Exceptions\LoadingError;
 
+/**
+ * Helper Class to work with TEI / DTA-Basisformat DTABf.
+ */
 class TeiHelper
 {
     // Function for basic field validation (present and neither empty nor only white space
@@ -98,10 +97,8 @@ class TeiHelper
 
     /**
      * Load file into \FluentDOM\DOM\Document.
-     *
-     * @return FluentDOMDocument|false
      */
-    protected function loadXml(string $fname)
+    protected function loadXml(string $fname): FluentDOMDocument|false
     {
         try {
             $dom = \FluentDOM::load($fname, 'xml', [
@@ -109,7 +106,7 @@ class TeiHelper
                 \FluentDOM\Loader\Options::PRESERVE_WHITESPACE => true,
             ]);
         }
-        catch (FileNotLoaded $e) {
+        catch (LoadingError $e) {
             return false;
         }
 
@@ -123,11 +120,16 @@ class TeiHelper
      *
      * @param string $content
      */
-    protected function loadXmlString($content): FluentDOMDocument
+    protected function loadXmlString($content): FluentDOMDocument|false
     {
-        $dom = \FluentDOM::load($content, 'xml', [
-            \FluentDOM\Loader\Options::PRESERVE_WHITESPACE => true,
-        ]);
+        try {
+            $dom = \FluentDOM::load($content, 'xml', [
+                \FluentDOM\Loader\Options::PRESERVE_WHITESPACE => true,
+            ]);
+        }
+        catch (LoadingError $e) {
+            return false;
+        }
 
         $this->registerNamespaces($dom);
 
@@ -317,7 +319,7 @@ class TeiHelper
         if ($result->length > 0) {
             $article->abstract = $asXml
                 ? $this->extractInnerContent($result[0])
-                : $this->extractTextContent($result[0]);
+                : $this->extractTextContent($result[0], 1);
         }
 
         // bibl
@@ -553,8 +555,6 @@ class TeiHelper
 
     /**
      * Adjust header in $dom according to $data.
-     *
-     * @return FluentDOMDocument|false
      */
     public function patchHeaderStructure(FluentDOMDocument $dom, array $data): FluentDOMDocument
     {
@@ -597,7 +597,7 @@ class TeiHelper
             if (array_key_exists($key, $data)) {
                 if (self::isNullOrEmpty($data[$key])) {
                     // remove
-                    \FluentDom($header)->find($xpath)->remove();
+                    \FluentDOM($header)->find($xpath)->remove();
                 }
                 else {
                     $node = $this->addDescendants($header, $xpath, [], true);
@@ -615,7 +615,7 @@ class TeiHelper
         if (array_key_exists('authors', $data)) {
             $xpath = 'tei:fileDesc/tei:titleStmt/author';
             // since there can be multiple, first clear and then add
-            \FluentDom($header)->find($xpath)->remove();
+            \FluentDOM($header)->find($xpath)->remove();
 
             if (!is_null($data['authors'])) {
                 foreach ($data['authors'] as $author) {
@@ -696,7 +696,7 @@ class TeiHelper
         if (array_key_exists('responsible', $data)) {
             $xpath = 'tei:fileDesc/tei:titleStmt/tei:respStmt';
             // since there can be multiple, first clear and then add
-            \FluentDom($header)->find($xpath)->remove();
+            \FluentDOM($header)->find($xpath)->remove();
 
             if (!is_null($data['responsible'])) {
                 $respStmt = null;
@@ -704,7 +704,7 @@ class TeiHelper
                 foreach ($data['responsible'] as $responsible) {
                     if (is_null($respStmt)) {
                         $this->addDescendants($header, $xpath, []);
-                        $respStmt = \FluentDom($header)->find($xpath)[0];
+                        $respStmt = \FluentDOM($header)->find($xpath)[0];
                     }
 
                     $respStmt->appendElement('resp', $responsible['role']);
@@ -754,7 +754,7 @@ class TeiHelper
 
                         if (empty($data['licence'])) {
                             // we remove a possible licence child
-                            \FluentDom($self)->find('tei:licence')->remove();
+                            \FluentDOM($self)->find('tei:licence')->remove();
                         }
                     }
 
@@ -792,7 +792,7 @@ class TeiHelper
 
                 if (self::isNullOrEmpty($data[$key])) {
                     // remove
-                    \FluentDom($header)->find($xpath)->remove();
+                    \FluentDOM($header)->find($xpath)->remove();
                 }
                 else {
                     $this->addDescendants($header, $xpath, [
@@ -820,7 +820,7 @@ class TeiHelper
             if (array_key_exists($key, $data)) {
                 if (self::isNullOrEmpty($data[$key])) {
                     // remove
-                    \FluentDom($header)->find($xpath)->remove();
+                    \FluentDOM($header)->find($xpath)->remove();
                 }
                 else {
                     $node = $this->addDescendants($header, $xpath, [], true);
@@ -929,7 +929,7 @@ class TeiHelper
             if (array_key_exists($key, $data)) {
                 $xpath = 'tei:profileDesc/tei:textClass/tei:classCode[contains(@scheme, "' . $scheme . '")]';
                 // since there can be multiple, first clear and then add
-                \FluentDom($header)->find($xpath)->remove();
+                \FluentDOM($header)->find($xpath)->remove();
 
                 if (!is_null($data[$key])) {
                     foreach ($data[$key] as $code) {
@@ -1040,6 +1040,19 @@ class TeiHelper
 
     protected function extractTextContent($node, $normalizeWhitespace = true)
     {
+        // we append a double new line to each block-level element in $node (currently only <p>)
+        // so elements without trailing whitespace don't run together
+        // when extracting textContent
+        foreach (($node->ownerDocument)('//tei:p', $node) as $match) {
+            $match->appendChild($match->ownerDocument->createTextNode("\n\n"));
+        }
+
+        // we replace each <lb/> in $node with newline so lines without trailing whitespace don't run together
+        // when extracting textContent
+        foreach (($node->ownerDocument)('//tei:lb', $node) as $match) {
+            $match->parentNode->replaceChild($match->ownerDocument->createTextNode("\n"), $match);
+        }
+
         $textContent = $node->textContent;
 
         if ($normalizeWhitespace) {
@@ -1076,6 +1089,7 @@ class TeiHelper
                 }
 
                 $uri = trim($entity['attributes'][$attribute]);
+                $type = null;
 
                 switch ($entity['name']) {
                     case '{http://www.tei-c.org/ns/1.0}placeName':
@@ -1099,14 +1113,6 @@ class TeiHelper
                         if (preg_match('/^https?'
                                        . preg_quote('://d-nb.info/gnd/', '/')
                                        . '\d+[xX]?$/', $uri)
-
-                            || preg_match('/^'
-                                       . preg_quote('http://www.dasjuedischehamburg.de/inhalt/', '/')
-                                       . '.+$/', $uri)
-
-                            || preg_match('/^'
-                                            . preg_quote('http://www.stolpersteine-hamburg.de/', '/')
-                                            . '.*?BIO_ID=(\d+)/', $uri)
                         ) {
 
                         }
@@ -1214,23 +1220,9 @@ class CollectingReader extends \Sabre\Xml\Reader
 {
     protected $collected;
 
-    function collect($output)
-    {
-        $this->collected[] = $output;
-    }
-
-    function parse(): array
-    {
-        $this->collected = [];
-        parent::parse();
-
-        return $this->collected;
-    }
-
     static function collectElement(CollectingReader $reader)
     {
         $name = $reader->getClark();
-        // var_dump($name);
         $attributes = $reader->parseAttributes();
 
         $res = [
@@ -1242,5 +1234,18 @@ class CollectingReader extends \Sabre\Xml\Reader
         $reader->collect($res);
 
         $reader->next();
+    }
+
+    public function collect($output)
+    {
+        $this->collected[] = $output;
+    }
+
+    public function parse(): array
+    {
+        $this->collected = [];
+        parent::parse();
+
+        return $this->collected;
     }
 }
