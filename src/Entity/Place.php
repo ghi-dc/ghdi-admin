@@ -100,7 +100,6 @@ class Place extends SchemaOrg
 
     public function showCenterMarker()
     {
-        $hasPlaceParent = false;
         $ancestorOrSelf = $this;
         while (!is_null($ancestorOrSelf)) {
             if (in_array($ancestorOrSelf->additionalType, ['neighborhoods', 'inhabited places'])) {
@@ -137,8 +136,6 @@ class Place extends SchemaOrg
     public function setTgn($tgn)
     {
         return $this->setIdentifier('tgn', $tgn);
-
-        return $this;
     }
 
     /**

@@ -10,18 +10,18 @@ namespace App\Entity;
 class Periodical extends CreativeWork
 {
     /**
-     * @var string The International Standard Serial Number (ISSN) that identifies this serial publication
+     * @var string|null The International Standard Serial Number (ISSN) that identifies this serial publication
      */
     protected $issn;
 
     /**
      * Sets the ISSN of the serial publication.
      *
-     * @param string $issn
+     * @param string|null $issn
      *
      * @return $this
      */
-    public function setIssn($issn)
+    public function setIssn($issn = null)
     {
         $this->issn = $issn;
 
@@ -31,7 +31,7 @@ class Periodical extends CreativeWork
     /**
      * Gets the ISSN of the serial publication.
      *
-     * @return string
+     * @return string|null
      */
     public function getIssn()
     {

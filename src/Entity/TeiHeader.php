@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -9,6 +11,8 @@ use FS\SolrBundle\Attribute as Solr;
  * Entity to edit elements in teiHeader.
  *
  * Currently very incomplete
+ *
+ * @phpstan-consistent-constructor
  */
 class TeiHeader implements \JsonSerializable
 {
@@ -344,7 +348,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Sets licence.
      *
-     * @param string $licence
+     * @param string|null $licence
      *
      * @return $this
      */
@@ -368,7 +372,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Sets licence target url.
      *
-     * @param string $licenceTarget
+     * @param string|null $licenceTarget
      *
      * @return $this
      */
@@ -464,7 +468,7 @@ class TeiHeader implements \JsonSerializable
     /**
      * Sets translated from.
      *
-     * @param string $language
+     * @param string|null $language
      *
      * @return $this
      */
@@ -491,6 +495,8 @@ class TeiHeader implements \JsonSerializable
         if (!empty($codes)) {
             return $codes[0];
         }
+
+        return null;
     }
 
     /**
@@ -552,7 +558,7 @@ class TeiHeader implements \JsonSerializable
     }
 
     /**
-     * Sets creation date.
+     * Sets created date.
      *
      * @param string $dateCreated
      *
@@ -568,7 +574,7 @@ class TeiHeader implements \JsonSerializable
     }
 
     /**
-     * Gets creation date.
+     * Gets created date.
      *
      * @return string|null
      */
@@ -664,6 +670,8 @@ class TeiHeader implements \JsonSerializable
         if (!empty($codes)) {
             return $codes[0];
         }
+
+        return null;
     }
 
     /**
@@ -775,6 +783,8 @@ class TeiHeader implements \JsonSerializable
         if (array_key_exists($type, $this->idno)) {
             return $this->idno[$type];
         }
+
+        return null;
     }
 
     public function setDtaDirName($DTADirName)
@@ -841,6 +851,8 @@ class TeiHeader implements \JsonSerializable
         if (!empty($codes)) {
             return $codes[0];
         }
+
+        return null;
     }
 
     public function jsonSerialize(): mixed

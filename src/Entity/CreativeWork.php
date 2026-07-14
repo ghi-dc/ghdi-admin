@@ -341,87 +341,87 @@ class CreativeWork extends SchemaOrg
     protected $itemType;
 
     /**
-     * @var array the author/contributor/editor of this CreativeWork
+     * @var array|null the author/contributor/editor of this CreativeWork
      */
     protected $creators;
 
     /**
-     * @var string The series of books the book was published in
+     * @var string|null The series of books the book was published in
      */
     protected $series;
 
     /**
-     * @var string The number within the series of books the book was published in
+     * @var string|null The number within the series of books the book was published in
      */
     protected $seriesNumber;
 
     /**
-     * @var string The volume of a journal or multi-volume book
+     * @var string|null The volume of a journal or multi-volume book
      */
     protected $volume;
 
     /**
-     * @var string The number of volumes of a multi-volume book
+     * @var string|null The number of volumes of a multi-volume book
      */
     protected $numberOfVolumes;
 
     /**
-     * @var string The issue of a journal, magazine, or tech-report, if applicable
+     * @var string|null The issue of a journal, magazine, or tech-report, if applicable
      */
     protected $issue;
 
     /**
-     * @var string The edition of a book
+     * @var string|null The edition of a book
      */
     protected $bookEdition;
 
     /**
-     * @var string The place(s) of publication
+     * @var string|null The place(s) of publication
      */
     protected $publicationLocation; /* map to contentLocation in Schema.org */
 
     /**
-     * @var string The publisher's name
+     * @var string|null The publisher's name
      */
     protected $publisher;
 
     /**
-     * @var string date of first broadcast/publication
+     * @var string|null Date of first broadcast/publication
      */
     protected $datePublished;
 
     /**
-     * @var string The Page numbers, separated either by commas or as range by hyphen
+     * @var string|null The Page numbers, separated either by commas or as range by hyphen
      */
     protected $pagination;
 
     /**
-     * @var string The number of pages of the book
+     * @var string|null The number of pages of the book
      */
     protected $numberOfPages;
 
     /**
-     * @var string The doi of the article
+     * @var string|null The doi of the article
      */
     protected $doi;
 
     /**
-     * @var string The isbn of the book
+     * @var string|null The isbn of the book
      */
     protected $isbn;
 
     /**
-     * @var array
+     * @var array|null
      */
     protected $additional;
 
     /**
-     * @var CreativeWork indicates a Bibitem that this Bibitem is (in some sense) part of
+     * @var CreativeWork|null Indicates a Bibitem that this Bibitem is (in some sense) part of
      */
     protected $isPartOf;
 
     /**
-     * @var string the title of the book or journal for bookSection / journalArticle
+     * @var string|null The title of the book or journal for bookSection / journalArticle
      */
     protected $containerName;
 
@@ -469,7 +469,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets creators.
      *
-     * @param array $creators
+     * @param array|null $creators
      *
      * @return $this
      */
@@ -483,7 +483,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Gets creators.
      *
-     * @return array
+     * @return array|null
      */
     public function getCreators()
     {
@@ -493,7 +493,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets series.
      *
-     * @param string $series
+     * @param string|null $series
      *
      * @return $this
      */
@@ -517,7 +517,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets series number.
      *
-     * @param string $seriesNumber
+     * @param string|null $seriesNumber
      *
      * @return $this
      */
@@ -541,7 +541,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets volume.
      *
-     * @param string $volume
+     * @param string|null $volume
      *
      * @return $this
      */
@@ -565,7 +565,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets number of volumes.
      *
-     * @param string $numberOfVolumes
+     * @param string|null $numberOfVolumes
      *
      * @return $this
      */
@@ -589,7 +589,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets issue.
      *
-     * @param string $issue
+     * @param string|null $issue
      *
      * @return $this
      */
@@ -613,7 +613,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets edition of the book.
      *
-     * @param string $bookEdition
+     * @param string|null $bookEdition
      *
      * @return $this
      */
@@ -637,7 +637,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets publication location.
      *
-     * @param string $publicationLocation
+     * @param string|null $publicationLocation
      *
      * @return $this
      */
@@ -661,7 +661,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets publisher.
      *
-     * @param string $publisher
+     * @param string|null $publisher
      *
      * @return $this
      */
@@ -685,7 +685,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets datePublished.
      *
-     * @param string $datePublished
+     * @param string|null $datePublished
      *
      * @return $this
      */
@@ -709,11 +709,13 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets pagination.
      *
+     * @param string|null $pagination
+     *
      * @return $this
      */
-    public function setPagination($pagionation = null)
+    public function setPagination($pagination = null)
     {
-        $this->pagination = $pagionation;
+        $this->pagination = $pagination;
 
         return $this;
     }
@@ -731,7 +733,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets number of pages.
      *
-     * @param string $numberOfPages
+     * @param string|null $numberOfPages
      *
      * @return $this
      */
@@ -755,7 +757,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets the DOI of the publication.
      *
-     * @param string $doi
+     * @param string|null $doi
      *
      * @return $this
      */
@@ -779,7 +781,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets the ISBN of the book.
      *
-     * @param string $isbn
+     * @param string|null $isbn
      *
      * @return $this
      */
@@ -849,7 +851,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Gets isPartOf.
      *
-     * @return CreativeWork
+     * @return CreativeWork|null
      */
     public function getIsPartOf()
     {
@@ -859,11 +861,11 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets container name.
      *
-     * @param string $containerName
+     * @param string|null $containerName
      *
      * @return $this
      */
-    public function setContainerName($containerName)
+    public function setContainerName($containerName = null)
     {
         $this->containerName = $containerName;
         if (isset($this->isPartOf)) {
@@ -890,11 +892,11 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets ISSN.
      *
-     * @param string $issn
+     * @param string|null $issn
      *
      * @return $this
      */
-    public function setIssn($issn)
+    public function setIssn($issn = null)
     {
         if (isset($this->isPartOf) && $this->isPartOf instanceof Periodical) {
             $this->isPartOf->setIssn($issn);
@@ -913,16 +915,18 @@ class CreativeWork extends SchemaOrg
         if (isset($this->isPartOf) && $this->isPartOf instanceof Periodical) {
             return $this->isPartOf->getIssn();
         }
+
+        return null;
     }
 
     /**
      * Sets language.
      *
-     * @param string $language
+     * @param string|null $language
      *
      * @return $this
      */
-    public function setLanguage($language)
+    public function setLanguage($language = null)
     {
         $this->language = $language;
 
@@ -932,7 +936,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Gets language.
      *
-     * @return string
+     * @return string|null
      */
     public function getLanguage()
     {
@@ -942,7 +946,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets dateAccessed.
      *
-     * @param string $dateAccessed
+     * @param string|null $dateAccessed
      *
      * @return $this
      */
@@ -956,7 +960,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Gets dateAccessed.
      *
-     * @return string
+     * @return string|null
      */
     public function getDateAccessed()
     {
@@ -966,11 +970,11 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets slug.
      *
-     * @param string $slug
+     * @param string|null $slug
      *
      * @return $this
      */
-    public function setSlug($slug)
+    public function setSlug($slug = null)
     {
         $this->slug = $slug;
 
@@ -980,7 +984,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Gets slug.
      *
-     * @return string
+     * @return string|null
      */
     public function getSlug($fallback = false)
     {
@@ -990,11 +994,11 @@ class CreativeWork extends SchemaOrg
     /**
      * Sets version.
      *
-     * @param string $version
+     * @param string|null $version
      *
      * @return $this
      */
-    public function setVersion($version)
+    public function setVersion($version = null)
     {
         $this->version = $version;
 
@@ -1004,7 +1008,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Gets version.
      *
-     * @return string
+     * @return string|null
      */
     public function getVersion()
     {
@@ -1014,7 +1018,7 @@ class CreativeWork extends SchemaOrg
     /**
      * Gets cover URL.
      *
-     * @return string
+     * @return string|null
      */
     public function getCoverUrl()
     {
@@ -1200,7 +1204,7 @@ class CreativeWork extends SchemaOrg
      * We transfer to Citeproc JSON
      * see https://github.com/citation-style-language/schema/blob/master/csl-data.json
      */
-    public function jsonSerialize($locale = 'de_DE')
+    public function jsonSerialize($locale = 'de_DE'): mixed
     {
         // see http://aurimasv.github.io/z2csl/typeMap.xml
         static $typeMap = [
@@ -1276,258 +1280,6 @@ class CreativeWork extends SchemaOrg
         // var_dump($data);
 
         return $data;
-    }
-
-    public function jsonLdSerialize($locale, $omitContext = false)
-    {
-        // TODO:
-        // for full property,
-        // see https://www.worldcat.org/title/bauvertragsrecht-kommentar-zu-den-grundzugen-des-gesetzlichen-bauvertragsrechts-631-651-bgb-unter-besonderer-berucksichtigung-der-rechtsprechung-des-bundesgerichtshofs/oclc/920898066#microdatabox
-        // and http://experiment.worldcat.org/entity/work/data/1348531819
-        $type = 'CreativeWork';
-
-        switch ($this->itemType) {
-            case 'book':
-                $type = 'Book';
-                break;
-
-            case 'journalArticle':
-                $type = 'ScholarlyArticle';
-                break;
-
-            case 'bookSection':
-            case 'encyclopediaArticle':
-                $type = 'Chapter'; // see https://bib.schema.org/Chapter
-                break;
-
-            case 'newspaperArticle':
-                $type = 'NewsArticle';
-                break;
-
-            case 'audioRecording':
-                $type = 'AudioObject';
-                break;
-
-            case 'webpage':
-                $type = 'WebPage';
-                break;
-
-            case 'letter':
-            case 'document':
-            case 'report':
-            case 'interview':
-            case 'presentation':
-                $type = 'CreativeWork';
-                break;
-
-                // just for building isPartOf
-            case 'issue':
-                $type = 'PublicationIssue';
-                break;
-            case 'journal':
-                $type = 'Periodical';
-                break;
-        }
-
-        $ret = [
-            '@context' => 'http://schema.org',
-            '@type' => $type,
-        ];
-
-        if ('PublicationIssue' == $type) {
-            // issues on't have a name, but might have an issue-number
-            if (!empty($this->volume)) {
-                $ret['issueNumber'] = $this->volume;
-            }
-
-            $parent = clone $this;
-            $parent->setItemType('journal');
-            $ret['isPartOf'] = $parent->jsonLdSerialize($parent);
-        }
-        else {
-            $ret['name'] = $this->getName();
-        }
-
-        if ($omitContext) {
-            unset($ret['@context']);
-        }
-
-        if (!empty($this->creators)) {
-            $target = [];
-            foreach ($this->creators as $creator) {
-                if (array_key_exists('creatorType', $creator) && in_array($creator['creatorType'], ['author', 'editor', 'translator'])) {
-                    if ('author' == $creator['creatorType']
-                        && in_array($type, ['PublicationIssue', 'Periodical'])) {
-                        continue;
-                    }
-                    else if ('editor' == $creator['creatorType'] && in_array($type, ['Chapter'])) {
-                        continue;
-                    }
-
-                    if (!empty($creator['firstName'])) {
-                        // we have a person
-                        $person = new Person();
-                        if (!empty($creator['firstName'])) {
-                            $person->setGivenName($creator['firstName']);
-                        }
-
-                        if (!empty($creator['lastName'])) {
-                            $person->setFamilyName($creator['lastName']);
-                        }
-
-                        if (!array_key_exists($creator['creatorType'], $target)) {
-                            $target[$creator['creatorType']] = [];
-                        }
-
-                        $target[$creator['creatorType']][] = $person->jsonLdSerialize($locale, true);
-                    }
-                }
-            }
-
-            foreach ($target as $key => $values) {
-                $numValues = count($values);
-                if (1 == $numValues) {
-                    $ret[$key] = $values[0];
-                }
-                else if ($numValues > 1) {
-                    $ret[$key] = $values;
-                }
-            }
-        }
-
-        if (in_array($type, ['Book', 'ScholarlyArticle', 'WebPage'])) {
-            foreach (['url'] as $property) {
-                if (!empty($this->$property)) {
-                    $ret[$property] = $this->$property;
-                }
-            }
-
-            if (!empty($this->doi)) {
-                $ret['sameAs'] = 'http://dx.doi.org/' . $this->doi;
-            }
-        }
-
-        if (in_array($type, ['Book'])) {
-            $isbns = $this->getIsbnListNormalized(false);
-            $numIsbns = count($isbns);
-
-            if (1 == $numIsbns) {
-                $ret['isbn'] = $isbns[0];
-            }
-            else if ($numIsbns > 1) {
-                $ret['isbn'] = $isbns;
-            }
-
-            if (!empty($this->numberOfPages) && preg_match('/^\d+$/', $this->numberOfPages)) {
-                $ret['numberOfPages'] = (int) $this->numberOfPages;
-            }
-        }
-        else if (in_array($type, ['ScholarlyArticle', 'Chapter'])) {
-            foreach (['pagination'] as $property) {
-                if (!empty($this->$property)) {
-                    $ret[$property] = $this->$property;
-                }
-            }
-
-            if (!empty($this->containerName)) {
-                $parentItemType = null;
-                switch ($type) {
-                    case 'ScholarlyArticle':
-                        $parentItemType = 'issue';
-                        break;
-
-                    case 'Chapter':
-                        $parentItemType = 'book';
-                        break;
-                }
-
-                if (!is_null($parentItemType)) {
-                    $parent = clone $this;
-                    $parent->setItemType($parentItemType);
-                    $parent->setName($this->containerName);
-                    if ('Chapter' == $type && !empty($this->creators)) {
-                        $creatorsParent = [];
-                        foreach ($this->creators as $creator) {
-                            if (!in_array($creator['creatorType'], ['author', 'translator'])) {
-                                $creatorsParent[] = $creator;
-                            }
-                        }
-                        $parent->setCreators($creatorsParent);
-                    }
-                    $ret['isPartOf'] = $parent->jsonLdSerialize($locale, true);
-                }
-            }
-        }
-
-        if (in_array($type, ['Periodical', 'Book'])) {
-            foreach (['issn'] as $property) {
-                if (!empty($this->$property)) {
-                    $ret[$property] = $this->$property;
-                }
-            }
-
-            if (!empty($this->publisher)) {
-                $publisher = new Organization();
-                $publisher->setName($this->publisher);
-                $ret['publisher'] = $publisher->jsonLdSerialize($locale, true);
-                if (!empty($this->publicationLocation)) {
-                    $location = new Place();
-                    $location->setName($this->publicationLocation);
-                    $ret['publisher']['location'] = $location->jsonLdSerialize($locale, true);
-                }
-            }
-        }
-
-        if (!is_null($this->datePublished)
-            && !in_array($type, ['ScholarlyArticle', 'Chapter', 'Periodical'])) {
-            $ret['datePublished'] = \App\Utils\JsonLd::formatDate8601($this->datePublished);
-        }
-
-        return $ret;
-    }
-
-    public function ogSerialize($locale, $baseUrl)
-    {
-        $type = null;
-
-        switch ($this->itemType) {
-            case 'book':
-                $isbns = $this->getIsbnListNormalized(false);
-                $type = 'books.book';
-                break;
-        }
-
-        if (is_null($type)) {
-            return;
-        }
-
-        $ret = [
-            'og:type' => $type,
-            'og:title' => $this->getName(),
-        ];
-
-        $isbns = $this->getIsbnListNormalized(false);
-        if (empty($isbns)) {
-            // 'books:isbn' is required
-            return;
-        }
-
-        $ret['books:isbn'] = $isbns[0];
-
-        return $ret;
-    }
-
-    public function twitterSerialize($locale, $baseUrl, $params = [])
-    {
-        $ret = [];
-
-        $citation = $this->renderCitationAsHtml($params['citeProc'], $locale, true);
-        if (preg_match('/(.*<span class="citeproc\-title">.*?<\/span>)(.*)/', $citation, $matches)) {
-            $ret['twitter:title'] = rtrim(html_entity_decode(strip_tags($matches[1])));
-            $ret['twitter:description'] = rtrim(html_entity_decode(strip_tags($matches[2])));
-        }
-
-        return $ret;
     }
 
     public function teiSerialize()

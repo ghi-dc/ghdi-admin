@@ -25,7 +25,6 @@ class TeiFull extends TeiHeader
 
     /**
      * @var string the Volume id for facetting
-
      */
     #[Solr\Field(type: 'string')]
     private $volumeId;

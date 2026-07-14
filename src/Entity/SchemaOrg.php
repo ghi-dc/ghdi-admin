@@ -55,7 +55,7 @@ abstract class SchemaOrg
     protected $name = ['_' => null];
 
     /**
-     * @var array
+     * @var array|null
      */
     #[Serializer\Type('array<string,string>')]
     #[Serializer\XmlMap(inline: true, keyAttribute: 'lang', entry: 'disambiguatingDescription')]
@@ -138,11 +138,11 @@ abstract class SchemaOrg
     /**
      * Sets url.
      *
-     * @param string $url
+     * @param string|null $url
      *
      * @return $this
      */
-    public function setUrl($url)
+    public function setUrl($url = null)
     {
         $this->url = $url;
 
@@ -152,7 +152,7 @@ abstract class SchemaOrg
     /**
      * Gets url.
      *
-     * @return string
+     * @return string|null
      */
     public function getUrl()
     {
@@ -162,11 +162,11 @@ abstract class SchemaOrg
     /**
      * Sets gnd.
      *
-     * @param string $gnd
+     * @param string|null $gnd
      *
      * @return $this
      */
-    public function setGnd($gnd)
+    public function setGnd($gnd = null)
     {
         return $this->setIdentifier('gnd', $gnd);
     }
@@ -184,15 +184,13 @@ abstract class SchemaOrg
     /**
      * Sets lcauth.
      *
-     * @param string $lcauth
+     * @param string|null $lcauth
      *
      * @return $this
      */
-    public function setLcauth($lcauth)
+    public function setLcauth($lcauth = null)
     {
         return $this->setIdentifier('lcauth', $lcauth);
-
-        return $this;
     }
 
     /**
@@ -208,15 +206,13 @@ abstract class SchemaOrg
     /**
      * Sets viaf.
      *
-     * @param string $viaf
+     * @param string|null $viaf
      *
      * @return $this
      */
-    public function setViaf($viaf)
+    public function setViaf($viaf = null)
     {
         return $this->setIdentifier('viaf', $viaf);
-
-        return $this;
     }
 
     /**
@@ -232,11 +228,11 @@ abstract class SchemaOrg
     /**
      * Sets wikidata.
      *
-     * @param string $wikidata
+     * @param string|null $wikidata
      *
      * @return $this
      */
-    public function setWikidata($wikidata)
+    public function setWikidata($wikidata = null)
     {
         return $this->setIdentifier('wikidata', $wikidata);
     }
@@ -254,8 +250,8 @@ abstract class SchemaOrg
     /**
      * Sets identifier.
      *
-     * @param string $name
-     * @param string $value
+     * @param string      $name
+     * @param string|null $value
      *
      * @return $this
      */
@@ -484,7 +480,7 @@ abstract class SchemaOrg
     /**
      * Gets createdAt.
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getCreatedAt()
     {
@@ -514,7 +510,7 @@ abstract class SchemaOrg
     /**
      * Gets changedAt.
      *
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getChangedAt()
     {
