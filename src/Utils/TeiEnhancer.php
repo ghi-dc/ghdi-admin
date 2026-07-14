@@ -73,10 +73,12 @@ class TeiEnhancer
 
                         if (($start = $matches[1][1]) > 0) {
                             // there is some text before the match
+                            // @phpstan-ignore variable.undefined (we set $doc on first iteration when $fragment is null)
                             $before = $doc->createTextNode(substr($rest, 0, $start));
                             $fragment->appendChild($before);
                         }
 
+                        // @phpstan-ignore variable.undefined (we set $doc on first iteration when $fragment is null)
                         $element = $doc->createElement($entities[$matchPosition]['tagName'], $matches[1][0]);
                         $element->setAttribute('ref', $entities[$matchPosition]['ref']);
                         $fragment->appendChild($element);
@@ -90,6 +92,7 @@ class TeiEnhancer
 
                         if (strlen($rest) > 0) {
                             // some text is left after the last match; add as textnode
+                            // @phpstan-ignore variable.undefined (we set $doc on first iteration when $fragment is null)
                             $fragment->appendChild($doc->createTextNode($rest));
                         }
 
@@ -232,7 +235,7 @@ class TeiEnhancer
             $query = $parentElementQuery . '//*[self::tei:persName or self::tei:orgName or self::tei:placeName]';
 
             $fluidXml->query($query)
-                ->each(function ($i, $domnode) use (&$result, $callback) {
+                ->each(function ($i, $domnode) use (/* &$result, */ $callback) {
                     switch ($domnode->tagName) {
                         case 'persName':
                             $type = 'person';
