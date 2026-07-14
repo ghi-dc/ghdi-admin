@@ -8,27 +8,16 @@
 
 namespace App\Twig;
 
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AppExtension extends \Twig\Extension\AbstractExtension
 {
-    private $kernel;
     private $translator;
-    private $slugifyer;
 
     public function __construct(
-        ?KernelInterface $kernel = null,
         ?TranslatorInterface $translator = null,
-        $slugifyer = null
     ) {
-        $this->kernel = $kernel;
         $this->translator = $translator;
-        $this->slugifyer = $slugifyer;
-        if (!is_null($slugifyer)) {
-            // this should be set in bundlesetup
-            $slugifyer->addRule('Ṿ', 'V');
-        }
     }
 
     public function getFunctions(): array
