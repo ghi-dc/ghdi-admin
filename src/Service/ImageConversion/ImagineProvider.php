@@ -176,11 +176,14 @@ class ImagineProvider
             }
         }
 
+        /*
+        // currently, the following can't be set via options, but could be added in the future if needed
         if ((isset($save_options['resolution-x'])
              || isset($save_options['resolution-y']))
              && !isset($save_options['resolution-units'])) {
             $save_options['resolution-units'] = \Imagine\Image\ImageInterface::RESOLUTION_PIXELSPERINCH;
         }
+        */
 
         $image->save($fname_dst, $save_options);
 

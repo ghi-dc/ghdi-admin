@@ -11,7 +11,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 class TermSelectType extends AbstractType
 {
-    private $router;
+    private $router; // for autocomplete url, currently not implemented
 
     public function __construct(RouterInterface $router)
     {

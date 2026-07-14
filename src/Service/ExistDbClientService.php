@@ -22,8 +22,8 @@ class ExistDbClientService
     /**
      * Instantiate a client.
      *
-     * @param string|null user
-     * @param string|null password
+     * @param string|null $user
+     * @param string|null $password
      */
     public function getClient($user = null, $password = null): \ExistDbRpc\Client
     {

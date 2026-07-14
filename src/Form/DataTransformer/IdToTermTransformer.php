@@ -32,9 +32,11 @@ class IdToTermTransformer implements DataTransformerInterface
         $term = new \App\Entity\Term();
         $term->setId($value);
 
+        /*
         if (!$term) {
             throw new TransformationFailedException(sprintf('No term found with id "%s"', $value));
         }
+        */
 
         return $term;
     }
