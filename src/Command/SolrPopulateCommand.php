@@ -4,6 +4,7 @@
 
 namespace App\Command;
 
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,6 +33,7 @@ class SolrPopulateCommand extends ExistDbCommand
         ParameterBagInterface $params,
         KernelInterface $kernel,
         \App\Service\ExistDbClientService $existDbClientService,
+        #[Target('admin.client')]
         HttpClientInterface $adminClient,
         \FS\SolrBundle\SolrInterface $solr,
         \App\Service\ImageConversion\ConversionService $conversionService,

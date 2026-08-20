@@ -4,6 +4,7 @@
 
 namespace App\Command;
 
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,6 +30,7 @@ class ZoteroFetchCollectionCommand extends BaseCommand
         ParameterBagInterface $params,
         KernelInterface $kernel,
         \App\Service\ZoteroApiService $zoteroApiService,
+        #[Target('admin.client')]
         HttpClientInterface $adminClient
     ) {
         // you *must* call the parent constructor

@@ -4,6 +4,7 @@
 
 namespace App\Command;
 
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,6 +25,7 @@ class ScalarCommand extends Command
 
     public function __construct(
         KernelInterface $kernel,
+        #[Target('admin.client')]
         \Symfony\Contracts\HttpClient\HttpClientInterface $adminClient,
         \App\Utils\AnvcScalarClient $scalarClient,
         \App\Service\ImageConversion\ConversionService $conversionService
