@@ -103,7 +103,7 @@ class CollectiveAccessService
     public function getCollections()
     {
         $filter = !empty($this->options['root-collection'])
-            ? sprintf('idno_sort:"%s"', // was ca_collections:
+            ? sprintf('ca_collections.idno:%s', // was ca_collections:
                 $this->options['root-collection'])
             : '*';
 

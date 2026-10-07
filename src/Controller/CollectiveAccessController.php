@@ -83,7 +83,7 @@ class CollectiveAccessController extends BaseController
             ))) {
             $locale = $request->getLocale();
 
-            $condition = sprintf('ca_collections:"%s"', $collection);
+            $condition = sprintf('ca_collections.idno:"%s"', $collection);
             $caSearchService = $caService->getSearchService($condition);
             if (array_key_exists($locale, self::$LOCALE_MAP)) {
                 $caSearchService->setLang(self::$LOCALE_MAP[$locale]);
@@ -236,6 +236,29 @@ class CollectiveAccessController extends BaseController
         }, $markup);
 
         return $autolinker->convert($markup);
+    }
+
+    protected function extractBundlesValue(&$data, $key)
+    {
+        if (!empty($data[$key])) {
+            $value = is_array($data[$key]) && array_is_list($data[$key])
+                ? $data[$key][0] : $data[$key];
+
+            $keyParts = explode('.', $key);
+            $lastKeyPart = end($keyParts);
+
+            if (is_array($value) && array_key_exists($lastKeyPart, $value)) {
+                $value = $value[$lastKeyPart];
+            }
+
+            if (is_string($value) && '' === $value) {
+                return null;
+            }
+
+            return $value;
+        }
+
+        return null;
     }
 
     protected function buildTeiValue($raw, $omitPara = false, $autolink = false)
@@ -656,7 +679,7 @@ class CollectiveAccessController extends BaseController
     {
         $caItemService = $caService->getItemService($representation['representation_id'], 'ca_object_representations');
 
-        // get specific properties as by https://docs.collectiveaccess.org/wiki/Label_Bundles
+        // get specific properties as by https://docs.collectiveaccess.org/providence/developer/APIs/web_service#building-advanced-requests
         $caItemService->setRequestBody([
             'bundles' => [
                 'ca_object_representations.representation_id' => [],
@@ -676,7 +699,10 @@ class CollectiveAccessController extends BaseController
         $data = $result->getRawData();
 
         if (!empty($data['ca_object_representations.description'])) {
-            $ret['caption'] = $this->htmlFragmentToTei($data['ca_object_representations.description']);
+            $caption = $this->extractBundlesValue($data, 'ca_object_representations.description');
+            if (!is_null($caption)) {
+                $ret['caption'] = $this->htmlFragmentToTei($caption);
+            }
         }
 
         if (!empty($data['ca_object_representations.external_link'])) {
@@ -787,7 +813,7 @@ class CollectiveAccessController extends BaseController
         // TODO: add some caching
         $caItemService = $caService->getItemService($entity['entity_id'], 'ca_entities');
 
-        // get specific properties as by https://docs.collectiveaccess.org/wiki/Label_Bundles
+        // get specific properties as by https://docs.collectiveaccess.org/providence/developer/APIs/web_service#building-advanced-requests
         $caItemService->setRequestBody([
             'bundles' => [
                 'ca_entities.preferred_labels.displayname' => [],
@@ -812,12 +838,14 @@ class CollectiveAccessController extends BaseController
         $familyNameParts = [];
         foreach (['prefix', 'forename', 'other_forname', 'middlename', 'surname', 'suffix'] as $lookup) {
             $key = 'ca_entities.preferred_labels.' . $lookup;
-            if (!empty($data[$key])) {
+            $value = $this->extractBundlesValue($data, $key);
+
+            if (!is_null($value)) {
                 if (in_array($lookup, ['surname', 'suffix'])) {
-                    $familyNameParts[] = $data[$key];
+                    $familyNameParts[] = $value;
                 }
                 else {
-                    $givenNameParts[] = $data[$key];
+                    $givenNameParts[] = $value;
                 }
             }
         }
@@ -831,9 +859,8 @@ class CollectiveAccessController extends BaseController
         }
         else {
             // unstructured
-            $person->setName(array_key_exists('ca_entities.preferred_labels.displayname', $data)
-                             ? $data['ca_entities.preferred_labels.displayname']
-                             : $entity['displayname']);
+            $value = $this->extractBundlesValue($data, 'ca_entities.preferred_labels.displayname');
+            $person->setName($value ?? $entity['displayname']);
         }
 
         return $person;
@@ -847,7 +874,7 @@ class CollectiveAccessController extends BaseController
         // TODO: add some caching
         $caItemService = $caService->getItemService($entity['item_id'], 'ca_list_items');
 
-        // get specific properties as by https://docs.collectiveaccess.org/wiki/Label_Bundles
+        // get specific properties as by https://docs.collectiveaccess.org/providence/developer/APIs/web_service#building-advanced-requests
         $caItemService->setRequestBody([
             'bundles' => [
                 'ca_list_items.item_id' => [],
@@ -873,9 +900,11 @@ class CollectiveAccessController extends BaseController
         $label = null;
         foreach (['name_plural', 'name_singular'] as $lookup) {
             $key = 'ca_list_items.preferred_labels.' . $lookup;
-            if (!empty($data[$key])) {
-                // call decodeHtmlEntity to handle $data[$key] like 'Pogrom Night &lt;1938&gt;'
-                $value = $this->decodeHtmlEntity($data[$key]);
+            $value = $this->extractBundlesValue($data, $key);
+
+            if (!is_null($value)) {
+                // call decodeHtmlEntity to handle $value like 'Pogrom Night &lt;1938&gt;'
+                $value = $this->decodeHtmlEntity($value);
 
                 $choice = array_search($value, $this->getTermChoicesByUri($locale));
                 if (false !== $choice) {

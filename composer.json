@@ -126,7 +126,7 @@
 
         "cocur/slugify": "^4.7",
 
-        "trisoftro/collective-access-client": "dev-master#f19e54a",
+        "trisoftro/collective-access-client": "dev-master#11b5d53",
         "ezyang/htmlpurifier": "^4.19",
         "asika/autolink": "^1.1",
         "voku/html-min": "^5.0",

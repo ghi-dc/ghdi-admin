@@ -15,6 +15,15 @@ Adjust Settings
 - cp config/parameters.yaml-dist config/parameters.yaml
 - vi config/parameters.yaml
 
+Install Dependencies
+
+- composer install
+
+Note: In composer.json:
+
+- CollectiveAccess 1.7 needs "trisoftro/collective-access-client": "dev-master#f19e54a"
+- CollectiveAccess 2.0 needs "trisoftro/collective-access-client": "dev-master#11b5d53" (update-endpoints)
+
 Directory Permissions for cache and logs
 
 - sudo setfacl -R -m u:www-data:rwX ./var
