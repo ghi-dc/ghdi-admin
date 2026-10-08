@@ -30,7 +30,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/tomas-kulhanek/fxmlrpc"
+            "url": "https://github.com/lstrojny/fxmlrpc"
         },
         {
             "type": "vcs",
@@ -122,7 +122,7 @@
         "ml/json-ld": "^1.2",
 
         "ghi-dc/exist-db-rpc-client": "dev-psr17",
-        "lstrojny/fxmlrpc": "dev-master#39bb764944caf3bce9d7110a5ac924e43fe4173f",
+        "lstrojny/fxmlrpc": "dev-master#e90f9818dfe074a6ea49aee302d9911645f18d3c",
 
         "cocur/slugify": "^4.7",
 
