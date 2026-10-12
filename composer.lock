@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3f4db8a07dde4e861c624ebebff4e4d3",
+    "content-hash": "6d464069dc549a151166175ea55390a0",
     "packages": [
         {
             "name": "armin/scssphp-bundle",
@@ -1260,7 +1260,7 @@
         },
         {
             "name": "fluentdom/fluentdom",
-            "version": "dev-master",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/burki/FluentDOM.git",
@@ -1288,7 +1288,6 @@
                 "ext-xmlwriter": "XMLWriter, Write large XMLs",
                 "fluentdom/css-selector": "Allows to use css selectors."
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -12139,7 +12138,7 @@
     "aliases": [
         {
             "package": "fluentdom/fluentdom",
-            "version": "9999999-dev",
+            "version": "dev-main",
             "alias": "8.0",
             "alias_normalized": "8.0.0.0"
         }
