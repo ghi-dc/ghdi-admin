@@ -173,7 +173,10 @@ class VolumeController extends ResourceController
             )),
         ];
 
-        $writer->addRow(\OpenSpout\Common\Entity\Row::fromValues($row, $style));
+        $styledRow = null !== $style
+            ? \OpenSpout\Common\Entity\Row::fromValuesWithStyle($row, $style)
+            : \OpenSpout\Common\Entity\Row::fromValues($row);
+        $writer->addRow($styledRow);
     }
 
     #[Route(path: '/volume/{id}.dc.xml', name: 'volume-detail-dc', requirements: ['id' => 'volume\-\d+'])]
@@ -395,19 +398,19 @@ class VolumeController extends ResourceController
 
             // Create styles
             $titleStyle = (new Style())
-                       ->setFontBold()
-                       ->setFontSize(20)
+                       ->withFontBold(true)
+                       ->withFontSize(20)
                        // ->setShouldWrapText()
             ;
 
             $sectionStyle = (new Style())
-                       ->setFontBold()
-                       ->setFontSize(18)
+                       ->withFontBold(true)
+                       ->withFontSize(18)
                        // ->setShouldWrapText()
             ;
 
             $chapterStyle = (new Style())
-                       ->setFontBold()
+                       ->withFontBold(true)
                        // ->setShouldWrapText()
             ;
 
@@ -415,7 +418,7 @@ class VolumeController extends ResourceController
             $writer->openToBrowser($fileName);
 
             // Create a row with cells and apply the style to all cells
-            $row = \OpenSpout\Common\Entity\Row::fromValues([$volume['data']['name']], $titleStyle);
+            $row = \OpenSpout\Common\Entity\Row::fromValuesWithStyle([$volume['data']['name']], $titleStyle);
             $writer->addRow($row);
 
             foreach ($resourcesGrouped as $key => $section) {

@@ -135,7 +135,7 @@
         "textrazor/textrazor-php": "*@dev",
 
         "nategood/httpful": "^1.0",
-        "openspout/openspout": "^4.32",
+        "openspout/openspout": "^5.12",
         "phpoffice/phpword": "^0.18",
 
         "symfony/polyfill-intl-normalizer": "^1.43",
